@@ -4,11 +4,11 @@
 {%- if COVERAGE == true %}
     # If coverage stats are requested, all Intel runs must use the same build in order for the
     # profiling stats to be generated and aggregated correctly
-    {%- set debug_build   = "remote_init_nci => fcm_make_nci_intel_coverage" %}
-    {%- set opt_build   = "remote_init_nci => fcm_make_nci_intel_coverage" %}
+    {%- set debug_build   = "remote_init_nci => extract_source => fcm_make_nci_intel_coverage" %}
+    {%- set opt_build   = "remote_init_nci => extract_source => fcm_make_nci_intel_coverage" %}
 {%- else %}
-    {%- set debug_build   = "remote_init_nci => fcm_make_nci_intel_debug" %}
-    {%- set opt_build   = "remote_init_nci => fcm_make_nci_intel_omp" %}
+    {%- set debug_build   = "remote_init_nci => extract_source => fcm_make_nci_intel_debug" %}
+    {%- set opt_build   = "remote_init_nci => extract_source => fcm_make_nci_intel_omp" %}
 {%- endif %}
 
 {%- set name_graphs_intel = {
@@ -265,15 +265,15 @@
 %}
 
 {%- set name_graphs_intel_no_coverage = {
-        "nci_intel_gswp2_rivers_rivers-only" : "remote_init_nci => fcm_make_nci_intel_omp => nci_intel_gswp2_rivers => \
+        "nci_intel_gswp2_rivers_rivers-only" : "remote_init_nci => extract_source => fcm_make_nci_intel_omp => nci_intel_gswp2_rivers => \
                                         nccmp_nci_intel_gswp2_rivers & nci_intel_gswp2_rivers_rivers-only
-                                        remote_init_nci => fcm_make_nci_intel_omp_rivers-only => \
+                                        remote_init_nci => extract_source => fcm_make_nci_intel_omp_rivers-only => \
                                         nci_intel_gswp2_rivers_rivers-only => nccmp_nci_intel_gswp2_rivers_rivers-only => \
                                         housekeep_nci_intel_gswp2_rivers_rivers-only & housekeep_nci_intel_gswp2_rivers",
 
-        "nci_intel_gswp2_trip_rivers-only" : "remote_init_nci => fcm_make_nci_intel_omp => nci_intel_gswp2_trip => \
+        "nci_intel_gswp2_trip_rivers-only" : "remote_init_nci => extract_source => fcm_make_nci_intel_omp => nci_intel_gswp2_trip => \
                                         nccmp_nci_intel_gswp2_trip & nci_intel_gswp2_trip_rivers-only
-                                        remote_init_nci => fcm_make_nci_intel_omp_rivers-only  => \
+                                        remote_init_nci => extract_source => fcm_make_nci_intel_omp_rivers-only  => \
                                         nci_intel_gswp2_trip_rivers-only => nccmp_nci_intel_gswp2_trip_rivers-only => \
                                         housekeep_nci_intel_gswp2_trip_rivers-only & housekeep_nci_intel_gswp2_trip",
     }

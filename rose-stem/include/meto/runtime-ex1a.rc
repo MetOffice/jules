@@ -16,8 +16,13 @@
     [[remote_init_ex1a]]
         inherit = METO_EX1A
         script = true
-        [[[job]]]
-            execution time limit = PT2M
+        execution time limit = PT2M
+
+    [[extract_source_ex1a]]
+        inherit = SOURCE_SYNC
+        platform = {{ROSE_ORIG_HOST}}
+        [[[environment]]]
+            host = {{METO_HOST_EX}}
 
 {#
   Cray compiler using a blended CPE 23.05 and CCE 15.0.0 approach.

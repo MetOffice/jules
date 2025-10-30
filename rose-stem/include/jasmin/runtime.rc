@@ -54,6 +54,9 @@
         [[[job]]]
             execution time limit = PT2M
 
+    [[extract_source]]
+        inherit = SOURCE_EXTRACTION, JASMIN_LOTUS
+
     [[JASMIN_FCM_MAKE]]
         inherit = None, JASMIN_LOTUS, EXTRACT
         [[[environment]]]

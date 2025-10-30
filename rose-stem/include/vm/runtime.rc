@@ -13,6 +13,9 @@
         [[[job]]]
             execution time limit = PT2M
 
+    [[extract_source]]
+        inherit = SOURCE_EXTRACTION, VM_BUILD
+
     [[fcm_make_debug]]
         inherit = VM_BUILD
         [[[environment]]]

@@ -4,9 +4,9 @@
 
 
 {%- set name_graphs = {
-        "umdp3_check" : "umdp3_checker",
-        "metadata_check" : "metadata_checker",
-        "site_validator" : "site_validator",
+        "umdp3_check" : "extract_source => umdp3_checker",
+        "metadata_check" : "extract_source => metadata_checker",
+        "site_validator" : "extract_source => site_validator",
 } %}
 {%- do name_graphs.update(name_graphs_intel.items()) %}
 {%- do name_graphs.update(name_graphs_gfortran.items()) %}
