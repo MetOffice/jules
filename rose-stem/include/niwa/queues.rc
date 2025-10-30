@@ -1,0 +1,13 @@
+    [[queues]]
+        [[[xc50_run]]]
+            limit = 5
+            members = NIWA_XC50_LOOBOS, NIWA_XC50_GSWP2, NIWA_XC50_ERAINT, NIWA_XC50_IMOGEN
+        [[[cs500_run]]]
+            limit = 5
+            members = NIWA_CS500_LOOBOS, NIWA_CS500_GSWP2, NIWA_CS500_ERAINT, NIWA_CS500_IMOGEN
+        [[[xc50_build]]]
+            limit = 1
+            members = NIWA_XC50_BUILD
+        [[[cs500_build]]]
+            limit = 1
+            members = NIWA_CS500_BUILD

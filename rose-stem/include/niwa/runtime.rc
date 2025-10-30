@@ -1,0 +1,3 @@
+# Include XC50 and CS500 definitions
+%include 'include/niwa/runtime-cs500.rc'
+%include 'include/niwa/runtime-xc50.rc'

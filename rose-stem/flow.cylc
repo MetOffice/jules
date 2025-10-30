@@ -1,0 +1,99 @@
+#!jinja2
+{% set KILL = False %}
+
+{% if CYLC_VERSION is defined %}
+{% set detected_cylc = CYLC_VERSION.split(".")[0] %}
+{% else %}
+{% set detected_cylc = "0" %}
+{% endif %}
+{% if detected_cylc|int >= 8 %}
+{% from "cylc.flow" import LOG %}
+{% else %}
+{% from "cylc" import LOG %}
+{% endif %}
+
+{% if REMOTE_JASMIN == false %}
+     {% if SITE == '' %}
+        {% set KILL = True %}
+     {% endif %}
+{% endif %}
+
+{% if KILL %}
+    {{ "Error: No SITE in the rose.conf or not running REMOTE_JASMIN" / 0 }}
+{% endif %}
+
+{# Create empty dictionary to store site variables #}
+{% set SITE_VARS = {} %}
+
+
+{#- Import variable definitions #}
+%include 'include/variables.rc'
+
+{#- Import any Cylc task parameters #}
+%include 'include/parameters.rc'
+
+[scheduler]
+UTC mode = True
+install = include/
+[[events]]
+    stall timeout = {{ SUITE_TIMEOUT }}
+    abort on stall timeout = True
+    shutdown handlers = "suite_report.py"
+    stall handlers = "suite_report.py"
+
+{#- Import the dependency graphs for the available jobs and groups #}
+%include 'include/graph.rc'
+
+[scheduling]
+{#- Import any queues #}
+%include 'include/queues.rc'
+
+    [[dependencies]]
+        graph = """
+{# Hardcode export of Simsys_Scripts to always run #}
+export_simsys_scripts
+{#- Recursively add dependencies from RUN_NAMES, replacing groups with subgroups/tasks #}
+{%- set name_graphs_out = [] %}
+{%- set graphs_out = [] %}
+{%- for name in RUN_NAMES %}
+    {%- set namestack = [name] %}
+    {%- for stackname in namestack recursive %}
+        {%- if stackname in name_graphs %}
+            {%- if name_graphs_out.append(stackname) %}
+            {%- endif %}
+            {%- set outgraph = name_graphs[stackname] %}
+            {%- if outgraph not in graphs_out %}
+            {#- Add new dependency. #}
+{{ outgraph }}
+                {%- if graphs_out.append(outgraph) %}
+                {%- endif %}
+            {%- endif %}
+        {%- elif stackname in groups %}
+        {#- Add the group contents to the stack. #}
+{{ loop(groups[stackname]) }}
+        {%- endif %}
+    {%- endfor %}
+{%- endfor %}
+     """
+
+[runtime]
+    [[root]]
+        init-script = """
+export CYLC_VERSION={{CYLC_VERSION}}
+export ROSE_VERSION={{ROSE_VERSION}}
+export FCM_VERSION={{FCM_VERSION}}
+"""
+        script = "rose task-run --verbose"
+        [[[events]]]
+            mail events = retry, submission failed, submission timeout, execution timeout
+            submission timeout = PT12H
+            execution timeout  =  PT3H
+        [[[environment]]]
+            {% if REMOTE_JASMIN == false %}
+                ROSE_ORIG_HOST = {{ ROSE_ORIG_HOST }}
+            {% endif %}
+
+
+{#- Import family and job definitions #}
+%include 'include/runtime.rc'
+%include 'runtime-common.rc'

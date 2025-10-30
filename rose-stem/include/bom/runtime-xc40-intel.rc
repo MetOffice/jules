@@ -1,0 +1,89 @@
+###############################################################################
+## Build jobs
+###############################################################################
+
+{% set USER = environ["USER"] %}
+{% set REALM = USER.split('_')[1]|default(None) %}
+
+{% if REALM is none %}
+  {% set MY_BUILD_QUEUE = "build" %}
+  {% set MY_QUEUE = "normal" %}
+  {% set MY_DM_QUEUE = "dm" %}
+{% else %}
+  {% set MY_BUILD_QUEUE = REALM~"_build" %}
+  {% set MY_QUEUE = REALM %}
+  {% set MY_DM_QUEUE = REALM~"_dm" %}
+{% endif %}
+
+{% if REALM is none or 'jenkins' in USER %}
+  {% set REMOTE = False %}
+{% else %}
+  {% set REMOTE = True %}
+{% endif %}
+
+
+    [[BOM_LINUX]]
+        [[[job]]]
+            batch system = background
+        [[[remote]]]
+            host =
+
+    [[BOM_XC40]]
+        [[[job]]]
+            batch system = pbs
+        [[[remote]]]
+{% if REMOTE %}
+            host = $( rose config rose-host-select group{hpc} | head -n 1 )
+{% else %}
+            host =
+{% endif %}
+        [[[directives]]]
+            -P = {{ environ['PROJECT']|default('pr_nwp') }}
+            -W umask = 0022
+
+
+    [[remote_init_xc40]]
+        inherit = BOM_XC40
+        script = true
+
+    [[BOM_XC40_INTEL_BUILD]]
+        inherit = BOM_XC40
+        pre-script = """
+module unload PrgEnv-cray PrgEnv-gnu
+module load PrgEnv-intel
+module swap intel intel/17.0.7.259
+module load cray-mpich/7.7.0
+module load cray-netcdf-hdf5parallel/4.4.1.1.6
+module load cray-hdf5-parallel/1.10.1.1
+module load craype-haswell
+"""
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 4
+        [[[directives]]]
+            -l select=1:ncpus=4:mem=2G
+            -q = {{ MY_BUILD_QUEUE }}
+            -l walltime = 00:30:00
+
+    [[BOM_XC40_INTEL_OPT]]
+        [[[environment]]]
+            JULES_PLATFORM = bom-xc40-intel
+            JULES_BUILD = normal
+            JULES_OMP = omp
+
+{% if REMOTE %}
+#   Extract on Linux
+    [[fcm_make_bom_xc40_intel_opt]]
+        inherit = BOM_LINUX, BOM_XC40_INTEL_OPT, EXTRACT
+        [[[environment]]]
+            JULES_REMOTE = remote
+#   Build on XC40
+    [[fcm_make2_bom_xc40_intel_opt]]
+        inherit = BOM_XC40_INTEL_BUILD, BOM_XC40_INTEL_OPT, BUILD
+        [[[environment]]]
+            JULES_REMOTE = remote
+{% else %}
+#   Extract and build on XC40
+    [[fcm_make_bom_xc40_intel_opt]]
+        inherit = BOM_XC40_INTEL_BUILD, BOM_XC40_INTEL_OPT, EXTRACT_AND_BUILD
+{% endif %}
+

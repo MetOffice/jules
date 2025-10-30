@@ -1,0 +1,32 @@
+[runtime]
+    [[FAB]]
+        platform = spice
+        execution time limit = PT10M
+        env-script = eval $(rose task-env)
+        pre-script = """
+                     module purge
+                     module load gcc/12.2.0-gcc-12.2.0-elnqzkg
+                     module load mpich/4.2.3-gcc-12.2.0-vqupwpn
+                     module load netcdf-fortran/4.6.1-gcc-12.2.0-3bu2pvj
+                     module list 2>&1
+                     conda activate fab_0.10.0-python_3.9
+                     """
+
+        script = rose task-run --app-key=fab_jules
+        [[[environment]]]
+            FAB_WORKSPACE = $CYLC_TASK_WORK_DIR/fab_workspace
+            BUILD_SCRIPT = "fab_jules"
+        [[[events]]]
+            mail events = failed, submission failed, submission retry, submission timeout, execution timeout
+            execution timeout = PT3H
+            submission timeout = P1D
+        [[[directives]]]
+            --mem=8000
+            --ntasks=4
+            --export=N
+
+    [[METO_AZSPICE_FAB_BUILD]]
+        inherit = FAB
+
+    [[METO_AZSPICE_FAB_BUILD_RIVERS_ONLY]]
+        inherit = FAB

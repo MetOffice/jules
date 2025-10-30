@@ -1,0 +1,1129 @@
+    [[NCI_INTEL_BUILD]]
+        inherit = BUILD, NCI
+        pre-script = """
+            module use ~access/modules
+            module load intel-compiler/2021.6.0
+            module load openmpi/4.1.4
+            module unload netcdf
+            module load netcdf/4.8.0p
+            module load fcm
+        """
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 4
+        [[[directives]]]
+            -l ncpus = 4
+            -l mem = 8GB
+            -l jobfs = 2GB
+            -l software = intel-compiler
+            -q = normal
+
+###############################################################################
+## Build jobs
+###############################################################################
+#
+
+{%- if COVERAGE == true %}
+
+    [[fcm_make_nci_intel_coverage]]
+        inherit = NCI_EXTRACT, NCI_INTEL_BUILD
+        # Use env-script so inherited pre-script isn't changed
+        env-script = mkdir -p $CYLC_SUITE_SHARE_DIR/coverage
+        [[[environment]]]
+            JULES_PLATFORM = nci-intel
+            JULES_BUILD = normal
+            JULES_OMP = noomp
+            JULES_FFLAGS_EXTRA  = -prof-gen=srcpos -prof-dir $CYLC_SUITE_SHARE_DIR/coverage
+            JULES_LDFLAGS_EXTRA = -prof-gen=srcpos -prof-dir $CYLC_SUITE_SHARE_DIR/coverage
+
+{%- else %}
+
+    [[fcm_make_nci_intel_debug]]
+        inherit = NCI_EXTRACT, NCI_INTEL_BUILD
+        [[[environment]]]
+            JULES_PLATFORM = nci-intel
+            JULES_BUILD = debug
+            JULES_OMP = noomp
+
+    [[fcm_make_nci_intel_omp]]
+        inherit = NCI_EXTRACT, NCI_INTEL_BUILD
+        [[[environment]]]
+            JULES_PLATFORM = nci-intel
+            JULES_BUILD = normal
+            JULES_OMP = omp
+
+    [[fcm_make_nci_intel_omp_rivers-only]]
+        inherit = NCI_EXTRACT, EXTRACT_RIVER, NCI_INTEL_BUILD
+        [[[environment]]]
+            JULES_PLATFORM = nci-intel
+            JULES_BUILD = normal
+            JULES_OMP = omp
+
+{%- endif %}
+
+###############################################################################
+## Compute jobs
+###############################################################################
+# Family for Loobos jobs with the Intel compiler
+    [[NCI_INTEL_LOOBOS]]
+        inherit = LOOBOS, NCI_COMPUTE, NCI_MPITASKS_1
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_nci_intel_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_nci_intel_debug
+{%- endif %}
+
+    [[nci_intel_loobos_gl4]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl4
+
+    [[nci_intel_loobos_gl7]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl7
+
+    [[nci_intel_loobos_gl4_cable]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl4
+            ROSE_APP_OPT_CONF_KEYS=cable
+
+     [[nci_intel_loobos_gl8]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+
+     [[nci_intel_loobos_gl8_medlyn]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8_medlyn
+
+     [[nci_intel_loobos_vegdrag]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_vegdrag
+
+   [[nci_intel_loobos_euro4]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_euro4
+
+    [[nci_intel_loobos_forecast]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_forecast
+
+    [[nci_intel_loobos_ukv]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_ukv
+
+    [[nci_intel_loobos_trif_spinup]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_trif_spinup
+
+    [[nci_intel_loobos_trif]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_trif
+            DUMP_FILE = ../nci_intel_loobos_trif_spinup/output/nci_intel_loobos_trif_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_julesc_spinup]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_julesc_spinup
+
+    [[nci_intel_loobos_julesc]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_julesc
+            DUMP_FILE = ../nci_intel_loobos_julesc_spinup/output/nci_intel_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_jules_c1p1]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_c1p1
+            DUMP_FILE = ../nci_intel_loobos_julesc_spinup/output/nci_intel_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_jules_c1p1_fire]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_c1p1_fire
+            DUMP_FILE = ../nci_intel_loobos_julesc_spinup/output/nci_intel_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_jules_layeredcn_spinup]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_layeredcn_spinup
+
+    [[nci_intel_loobos_jules_layeredcn]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_layeredcn
+            DUMP_FILE = ../nci_intel_loobos_jules_layeredcn_spinup/output/nci_intel_loobos_jules_layeredcn_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_jules_cn_spinup]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_cn_spinup
+
+    [[nci_intel_loobos_jules_cn]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_cn
+            DUMP_FILE = ../nci_intel_loobos_jules_cn_spinup/output/nci_intel_loobos_jules_cn_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_jules_es_1p0_spinup]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_spinup
+
+    [[nci_intel_loobos_jules_es_1p0]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0
+            DUMP_FILE = ../nci_intel_loobos_jules_es_1p0_spinup/output/nci_intel_loobos_jules_es_1p0_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_jules_es_1p0_biocrop_spinup]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_spinup
+
+    [[nci_intel_loobos_jules_es_1p0_biocrop]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop
+            DUMP_FILE = ../nci_intel_loobos_jules_es_1p0_biocrop_spinup/output/nci_intel_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_agexpand
+            DUMP_FILE = ../nci_intel_loobos_jules_es_1p0_biocrop_spinup/output/nci_intel_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_crops]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crops
+
+    [[nci_intel_loobos_prescribe_sthuf]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_prescribe_sthuf
+
+    [[nci_intel_loobos_irrig]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_irrig
+
+    [[nci_intel_loobos_irrig_nirrtile]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_irrig_nirrtile
+
+    [[nci_intel_loobos_fire_spinup]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_fire_spinup
+
+    [[nci_intel_loobos_fire]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_fire
+            DUMP_FILE = ../nci_intel_loobos_fire_spinup/output/nci_intel_loobos_fire_spinup.dump.19971231.82800.nc
+
+    [[nci_intel_loobos_daily_disagg]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_daily_disagg
+
+    [[nci_intel_loobos_crm1_traitF]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm1_traitF
+
+    [[nci_intel_loobos_crm4_traitF]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm4_traitF
+
+    [[nci_intel_loobos_crm5_traitF]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm5_traitF
+
+    [[nci_intel_loobos_crm6_traitF]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitF
+
+    [[nci_intel_loobos_crm6_traitT]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitT
+
+    [[nci_intel_loobos_crm6_traitT_farquhar]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitT
+            ROSE_APP_OPT_CONF_KEYS = farquhar
+
+    [[nci_intel_loobos_crm6_traitF_srfT]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitF_srfT
+
+# For GSWP2 tests, use MPI
+    [[NCI_INTEL_GSWP2]]
+        inherit = GSWP2, NCI_COMPUTE, NCI_MPITASKS_16
+        pre-script = """
+           module load openmpi/4.1.4
+           gen_gswp2_drive_file
+           """
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_nci_intel_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_nci_intel_omp
+{%- endif %}
+
+    [[NCI_INTEL_GSWP2_RIVERS_ONLY]]
+        inherit = GSWP2, NCI_COMPUTE, NCI_MPITASKS_16
+        pre-script = """
+           module load openmpi/4.1.4
+           gen_gswp2_drive_file
+           """
+        [[[environment]]]
+            BUILD_NAME = fcm_make_nci_intel_omp_rivers-only
+            ROSE_APP_COMMAND_KEY = rivers-only
+            ROSE_APP_OPT_CONF_KEYS = rivers-only
+
+    [[NCI_INTEL_ERAINT]]
+        inherit = ERAINT, NCI_COMPUTE, NCI_MPITASKS_16
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_nci_intel_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_nci_intel_omp
+{%- endif %}
+
+# GSWP2 rivers
+    [[nci_intel_gswp2_rivers]]
+	pre-script = gen_gswp2_rivers_props_rfm_file
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers
+
+# GSWP2 rivers spinup
+    [[nci_intel_gswp2_rivers_spinup]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers_spinup
+
+# GSWP2 rivers restart
+    [[nci_intel_gswp2_rivers_restart]]
+	pre-script = gen_gswp2_rivers_props_rfm_file
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers_restart
+            DUMP_FILE = ../nci_intel_gswp2_rivers_spinup/output/nci_intel_gswp2_rivers_spinup.dump.19820701.10800.nc
+
+# GSWP2 rivers (rivers-only)
+   [[nci_intel_gswp2_rivers_rivers-only]]
+	pre-script = gen_gswp2_rivers_props_rfm_file
+        inherit = NCI_INTEL_GSWP2_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers
+            RIVERS_ONLY_INSTALL_DIR = ../nci_intel_gswp2_rivers/output
+            RIVERS_ONLY_DRIVE_TASK = nci_intel_gswp2_rivers
+
+# GSWP2 rivers overbank hypso
+    [[nci_intel_gswp2_rivers_overbank_hypso]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers
+            ROSE_APP_OPT_CONF_KEYS = overbank_hypso
+
+# GSWP2 trip
+    [[nci_intel_gswp2_trip]]
+	pre-script = gen_gswp2_rivers_props_trip_file
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip
+
+# GSWP2 trip spinup
+    [[nci_intel_gswp2_trip_spinup]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip_spinup
+
+# GSWP2 trip restart
+    [[nci_intel_gswp2_trip_restart]]
+	pre-script = gen_gswp2_rivers_props_trip_file
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip_restart
+            DUMP_FILE = ../nci_intel_gswp2_trip_spinup/output/nci_intel_gswp2_trip_spinup.dump.19820701.10800.nc
+
+# GSWP2 trip (rivers-only)
+   [[nci_intel_gswp2_trip_rivers-only]]
+	pre-script = gen_gswp2_rivers_props_trip_file
+        inherit = NCI_INTEL_GSWP2_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip
+            RIVERS_ONLY_INSTALL_DIR = ../nci_intel_gswp2_trip/output
+            RIVERS_ONLY_DRIVE_TASK = nci_intel_gswp2_trip
+
+# GSWP2 irrig limit low river storage
+    [[nci_intel_gswp2_irrig_limit_low_river_storage]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_irrig_limit_low_river_storage
+            DUMP_FILE = ../nci_intel_gswp2_trip_spinup/output/nci_intel_gswp2_trip_spinup.dump.19820701.10800.nc
+
+# GSWP2 irrig limit high river storage
+    [[nci_intel_gswp2_irrig_limit_high_river_storage]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_irrig_limit_high_river_storage
+            DUMP_FILE = ../nci_intel_gswp2_trip_spinup/output/nci_intel_gswp2_trip_spinup.dump.19820701.10800.nc
+
+# GSWP2 closures
+    [[nci_intel_gswp2_closures]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_closures
+
+# GSWP2 euro4
+    [[nci_intel_gswp2_euro4]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_euro4
+
+# GSWP2 gl4
+    [[nci_intel_gswp2_gl4]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_gl4
+
+# GSWP2 gl7
+    [[nci_intel_gswp2_gl7]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_gl7
+
+# GSWP2 ukv
+    [[nci_intel_gswp2_ukv]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_ukv
+
+    [[nci_intel_gswp2_ukv_flake]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_ukv
+            ROSE_APP_OPT_CONF_KEYS = flake
+
+# ERAINT 2ddata
+    [[nci_intel_eraint_rfm_2ddata]]
+        inherit = NCI_INTEL_ERAINT
+        [[[environment]]]
+            ROSE_TASK_APP = eraint_rfm_2ddata
+
+    [[nci_intel_eraint_trip_2ddata]]
+        inherit = NCI_INTEL_ERAINT
+        [[[environment]]]
+            ROSE_TASK_APP = eraint_trip_2ddata
+            DUMP_FILE = $ERAINT_INSTALL_DIR/brahma_eraint_small.dump.19951031.0.nc
+
+    [[nci_intel_gswp2_es_1p1]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+
+    [[nci_intel_gswp2_es_curr]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+            ROSE_APP_OPT_CONF_KEYS=curr
+
+    [[nci_intel_gswp2_es_beta]]
+        inherit = NCI_INTEL_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+            ROSE_APP_OPT_CONF_KEYS=beta
+
+    [[NCI_INTEL_IMOGEN]]
+        inherit = IMOGEN, NCI_COMPUTE
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_nci_intel_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_nci_intel_omp
+{%- endif %}
+
+    [[nci_intel_imogen_layeredc_spinup]]
+        inherit = NCI_INTEL_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc_spinup
+
+    [[nci_intel_imogen_layeredc]]
+        inherit = NCI_INTEL_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            DUMP_FILE = ../nci_intel_imogen_layeredc_spinup/output/nci_intel_imogen_layeredc_spinup.dump.18650101.0.nc
+
+    [[nci_intel_imogen_layeredc_co2conc]]
+        inherit = NCI_INTEL_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            ROSE_APP_OPT_CONF_KEYS = co2conc
+            DUMP_FILE = ../nci_intel_imogen_layeredc_spinup/output/nci_intel_imogen_layeredc_spinup.dump.18650101.0.nc
+
+    [[nci_intel_imogen_layeredc_dtempg]]
+        inherit = NCI_INTEL_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            ROSE_APP_OPT_CONF_KEYS = dtempg
+            DUMP_FILE = ../nci_intel_imogen_layeredc_spinup/output/nci_intel_imogen_layeredc_spinup.dump.18650101.0.nc
+
+    [[nci_intel_imogen_layeredc_ch4]]
+        inherit = NCI_INTEL_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            ROSE_APP_OPT_CONF_KEYS = ch4
+            DUMP_FILE = ../nci_intel_imogen_layeredc_spinup/output/nci_intel_imogen_layeredc_spinup.dump.18650101.0.nc
+
+{%- if COVERAGE == true %}
+###############################################################################
+## Code coverage job, if requested
+###############################################################################
+    [[coverage_summary]]
+        inherit = None, NCI_COMPUTE
+        pre-script = """
+            module load intel-compiler/2021.6.0
+        """
+        script = """
+            profmerge -prof-dir $CYLC_SUITE_SHARE_DIR/coverage
+            codecov -prj JULES -dpi $CYLC_SUITE_SHARE_DIR/coverage/pgopti.dpi -spi $CYLC_SUITE_SHARE_DIR/coverage/pgopti.spi
+        """
+        [[[directives]]]
+            -l mem = 4GB
+            -l software = intel-compiler
+{%- endif %}
+
+###############################################################################
+## Comparison jobs
+###############################################################################
+    [[NCI_INTEL_NETCDF_COMPARISON]]
+        inherit = KGO_CHECK, NCI_NETCDF_COMPARISON
+
+    [[nccmp_nci_intel_loobos_gl4]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_gl4/output
+
+    [[nccmp_nci_intel_loobos_gl4_cable]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_gl4_cable/output
+
+    [[nccmp_nci_intel_loobos_gl7]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_gl7/output
+
+    [[nccmp_nci_intel_loobos_gl8]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_gl8/output
+
+    [[nccmp_nci_intel_loobos_gl8_medlyn]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_gl8_medlyn/output
+
+    [[nccmp_nci_intel_loobos_vegdrag]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_vegdrag/output
+
+    [[nccmp_nci_intel_loobos_euro4]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_euro4/output
+
+    [[nccmp_nci_intel_loobos_forecast]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_forecast/output
+
+    [[nccmp_nci_intel_loobos_ukv]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_ukv/output
+
+    [[nccmp_nci_intel_loobos_trif]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_trif/output
+
+    [[nccmp_nci_intel_loobos_julesc]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_julesc/output
+
+    [[nccmp_nci_intel_loobos_jules_c1p1]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_jules_c1p1/output
+
+    [[nccmp_nci_intel_loobos_jules_c1p1_fire]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_jules_c1p1_fire/output
+
+    [[nccmp_nci_intel_loobos_jules_layeredcn]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_jules_layeredcn/output
+
+    [[nccmp_nci_intel_loobos_jules_cn]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_jules_cn/output
+
+    [[nccmp_nci_intel_loobos_jules_es_1p0]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_jules_es_1p0/output
+
+    [[nccmp_nci_intel_loobos_jules_es_1p0_biocrop]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_jules_es_1p0_biocrop/output
+
+    [[nccmp_nci_intel_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_jules_es_1p0_biocrop_agexpand/output
+
+    [[nccmp_nci_intel_loobos_fire]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_fire/output
+
+    [[nccmp_nci_intel_loobos_crops]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crops/output
+
+    [[nccmp_nci_intel_loobos_prescribe_sthuf]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_prescribe_sthuf/output
+
+    [[nccmp_nci_intel_loobos_irrig]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_irrig/output
+
+    [[nccmp_nci_intel_loobos_irrig_nirrtile]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_irrig_nirrtile/output
+
+    [[nccmp_nci_intel_loobos_daily_disagg]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_daily_disagg/output
+
+    [[nccmp_nci_intel_loobos_crm1_traitF]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crm1_traitF/output
+
+    [[nccmp_nci_intel_loobos_crm4_traitF]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crm4_traitF/output
+
+    [[nccmp_nci_intel_loobos_crm5_traitF]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crm5_traitF/output
+
+    [[nccmp_nci_intel_loobos_crm6_traitF]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crm6_traitF/output
+
+    [[nccmp_nci_intel_loobos_crm6_traitT]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crm6_traitT/output
+
+    [[nccmp_nci_intel_loobos_crm6_traitT_farquhar]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crm6_traitT_farquhar/output
+
+    [[nccmp_nci_intel_loobos_crm6_traitF_srfT]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_crm6_traitF_srfT/output
+
+    [[nccmp_nci_intel_gswp2_rivers]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_rivers/output
+
+    [[nccmp_nci_intel_gswp2_rivers_restart]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_rivers_restart/output
+
+    [[nccmp_nci_intel_gswp2_rivers_rivers-only]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_rivers_rivers-only/output
+
+    [[nccmp_nci_intel_gswp2_rivers_overbank_hypso]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_rivers_overbank_hypso/output
+
+    [[nccmp_nci_intel_gswp2_trip]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_trip/output
+
+    [[nccmp_nci_intel_gswp2_trip_restart]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_trip_restart/output
+
+    [[nccmp_nci_intel_gswp2_trip_rivers-only]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_trip_rivers-only/output
+
+    [[nccmp_nci_intel_gswp2_irrig_limit_low_river_storage]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_irrig_limit_low_river_storage/output
+
+    [[nccmp_nci_intel_gswp2_irrig_limit_high_river_storage]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_irrig_limit_high_river_storage/output
+
+    [[nccmp_nci_intel_gswp2_closures]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_closures/output
+
+    [[nccmp_nci_intel_gswp2_euro4]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_euro4/output
+
+    [[nccmp_nci_intel_gswp2_gl4]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_gl4/output
+
+    [[nccmp_nci_intel_gswp2_gl7]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_gl7/output
+
+    [[nccmp_nci_intel_gswp2_ukv]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_ukv/output
+
+    [[nccmp_nci_intel_gswp2_ukv_flake]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_ukv_flake/output
+
+    [[nccmp_nci_intel_eraint_rfm_2ddata]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_eraint_rfm_2ddata/output
+
+    [[nccmp_nci_intel_eraint_trip_2ddata]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_eraint_trip_2ddata/output
+
+    [[nccmp_nci_intel_gswp2_es_1p1]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_es_1p1/output
+
+    [[nccmp_nci_intel_gswp2_es_curr]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_es_curr/output
+
+    [[nccmp_nci_intel_gswp2_es_beta]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_gswp2_es_beta/output
+
+    [[nccmp_nci_intel_imogen_layeredc]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_imogen_layeredc/output
+
+    [[nccmp_nci_intel_imogen_layeredc_co2conc]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_imogen_layeredc_co2conc/output
+
+    [[nccmp_nci_intel_imogen_layeredc_dtempg]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_imogen_layeredc_dtempg/output
+
+    [[nccmp_nci_intel_imogen_layeredc_ch4]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_imogen_layeredc_ch4/output
+
+###############################################################################
+## Housekeeping jobs
+###############################################################################
+    [[NCI_INTEL_HOUSEKEEPING]]
+        inherit = HOUSEKEEPING, NCI
+        [[[job]]]
+            batch system = background
+
+    [[housekeep_nci_intel_loobos_gl4]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_gl4
+
+    [[housekeep_nci_intel_loobos_gl4_cable]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_gl4_cable
+
+    [[housekeep_nci_intel_loobos_gl7]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_gl7
+
+    [[housekeep_nci_intel_loobos_gl8]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_gl8
+
+    [[housekeep_nci_intel_loobos_gl8_medlyn]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_gl8_medlyn
+
+    [[housekeep_nci_intel_loobos_vegdrag]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_vegdrag
+
+    [[housekeep_nci_intel_loobos_euro4]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_euro4
+
+    [[housekeep_nci_intel_loobos_forecast]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+           DIR1 = ../nci_intel_loobos_forecast
+
+    [[housekeep_nci_intel_loobos_ukv]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_ukv
+
+    [[housekeep_nci_intel_loobos_trif_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_trif_spinup
+
+    [[housekeep_nci_intel_loobos_trif]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_trif
+
+    [[housekeep_nci_intel_loobos_julesc_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_julesc_spinup
+
+    [[housekeep_nci_intel_loobos_julesc]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_julesc
+
+    [[housekeep_nci_intel_loobos_jules_c1p1]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_c1p1
+
+    [[housekeep_nci_intel_loobos_jules_c1p1_fire]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_c1p1_fire
+
+    [[housekeep_nci_intel_loobos_jules_layeredcn_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_layeredcn_spinup
+
+    [[housekeep_nci_intel_loobos_jules_layeredcn]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_layeredcn
+
+    [[housekeep_nci_intel_loobos_jules_cn_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_cn_spinup
+
+    [[housekeep_nci_intel_loobos_jules_cn]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_cn
+
+    [[housekeep_nci_intel_loobos_jules_es_1p0]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_es_1p0
+
+    [[housekeep_nci_intel_loobos_jules_es_1p0_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_es_1p0_spinup
+
+    [[housekeep_nci_intel_loobos_jules_es_1p0_biocrop_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_es_1p0_biocrop_spinup
+
+    [[housekeep_nci_intel_loobos_jules_es_1p0_biocrop]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_es_1p0_biocrop
+
+    [[housekeep_nci_intel_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_jules_es_1p0_biocrop_agexpand
+
+    [[housekeep_nci_intel_loobos_crops]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crops
+
+    [[housekeep_nci_intel_loobos_prescribe_sthuf]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_prescribe_sthuf
+
+    [[housekeep_nci_intel_loobos_irrig]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_irrig
+
+    [[housekeep_nci_intel_loobos_irrig_nirrtile]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_irrig_nirrtile
+
+    [[housekeep_nci_intel_loobos_fire_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_fire_spinup
+
+    [[housekeep_nci_intel_loobos_fire]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_fire
+
+    [[housekeep_nci_intel_loobos_daily_disagg]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_daily_disagg
+
+    [[housekeeping_nci_intel_loobos_crm1_traitF]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crm1_traitF
+
+    [[housekeeping_nci_intel_loobos_crm4_traitF]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crm4_traitF
+
+    [[housekeeping_nci_intel_loobos_crm5_traitF]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crm5_traitF
+
+    [[housekeeping_nci_intel_loobos_crm6_traitF]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crm6_traitF
+
+    [[housekeeping_nci_intel_loobos_crm6_traitT]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crm6_traitT
+
+    [[housekeeping_nci_intel_loobos_crm6_traitT_farquhar]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crm6_traitT_farquhar
+
+    [[housekeeping_nci_intel_loobos_crm6_traitF_srfT]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_crm6_traitF_srfT
+
+    [[housekeep_nci_intel_gswp2_rivers]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_rivers
+
+    [[housekeep_nci_intel_gswp2_rivers_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_rivers_spinup
+
+    [[housekeep_nci_intel_gswp2_rivers_restart]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_rivers_restart
+
+    [[housekeep_nci_intel_gswp2_rivers_rivers-only]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_rivers_rivers-only
+
+    [[housekeep_nci_intel_gswp2_rivers_overbank_hypso]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_rivers_overbank_hypso
+
+    [[housekeep_nci_intel_gswp2_trip]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_trip
+
+    [[housekeep_nci_intel_gswp2_trip_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_trip_spinup
+
+    [[housekeep_nci_intel_gswp2_trip_restart]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_trip_restart
+
+    [[housekeep_nci_intel_gswp2_trip_rivers-only]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_trip_rivers-only
+
+    [[housekeep_nci_intel_gswp2_irrig_limit_low_river_storage]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_irrig_limit_low_river_storage
+
+    [[housekeep_nci_intel_gswp2_irrig_limit_high_river_storage]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_irrig_limit_high_river_storage
+
+    [[housekeep_nci_intel_gswp2_closures]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_closures
+
+    [[housekeep_nci_intel_gswp2_euro4]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_euro4
+
+    [[housekeep_nci_intel_gswp2_gl4]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_gl4
+
+    [[housekeep_nci_intel_gswp2_gl7]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_gl7
+
+    [[housekeep_nci_intel_gswp2_ukv]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_ukvi
+
+    [[housekeep_nci_intel_gswp2_ukv_flake]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_ukv_flake
+
+    [[housekeep_nci_intel_eraint_rfm_2ddata]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_eraint_rfm_2ddata
+
+    [[housekeep_nci_intel_eraint_trip_2ddata]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_eraint_trip_2ddata
+
+    [[housekeep_nci_intel_gswp2_es_1p1]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_es_1p1
+
+    [[housekeep_nci_intel_gswp2_es_curr]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_es_curr
+
+    [[housekeep_nci_intel_gswp2_es_beta]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_gswp2_es_beta
+
+    [[housekeep_nci_intel_imogen_layeredc_spinup]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_imogen_layeredc_spinup
+
+    [[housekeep_nci_intel_imogen_layeredc]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_imogen_layeredc
+
+    [[housekeep_nci_intel_imogen_layeredc_co2conc]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_imogen_layeredc_co2conc
+
+    [[housekeep_nci_intel_imogen_layeredc_dtempg]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_imogen_layeredc_dtempg
+
+    [[housekeep_nci_intel_imogen_layeredc_ch4]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_imogen_layeredc_ch4

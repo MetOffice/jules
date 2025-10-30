@@ -1,0 +1,33 @@
+###############################################################################
+## Imports
+###############################################################################
+%include 'include/niwa/graph-cs500.rc'
+%include 'include/niwa/graph-xc50.rc'
+
+###############################################################################
+## Name graphs
+###############################################################################
+{%- set name_graphs = {
+        "umdp3_check"       : "umdp3_checker",
+        "metadata_check"       : "metadata_checker",
+        "site_validator" : "site_validator",
+} %}
+{%- do name_graphs.update(name_graphs_cs500.items()) %}
+{%- do name_graphs.update(name_graphs_xc50.items()) %}
+
+###############################################################################
+## Group definitions
+###############################################################################
+
+{%- set groups = {
+
+        "all" : ["niwa_cs500_all", "niwa_xc50_all", "scripts"],
+
+        "tutorial" : ["niwa_xc50_intel_loobos_crops"],
+
+        "scripts"   : ["umdp3_check", "metadata_check", "site_validator"],
+
+    }
+%}
+{%- do groups.update(groups_cs500.items()) %}
+{%- do groups.update(groups_xc50.items()) %}

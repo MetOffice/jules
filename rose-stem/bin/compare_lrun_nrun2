@@ -1,0 +1,58 @@
+#! /usr/bin/env bash
+
+##########################################################################
+# This script takes two end dump files as input LRUN & NRUN2 where it is
+# expected that:
+#     lrun = nrun1 + nrun2
+#
+# By default, comparison is done using cmp, however this can be
+# overridden by setting the environment variable $CMD_CMP
+# The only thing that the command must do is return 0 if the files are
+# considered the same and != 0 otherwise
+#
+##########################################################################
+
+# Check we have sensible arguments
+if [[ $# != 2 ]]; then
+    echo "[fail] Exactly two arguments required" 1>&2
+    echo "       Usage: compare_lrun_nrun2 <lrun> <nrun2>" 1>&2
+    exit 1
+fi
+
+lrun=$1
+nrun2=$2
+echo "[info] Comparing"
+echo "       $lrun"
+echo "       $nrun2"
+
+# If CMD_CMP is not set, use the default command
+if [ -z "$CMD_CMP" ]; then
+    CMD_CMP="cmp"
+fi
+echo "[info] Command for comparisons - $CMD_CMP"
+
+# Check that the KGO file exists so we can give a decent error message
+if [ ! -f "$lrun" ]; then
+    echo "[fail] $lrun file does not exist" 1>&2
+    failed=1
+fi
+
+if [ ! -f "$nrun2" ]; then
+    echo "[fail] $nrun2 file does not exist" 1>&2
+    failed=1
+fi
+
+$CMD_CMP "$lrun" "$nrun2"
+if [[ $? -eq 0 ]]; then
+    echo "[success]     Comparison successful"
+else
+    echo "[fail]        Comparison failed" 1>&2
+    failed=1
+fi
+
+if [[ $failed -eq 0 ]]; then
+    echo "[success] Files compared successfully"
+else
+    echo "[fail] Files failed to compare" 1>&2
+    exit 1
+fi

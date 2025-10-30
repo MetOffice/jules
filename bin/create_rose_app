@@ -1,0 +1,371 @@
+#! /usr/bin/env bash
+
+################################################################################
+## This script converts namelists at the given from_vn to a Rose app at the
+## given to_vn.
+## Arguments needed:
+##  from_vn
+##  to_vn
+##  namelist_path
+##  suite_name
+##  jules_dir
+################################################################################
+
+
+################################################################################
+# Get the "from version" argument
+################################################################################
+if [ $# -lt 5 ]; then
+    echo "USAGE: create_rose_app from_vn to_vn namelist_path suite_name jules_dir"
+    echo ""
+    echo "    from vn is the JULES version that the namelists are written for, e.g. vn3.4"
+    echo "    to vn is the JULES version to create the Rose app for, e.g. vn4.0"
+    echo ""
+    echo "    full or relative namelist path, e.g. ~/jules/namelist or ../namelist"
+    echo ""
+    echo "    suite name, e.g. test_for_apps_vn4.0"
+    echo ""
+    echo "    path to JULES code"
+    exit
+fi
+
+from_vn=${1}
+to_vn=${2}
+namelist_path=${3}
+suite_name=${4}
+jules_dir=${5}
+
+echo "USAGE: create_rose_app from_vn to_vn namelist_path suite_name"
+echo ""
+echo "    JULES version that the namelists are written for: "${1}
+echo "    JULES version to create the Rose app for: "${2}
+echo ""
+echo "    full or relative namelist path: "${3}
+echo ""
+echo "    suite name: "${4}
+echo "    suite location will be ~/roses/"${4}
+echo ""
+echo "    JULES directory path at "${2} " or newer is: "${5}
+echo "Are these options correct? y/n"
+
+# Now check that the user is happy with the inputs or has used the -y option to
+# just expect the changes.
+if [[ $#  -ne 6 ]] || [[ ${6} != "-y" ]]; then 
+  read answer
+  #Check the options are set as required by the user.
+  if [[ ${answer} = "y" ]]; then
+     echo "Running with the above options."
+  else
+      echo "Please try again with your desired usage of the options."
+      exit 
+  fi
+fi
+
+
+################################################################################
+# Create app directories
+################################################################################
+roses_dir="roses/"
+
+
+if [[ ! -e ~/${roses_dir} ]]; then
+    mkdir -p ~/${roses_dir}
+    echo Making ~/${roses_dir}
+fi
+
+if [[ -e  ~/${roses_dir}/${suite_name} ]]; then
+    echo "This suite name already exists, please remove it and try again"
+    exit
+fi
+
+
+echo "[INFO] Creating directories at ~/"${roses_dir}${suite_name}
+
+mkdir -p ~/${roses_dir}${suite_name}/app/fcm_make_jules/file
+mkdir -p ~/${roses_dir}${suite_name}/app/jules
+mkdir -p ~/${roses_dir}${suite_name}/meta
+
+
+###############################################################################
+# Create suite level files
+################################################################################
+echo "[INFO] Creating suite files"
+
+cat > ~/${roses_dir}${suite_name}/rose-suite.info <<EOF
+owner=${LOGNAME}
+project=JULES
+title=JULES create app suite generated from ${3}
+EOF
+
+ROSE_SUITE_CONF=$(cat <<'EOF'
+[jinja2:suite.rc]
+BUILD_HOST='localhost'
+COMPUTE_HOST='localhost'
+EOF
+)
+echo "${ROSE_SUITE_CONF}" > ~/${roses_dir}${suite_name}/rose-suite.conf
+
+SUITE_RC=$(cat <<'EOF'
+#!jinja2
+[cylc]
+    UTC mode = True # Ignore DST
+[scheduling]
+    [[dependencies]]
+        graph = fcm_make_jules => jules
+[runtime]
+    [[root]]
+        script = rose task-run --verbose
+        [[[event hooks]]]
+            retry handler = rose suite-hook --mail
+            submission retry handler = rose suite-hook --mail
+            submission timeout handler = rose suite-hook --mail
+            execution timeout handler = rose suite-hook --mail
+            failed handler = rose suite-hook --mail
+            submission failed handler = rose suite-hook --mail
+            ## If you want the suite to shutdown following a failure, you should replace the 2 lines above with:
+            # failed handler = rose suite-hook --mail --shutdown
+            # submission failed handler = rose suite-hook --mail --shutdown
+            # Adjust the values if your suite requires different timeout values.
+            submission timeout = P1D
+            execution timeout = PT3H
+    [[linux]]
+        [[[job submission]]]
+            method = background
+    [[fcm_make_jules]]
+        inherit = linux
+        [[[remote]]]
+            host = $(rose host-select {{ BUILD_HOST }})
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 4
+    [[jules]]
+        inherit = linux
+        [[[remote]]]
+            host = $(rose host-select {{ COMPUTE_HOST }})
+        [[[environment]]]
+            MPI_NUM_TASKS = 1
+            OMP_NUM_THREADS = 1
+            NPROC = $MPI_NUM_TASKS
+EOF
+)
+echo "${SUITE_RC}" > ~/${roses_dir}${suite_name}/suite.rc
+
+
+################################################################################
+# Create metadata file
+################################################################################
+echo "[INFO] Creating metadata"
+
+META_FILE=$(cat <<'EOF'
+[jinja2:suite.rc]
+ns = Hosts
+
+[jinja2:suite.rc=BUILD_HOST]
+compulsory = true
+description = Host to use to extract and build the model
+help =If using a working copy on a local disk, this should
+     =be the machine with access to that disk.
+ns = Hosts
+sort-key = a 
+
+[jinja2:suite.rc=COMPUTE_HOST]
+compulsory = true
+description = Host to use for model run
+ns=Hosts
+sort-key=b
+EOF
+)
+echo "${META_FILE}" > ~/${roses_dir}${suite_name}/meta/rose-meta.conf
+
+
+################################################################################
+# Create fcm_make_jules app
+################################################################################
+echo "[INFO] Creating fcm_make_jules app"
+
+FCM_MAKE_JULES_APP=$(cat <<'EOF'
+meta=jules-fcm-make/vn4.2
+#This needs to be hard coded to JULES vn4.2 as there were no changes after this
+
+[env]
+JULES_BUILD=normal
+JULES_COMPILER=gfortran
+JULES_NETCDF=dummy
+!!JULES_NETCDF_PATH=''
+JULES_PARALLEL=serial
+EOF
+)
+echo "${FCM_MAKE_JULES_APP}" >> ~/${roses_dir}${suite_name}/app/fcm_make_jules/rose-app.conf
+# Put the JULES_SOURCE line after as we want variable expansion to be active
+echo "JULES_SOURCE=${jules_dir}" >> ~/${roses_dir}${suite_name}/app/fcm_make_jules/rose-app.conf
+
+FCM_MAKE_JULES_CFG=$(cat <<'EOF'
+# Just include the FCM make file in the given JULES source directory
+include = ${JULES_SOURCE}/etc/fcm-make/make.cfg
+EOF
+)
+echo "${FCM_MAKE_JULES_CFG}" > ~/${roses_dir}${suite_name}/app/fcm_make_jules/file/fcm-make.cfg
+
+# Upgrade the fcm_make_jules app to the latest available version
+rose app-upgrade -a -y -q -M ${jules_dir}/rose-meta -C ~/${roses_dir}${suite_name}/app/fcm_make_jules ${to_vn}
+
+################################################################################
+# Create jules app
+################################################################################
+echo "[INFO] Creating jules app"
+
+# First create the rose-app.conf file with some info that is not in the namelists
+echo "meta=jules-standalone/${from_vn}" > ~/${roses_dir}${suite_name}/app/jules/rose-app.conf
+echo "" >> ~/${roses_dir}${suite_name}/app/jules/rose-app.conf
+JULES_APP=$(cat <<'EOF'
+[command]
+default=rose-jules-run
+EOF
+)
+echo "${JULES_APP}" >> ~/${roses_dir}${suite_name}/app/jules/rose-app.conf
+echo "" >> ~/${roses_dir}${suite_name}/app/jules/rose-app.conf
+
+
+# Modify the namelist files to replace shorthand T and F with .true. and .false.
+find ${namelist_path} -name '*.nml' -exec sed -i -r -e 's/([= ])F([ ,])/\1.false.\2/g' \
+                                     -e 's/([= ])F([ ,])/\1.false.\2/g' \
+                                     -e 's/([= ])F$/\1.false./g'        \
+                                     -e 's/([= ])T([ ,])/\1.true.\2/g'  \
+                                     -e 's/([= ])T([ ,])/\1.true.\2/g'  \
+                                     -e 's/([= ])T$/\1.true./g' {} +
+
+cd ${namelist_path}
+# Then append the rest of the output from rose-namelist-dump
+rose namelist-dump -l *.nml >> ~/${roses_dir}${suite_name}/app/jules/rose-app.conf
+cd - > /dev/null 2>&1
+
+#NOW TO MAKE THE UPGRADE WORK
+
+# Upgrade the jules app to the given version
+rose app-upgrade -a -y -q -M ${jules_dir}/rose-meta -C ~/${roses_dir}${suite_name}/app/jules ${to_vn}
+
+# Rewrite the file sources to make sure all the optional/multi-occurence namelists are correct
+ed ~/${roses_dir}${suite_name}/app/jules/rose-app.conf > /dev/null 2>&1 <<EOF
+/\[file\:ancillaries\.nml\]/
++
+c
+source=namelist:jules_frac namelist:jules_soil_props (namelist:jules_top) namelist:jules_agric (namelist:jules_crop_props) (namelist:jules_irrig_props) (namelist:jules_rivers_props) namelist:jules_co2
+.
+/\[file\:jules_irrig\.nml\]/
++
+c
+source=namelist:jules_irrig
+.
+/\[file\:crop_params\.nml\]/
++
+c
+source=(namelist:jules_cropparm)
+.
+/\[file\:drive\.nml\]/
++
+c
+source=namelist:jules_drive
+.
+/\[file\:imogen\.nml\]/
++
+c
+source=(namelist:imogen_run_list) (namelist:imogen_anlg_vals_list)
+.
+/\[file\:initial_conditions\.nml\]/
++
+c
+source=namelist:jules_initial
+.
+/\[file\:jules_hydrology\.nml\]/
++
+c
+source=namelist:jules_hydrology
+.
+/\[file\:jules_radiation\.nml\]/
++
+c
+source=namelist:jules_radiation
+.
+/\[file\:jules_rivers\.nml\]/
++
+c
+source=namelist:jules_rivers
+.
+/\[file\:jules_snow\.nml\]/
++
+c
+source=namelist:jules_snow
+.
+/\[file\:jules_soil\.nml\]/
++
+c
+source=namelist:jules_soil
+.
+/\[file\:jules_surface\.nml\]/
++
+c
+source=namelist:jules_surface
+.
+/\[file\:jules_surface_types\.nml\]/
++
+c
+source=namelist:jules_surface_types
+.
+/\[file\:jules_vegetation\.nml\]/
++
+c
+source=namelist:jules_vegetation
+.
+/\[file\:model_grid\.nml\]/
++
+c
+source=namelist:jules_input_grid namelist:jules_latlon namelist:jules_land_frac namelist:jules_model_grid namelist:jules_surf_hgt
+.
+/\[file\:nveg_params\.nml\]/
++
+c
+source=namelist:jules_nvegparm
+.
+/\[file\:output\.nml\]/
++
+c
+source=namelist:jules_output (namelist:jules_output_profile(:))
+.
+/\[file\:pft_params\.nml\]/
++
+c
+source=namelist:jules_pftparm
+.
+/\[file\:prescribed_data\.nml\]/
++
+c
+source=namelist:jules_prescribed (namelist:jules_prescribed_dataset(:))
+.
+/\[file\:timesteps\.nml\]/
++
+c
+source=namelist:jules_time namelist:jules_spinup
+.
+/\[file\:triffid_params\.nml\]/
++
+c
+source=namelist:jules_triffid
+.
+/\[file\:urban\.nml\]/
++
+c
+source=(namelist:jules_urban_switches) (namelist:jules_urban2t_param) (namelist:urban_properties)
+.
+w
+q
+EOF
+
+# Run the fixer macros to set up triggers etc.
+rose macro -y -q -M ${jules_dir}/rose-meta -C ~/${roses_dir}${suite_name}/app/jules --fix
+
+# Added the "(1)" at the end of the jules_prescribed_dataset and 
+# jules_output_profile as they are sourced using (:) and therefore have to have
+# an index.
+sed -i 's/jules_prescribed_dataset\]/jules_prescribed_dataset(1)\]/g'  ~/${roses_dir}${suite_name}/app/jules/rose-app.conf
+sed -i 's/jules_output_profile\]/jules_output_profile\(1\)\]/g' ~/${roses_dir}${suite_name}/app/jules/rose-app.conf
+
+echo "[DONE]"

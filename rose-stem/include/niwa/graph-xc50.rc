@@ -1,0 +1,110 @@
+###############################################################################
+## Name graphs
+###############################################################################
+
+# The Loobos crops graph needs to be listed explicitly for the tutorial group
+{%- set name_graphs_xc50 = {
+
+        "niwa_xc50_fcm_make" : "remote_init_xc50 => fcm_make_niwa_xc50<compiler_xc50>_omp
+                                remote_init_xc50 => fcm_make_niwa_xc50<compiler_xc50>_debug_noomp",
+
+        "niwa_xc50_intel_loobos_jules_es_1p0_biocrop" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_debug_noomp =>                                        \
+                                           niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup => niwa_xc50_intel_loobos_jules_es_1p0_biocrop \
+                                           & niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           nccmp_niwa_xc50_intel_loobos_jules_es_1p0_biocrop \
+                                           & nccmp_niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           housekeep_niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup \
+                                           & housekeep_niwa_xc50_intel_loobos_jules_es_1p0_biocrop \
+                                           & housekeep_niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand",
+
+        "niwa_xc50_intel_loobos_crops" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_debug_noomp =>
+                                          niwa_xc50_intel_loobos_crops =>
+                                          nccmp_niwa_xc50_intel_loobos_crops =>
+                                          housekeep_niwa_xc50_intel_loobos_crops",
+
+        "niwa_xc50_intel_loobos_single" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_debug_noomp =>
+                                           niwa_xc50_intel_loobos<loobos_single> =>
+                                           nccmp_niwa_xc50_intel_loobos<loobos_single> =>
+                                           housekeep_niwa_xc50_intel_loobos<loobos_single>",
+
+        "niwa_xc50_intel_loobos_with_spinup" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_debug_noomp =>
+                                                niwa_xc50_intel_loobos<loobos_with_spinup>_spinup =>
+                                                niwa_xc50_intel_loobos<loobos_with_spinup> =>
+                                                nccmp_niwa_xc50_intel_loobos<loobos_with_spinup> =>
+                                                housekeep_niwa_xc50_intel_loobos<loobos_with_spinup>_spinup & \
+                                                housekeep_niwa_xc50_intel_loobos<loobos_with_spinup>
+
+                                                remote_init_xc50 => fcm_make_niwa_xc50_intel_debug_noomp =>
+                                                niwa_xc50_intel_loobos_julesc_spinup =>
+                                                niwa_xc50_intel_loobos<loobos_jules_c1p1> =>
+                                                nccmp_niwa_xc50_intel_loobos<loobos_jules_c1p1> =>
+                                                housekeep_niwa_xc50_intel_loobos_julesc_spinup & \
+                                                housekeep_niwa_xc50_intel_loobos<loobos_jules_c1p1>",
+
+        "niwa_xc50_intel_gswp2_single" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_omp =>
+                                          niwa_xc50_intel_gswp2<gswp2_single> =>
+                                          nccmp_niwa_xc50_intel_gswp2<gswp2_single> =>
+                                          housekeep_niwa_xc50_intel_gswp2<gswp2_single>",
+
+        "niwa_xc50_intel_gswp2_es_1p1" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_omp =>
+                                          niwa_xc50_intel_gswp2_es<gswp2_es_1p1> =>
+                                          nccmp_niwa_xc50_intel_gswp2_es<gswp2_es_1p1> =>
+                                          housekeep_niwa_xc50_intel_gswp2_es<gswp2_es_1p1>",
+
+        "niwa_xc50_intel_gswp2_with_spinup" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_omp =>
+                                               niwa_xc50_intel_gswp2<gswp2_with_spinup>_spinup =>
+                                               niwa_xc50_intel_gswp2<gswp2_with_spinup>_restart =>
+                                               nccmp_niwa_xc50_intel_gswp2<gswp2_with_spinup>_restart =>
+                                               housekeep_niwa_xc50_intel_gswp2<gswp2_with_spinup>_spinup =>
+                                               housekeep_niwa_xc50_intel_gswp2<gswp2_with_spinup>_restart
+
+                                               remote_init_xc50 => fcm_make_niwa_xc50_intel_omp =>
+                                               niwa_xc50_intel_gswp2_trip_spinup =>
+                                               niwa_xc50_intel_gswp2_irrig_limit<gswp2_irrig>_river_storage =>
+                                               nccmp_niwa_xc50_intel_gswp2_irrig_limit<gswp2_irrig>_river_storage =>
+                                               housekeep_niwa_xc50_intel_gswp2_trip_spinup =>
+                                               housekeep_niwa_xc50_intel_gswp2_irrig_limit<gswp2_irrig>_river_storage",
+
+        "niwa_xc50_intel_eraint" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_omp =>
+                                    niwa_xc50_intel_eraint<eraint_tests> =>
+                                    nccmp_niwa_xc50_intel_eraint<eraint_tests> =>
+                                    housekeep_niwa_xc50_intel_eraint<eraint_tests>",
+
+        "niwa_xc50_intel_imogen_with_spinup" : "remote_init_xc50 => fcm_make_niwa_xc50_intel_omp =>
+                                                niwa_xc50_intel_imogen<imogen_with_spinup>_spinup =>
+                                                niwa_xc50_intel_imogen<imogen_with_spinup> =>
+                                                nccmp_niwa_xc50_intel_imogen<imogen_with_spinup> =>
+                                                housekeep_niwa_xc50_intel_imogen<imogen_with_spinup>_spinup & \
+                                                housekeep_niwa_xc50_intel_imogen<imogen_with_spinup>",
+
+    }
+%}
+
+###############################################################################
+## Group definitions
+###############################################################################
+
+{%- set groups_xc50 = {
+
+        "niwa_xc50_all" : ["niwa_xc50_build",
+                           "niwa_xc50_loobos",
+                           "niwa_xc50_gswp2",
+                           "niwa_xc50_eraint",
+                           "niwa_xc50_imogen",
+                           "niwa_xc50_loobos_jules_es_1p0_biocrop"],
+
+        "niwa_xc50_build" : ["niwa_xc50_fcm_make"],
+
+        "niwa_xc50_loobos" : ["niwa_xc50_intel_loobos_single",
+                              "niwa_xc50_intel_loobos_with_spinup"],
+
+        "niwa_xc50_gswp2" : ["niwa_xc50_intel_gswp2_single",
+                             "niwa_xc50_intel_gswp2_with_spinup",
+                             "niwa_xc50_intel_gswp2_es_1p1"],
+
+        "niwa_xc50_eraint" : ["niwa_xc50_intel_eraint"],
+
+        "niwa_xc50_imogen" : ["niwa_xc50_intel_imogen_with_spinup"],
+
+    }
+%}

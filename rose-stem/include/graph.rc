@@ -1,0 +1,24 @@
+###############################################################################
+## Import site-specific graphs
+##
+## These files should set the name_graphs and groups variables
+###############################################################################
+{% if REMOTE_JASMIN %}
+%include 'include/jasmin/graph.rc'
+{% else %}
+{% if SITE == 'meto' %}
+%include 'include/meto/graph.rc'
+{% elif SITE == 'vm' %}
+%include 'include/vm/graph.rc'
+{% elif SITE == 'jasmin' %}
+%include 'include/jasmin/graph.rc'
+{% elif SITE == 'niwa' %}
+%include 'include/niwa/graph.rc'
+{% elif SITE == 'cehwl1' %}
+%include 'include/cehwl1/graph.rc'
+{% elif SITE == 'nci' %}
+%include 'include/nci/graph.rc'
+{% elif SITE == 'bom' %}
+%include 'include/bom/graph.rc'
+{% endif %}
+{% endif %}

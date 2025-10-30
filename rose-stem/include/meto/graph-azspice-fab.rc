@@ -1,0 +1,8 @@
+{%- set name_graphs_azspice_fab = {
+        "fab" : 
+            "fab_jules_meto_azspice_gfortran_debug_nompi_noomp
+             fab_jules_meto_azspice_gfortran_normal_nompi_omp
+             fab_jules_rivers_meto_azspice_gfortran_normal_mpi_noomp",
+
+      }
+%}

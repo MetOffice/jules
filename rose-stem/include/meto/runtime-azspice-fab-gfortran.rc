@@ -1,0 +1,19 @@
+[runtime]
+
+    [[METO_AZSPICE_FAB_GFORTRAN_BUILD]]
+        inherit = METO_AZSPICE_FAB_BUILD
+
+    [[fab_jules_meto_azspice_gfortran_debug_nompi_noomp]]
+        inherit = METO_AZSPICE_FAB_GFORTRAN_BUILD, EXTRACT
+        [[[environment]]]
+            CONFIG = 'gfortran_10_plus_debug'
+
+    [[fab_jules_meto_azspice_gfortran_normal_nompi_omp]]
+        inherit = METO_AZSPICE_FAB_GFORTRAN_BUILD, EXTRACT
+        [[[environment]]]
+            CONFIG = 'gfortran_10_plus_normal'
+    
+    [[fab_jules_rivers_meto_azspice_gfortran_normal_mpi_noomp]]
+        inherit = METO_AZSPICE_FAB_BUILD_RIVERS_ONLY,EXTRACT
+        [[[environment]]]
+           CONFIG = "gfortran_10_plus_rivers"

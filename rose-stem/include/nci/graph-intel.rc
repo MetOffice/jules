@@ -1,0 +1,333 @@
+###############################################################################
+## Name graphs
+###############################################################################
+{%- if COVERAGE == true %}
+    # If coverage stats are requested, all Intel runs must use the same build in order for the
+    # profiling stats to be generated and aggregated correctly
+    {%- set debug_build   = "remote_init_nci => fcm_make_nci_intel_coverage" %}
+    {%- set opt_build   = "remote_init_nci => fcm_make_nci_intel_coverage" %}
+{%- else %}
+    {%- set debug_build   = "remote_init_nci => fcm_make_nci_intel_debug" %}
+    {%- set opt_build   = "remote_init_nci => fcm_make_nci_intel_omp" %}
+{%- endif %}
+
+{%- set name_graphs_intel = {
+        "nci_intel_loobos_gl4" : debug_build + " => \
+                                      nci_intel_loobos_gl4 => \
+                                      nccmp_nci_intel_loobos_gl4 =>                        \
+                                      housekeep_nci_intel_loobos_gl4",
+
+        "nci_intel_loobos_gl4_cable" : debug_build + " => \
+                                      nci_intel_loobos_gl4_cable => \
+                                      nccmp_nci_intel_loobos_gl4_cable =>                        \
+                                      housekeep_nci_intel_loobos_gl4_cable",
+
+        "nci_intel_loobos_gl7" : debug_build + " => \
+                                      nci_intel_loobos_gl7  =>                             \
+                                      nccmp_nci_intel_loobos_gl7 =>                        \
+                                      housekeep_nci_intel_loobos_gl7",
+
+        "nci_intel_loobos_gl8" : debug_build + " => \
+                                        nci_intel_loobos_gl8 =>                                    \
+                                        nccmp_nci_intel_loobos_gl8 =>                              \
+                                        housekeep_nci_intel_loobos_gl8",
+
+        "nci_intel_loobos_gl8_medlyn" : debug_build + " => \
+                                        nci_intel_loobos_gl8_medlyn =>                                    \
+                                        nccmp_nci_intel_loobos_gl8_medlyn =>                              \
+                                        housekeep_nci_intel_loobos_gl8_medlyn",
+
+        "nci_intel_loobos_vegdrag" : debug_build + " => \
+                                        nci_intel_loobos_vegdrag =>                                    \
+                                        nccmp_nci_intel_loobos_vegdrag =>                              \
+                                        housekeep_nci_intel_loobos_vegdrag",
+
+       "nci_intel_loobos_euro4" : debug_build + " => \
+                                        nci_intel_loobos_euro4 =>                                    \
+                                        nccmp_nci_intel_loobos_euro4 =>                              \
+                                        housekeep_nci_intel_loobos_euro4",
+
+        "nci_intel_loobos_forecast" : debug_build + " => \
+                                           nci_intel_loobos_forecast =>                                 \
+                                           nccmp_nci_intel_loobos_forecast =>                           \
+                                           housekeep_nci_intel_loobos_forecast",
+
+        "nci_intel_loobos_ukv" : debug_build + " => \
+                                      nci_intel_loobos_ukv =>                                      \
+                                      nccmp_nci_intel_loobos_ukv =>                                \
+                                      housekeep_nci_intel_loobos_ukv",
+
+        "nci_intel_loobos_trif" : debug_build + " => \
+                                      nci_intel_loobos_trif_spinup => nci_intel_loobos_trif =>   \
+                                      nccmp_nci_intel_loobos_trif =>                                \
+                                      housekeep_nci_intel_loobos_trif_spinup & housekeep_nci_intel_loobos_trif",
+
+        "nci_intel_loobos_julesc" : debug_build + " =>       \
+                                         nci_intel_loobos_julesc_spinup => nci_intel_loobos_julesc      \
+                                         & nci_intel_loobos_jules_c1p1  & nci_intel_loobos_jules_c1p1_fire => \
+                                         nccmp_nci_intel_loobos_julesc & nccmp_nci_intel_loobos_jules_c1p1  \
+                                         & nccmp_nci_intel_loobos_jules_c1p1_fire => \
+                                         housekeep_nci_intel_loobos_julesc_spinup & housekeep_nci_intel_loobos_jules_c1p1 \
+                                         & housekeep_nci_intel_loobos_jules_c1p1_fire & housekeep_nci_intel_loobos_julesc",
+
+        "nci_intel_loobos_jules_layeredcn" : debug_build + " =>       \
+                                         nci_intel_loobos_jules_layeredcn_spinup => nci_intel_loobos_jules_layeredcn =>   \
+                                         nccmp_nci_intel_loobos_jules_layeredcn =>                                   \
+                                         housekeep_nci_intel_loobos_jules_layeredcn_spinup & housekeep_nci_intel_loobos_jules_layeredcn",
+
+        "nci_intel_loobos_jules_cn" : debug_build + " =>       \
+                                         nci_intel_loobos_jules_cn_spinup => nci_intel_loobos_jules_cn =>   \
+                                         nccmp_nci_intel_loobos_jules_cn =>                                   \
+                                         housekeep_nci_intel_loobos_jules_cn_spinup & housekeep_nci_intel_loobos_jules_cn",
+
+        "nci_intel_loobos_jules_es_1p0" : debug_build + " =>       \
+                                           nci_intel_loobos_jules_es_1p0_spinup => nci_intel_loobos_jules_es_1p0 => \
+                                           nccmp_nci_intel_loobos_jules_es_1p0 =>                                    \
+                                           housekeep_nci_intel_loobos_jules_es_1p0_spinup & housekeep_nci_intel_loobos_jules_es_1p0",
+
+        "nci_intel_loobos_jules_es_1p0_biocrop" : debug_build + " => \
+                                           nci_intel_loobos_jules_es_1p0_biocrop_spinup => \
+                                           nci_intel_loobos_jules_es_1p0_biocrop \
+                                           & nci_intel_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           nccmp_nci_intel_loobos_jules_es_1p0_biocrop \
+                                           & nccmp_nci_intel_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           housekeep_nci_intel_loobos_jules_es_1p0_biocrop_spinup \
+                                           & housekeep_nci_intel_loobos_jules_es_1p0_biocrop \
+                                           & housekeep_nci_intel_loobos_jules_es_1p0_biocrop_agexpand",
+
+        "nci_intel_loobos_crops" : debug_build + " => \
+                                        nci_intel_loobos_crops =>                                    \
+                                        nccmp_nci_intel_loobos_crops =>                              \
+                                        housekeep_nci_intel_loobos_crops",
+
+        "nci_intel_loobos_prescribe_sthuf" : debug_build + " => \
+                                        nci_intel_loobos_prescribe_sthuf =>                                    \
+                                        nccmp_nci_intel_loobos_prescribe_sthuf =>                              \
+                                        housekeep_nci_intel_loobos_prescribe_sthuf",
+
+        "nci_intel_loobos_irrig" : debug_build + " => \
+                                        nci_intel_loobos_irrig =>                                    \
+                                        nccmp_nci_intel_loobos_irrig =>                              \
+                                        housekeep_nci_intel_loobos_irrig",
+
+        "nci_intel_loobos_irrig_nirrtile" : debug_build + " => \
+                                        nci_intel_loobos_irrig_nirrtile =>                                    \
+                                        nccmp_nci_intel_loobos_irrig_nirrtile =>                              \
+                                        housekeep_nci_intel_loobos_irrig_nirrtile",
+
+        "nci_intel_loobos_fire" : debug_build + " => \
+                                       nci_intel_loobos_fire_spinup => nci_intel_loobos_fire => \
+                                       nccmp_nci_intel_loobos_fire =>                               \
+                                       housekeep_nci_intel_loobos_fire_spinup & housekeep_nci_intel_loobos_fire",
+
+        "nci_intel_loobos_daily_disagg" : debug_build + " => \
+                                               nci_intel_loobos_daily_disagg =>                             \
+                                               nccmp_nci_intel_loobos_daily_disagg =>                       \
+                                               housekeep_nci_intel_loobos_daily_disagg",
+
+        "nci_intel_loobos_crm1_traitF" : debug_build + " => \
+                                              nci_intel_loobos_crm1_traitF => \
+                                              nccmp_nci_intel_loobos_crm1_traitF => \
+                                              housekeeping_nci_intel_loobos_crm1_traitF",
+
+        "nci_intel_loobos_crm4_traitF" : debug_build + " => \
+                                              nci_intel_loobos_crm4_traitF => \
+                                              nccmp_nci_intel_loobos_crm4_traitF => \
+                                              housekeeping_nci_intel_loobos_crm4_traitF",
+
+        "nci_intel_loobos_crm5_traitF" : debug_build + " => \
+                                              nci_intel_loobos_crm5_traitF => \
+                                              nccmp_nci_intel_loobos_crm5_traitF => \
+                                              housekeeping_nci_intel_loobos_crm5_traitF",
+
+        "nci_intel_loobos_crm6_traitF" : debug_build + " => \
+                                              nci_intel_loobos_crm6_traitF => \
+                                              nccmp_nci_intel_loobos_crm6_traitF => \
+                                              housekeeping_nci_intel_loobos_crm6_traitF",
+
+        "nci_intel_loobos_crm6_traitT" : debug_build + " => \
+                                              nci_intel_loobos_crm6_traitT & nci_intel_loobos_crm6_traitT_farquhar
+                                          nci_intel_loobos_crm6_traitT => nccmp_nci_intel_loobos_crm6_traitT => \
+                                              housekeeping_nci_intel_loobos_crm6_traitT
+                                          nci_intel_loobos_crm6_traitT_farquhar => nccmp_nci_intel_loobos_crm6_traitT_farquhar => \
+                                              housekeeping_nci_intel_loobos_crm6_traitT_farquhar",
+
+        "nci_intel_loobos_crm6_traitF_srfT" : debug_build + " => \
+                                                   nci_intel_loobos_crm6_traitF_srfT => \
+                                                   nccmp_nci_intel_loobos_crm6_traitF_srfT => \
+                                                   housekeeping_nci_intel_loobos_crm6_traitF_srfT",
+
+        "nci_intel_gswp2_rivers" : opt_build + " => \
+                                        nci_intel_gswp2_rivers & nci_intel_gswp2_rivers_overbank_hypso
+                                        nci_intel_gswp2_rivers => nccmp_nci_intel_gswp2_rivers => housekeep_nci_intel_gswp2_rivers
+                                        nci_intel_gswp2_rivers_overbank_hypso => nccmp_nci_intel_gswp2_rivers_overbank_hypso => housekeep_nci_intel_gswp2_rivers_overbank_hypso",
+
+        "nci_intel_gswp2_rivers_restart" : opt_build + " => \
+                                        nci_intel_gswp2_rivers_spinup => nci_intel_gswp2_rivers_restart => \
+                                        nccmp_nci_intel_gswp2_rivers_restart =>                          \
+                                        housekeep_nci_intel_gswp2_rivers_spinup => housekeep_nci_intel_gswp2_rivers_restart",
+
+        "nci_intel_gswp2_trip" : opt_build + " => \
+                                        nci_intel_gswp2_trip =>                                \
+                                        nccmp_nci_intel_gswp2_trip =>                          \
+                                        housekeep_nci_intel_gswp2_trip",
+
+        "nci_intel_gswp2_trip_restart" : opt_build + " => \
+                                        nci_intel_gswp2_trip_spinup => nci_intel_gswp2_trip_restart => \
+                                        nccmp_nci_intel_gswp2_trip_restart =>                          \
+                                        housekeep_nci_intel_gswp2_trip_spinup => housekeep_nci_intel_gswp2_trip_restart",
+
+        "nci_intel_gswp2_irrig_limit_low_river_storage" : opt_build + " => \
+                                        nci_intel_gswp2_trip_spinup => nci_intel_gswp2_irrig_limit_low_river_storage => \
+                                        nccmp_nci_intel_gswp2_irrig_limit_low_river_storage =>                          \
+                                        housekeep_nci_intel_gswp2_trip_spinup => housekeep_nci_intel_gswp2_irrig_limit_low_river_storage",
+
+        "nci_intel_gswp2_irrig_limit_high_river_storage" : opt_build + " => \
+                                        nci_intel_gswp2_trip_spinup => nci_intel_gswp2_irrig_limit_high_river_storage => \
+                                        nccmp_nci_intel_gswp2_irrig_limit_high_river_storage =>                          \
+                                        housekeep_nci_intel_gswp2_trip_spinup => housekeep_nci_intel_gswp2_irrig_limit_high_river_storage",
+
+        "nci_intel_gswp2_closures" : opt_build + " => \
+                                          nci_intel_gswp2_closures =>                              \
+                                          nccmp_nci_intel_gswp2_closures =>                        \
+                                          housekeep_nci_intel_gswp2_closures",
+
+        "nci_intel_gswp2_euro4" : opt_build + " => \
+                                          nci_intel_gswp2_euro4 =>                              \
+                                          nccmp_nci_intel_gswp2_euro4 =>                        \
+                                          housekeep_nci_intel_gswp2_euro4",
+
+        "nci_intel_gswp2_gl4" : opt_build + " => \
+                                          nci_intel_gswp2_gl4 =>                              \
+                                          nccmp_nci_intel_gswp2_gl4 =>                        \
+                                          housekeep_nci_intel_gswp2_gl4",
+
+        "nci_intel_gswp2_gl7" : opt_build + " => \
+                                          nci_intel_gswp2_gl7 =>                              \
+                                          nccmp_nci_intel_gswp2_gl7 =>                        \
+                                          housekeep_nci_intel_gswp2_gl7",
+
+        "nci_intel_gswp2_ukv" : opt_build + " => \
+                                          nci_intel_gswp2_ukv =>                                       \
+                                          nccmp_nci_intel_gswp2_ukv =>                        \
+                                          housekeep_nci_intel_gswp2_ukv",
+
+        "nci_intel_gswp2_ukv_flake" :  opt_build + " => \
+                                          nci_intel_gswp2_ukv_flake  =>                       \
+                                          nccmp_nci_intel_gswp2_ukv_flake =>                  \
+                                          housekeep_nci_intel_gswp2_ukv_flake",
+
+        "nci_intel_eraint_rfm_2ddata" : opt_build + " => \
+                                        nci_intel_eraint_rfm_2ddata =>                                \
+                                        nccmp_nci_intel_eraint_rfm_2ddata =>                          \
+                                        housekeep_nci_intel_eraint_rfm_2ddata",
+
+        "nci_intel_eraint_trip_2ddata" : opt_build + " => \
+                                        nci_intel_eraint_trip_2ddata =>                                \
+                                        nccmp_nci_intel_eraint_trip_2ddata =>                          \
+                                        housekeep_nci_intel_eraint_trip_2ddata",
+
+       "nci_intel_gswp2_es_1p1" : opt_build + " =>       \
+                                         nci_intel_gswp2_es_1p1 => \
+                                         nccmp_nci_intel_gswp2_es_1p1 =>                                   \
+                                         housekeep_nci_intel_gswp2_es_1p1",
+
+       "nci_intel_gswp2_es_curr" : opt_build + " =>       \
+                                         nci_intel_gswp2_es_curr => \
+                                         nccmp_nci_intel_gswp2_es_curr =>                                   \
+                                         housekeep_nci_intel_gswp2_es_curr",
+
+       "nci_intel_gswp2_es_beta" : opt_build + " =>       \
+                                         nci_intel_gswp2_es_beta => \
+                                         nccmp_nci_intel_gswp2_es_beta =>                                   \
+                                         housekeep_nci_intel_gswp2_es_beta",
+
+       "nci_intel_imogen_layeredc" : opt_build + " =>       \
+                                         nci_intel_imogen_layeredc_spinup => nci_intel_imogen_layeredc =>   \
+                                         nccmp_nci_intel_imogen_layeredc =>                                   \
+                                         housekeep_nci_intel_imogen_layeredc_spinup & housekeep_nci_intel_imogen_layeredc",
+
+       "nci_intel_imogen_layeredc_co2conc" : opt_build + " =>       \
+                           nci_intel_imogen_layeredc_spinup => nci_intel_imogen_layeredc_co2conc => \
+                           nccmp_nci_intel_imogen_layeredc_co2conc => \
+                           housekeep_nci_intel_imogen_layeredc_spinup & housekeep_nci_intel_imogen_layeredc_co2conc",
+
+       "nci_intel_imogen_layeredc_dtempg" : opt_build + " =>       \
+                           nci_intel_imogen_layeredc_spinup => nci_intel_imogen_layeredc_dtempg => \
+                           nccmp_nci_intel_imogen_layeredc_dtempg => \
+                           housekeep_nci_intel_imogen_layeredc_spinup & housekeep_nci_intel_imogen_layeredc_dtempg",
+
+       "nci_intel_imogen_layeredc_ch4" : opt_build + " =>       \
+                           nci_intel_imogen_layeredc_spinup => nci_intel_imogen_layeredc_ch4 => \
+                           nccmp_nci_intel_imogen_layeredc_ch4 => \
+                           housekeep_nci_intel_imogen_layeredc_spinup & housekeep_nci_intel_imogen_layeredc_ch4",
+    }
+%}
+
+{%- set name_graphs_intel_no_coverage = {
+        "nci_intel_gswp2_rivers_rivers-only" : "remote_init_nci => fcm_make_nci_intel_omp => nci_intel_gswp2_rivers => \
+                                        nccmp_nci_intel_gswp2_rivers & nci_intel_gswp2_rivers_rivers-only
+                                        remote_init_nci => fcm_make_nci_intel_omp_rivers-only => \
+                                        nci_intel_gswp2_rivers_rivers-only => nccmp_nci_intel_gswp2_rivers_rivers-only => \
+                                        housekeep_nci_intel_gswp2_rivers_rivers-only & housekeep_nci_intel_gswp2_rivers",
+
+        "nci_intel_gswp2_trip_rivers-only" : "remote_init_nci => fcm_make_nci_intel_omp => nci_intel_gswp2_trip => \
+                                        nccmp_nci_intel_gswp2_trip & nci_intel_gswp2_trip_rivers-only
+                                        remote_init_nci => fcm_make_nci_intel_omp_rivers-only  => \
+                                        nci_intel_gswp2_trip_rivers-only => nccmp_nci_intel_gswp2_trip_rivers-only => \
+                                        housekeep_nci_intel_gswp2_trip_rivers-only & housekeep_nci_intel_gswp2_trip",
+    }
+%}
+
+# If coverage stats are requested, make sure the coverage generation will be run
+{%- if COVERAGE == true %}
+    # Add the coverage graph to name_graphs
+    {%- do name_graphs_intel.update({
+            "nci_intel_coverage" : "NCI_INTEL_LOOBOS:succeed-all & NCI_INTEL_GSWP2:succeed-all & NCI_INTEL_ERAINT:succeed-all & NCI_INTEL_IMOGEN:succeed-all => coverage_summary"
+        })
+    %}
+
+    # Add the coverage group to RUN_NAMES
+    {%- do RUN_NAMES.append("nci_intel_coverage") %}
+{%- else %}
+    {%- do name_graphs_intel.update(name_graphs_intel_no_coverage.items()) %}
+{%- endif %}
+
+###############################################################################
+## Group definitions
+###############################################################################
+{%- set groups_intel = {
+        "intel" : ["intel_loobos", "intel_gswp2", "intel_eraint",
+                   "intel_gswp2_es", "intel_imogen"],
+
+        "intel_loobos" : ["nci_intel_loobos_gl4", "nci_intel_loobos_gl4_cable",
+                    "nci_intel_loobos_gl7", "nci_intel_loobos_gl8",
+                    "nci_intel_loobos_gl8_medlyn", "nci_intel_loobos_vegdrag",
+                    "nci_intel_loobos_euro4", "nci_intel_loobos_forecast",
+                    "nci_intel_loobos_ukv", "nci_intel_loobos_trif",
+                    "nci_intel_loobos_crops", "nci_intel_loobos_prescribe_sthuf",
+                    "nci_intel_loobos_fire", "nci_intel_loobos_daily_disagg",
+                    "nci_intel_loobos_julesc", "nci_intel_loobos_irrig",
+                    "nci_intel_loobos_irrig_nirrtile",
+                    "nci_intel_loobos_jules_cn","nci_intel_loobos_jules_layeredcn",
+                    "nci_intel_loobos_jules_es_1p0", "nci_intel_loobos_jules_es_1p0_biocrop",
+                    "nci_intel_loobos_crm1_traitF", "nci_intel_loobos_crm4_traitF",
+                    "nci_intel_loobos_crm5_traitF", "nci_intel_loobos_crm6_traitF",
+                    "nci_intel_loobos_crm6_traitT", "nci_intel_loobos_crm6_traitF_srfT"],
+
+        "intel_gswp2" : ["nci_intel_gswp2_rivers", "nci_intel_gswp2_rivers_restart", "nci_intel_gswp2_trip",
+                   "nci_intel_gswp2_trip_restart", "nci_intel_gswp2_irrig_limit_low_river_storage",
+                   "nci_intel_gswp2_irrig_limit_high_river_storage", "nci_intel_gswp2_closures",
+                   "nci_intel_gswp2_euro4","nci_intel_gswp2_gl4","nci_intel_gswp2_gl7",
+                   "nci_intel_gswp2_ukv","nci_intel_gswp2_ukv_flake", "intel_gswp2_rivers-only"],
+
+        "intel_gswp2_rivers-only" : ["nci_intel_gswp2_rivers_rivers-only", "nci_intel_gswp2_trip_rivers-only"],
+
+        "intel_eraint" : ["nci_intel_eraint_rfm_2ddata", "nci_intel_eraint_trip_2ddata"],
+
+        "intel_gswp2_es" : ["nci_intel_gswp2_es_1p1", "nci_intel_gswp2_es_curr", "nci_intel_gswp2_es_beta"],
+
+        "intel_imogen" : ["nci_intel_imogen_layeredc", "nci_intel_imogen_layeredc_co2conc",
+                    "nci_intel_imogen_layeredc_dtempg", "nci_intel_imogen_layeredc_ch4"],
+ 	}
+%}

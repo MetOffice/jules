@@ -1,0 +1,171 @@
+#! /usr/bin/env bash
+
+set -eu
+
+# Checks to make sure that two float arguments are given in the correct order
+# Usage: make_jules_release JULES_REV UM_REV
+ERR_FLAG=0
+for VAR in "$@"
+do
+    if [[ ! $VAR =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]; then
+	echo "ERROR: Arguments need to be floats"
+	exit
+    fi
+done
+if [[ "$#" -ne 2 ]]; then
+    ERR_FLAG=1
+elif (( $(echo "$1 > $2" |bc -l) )); then
+    ERR_FLAG=1
+fi
+if [[ $ERR_FLAG -eq 1 ]]; then
+    echo "ERROR: Please check your usage."
+    echo "make_jules_release JULES_REV UM_REV"
+    echo "Where JULES_REV and UM_REV arguments are floats in that order."
+    exit
+fi
+
+VN=vn$1
+UM_JULES_VN=um$2
+
+# Cloning online documentation and performing checks on version numbers
+git clone git@github.com:jules-lsm/jules-lsm.github.io.git
+if [[ $? != 0 ]]; then
+   echo Failed to clone from Github
+   exit 1
+fi
+
+ERR_FLAG=0
+if [ -a jules-lsm.github.io/$VN ]; then
+   echo "jules-lsm.github.io/$VN already exists check version numbers"
+   ERR_FLAG=1
+fi
+if [ -a jules-lsm.github.io/$UM_JULES_VN ]; then
+   echo "jules-lsm.github.io/$UM_JULES_VN already exists check version numbers"
+   ERR_FLAG=1
+fi
+[[ $ERR_FLAG -eq 1 ]] && exit
+
+cwd=$PWD
+
+release_dir=$PWD/tarball/jules-$VN
+
+# Make a clean workspace directory
+[ -a workspace ] && rm -rf workspace
+mkdir workspace
+
+# Create the tarball directory if it doesn't exist
+[ -a tarball ] || mkdir tarball
+
+# If the release directory already exists, remove it
+[ -a $release_dir ] && rm -rf $release_dir
+
+# Load Python2 environment with Sphinx
+module load scitools/production_legacy-os43-1
+
+# First export the JULES project into the release directory
+# No processing is required for this
+echo "Exporting JULES trunk at $VN..."
+fcm export -q fcm:jules.x_tr@$VN $release_dir
+if [[ $? != 0 ]]; then
+   echo Failed to export JULES trunk
+   exit 1
+fi
+
+
+# Export the JULES-DOC project into the workspace
+echo "Exporting JULES-DOC trunk at $VN..."
+fcm export -q fcm:jules_doc.x_tr@$VN workspace/docs_trunk
+if [[ $? != 0 ]]; then
+   echo Failed to export JULES-DOC trunk
+   exit 1
+fi
+
+# Copy the loobos directory from the docs
+# project into the release directory
+echo "Copying loobos to release directory..."
+cp -r workspace/docs_trunk/loobos $release_dir
+
+# Build the coding standards
+echo "Building coding standards..."
+cd workspace/docs_trunk/docs/coding_standards
+make html
+if [[ $? != 0 ]]; then
+   echo Failed to build coding standards
+   exit 1
+fi
+
+# Build the user guide
+echo "Building user guide..."
+cd ../user_guide
+make html
+if [[ $? != 0 ]]; then
+   echo Failed to build user guide
+   exit 1
+fi
+
+# Make the docs directory for the release
+cd ..
+echo "Copying docs to tarball..."
+# Copy the upgrade procedure and technical docs pdfs
+mkdir $release_dir/docs
+cp *.pdf $release_dir/docs
+# Copy the coding standards and user guide
+cp -r user_guide/build/html $release_dir/docs/user_guide
+cp -r coding_standards/build/html $release_dir/docs/coding_standards
+
+cd $cwd
+
+# Create the tarball
+echo "Creating tarball..."
+tar -cz -f tarball/jules-$VN.tar.gz -C tarball jules-$VN
+
+
+# Upload the docs to github
+echo "Updating github user guide..."
+
+cp -r workspace/docs_trunk/docs/user_guide/build/html jules-lsm.github.io/$VN
+# Add a link to the index
+ed jules-lsm.github.io/index.html > /dev/null 2>&1 <<EOF
+/Latest/
+a
+                <li><a href="$VN">$VN</a></li>
+.
+w
+q
+EOF
+
+# update symbolic link to latest docs
+cd jules-lsm.github.io
+rm latest
+ln -s $VN latest
+ln -s $VN $UM_JULES_VN
+
+# stage the changes
+git add -A >/dev/null 2>&1
+
+read -r -p "Updates complete, do you want to commit and push to master? [y/n] " response
+if ! [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+  echo "Exiting script without committing changes"
+  exit 0
+fi
+# commit to local repository
+echo "git commit -m 'Documentation for $VN'"
+git commit -m "'Documentation for $VN'"
+
+# push changes from local repo to github master
+echo "git push -u origin master"
+git push -u origin master
+
+if [[ $? != 0 ]]; then
+   echo Failed to push to Github
+   exit 1
+fi
+
+cd $cwd
+# This leaves the Github clone in place on disk to allow manual intervention
+
+# Clean up
+echo "Cleaning up..."
+rm -rf workspace
+rm -rf $release_dir

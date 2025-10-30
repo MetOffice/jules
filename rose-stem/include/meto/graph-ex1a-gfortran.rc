@@ -1,0 +1,344 @@
+###############################################################################
+## Name graphs
+###############################################################################
+{%- set name_graphs_ex1a_gfortran = {
+        "meto_ex1a_gfortran_loobos_gl4" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                      meto_ex1a_gfortran_loobos_gl4 => \
+                                      nccmp_meto_ex1a_gfortran_loobos_gl4 =>                            \
+                                      housekeep_meto_ex1a_gfortran_loobos_gl4",
+
+        "meto_ex1a_gfortran_loobos_gl4_cable" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                      meto_ex1a_gfortran_loobos_gl4_cable => \
+                                      nccmp_meto_ex1a_gfortran_loobos_gl4_cable =>                            \
+                                      housekeep_meto_ex1a_gfortran_loobos_gl4_cable",
+
+        "meto_ex1a_gfortran_loobos_gl7" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                      meto_ex1a_gfortran_loobos_gl7 =>        \
+                                      nccmp_meto_ex1a_gfortran_loobos_gl7 =>  \
+                                      housekeep_meto_ex1a_gfortran_loobos_gl7",
+
+        "meto_ex1a_gfortran_loobos_gl8" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_gl8 =>        \
+                                        nccmp_meto_ex1a_gfortran_loobos_gl8 =>  \
+                                        housekeep_meto_ex1a_gfortran_loobos_gl8",
+
+        "meto_ex1a_gfortran_loobos_gl8_medlyn" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_gl8_medlyn =>       \
+                                        nccmp_meto_ex1a_gfortran_loobos_gl8_medlyn => \
+                                        housekeep_meto_ex1a_gfortran_loobos_gl8_medlyn",
+
+        "meto_ex1a_gfortran_loobos_vegdrag" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_vegdrag =>        \
+                                        nccmp_meto_ex1a_gfortran_loobos_vegdrag =>  \
+                                        housekeep_meto_ex1a_gfortran_loobos_vegdrag",
+
+
+        "meto_ex1a_gfortran_loobos_euro4" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_euro4 =>        \
+                                        nccmp_meto_ex1a_gfortran_loobos_euro4 =>  \
+                                        housekeep_meto_ex1a_gfortran_loobos_euro4",
+
+        "meto_ex1a_gfortran_loobos_forecast" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                           meto_ex1a_gfortran_loobos_forecast =>        \
+                                           nccmp_meto_ex1a_gfortran_loobos_forecast =>  \
+                                           housekeep_meto_ex1a_gfortran_loobos_forecast",
+
+        "meto_ex1a_gfortran_loobos_ukv" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                       meto_ex1a_gfortran_loobos_ukv & \
+                                       meto_ex1a_gfortran_loobos_ukv_deposition
+                                       meto_ex1a_gfortran_loobos_ukv =>        \
+                                       nccmp_meto_ex1a_gfortran_loobos_ukv =>  \
+                                       housekeep_meto_ex1a_gfortran_loobos_ukv
+                                       meto_ex1a_gfortran_loobos_ukv_deposition => \
+                                       nccmp_meto_ex1a_gfortran_loobos_ukv_deposition => \
+                                       housekeep_meto_ex1a_gfortran_loobos_ukv_deposition",
+
+        "meto_ex1a_gfortran_loobos_trif" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                      meto_ex1a_gfortran_loobos_trif_spinup => meto_ex1a_gfortran_loobos_trif =>   \
+                                      nccmp_meto_ex1a_gfortran_loobos_trif =>                                \
+                                      housekeep_meto_ex1a_gfortran_loobos_trif_spinup & housekeep_meto_ex1a_gfortran_loobos_trif",
+
+        "meto_ex1a_gfortran_loobos_julesc" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                         meto_ex1a_gfortran_loobos_julesc_spinup => meto_ex1a_gfortran_loobos_julesc      \
+                                         & meto_ex1a_gfortran_loobos_jules_c1p1 & meto_ex1a_gfortran_loobos_jules_c1p1_fire => \
+                                         nccmp_meto_ex1a_gfortran_loobos_julesc & nccmp_meto_ex1a_gfortran_loobos_jules_c1p1  \
+                                         & nccmp_meto_ex1a_gfortran_loobos_jules_c1p1_fire => \
+                                         housekeep_meto_ex1a_gfortran_loobos_julesc_spinup & housekeep_meto_ex1a_gfortran_loobos_jules_c1p1 \
+                                         & housekeep_meto_ex1a_gfortran_loobos_jules_c1p1_fire & housekeep_meto_ex1a_gfortran_loobos_julesc",
+
+        "meto_ex1a_gfortran_loobos_jules_layeredcn" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                         meto_ex1a_gfortran_loobos_jules_layeredcn_spinup => meto_ex1a_gfortran_loobos_jules_layeredcn =>   \
+                                         nccmp_meto_ex1a_gfortran_loobos_jules_layeredcn =>                                   \
+                                         housekeep_meto_ex1a_gfortran_loobos_jules_layeredcn_spinup & housekeep_meto_ex1a_gfortran_loobos_jules_layeredcn",
+
+        "meto_ex1a_gfortran_loobos_jules_cn" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                         meto_ex1a_gfortran_loobos_jules_cn_spinup => meto_ex1a_gfortran_loobos_jules_cn =>   \
+                                         nccmp_meto_ex1a_gfortran_loobos_jules_cn =>                                   \
+                                         housekeep_meto_ex1a_gfortran_loobos_jules_cn_spinup & housekeep_meto_ex1a_gfortran_loobos_jules_cn",
+
+        "meto_ex1a_gfortran_loobos_jules_es_1p0" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                           meto_ex1a_gfortran_loobos_jules_es_1p0_spinup => meto_ex1a_gfortran_loobos_jules_es_1p0 => \
+                                           nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0 =>                                    \
+                                           housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_spinup & housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0",
+
+        "meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                           meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop_spinup => meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop \
+                                           & meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop \
+                                           & nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop_spinup \
+                                           & housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop \
+                                           & housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop_agexpand",
+
+        "meto_ex1a_gfortran_loobos_jules_es_1p0_deposition" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                           meto_ex1a_gfortran_loobos_jules_es_1p0_deposit_spinup => \
+                                             meto_ex1a_gfortran_loobos_jules_es_1p0_deposition \
+                                             & meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd1 \
+                                             & meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2 \
+                                             & meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2h2
+                                           meto_ex1a_gfortran_loobos_jules_es_1p0_deposition => \
+                                             nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition
+                                           meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd1 => \
+                                             nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd1
+                                           meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2 => \
+                                             nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2
+                                           meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2h2 => \
+                                             nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2h2
+                                           nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition \
+                                             & nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd1 \
+                                             & nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2 \
+                                             & nccmp_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2h2 => \
+                                             housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition \
+                                             & housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd1 \
+                                             & housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2 \
+                                             & housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_dd2h2 \
+                                             & housekeep_meto_ex1a_gfortran_loobos_jules_es_1p0_deposition_spinup",
+
+        "meto_ex1a_gfortran_loobos_crops" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_crops =>        \
+                                        nccmp_meto_ex1a_gfortran_loobos_crops =>  \
+                                        housekeep_meto_ex1a_gfortran_loobos_crops",
+
+        "meto_ex1a_gfortran_loobos_prescribe_sthuf" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_prescribe_sthuf =>        \
+                                        nccmp_meto_ex1a_gfortran_loobos_prescribe_sthuf =>  \
+                                        housekeep_meto_ex1a_gfortran_loobos_prescribe_sthuf",
+
+        "meto_ex1a_gfortran_loobos_irrig" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_irrig =>        \
+                                        nccmp_meto_ex1a_gfortran_loobos_irrig =>  \
+                                        housekeep_meto_ex1a_gfortran_loobos_irrig",
+
+        "meto_ex1a_gfortran_loobos_irrig_nirrtile" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                        meto_ex1a_gfortran_loobos_irrig_nirrtile =>        \
+                                        nccmp_meto_ex1a_gfortran_loobos_irrig_nirrtile =>  \
+                                        housekeep_meto_ex1a_gfortran_loobos_irrig_nirrtile",
+
+        "meto_ex1a_gfortran_loobos_fire" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                       meto_ex1a_gfortran_loobos_fire_spinup => meto_ex1a_gfortran_loobos_fire => \
+                                       nccmp_meto_ex1a_gfortran_loobos_fire =>                               \
+                                       housekeep_meto_ex1a_gfortran_loobos_fire_spinup & housekeep_meto_ex1a_gfortran_loobos_fire",
+
+        "meto_ex1a_gfortran_loobos_daily_disagg" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                               meto_ex1a_gfortran_loobos_daily_disagg =>        \
+                                               nccmp_meto_ex1a_gfortran_loobos_daily_disagg =>  \
+                                               housekeep_meto_ex1a_gfortran_loobos_daily_disagg",
+
+        "meto_ex1a_gfortran_loobos_crm1_traitF" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                              meto_ex1a_gfortran_loobos_crm1_traitF => \
+                                              nccmp_meto_ex1a_gfortran_loobos_crm1_traitF => \
+                                              housekeeping_meto_ex1a_gfortran_loobos_crm1_traitF",
+
+        "meto_ex1a_gfortran_loobos_crm4_traitF" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                              meto_ex1a_gfortran_loobos_crm4_traitF => \
+                                              nccmp_meto_ex1a_gfortran_loobos_crm4_traitF => \
+                                              housekeeping_meto_ex1a_gfortran_loobos_crm4_traitF",
+
+        "meto_ex1a_gfortran_loobos_crm5_traitF" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                              meto_ex1a_gfortran_loobos_crm5_traitF => \
+                                              nccmp_meto_ex1a_gfortran_loobos_crm5_traitF => \
+                                              housekeeping_meto_ex1a_gfortran_loobos_crm5_traitF",
+
+        "meto_ex1a_gfortran_loobos_crm6_traitF" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                              meto_ex1a_gfortran_loobos_crm6_traitF => \
+                                              nccmp_meto_ex1a_gfortran_loobos_crm6_traitF => \
+                                              housekeeping_meto_ex1a_gfortran_loobos_crm6_traitF",
+
+        "meto_ex1a_gfortran_loobos_crm6_traitT" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                                meto_ex1a_gfortran_loobos_crm6_traitT & meto_ex1a_gfortran_loobos_crm6_traitT_farquhar
+                                              meto_ex1a_gfortran_loobos_crm6_traitT => nccmp_meto_ex1a_gfortran_loobos_crm6_traitT => \
+                                                housekeeping_meto_ex1a_gfortran_loobos_crm6_traitT
+                                              meto_ex1a_gfortran_loobos_crm6_traitT_farquhar => nccmp_meto_ex1a_gfortran_loobos_crm6_traitT_farquhar => \
+                                                housekeeping_meto_ex1a_gfortran_loobos_crm6_traitT_farquhar",
+
+        "meto_ex1a_gfortran_loobos_crm6_traitF_srfT" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_debug => fcm_make2_meto_ex1a_gfortran_debug => \
+                                                   meto_ex1a_gfortran_loobos_crm6_traitF_srfT => \
+                                                   nccmp_meto_ex1a_gfortran_loobos_crm6_traitF_srfT => \
+                                                   housekeeping_meto_ex1a_gfortran_loobos_crm6_traitF_srfT",
+
+        "meto_ex1a_gfortran_gswp2_rivers" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                               meto_ex1a_gfortran_gswp2_rivers & meto_ex1a_gfortran_gswp2_rivers_overbank_hypso
+                                             meto_ex1a_gfortran_gswp2_rivers => nccmp_meto_ex1a_gfortran_gswp2_rivers =>  \
+                                               housekeep_meto_ex1a_gfortran_gswp2_rivers
+                                             meto_ex1a_gfortran_gswp2_rivers_overbank_hypso => nccmp_meto_ex1a_gfortran_gswp2_rivers_overbank_hypso =>  \
+                                               housekeep_meto_ex1a_gfortran_gswp2_rivers_overbank_hypso",
+
+        "meto_ex1a_gfortran_gswp2_rivers_restart" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_gswp2_rivers_spinup => meto_ex1a_gfortran_gswp2_rivers_restart => \
+                                        nccmp_meto_ex1a_gfortran_gswp2_rivers_restart =>                          \
+                                        housekeep_meto_ex1a_gfortran_gswp2_rivers_spinup => housekeep_meto_ex1a_gfortran_gswp2_rivers_restart",
+
+        "meto_ex1a_gfortran_gswp2_trip" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_gswp2_trip =>        \
+                                        nccmp_meto_ex1a_gfortran_gswp2_trip =>  \
+                                        housekeep_meto_ex1a_gfortran_gswp2_trip",
+
+        "meto_ex1a_gfortran_gswp2_trip_restart" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_gswp2_trip_spinup => meto_ex1a_gfortran_gswp2_trip_restart => \
+                                        nccmp_meto_ex1a_gfortran_gswp2_trip_restart =>                          \
+                                        housekeep_meto_ex1a_gfortran_gswp2_trip_spinup => housekeep_meto_ex1a_gfortran_gswp2_trip_restart",
+
+        "meto_ex1a_gfortran_gswp2_trip_restart_init_storage" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_gswp2_trip_spinup => meto_ex1a_gfortran_gswp2_trip_restart_init_storage => \
+                                        nccmp_meto_ex1a_gfortran_gswp2_trip_restart_init_storage =>                          \
+                                        housekeep_meto_ex1a_gfortran_gswp2_trip_spinup => housekeep_meto_ex1a_gfortran_gswp2_trip_restart_init_storage",
+
+        "meto_ex1a_gfortran_gswp2_irrig_limit_low_river_storage" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_gswp2_trip_spinup => meto_ex1a_gfortran_gswp2_irrig_limit_low_river_storage => \
+                                        nccmp_meto_ex1a_gfortran_gswp2_irrig_limit_low_river_storage =>                          \
+                                        housekeep_meto_ex1a_gfortran_gswp2_trip_spinup => housekeep_meto_ex1a_gfortran_gswp2_irrig_limit_low_river_storage",
+
+        "meto_ex1a_gfortran_gswp2_irrig_limit_high_river_storage" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_gswp2_trip_spinup => meto_ex1a_gfortran_gswp2_irrig_limit_high_river_storage => \
+                                        nccmp_meto_ex1a_gfortran_gswp2_irrig_limit_high_river_storage =>                          \
+                                        housekeep_meto_ex1a_gfortran_gswp2_trip_spinup => housekeep_meto_ex1a_gfortran_gswp2_irrig_limit_high_river_storage",
+
+        "meto_ex1a_gfortran_gswp2_closures" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_closures =>        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_closures =>  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_closures",
+
+        "meto_ex1a_gfortran_gswp2_euro4" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_euro4 =>        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_euro4 =>  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_euro4",
+
+        "meto_ex1a_gfortran_gswp2_gl7" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_gl7 =>        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_gl7 =>  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_gl7",
+
+        "meto_ex1a_gfortran_gswp2_gl7_flanner" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                                  meto_ex1a_gfortran_gswp2_gl7_flanner =>        \
+                                                  nccmp_meto_ex1a_gfortran_gswp2_gl7_flanner =>  \
+                                                  housekeep_meto_ex1a_gfortran_gswp2_gl7_flanner",
+
+        "meto_ex1a_gfortran_gswp2_gl4" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_gl4 =>        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_gl4 =>  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_gl4",
+
+        "meto_ex1a_gfortran_gswp2_ukv" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_noomp => fcm_make2_meto_ex1a_gfortran_noomp => \
+                                          meto_ex1a_gfortran_gswp2_ukv_noomp =>                        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_ukv_noomp_kgo =>              \
+                                          housekeep_meto_ex1a_gfortran_gswp2_ukv
+                                     meto_ex1a_gfortran_gswp2_ukv_noomp => nccmp_meto_ex1a_gfortran_gswp2_ukv_8_omp_threads_vs_noomp
+                                     remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_ukv_8_omp_threads =>                \
+                                          nccmp_meto_ex1a_gfortran_gswp2_ukv_8_omp_threads_vs_noomp => \
+                                          housekeep_meto_ex1a_gfortran_gswp2_ukv",
+
+        "meto_ex1a_gfortran_gswp2_ukv_flake" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_ukv_omp_flake =>                                        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_ukv_omp_flake =>                                  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_ukv_flake",
+
+        "meto_ex1a_gfortran_eraint_rfm_2ddata" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_eraint_rfm_2ddata =>        \
+                                        nccmp_meto_ex1a_gfortran_eraint_rfm_2ddata =>  \
+                                        housekeep_meto_ex1a_gfortran_eraint_rfm_2ddata",
+
+        "meto_ex1a_gfortran_eraint_trip_2ddata" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                        meto_ex1a_gfortran_eraint_trip_2ddata =>       \
+                                        nccmp_meto_ex1a_gfortran_eraint_trip_2ddata => \
+                                        housekeep_meto_ex1a_gfortran_eraint_trip_2ddata",
+
+        "meto_ex1a_gfortran_gswp2_es_1p1" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_es_1p1 =>        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_es_1p1 =>  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_es_1p1",
+
+        "meto_ex1a_gfortran_gswp2_es_curr" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_es_curr =>        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_es_curr =>  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_es_curr",
+
+        "meto_ex1a_gfortran_gswp2_es_beta" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                          meto_ex1a_gfortran_gswp2_es_beta =>        \
+                                          nccmp_meto_ex1a_gfortran_gswp2_es_beta =>  \
+                                          housekeep_meto_ex1a_gfortran_gswp2_es_beta",
+
+       "meto_ex1a_gfortran_imogen_layeredc" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                         meto_ex1a_gfortran_imogen_layeredc_spinup => meto_ex1a_gfortran_imogen_layeredc => \
+                                         nccmp_meto_ex1a_gfortran_imogen_layeredc =>                                   \
+                                         housekeep_meto_ex1a_gfortran_imogen_layeredc_spinup & housekeep_meto_ex1a_gfortran_imogen_layeredc",
+
+       "meto_ex1a_gfortran_imogen_layeredc_co2conc" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                         meto_ex1a_gfortran_imogen_layeredc_spinup => meto_ex1a_gfortran_imogen_layeredc_co2conc => \
+                                         nccmp_meto_ex1a_gfortran_imogen_layeredc_co2conc =>                                   \
+                                         housekeep_meto_ex1a_gfortran_imogen_layeredc_spinup & housekeep_meto_ex1a_gfortran_imogen_layeredc_co2conc",
+
+       "meto_ex1a_gfortran_imogen_layeredc_dtempg" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                         meto_ex1a_gfortran_imogen_layeredc_spinup => meto_ex1a_gfortran_imogen_layeredc_dtempg => \
+                                         nccmp_meto_ex1a_gfortran_imogen_layeredc_dtempg =>                                   \
+                                         housekeep_meto_ex1a_gfortran_imogen_layeredc_spinup & housekeep_meto_ex1a_gfortran_imogen_layeredc_dtempg",
+
+       "meto_ex1a_gfortran_imogen_layeredc_ch4" : "remote_init_ex1a => fcm_make_meto_ex1a_gfortran_omp => fcm_make2_meto_ex1a_gfortran_omp => \
+                                         meto_ex1a_gfortran_imogen_layeredc_spinup => meto_ex1a_gfortran_imogen_layeredc_ch4 => \
+                                         nccmp_meto_ex1a_gfortran_imogen_layeredc_ch4 =>                                   \
+                                         housekeep_meto_ex1a_gfortran_imogen_layeredc_spinup & housekeep_meto_ex1a_gfortran_imogen_layeredc_ch4",
+    }
+%}
+
+
+###############################################################################
+## Group definitions
+###############################################################################
+{%- set groups_ex1a_gfortran = {
+        "ex1a_gfortran" : ["ex1a_gfortran_loobos", "ex1a_gfortran_gswp2", "ex1a_gfortran_eraint",
+                           "ex1a_gfortran_gswp2_es", "ex1a_gfortran_imogen"],
+
+        "ex1a_gfortran_loobos" : ["meto_ex1a_gfortran_loobos_gl7", "meto_ex1a_gfortran_loobos_gl8", "meto_ex1a_gfortran_loobos_gl8_medlyn",
+                                  "meto_ex1a_gfortran_loobos_vegdrag", "meto_ex1a_gfortran_loobos_euro4",
+                                  "meto_ex1a_gfortran_loobos_forecast", "meto_ex1a_gfortran_loobos_ukv",
+                                  "meto_ex1a_gfortran_loobos_trif", "meto_ex1a_gfortran_loobos_crops",
+                                  "meto_ex1a_gfortran_loobos_prescribe_sthuf", "meto_ex1a_gfortran_loobos_gl4",
+                                  "meto_ex1a_gfortran_loobos_gl4_cable",
+                                  "meto_ex1a_gfortran_loobos_fire", "meto_ex1a_gfortran_loobos_daily_disagg",
+                                  "meto_ex1a_gfortran_loobos_julesc", "meto_ex1a_gfortran_loobos_irrig",
+                                  "meto_ex1a_gfortran_loobos_irrig_nirrtile",
+                                  "meto_ex1a_gfortran_loobos_jules_cn","meto_ex1a_gfortran_loobos_jules_layeredcn",
+                                  "meto_ex1a_gfortran_loobos_jules_es_1p0",
+                                  "meto_ex1a_gfortran_loobos_jules_es_1p0_deposition",
+                                  "meto_ex1a_gfortran_loobos_jules_es_1p0_biocrop",
+                                  "meto_ex1a_gfortran_loobos_crm1_traitF", "meto_ex1a_gfortran_loobos_crm4_traitF",
+                                  "meto_ex1a_gfortran_loobos_crm5_traitF", "meto_ex1a_gfortran_loobos_crm6_traitF",
+                                  "meto_ex1a_gfortran_loobos_crm6_traitT", "meto_ex1a_gfortran_loobos_crm6_traitF_srfT"],
+
+        "ex1a_gfortran_gswp2" : ["meto_ex1a_gfortran_gswp2_rivers", "meto_ex1a_gfortran_gswp2_rivers_restart",
+	                         "meto_ex1a_gfortran_gswp2_trip", "meto_ex1a_gfortran_gswp2_trip_restart",
+				 "meto_ex1a_gfortran_gswp2_trip_restart_init_storage", "meto_ex1a_gfortran_gswp2_closures",
+                                 "meto_ex1a_gfortran_gswp2_euro4","meto_ex1a_gfortran_gswp2_gl7","meto_ex1a_gfortran_gswp2_gl7_flanner",
+                                 "meto_ex1a_gfortran_gswp2_gl4","meto_ex1a_gfortran_gswp2_ukv","meto_ex1a_gfortran_gswp2_ukv_flake"],
+
+        "ex1a_gfortran_eraint" : ["meto_ex1a_gfortran_eraint_rfm_2ddata", "meto_ex1a_gfortran_eraint_trip_2ddata"],
+
+        "ex1a_gfortran_gswp2_es" : ["meto_ex1a_gfortran_gswp2_es_1p1", "meto_ex1a_gfortran_gswp2_es_curr",
+                                    "meto_ex1a_gfortran_gswp2_es_beta"],
+
+        "ex1a_gfortran_imogen" : ["meto_ex1a_gfortran_imogen_layeredc",
+                                  "meto_ex1a_gfortran_imogen_layeredc_co2conc",
+                                  "meto_ex1a_gfortran_imogen_layeredc_dtempg",
+                                  "meto_ex1a_gfortran_imogen_layeredc_ch4"],
+    }
+%}

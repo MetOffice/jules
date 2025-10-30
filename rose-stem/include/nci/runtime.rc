@@ -1,0 +1,76 @@
+###############################################################################
+## Families for NCI
+###############################################################################
+
+# Family for NCI jobs
+{% set PROJ = environ['PROJECT']|default('dp9') %}
+    [[NCI]]
+        pre-script = """
+           module load openmpi/4.1.4
+           """
+        [[[job]]]
+            batch system = pbs
+            execution time limit = PT10M
+        [[[directives]]]
+            -l ncpus = 1
+            -l mem = 2GB
+            -l storage=gdata/{{PROJ}}+gdata/access+gdata/hr22
+            -q = normal
+        [[[environment]]]
+            OMPI_MCA_io = ompio
+
+    [[remote_init_nci]]
+        inherit = NCI
+        script = true
+
+# Family for Linux build jobs
+    [[NCI_EXTRACT]]
+        inherit = EXTRACT
+        #[[[job]]]
+        #    batch system = background
+
+# Family for NCI compute jobs
+    [[NCI_COMPUTE]]
+        inherit = None, NCI, COMPUTE
+        [[[environment]]]
+            LOOBOS_INSTALL_DIR = /g/data/access/jules/datasets/loobos
+            GSWP2_INSTALL_DIR = /g/data/access/jules/datasets/gswp2
+            ERAINT_INSTALL_DIR = /g/data/access/jules/datasets/eraint
+            IMOGEN_INSTALL_DIR = /g/data/access/jules/datasets/imogen
+        [[[job]]]
+            batch system = pbs
+            execution time limit = PT20M
+        [[[directives]]]
+            -q = normal
+
+    [[NCI_MPITASKS_1]]
+        inherit = NCI
+        [[[environment]]]
+            MPI_NUM_TASKS = 1
+            NPROC = $MPI_NUM_TASKS
+            OMP_NUM_THREADS = 1
+        [[[directives]]]
+            -l ncpus = 1
+            -l mem = 2GB
+
+    [[NCI_MPITASKS_16]]
+        inherit = NCI
+        [[[environment]]]
+            MPI_NUM_TASKS = 16
+            NPROC = $MPI_NUM_TASKS
+            OMP_NUM_THREADS = 1
+        [[[directives]]]
+            -l ncpus = 16
+            -l mem = 16GB
+
+# Family for NCI comparison jobs
+    [[NCI_NETCDF_COMPARISON]]
+        inherit = None, NCI, NETCDF_COMPARISON
+        pre-script = """
+            module load nccmp/1.8.5.0
+        """
+        [[[environment]]]
+            KGO_DIR = /g/data/access/jules/rose-stem-kgo/{{ KGO_VERSION }}
+
+%include 'include/nci/runtime-intel.rc'
+%include 'include/nci/runtime-gfortran.rc'

@@ -1,0 +1,1395 @@
+###############################################################################
+## Build jobs
+###############################################################################
+# Linux gnu build jobs
+    [[METO_AZSPICE_GNU_BUILD]]
+        inherit = METO_AZSPICE_BUILD
+
+    [[METO_AZSPICE_GNU_BUILD_MPI]]
+        inherit = METO_AZSPICE_GNU_BUILD
+        pre-script = """
+                     module purge
+                     module load gcc/12.2.0-gcc-12.2.0-elnqzkg
+                     module load mpich/4.2.3-gcc-12.2.0-vqupwpn
+                     module load netcdf-fortran/4.6.1-gcc-12.2.0-3bu2pvj
+                     module list 2>&1
+                     """
+
+    [[METO_AZSPICE_GNU_BUILD_NOMPI]]
+        inherit = METO_AZSPICE_GNU_BUILD
+        pre-script = """
+                     module purge
+                     module load gcc/12.2.0-gcc-12.2.0-elnqzkg
+                     module load mpich/4.2.3-gcc-12.2.0-vqupwpn
+                     module load netcdf-fortran/4.6.1-gcc-12.2.0-3bu2pvj
+                     module list 2>&1
+                     """
+
+# Linux gnu River.Exe build jobs
+    [[METO_AZSPICE_GNU_BUILD_RIVERS_ONLY_MPI]]
+        inherit = METO_AZSPICE_BUILD_RIVERS_ONLY,METO_AZSPICE_GNU_BUILD_MPI
+
+{%- if COVERAGE == true %}
+    [[fcm_make_meto_azspice_gnu_coverage]]
+        inherit = METO_AZSPICE_GNU_BUILD_NOMPI
+        pre-script = mkdir -p $CYLC_SUITE_SHARE_DIR/coverage
+        [[[environment]]]
+            JULES_PLATFORM = meto-azspice-gnu-nompi
+            JULES_BUILD = normal
+            JULES_OMP = noomp
+            JULES_FFLAGS_EXTRA  = -prof-gen=srcpos -prof-dir $CYLC_SUITE_SHARE_DIR/coverage
+            JULES_LDFLAGS_EXTRA = -prof-gen=srcpos -prof-dir $CYLC_SUITE_SHARE_DIR/coverage
+{%- else %}
+    [[fcm_make_meto_azspice_gnu_debug_noomp_nompi]]
+        inherit = METO_AZSPICE_GNU_BUILD_NOMPI
+        [[[environment]]]
+            JULES_PLATFORM = meto-azspice-gnu-nompi
+            JULES_BUILD = debug
+            JULES_OMP = noomp
+
+    [[fcm_make_meto_azspice_gnu_omp_nompi]]
+        inherit = METO_AZSPICE_GNU_BUILD_NOMPI
+        [[[environment]]]
+            JULES_PLATFORM = meto-azspice-gnu-nompi
+            JULES_BUILD = normal
+            JULES_OMP = omp
+
+    [[fcm_make_meto_azspice_gnu_noomp_mpi]]
+        inherit = METO_AZSPICE_GNU_BUILD_MPI
+        [[[environment]]]
+            JULES_PLATFORM = meto-azspice-gnu-mpi
+            JULES_BUILD = normal
+            JULES_OMP = noomp
+
+    [[fcm_make_meto_azspice_gnu_omp_mpi]]
+        inherit = METO_AZSPICE_GNU_BUILD_MPI
+        [[[environment]]]
+            JULES_PLATFORM = meto-azspice-gnu-mpi
+            JULES_BUILD = normal
+            JULES_OMP = omp
+
+    [[fcm_make_meto_azspice_gnu_rivers-only_noomp_mpi]]
+        inherit = METO_AZSPICE_GNU_BUILD_RIVERS_ONLY_MPI
+        [[[environment]]]
+            JULES_PLATFORM = meto-azspice-gnu-mpi
+            JULES_BUILD = normal
+            JULES_OMP = noomp
+            SOURCE_PATH_PREFIX = river
+
+    [[fcm_make_meto_azspice_gnu_rivers-only_omp_mpi]]
+        inherit = METO_AZSPICE_GNU_BUILD_RIVERS_ONLY_MPI
+        [[[environment]]]
+            JULES_PLATFORM = meto-azspice-gnu-mpi
+            JULES_BUILD = normal
+            JULES_OMP = omp
+            SOURCE_PATH_PREFIX = river
+{%- endif %}
+
+###############################################################################
+## Compute jobs
+###############################################################################
+# Family for Loobos jobs with the gnu compiler
+    [[METO_AZSPICE_GNU_LOOBOS]]
+        inherit = LOOBOS, METO_AZSPICE_COMPUTE, METO_AZSPICE_1_TASK, METO_AZSPICE_1_THREAD
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_debug_noomp_nompi
+            {# BUILD_NAME = fcm_make_meto_azspice_gnu_omp_mpi #}
+{%- endif %}
+
+    [[meto_azspice_gnu_loobos_gl7]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl7
+
+    [[meto_azspice_gnu_loobos_gl4]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl4
+
+    [[meto_azspice_gnu_loobos_gl4_cable]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl4
+            ROSE_APP_OPT_CONF_KEYS=cable
+
+    [[meto_azspice_gnu_loobos_gl8]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+
+    [[meto_azspice_gnu_loobos_gl8_medlyn]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8_medlyn
+
+    [[meto_azspice_gnu_loobos_vegdrag]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_vegdrag
+
+    [[meto_azspice_gnu_loobos_euro4]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_euro4
+
+    [[meto_azspice_gnu_loobos_forecast]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_forecast
+
+    [[meto_azspice_gnu_loobos_ukv]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_ukv
+
+    [[meto_azspice_gnu_loobos_ukv_deposition]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_ukv
+            ROSE_APP_OPT_CONF_KEYS = deposition-dd2
+
+    [[meto_azspice_gnu_loobos_trif_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_trif_spinup
+
+    [[meto_azspice_gnu_loobos_trif]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_trif
+            DUMP_FILE = ../meto_azspice_gnu_loobos_trif_spinup/output/meto_azspice_gnu_loobos_trif_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_julesc_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_julesc_spinup
+
+    [[meto_azspice_gnu_loobos_julesc]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_julesc
+            DUMP_FILE = ../meto_azspice_gnu_loobos_julesc_spinup/output/meto_azspice_gnu_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_c1p1]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_c1p1
+            DUMP_FILE = ../meto_azspice_gnu_loobos_julesc_spinup/output/meto_azspice_gnu_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_c1p1_fire]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_c1p1_fire
+            DUMP_FILE = ../meto_azspice_gnu_loobos_julesc_spinup/output/meto_azspice_gnu_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_layeredcn_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_layeredcn_spinup
+
+    [[meto_azspice_gnu_loobos_jules_layeredcn]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_layeredcn
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_layeredcn_spinup/output/meto_azspice_gnu_loobos_jules_layeredcn_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_cn_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_cn_spinup
+
+    [[meto_azspice_gnu_loobos_jules_cn]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_cn
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_cn_spinup/output/meto_azspice_gnu_loobos_jules_cn_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_spinup
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_es_1p0_spinup/output/meto_azspice_gnu_loobos_jules_es_1p0_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_spinup
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_biocrop]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup/output/meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_agexpand
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup/output/meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_deposition_spinup
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_deposition]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_deposition
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup/output/meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_deposition
+            ROSE_APP_OPT_CONF_KEYS = deposition-dd1
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup/output/meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_deposition
+            ROSE_APP_OPT_CONF_KEYS = deposition-dd2
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup/output/meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_deposition
+            ROSE_APP_OPT_CONF_KEYS = deposition-dd2h2
+            DUMP_FILE = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup/output/meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_crops]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crops
+
+    [[meto_azspice_gnu_loobos_prescribe_sthuf]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_prescribe_sthuf
+
+    [[meto_azspice_gnu_loobos_irrig]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_irrig
+
+   [[meto_azspice_gnu_loobos_irrig_nirrtile]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_irrig_nirrtile
+
+    [[meto_azspice_gnu_loobos_fire_spinup]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_fire_spinup
+
+    [[meto_azspice_gnu_loobos_fire]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_fire
+            DUMP_FILE = ../meto_azspice_gnu_loobos_fire_spinup/output/meto_azspice_gnu_loobos_fire_spinup.dump.19971231.82800.nc
+
+    [[meto_azspice_gnu_loobos_daily_disagg]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_daily_disagg
+
+    [[meto_azspice_gnu_loobos_crm1_traitF]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm1_traitF
+
+    [[meto_azspice_gnu_loobos_crm4_traitF]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm4_traitF
+
+    [[meto_azspice_gnu_loobos_crm5_traitF]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm5_traitF
+
+    [[meto_azspice_gnu_loobos_crm6_traitF]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitF
+
+    [[meto_azspice_gnu_loobos_crm6_traitT]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitT
+
+    [[meto_azspice_gnu_loobos_crm6_traitT_farquhar]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitT
+            ROSE_APP_OPT_CONF_KEYS = farquhar
+
+    [[meto_azspice_gnu_loobos_crm6_traitF_srfT]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_crm6_traitF_srfT
+
+    [[METO_AZSPICE_GNU_GSWP2]]
+{%- if COVERAGE == true %}
+        inherit = GSWP2, METO_AZSPICE_COMPUTE, METO_AZSPICE_1_TASK, METO_AZSPICE_1_THREAD
+{%- else %}
+        inherit = GSWP2, METO_AZSPICE_COMPUTE, METO_AZSPICE_8_TASKS, METO_AZSPICE_1_THREAD
+{%- endif %}
+        pre-script = gen_gswp2_drive_file
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_omp_mpi
+{%- endif %}
+	[[[directives]]]
+	    --mem = 2048
+
+    [[METO_AZSPICE_GNU_GSWP2_RIVERS_ONLY]]
+        inherit = METO_AZSPICE_GNU_GSWP2, METO_AZSPICE_8_TASKS
+        [[[environment]]]
+	        BUILD_NAME = fcm_make_meto_azspice_gnu_rivers-only_omp_mpi
+	        ROSE_APP_COMMAND_KEY = rivers-only
+
+    [[METO_AZSPICE_GNU_GSWP2_RFM_RESTART]]
+        pre-script = gen_gswp2_rivers_props_rfm_file
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers_restart
+            DUMP_FILE = ../meto_azspice_gnu_gswp2_rivers_spinup/output/meto_azspice_gnu_gswp2_rivers_spinup.dump.19820701.10800.nc
+
+    [[METO_AZSPICE_GNU_GSWP2_RFM_RESTART_RIVERS_ONLY]]
+        inherit = METO_AZSPICE_GNU_GSWP2_RFM_RESTART, METO_AZSPICE_GNU_GSWP2_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_APP_OPT_CONF_KEYS = rivers-only
+	        RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_rivers_restart/output
+	        RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_rivers_restart
+
+    [[METO_AZSPICE_GNU_GSWP2_TRIP_RESTART]]
+        pre-script = gen_gswp2_rivers_props_trip_file
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip_restart
+            DUMP_FILE = ../meto_azspice_gnu_gswp2_trip_spinup/output/meto_azspice_gnu_gswp2_trip_spinup.dump.19820701.10800.nc
+
+    [[METO_AZSPICE_GNU_GSWP2_TRIP_RESTART_RIVERS_ONLY]]
+        inherit = METO_AZSPICE_GNU_GSWP2_TRIP_RESTART, METO_AZSPICE_GNU_GSWP2_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_APP_OPT_CONF_KEYS = rivers-only
+	        RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_trip_restart/output
+	        RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_trip_restart
+
+    [[METO_AZSPICE_GNU_ERAINT]]
+{%- if COVERAGE == true %}
+        inherit = ERAINT, METO_AZSPICE_COMPUTE, METO_AZSPICE_1_TASK, METO_AZSPICE_1_THREAD
+{%- else %}
+        inherit = ERAINT, METO_AZSPICE_COMPUTE, METO_AZSPICE_8_TASKS, METO_AZSPICE_1_THREAD
+{%- endif %}
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_omp_mpi
+{%- endif %}
+
+# GSWP2 rivers
+    [[meto_azspice_gnu_gswp2_rivers]]
+        pre-script = gen_gswp2_rivers_props_rfm_file
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers
+
+# GSWP2 rivers spinup
+    [[meto_azspice_gnu_gswp2_rivers_spinup]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers_spinup
+
+# GSWP2 rivers restart
+    [[meto_azspice_gnu_gswp2_rivers_restart]]
+        pre-script = gen_gswp2_rivers_props_rfm_file
+        inherit = METO_AZSPICE_GNU_GSWP2_RFM_RESTART
+
+# GSWP2 rivers (rivers-only)
+    [[meto_azspice_gnu_gswp2_rivers_rivers-only]]
+        pre-script = gen_gswp2_rivers_props_rfm_file
+        inherit = METO_AZSPICE_GNU_GSWP2_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers
+            ROSE_APP_OPT_CONF_KEYS = rivers-only
+	        RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_rivers/output
+	        RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_rivers
+
+# GSWP2 rivers restart (rivers-only) lrun
+    [[meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun]]
+        inherit = METO_AZSPICE_GNU_GSWP2_RFM_RESTART_RIVERS_ONLY
+
+# GSWP2 rivers restart (rivers-only) nrun1
+    [[meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1]]
+        inherit = METO_AZSPICE_GNU_GSWP2_RFM_RESTART_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun1
+
+# GSWP2 rivers restart (rivers-only) nrun2
+    [[meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2]]
+        inherit = METO_AZSPICE_GNU_GSWP2_RFM_RESTART_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun2
+            DUMP_FILE = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1/output/meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1.dump.19820704.10800.nc
+
+# GSWP2 rivers overbank hypso
+    [[meto_azspice_gnu_gswp2_rivers_overbank_hypso]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_rivers
+            ROSE_APP_OPT_CONF_KEYS = overbank_hypso
+
+# GSWP2 trip
+    [[meto_azspice_gnu_gswp2_trip]]
+        pre-script = gen_gswp2_rivers_props_trip_file
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip
+
+# GSWP2 trip spinup
+    [[meto_azspice_gnu_gswp2_trip_spinup]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip_spinup
+
+# GSWP2 trip restart
+    [[meto_azspice_gnu_gswp2_trip_restart]]
+        pre-script = gen_gswp2_rivers_props_trip_file
+        inherit = METO_AZSPICE_GNU_GSWP2_TRIP_RESTART
+
+# GSWP2 trip (rivers-only)
+    [[meto_azspice_gnu_gswp2_trip_rivers-only]]
+        pre-script = gen_gswp2_rivers_props_trip_file
+        inherit = METO_AZSPICE_GNU_GSWP2_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_trip
+            ROSE_APP_OPT_CONF_KEYS = rivers-only
+	        RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_trip/output
+	        RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_trip
+
+# GSWP2 trip restart (rivers-only) lrun
+    [[meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun]]
+        inherit = METO_AZSPICE_GNU_GSWP2_TRIP_RESTART_RIVERS_ONLY
+
+# GSWP2 trip restart (rivers-only) nrun1
+    [[meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1]]
+        inherit = METO_AZSPICE_GNU_GSWP2_TRIP_RESTART_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun1
+
+# GSWP2 trip restart (rivers-only) nrun2
+    [[meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2]]
+        inherit = METO_AZSPICE_GNU_GSWP2_TRIP_RESTART_RIVERS_ONLY
+        [[[environment]]]
+            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun2
+            DUMP_FILE = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1/output/meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1.dump.19820704.10800.nc
+
+# GSWP2 trip restart initial river storage
+    [[meto_azspice_gnu_gswp2_trip_restart_init_storage]]
+        pre-script = gen_gswp2_rivers_props_trip_file_init_storage
+        inherit = METO_AZSPICE_GNU_GSWP2_TRIP_RESTART
+        [[[environment]]]
+            ROSE_APP_OPT_CONF_KEYS = rivers-init-storage
+
+# GSWP2 irrig limit low river storage
+    [[meto_azspice_gnu_gswp2_irrig_limit_low_river_storage]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_irrig_limit_low_river_storage
+            DUMP_FILE = ../meto_azspice_gnu_gswp2_trip_spinup/output/meto_azspice_gnu_gswp2_trip_spinup.dump.19820701.10800.nc
+
+# GSWP2 irrig limit high river storage
+    [[meto_azspice_gnu_gswp2_irrig_limit_high_river_storage]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_irrig_limit_high_river_storage
+            DUMP_FILE = ../meto_azspice_gnu_gswp2_trip_spinup/output/meto_azspice_gnu_gswp2_trip_spinup.dump.19820701.10800.nc
+
+# GSWP2 closures
+    [[meto_azspice_gnu_gswp2_closures]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_closures
+
+# GSWP2 euro4
+    [[meto_azspice_gnu_gswp2_euro4]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_euro4
+
+# GSWP2 gl7
+    [[meto_azspice_gnu_gswp2_gl7]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_gl7
+
+# GSWP2 gl4
+    [[meto_azspice_gnu_gswp2_gl4]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_gl4
+
+# GSWP2 ukv
+    [[meto_azspice_gnu_gswp2_ukv]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_ukv
+
+    [[meto_azspice_gnu_gswp2_ukv_flake]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_ukv
+            ROSE_APP_OPT_CONF_KEYS = flake
+
+# ERAINT 2ddata
+    [[meto_azspice_gnu_eraint_rfm_2ddata]]
+        inherit = METO_AZSPICE_GNU_ERAINT
+        [[[environment]]]
+            ROSE_TASK_APP = eraint_rfm_2ddata
+
+    [[meto_azspice_gnu_eraint_trip_2ddata]]
+        inherit = METO_AZSPICE_GNU_ERAINT
+        [[[environment]]]
+            ROSE_TASK_APP = eraint_trip_2ddata
+            DUMP_FILE = $ERAINT_INSTALL_DIR/brahma_eraint_small.dump.19951031.0.nc
+
+    [[meto_azspice_gnu_gswp2_es_1p1]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+
+    [[meto_azspice_gnu_gswp2_es_curr]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+            ROSE_APP_OPT_CONF_KEYS = curr
+
+    [[meto_azspice_gnu_gswp2_es_beta]]
+        inherit = METO_AZSPICE_GNU_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+            ROSE_APP_OPT_CONF_KEYS = beta
+
+    [[METO_AZSPICE_GNU_IMOGEN]]
+{%- if COVERAGE == true %}
+        inherit = IMOGEN, METO_AZSPICE_COMPUTE, METO_AZSPICE_1_TASK, METO_AZSPICE_1_THREAD
+{%- else %}
+        inherit = IMOGEN, METO_AZSPICE_COMPUTE, METO_AZSPICE_12_TASKS, METO_AZSPICE_1_THREAD
+{%- endif %}
+        [[[environment]]]
+{%- if COVERAGE == true %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_coverage
+{%- else %}
+            BUILD_NAME = fcm_make_meto_azspice_gnu_omp_mpi
+{%- endif %}
+
+    [[meto_azspice_gnu_imogen_layeredc_spinup]]
+        inherit = METO_AZSPICE_GNU_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc_spinup
+
+    [[meto_azspice_gnu_imogen_layeredc]]
+        inherit = METO_AZSPICE_GNU_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            DUMP_FILE = ../meto_azspice_gnu_imogen_layeredc_spinup/output/meto_azspice_gnu_imogen_layeredc_spinup.dump.18650101.0.nc
+
+    [[meto_azspice_gnu_imogen_layeredc_co2conc]]
+        inherit = METO_AZSPICE_GNU_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            ROSE_APP_OPT_CONF_KEYS = co2conc
+            DUMP_FILE = ../meto_azspice_gnu_imogen_layeredc_spinup/output/meto_azspice_gnu_imogen_layeredc_spinup.dump.18650101.0.nc
+
+    [[meto_azspice_gnu_imogen_layeredc_dtempg]]
+        inherit = METO_AZSPICE_GNU_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            ROSE_APP_OPT_CONF_KEYS = dtempg
+            DUMP_FILE = ../meto_azspice_gnu_imogen_layeredc_spinup/output/meto_azspice_gnu_imogen_layeredc_spinup.dump.18650101.0.nc
+
+    [[meto_azspice_gnu_imogen_layeredc_ch4]]
+        inherit = METO_AZSPICE_GNU_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_layeredc
+            ROSE_APP_OPT_CONF_KEYS = ch4
+            DUMP_FILE = ../meto_azspice_gnu_imogen_layeredc_spinup/output/meto_azspice_gnu_imogen_layeredc_spinup.dump.18650101.0.nc
+
+{%- if COVERAGE == true %}
+###############################################################################
+## Code coverage job, if requested
+###############################################################################
+    [[coverage_summary]]
+        inherit = None, METO_AZSPICE
+        script = """
+profmerge -prof-dir $CYLC_SUITE_SHARE_DIR/coverage
+codecov -prj JULES -dpi $CYLC_SUITE_SHARE_DIR/coverage/pgopti.dpi -spi $CYLC_SUITE_SHARE_DIR/coverage/pgopti.spi
+"""
+{%- endif %}
+
+###############################################################################
+## Comparison jobs
+###############################################################################
+    [[METO_AZSPICE_GNU_NETCDF_COMPARISON]]
+        inherit = KGO_CHECK, METO_AZSPICE_NETCDF_COMPARISON
+
+    [[nccmp_meto_azspice_gnu_loobos_gl7]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_gl7/output
+
+    [[nccmp_meto_azspice_gnu_loobos_gl4]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_gl4/output
+
+    [[nccmp_meto_azspice_gnu_loobos_gl4_cable]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_gl4_cable/output
+
+    [[nccmp_meto_azspice_gnu_loobos_gl8]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_gl8/output
+
+    [[nccmp_meto_azspice_gnu_loobos_gl8_medlyn]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_gl8_medlyn/output
+
+    [[nccmp_meto_azspice_gnu_loobos_vegdrag]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_vegdrag/output
+
+    [[nccmp_meto_azspice_gnu_loobos_euro4]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_euro4/output
+
+    [[nccmp_meto_azspice_gnu_loobos_forecast]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_forecast/output
+
+    [[nccmp_meto_azspice_gnu_loobos_ukv]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_ukv/output
+
+    [[nccmp_meto_azspice_gnu_loobos_ukv_deposition]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_ukv_deposition/output
+
+    [[nccmp_meto_azspice_gnu_loobos_trif]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_trif/output
+
+    [[nccmp_meto_azspice_gnu_loobos_julesc]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_julesc/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_c1p1]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_c1p1/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_c1p1_fire]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_c1p1_fire/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_layeredcn]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_layeredcn/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_cn]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_cn/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_es_1p0]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_es_1p0/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_es_1p0_biocrop]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_es_1p0_biocrop/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2/output
+
+    [[nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2/output
+
+    [[nccmp_meto_azspice_gnu_loobos_fire]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_fire/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crops]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crops/output
+
+    [[nccmp_meto_azspice_gnu_loobos_prescribe_sthuf]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_prescribe_sthuf/output
+
+    [[nccmp_meto_azspice_gnu_loobos_irrig]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_irrig/output
+
+    [[nccmp_meto_azspice_gnu_loobos_irrig_nirrtile]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_irrig_nirrtile/output
+
+    [[nccmp_meto_azspice_gnu_loobos_daily_disagg]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_daily_disagg/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crm1_traitF]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crm1_traitF/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crm4_traitF]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crm4_traitF/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crm5_traitF]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crm5_traitF/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crm6_traitF]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crm6_traitF/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crm6_traitT]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crm6_traitT/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crm6_traitT_farquhar]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crm6_traitT_farquhar/output
+
+    [[nccmp_meto_azspice_gnu_loobos_crm6_traitF_srfT]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_crm6_traitF_srfT/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_rivers/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers_rivers-only]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_rivers_rivers-only/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers_restart]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_rivers_restart/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun_nrun2]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        script = "compare_lrun_nrun2 $LRUN $NRUN2"
+        [[[environment]]]
+            LRUN = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun/output/meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun.dump.19820707.7200.nc
+            NRUN2 = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2/output/meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2.dump.19820707.7200.nc
+
+    [[nccmp_meto_azspice_gnu_gswp2_rivers_overbank_hypso]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_rivers_overbank_hypso/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip_rivers-only]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_trip_rivers-only/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_trip/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip_restart]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_trip_restart/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun_nrun2]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        script = "compare_lrun_nrun2 $LRUN $NRUN2"
+        [[[environment]]]
+            LRUN = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun/output/meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun.dump.19820707.7200.nc
+            NRUN2 = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2/output/meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2.dump.19820707.7200.nc
+
+    [[nccmp_meto_azspice_gnu_gswp2_trip_restart_init_storage]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_trip_restart_init_storage/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_irrig_limit_low_river_storage]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_irrig_limit_low_river_storage/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_irrig_limit_high_river_storage]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_irrig_limit_high_river_storage/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_closures]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_closures/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_euro4]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_euro4/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_gl7]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_gl7/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_gl4]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_gl4/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_ukv]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_ukv/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_ukv_flake]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_ukv_flake/output
+
+    [[nccmp_meto_azspice_gnu_eraint_rfm_2ddata]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_eraint_rfm_2ddata/output
+
+    [[nccmp_meto_azspice_gnu_eraint_trip_2ddata]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_eraint_trip_2ddata/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_es_1p1]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_es_1p1/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_es_curr]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_es_curr/output
+
+    [[nccmp_meto_azspice_gnu_gswp2_es_beta]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_gswp2_es_beta/output
+
+    [[nccmp_meto_azspice_gnu_imogen_layeredc]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_imogen_layeredc/output
+
+    [[nccmp_meto_azspice_gnu_imogen_layeredc_co2conc]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_imogen_layeredc_co2conc/output
+
+    [[nccmp_meto_azspice_gnu_imogen_layeredc_dtempg]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_imogen_layeredc_dtempg/output
+
+    [[nccmp_meto_azspice_gnu_imogen_layeredc_ch4]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_imogen_layeredc_ch4/output
+
+
+###############################################################################
+## Housekeeping jobs
+###############################################################################
+    [[METO_AZSPICE_GNU_HOUSEKEEPING]]
+        inherit = HOUSEKEEPING, METO_AZSPICE
+
+    [[housekeep_meto_azspice_gnu_loobos_gl7]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_gl7
+
+    [[housekeep_meto_azspice_gnu_loobos_gl4]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_gl4
+
+    [[housekeep_meto_azspice_gnu_loobos_gl4_cable]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_gl4_cable
+
+    [[housekeep_meto_azspice_gnu_loobos_gl8]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_gl8
+
+    [[housekeep_meto_azspice_gnu_loobos_gl8_medlyn]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_gl8_medlyn
+
+    [[housekeep_meto_azspice_gnu_loobos_vegdrag]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_vegdrag
+
+    [[housekeep_meto_azspice_gnu_loobos_euro4]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_euro4
+
+    [[housekeep_meto_azspice_gnu_loobos_forecast]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+           DIR1 = ../meto_azspice_gnu_loobos_forecast
+
+    [[housekeep_meto_azspice_gnu_loobos_ukv]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_ukv
+
+    [[housekeep_meto_azspice_gnu_loobos_ukv_deposition]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_ukv_deposition
+
+    [[housekeep_meto_azspice_gnu_loobos_trif_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_trif_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_trif]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_trif
+
+    [[housekeep_meto_azspice_gnu_loobos_julesc_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_julesc_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_julesc]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_julesc
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_c1p1]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_c1p1
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_c1p1_fire]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_c1p1_fire
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_layeredcn_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_layeredcn_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_layeredcn]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_layeredcn
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_cn_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_cn_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_cn]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_cn
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_biocrop]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_biocrop
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2
+
+    [[housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2
+
+    [[housekeep_meto_azspice_gnu_loobos_crops]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crops
+
+    [[housekeep_meto_azspice_gnu_loobos_prescribe_sthuf]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_prescribe_sthuf
+
+    [[housekeep_meto_azspice_gnu_loobos_irrig]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_irrig
+
+    [[housekeep_meto_azspice_gnu_loobos_irrig_nirrtile]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_irrig_nirrtile
+
+    [[housekeep_meto_azspice_gnu_loobos_fire_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_fire_spinup
+
+    [[housekeep_meto_azspice_gnu_loobos_fire]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_fire
+
+    [[housekeep_meto_azspice_gnu_loobos_daily_disagg]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_daily_disagg
+
+    [[housekeeping_meto_azspice_gnu_loobos_crm1_traitF]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crm1_traitF
+
+    [[housekeeping_meto_azspice_gnu_loobos_crm4_traitF]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crm4_traitF
+
+    [[housekeeping_meto_azspice_gnu_loobos_crm5_traitF]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crm5_traitF
+
+    [[housekeeping_meto_azspice_gnu_loobos_crm6_traitF]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crm6_traitF
+
+    [[housekeeping_meto_azspice_gnu_loobos_crm6_traitT]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crm6_traitT
+
+    [[housekeeping_meto_azspice_gnu_loobos_crm6_traitT_farquhar]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crm6_traitT_farquhar
+
+    [[housekeeping_meto_azspice_gnu_loobos_crm6_traitF_srfT]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_crm6_traitF_srfT
+
+    [[housekeep_meto_azspice_gnu_gswp2_rivers]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers
+
+    [[housekeep_meto_azspice_gnu_gswp2_rivers_rivers-only]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers_rivers-only
+
+    [[housekeep_meto_azspice_gnu_gswp2_rivers_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers_spinup
+
+    [[housekeep_meto_azspice_gnu_gswp2_rivers_restart]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers_restart
+
+    [[housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun
+
+    [[housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1
+
+     [[housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2
+
+    [[housekeep_meto_azspice_gnu_gswp2_rivers_overbank_hypso]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_rivers_overbank_hypso
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip_rivers-only]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip_rivers-only
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip_spinup
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip_restart]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip_restart
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2
+
+    [[housekeep_meto_azspice_gnu_gswp2_trip_restart_init_storage]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_trip_restart_init_storage
+
+    [[housekeep_meto_azspice_gnu_gswp2_irrig_limit_low_river_storage]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_irrig_limit_low_river_storage
+
+    [[housekeep_meto_azspice_gnu_gswp2_irrig_limit_high_river_storage]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_irrig_limit_high_river_storage
+
+    [[housekeep_meto_azspice_gnu_gswp2_closures]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_closures
+
+    [[housekeep_meto_azspice_gnu_gswp2_euro4]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_euro4
+
+    [[housekeep_meto_azspice_gnu_gswp2_gl7]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_gl7
+
+    [[housekeep_meto_azspice_gnu_gswp2_gl4]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_gl4
+
+    [[housekeep_meto_azspice_gnu_gswp2_ukv]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_ukv
+
+    [[housekeep_meto_azspice_gnu_gswp2_ukv_flake]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_ukv_flake
+
+    [[housekeep_meto_azspice_gnu_eraint_rfm_2ddata]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_eraint_rfm_2ddata
+
+    [[housekeep_meto_azspice_gnu_eraint_trip_2ddata]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_eraint_trip_2ddata
+
+    [[housekeep_meto_azspice_gnu_gswp2_es_1p1]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_es_1p1
+
+    [[housekeep_meto_azspice_gnu_gswp2_es_curr]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_es_curr
+
+    [[housekeep_meto_azspice_gnu_gswp2_es_beta]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_gswp2_es_beta
+
+    [[housekeep_meto_azspice_gnu_imogen_layeredc_spinup]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_imogen_layeredc_spinup
+
+    [[housekeep_meto_azspice_gnu_imogen_layeredc]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_imogen_layeredc
+
+    [[housekeep_meto_azspice_gnu_imogen_layeredc_co2conc]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_imogen_layeredc_co2conc
+
+    [[housekeep_meto_azspice_gnu_imogen_layeredc_dtempg]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_imogen_layeredc_dtempg
+
+    [[housekeep_meto_azspice_gnu_imogen_layeredc_ch4]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_imogen_layeredc_ch4

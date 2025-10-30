@@ -1,0 +1,36 @@
+%include 'include/nci/graph-intel.rc'
+%include 'include/nci/graph-gfortran.rc'
+
+
+
+{%- set name_graphs = {
+        "umdp3_check" : "umdp3_checker",
+        "metadata_check" : "metadata_checker",
+        "site_validator" : "site_validator",
+} %}
+{%- do name_graphs.update(name_graphs_intel.items()) %}
+{%- do name_graphs.update(name_graphs_gfortran.items()) %}
+
+{%- set groups = {
+        "all" : ["intel", "gfortran"],
+
+        "intel" : ["intel_loobos", "intel_gswp2", "intel_eraint", "intel_gswp2_es", "intel_imogen", "scripts"],
+
+        "gfortran" : ["gfortran_loobos", "gfortran_gswp2", "gfortran_eraint", "gfortran_gswp2_es", "gfortran_imogen", "scripts"],
+
+        "loobos" : ["intel_loobos", "gfortran_loobos"],
+
+        "gswp2" : ["intel_gswp2", "gfortran_gswp2"],
+
+	"eraint" :["intel_eraint", "gfortran_eraint"],
+
+	"gswp2_es" :["intel_gswp2_es", "gfortran_gswp2_es"],
+
+	"imogen" :["intel_imogen", "gfortran_imogen"],
+
+        "scripts" : ["umdp3_check", "metadata_check", "site_validator"],
+    }
+ %}
+
+{%- do groups.update(groups_intel.items()) %}
+{%- do groups.update(groups_gfortran.items()) %}

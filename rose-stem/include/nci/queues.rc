@@ -1,0 +1,7 @@
+    [[queues]]
+        [[[nci_scalar]]]
+            limit = 8
+            members = NCI_MPITASKS_1, NCI_NETCDF_COMPARISON
+        [[[nci_parallel]]]
+            limit = 4
+            members = NCI_MPITASKS_16

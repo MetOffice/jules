@@ -1,0 +1,399 @@
+###############################################################################
+## Common classes
+###############################################################################
+
+    [[NIWA_XC50]]
+        [[[remote]]]
+            host = login.maui.niwa.co.nz
+
+    [[NIWA_XC50_SL]]
+        [[[job]]]
+            batch system = slurm
+        [[[directives]]]
+            --clusters = maui
+            --partition = nesi_research
+            --account = niwa00001
+            --job-name = jules_test
+            --time = 00:06:00
+            --mem-per-cpu = 1G
+            --hint = nomultithread
+        [[[environment]]]
+            HDF5_USE_FILE_LOCKING = FALSE
+
+    [[remote_init_xc50]]
+        inherit = NIWA_XC50_SL
+        script = true
+
+# XC50 node setup
+# Single OpenMP thread
+    [[NIWA_XC50_PARALLEL_THREADS_1]]
+        [[[environment]]]
+            OMP_NUM_THREADS = 1
+
+# Single task
+    [[NIWA_XC50_PARALLEL_TASKS_1]]
+        [[[directives]]]
+            --nodes = 1
+            --ntasks = 1
+
+# 8 tasks
+    [[NIWA_XC50_PARALLEL_TASKS_8]]
+        [[[directives]]]
+            --nodes = 1
+            --ntasks = 8
+
+# 40 tasks
+    [[NIWA_XC50_PARALLEL_TASKS_40]]
+        [[[directives]]]
+            --nodes = 1
+            --ntasks = 40
+
+###############################################################################
+## Extract and build jobs
+###############################################################################
+
+    [[NIWA_XC50_BUILD]]
+        inherit = NIWA_XC50, EXTRACT_AND_BUILD
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 6
+
+    [[NIWA_XC50_BUILD_cce]]
+        inherit = NIWA_XC50_BUILD
+        pre-script = """
+                     module swap NeSI NIWA
+                     module load PrgEnv-cray craype-x86-skylake cray-netcdf-hdf5parallel FCM
+                     module swap PrgEnv-cray PrgEnv-cray/6.0.10
+                     module swap cce cce/15.0.1
+                     module swap cray-netcdf-hdf5parallel cray-netcdf-hdf5parallel/4.9.0.3
+                     module swap FCM FCM/2019.09.0
+                     """
+        [[[environment]]]
+            JULES_PLATFORM = niwa-xc50-cce
+
+    [[NIWA_XC50_BUILD_gfortran]]
+        inherit = NIWA_XC50_BUILD
+        pre-script = """
+                     module swap NeSI NIWA
+                     module load PrgEnv-cray cray-netcdf-hdf5parallel FCM
+                     module swap PrgEnv-cray PrgEnv-gnu/6.0.10
+                     module swap gcc gcc/12.1.0
+                     module load craype-x86-skylake
+                     module swap cray-netcdf-hdf5parallel cray-netcdf-hdf5parallel/4.9.0.3
+                     module swap FCM FCM/2019.09.0
+                     """
+        [[[environment]]]
+            JULES_PLATFORM = niwa-xc50-gfortran
+
+    [[NIWA_XC50_BUILD_intel]]
+        inherit = NIWA_XC50_BUILD
+        pre-script = """
+                     module swap NeSI NIWA
+                     module load PrgEnv-cray craype-x86-skylake cray-netcdf-hdf5parallel FCM
+                     module swap PrgEnv-cray PrgEnv-intel/6.0.10
+                     module swap intel intel/19.1.3.304
+                     module swap cray-netcdf-hdf5parallel cray-netcdf-hdf5parallel/4.9.0.3
+                     module swap FCM FCM/2019.09.0
+                     """
+        [[[environment]]]
+            JULES_PLATFORM = niwa-xc50-intel
+
+###############################################################################
+## Build jobs
+###############################################################################
+
+# Debug build without OpenMP
+    [[fcm_make_niwa_xc50<compiler_xc50>_debug_noomp]]
+        inherit = NIWA_XC50_BUILD<compiler_xc50>
+        [[[environment]]]
+            JULES_BUILD = debug
+            JULES_OMP = noomp
+
+# Normal build with OpenMP
+    [[fcm_make_niwa_xc50<compiler_xc50>_omp]]
+        inherit = NIWA_XC50_BUILD<compiler_xc50>
+        [[[environment]]]
+            JULES_BUILD = normal
+            JULES_OMP = omp
+
+###############################################################################
+## Compute jobs
+###############################################################################
+
+    # Loobos variants
+    [[NIWA_XC50_LOOBOS]]
+        inherit = NIWA_XC50, NIWA_XC50_SL, NIWA_XC50_PARALLEL_TASKS_1, NIWA_XC50_PARALLEL_THREADS_1, LOOBOS, COMPUTE
+        [[[environment]]]
+            BUILD_NAME = fcm_make_niwa_xc50_intel_debug_noomp
+            LOOBOS_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/loobos
+
+    [[niwa_xc50_intel_loobos<loobos_single>]]
+        inherit = NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_single}
+
+    [[niwa_xc50_intel_loobos<loobos_single=gl4_cable>]]
+        inherit = NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl4
+            ROSE_APP_OPT_CONF_KEYS = cable
+
+    [[niwa_xc50_intel_loobos<loobos_with_spinup>_spinup]]
+        inherit = NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup
+
+    [[niwa_xc50_intel_loobos<loobos_with_spinup>]]
+        inherit = NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_with_spinup}
+            DUMP_FILE = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup/output/niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup.dump.19971231.82800.nc
+
+    [[niwa_xc50_intel_loobos<loobos_jules_c1p1>]]
+        inherit = NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}
+            DUMP_FILE = ../niwa_xc50_intel_loobos_julesc_spinup/output/niwa_xc50_intel_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup]]
+        inherit =NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_spinup
+
+    [[niwa_xc50_intel_loobos_jules_es_1p0_biocrop]]
+        inherit =NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop
+            DUMP_FILE = ../niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup/output/niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
+
+    [[niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit =NIWA_XC50_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_agexpand
+            DUMP_FILE = ../niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup/output/niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
+
+    # GSWP2 variants
+    [[NIWA_XC50_GSWP2]]
+        inherit = NIWA_XC50, NIWA_XC50_SL, NIWA_XC50_PARALLEL_TASKS_40, NIWA_XC50_PARALLEL_THREADS_1, GSWP2, COMPUTE
+        pre-script = gen_gswp2_drive_file
+        [[[environment]]]
+            BUILD_NAME = fcm_make_niwa_xc50_intel_omp
+            GSWP2_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/gswp2
+
+    [[niwa_xc50_intel_gswp2<gswp2_single>]]
+        inherit = NIWA_XC50_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_single}
+
+    [[niwa_xc50_intel_gswp2<gswp2_with_spinup>_spinup]]
+        inherit = NIWA_XC50_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup
+
+    [[niwa_xc50_intel_gswp2<gswp2_with_spinup>_restart]]
+        inherit = NIWA_XC50_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_restart
+            DUMP_FILE = ../niwa_xc50_intel_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup/output/niwa_xc50_intel_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup.dump.19820701.10800.nc
+
+    [[niwa_xc50_intel_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
+        inherit = NIWA_XC50_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_irrig_limit_${CYLC_TASK_PARAM_gswp2_irrig}_river_storage
+            DUMP_FILE = ../niwa_xc50_intel_gswp2_trip_spinup/output/niwa_xc50_intel_gswp2_trip_spinup.dump.19820701.10800.nc
+
+    # Eraint variants
+    [[NIWA_XC50_ERAINT]]
+        inherit = NIWA_XC50, NIWA_XC50_SL, NIWA_XC50_PARALLEL_TASKS_8, NIWA_XC50_PARALLEL_THREADS_1, ERAINT, COMPUTE
+        [[[environment]]]
+            BUILD_NAME = fcm_make_niwa_xc50_intel_omp
+            ERAINT_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/eraint
+
+    [[niwa_xc50_intel_eraint<eraint_tests>]]
+        inherit = NIWA_XC50_ERAINT
+        [[[environment]]]
+            ROSE_TASK_APP = eraint_${CYLC_TASK_PARAM_eraint_tests}
+            DUMP_FILE = $ERAINT_INSTALL_DIR/brahma_eraint_small.dump.19951031.0.nc
+
+    [[niwa_xc50_intel_gswp2_es<gswp2_es_1p1>]]
+        inherit = NIWA_XC50_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+            ROSE_APP_OPT_CONF_KEYS = ${CYLC_TASK_PARAM_gswp2_es_1p1}
+
+    # Imogen variants
+    [[NIWA_XC50_IMOGEN]]
+        inherit = NIWA_XC50, NIWA_XC50_SL, NIWA_XC50_PARALLEL_TASKS_8, NIWA_XC50_PARALLEL_THREADS_1, IMOGEN, COMPUTE
+        [[[environment]]]
+            BUILD_NAME = fcm_make_niwa_xc50_intel_omp
+            IMOGEN_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/imogen
+
+    [[niwa_xc50_intel_imogen<imogen_with_spinup>_spinup]]
+        inherit = NIWA_XC50_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup
+
+    [[niwa_xc50_intel_imogen<imogen_with_spinup>]]
+        inherit = NIWA_XC50_IMOGEN
+        [[[environment]]]
+            ROSE_TASK_APP = imogen_${CYLC_TASK_PARAM_imogen_with_spinup}
+            DUMP_FILE = ../niwa_xc50_intel_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup/output/niwa_xc50_intel_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup.dump.18650101.0.nc
+
+###############################################################################
+## Comparison jobs
+###############################################################################
+
+    [[NIWA_XC50_NETCDF_COMPARISON]]
+        inherit = NIWA_CS500, KGO_CHECK, COMPARISON
+        pre-script = """
+                     module purge
+                     module load NIWA
+                     module load nccmp/1.8.5.0-GCC-7.1.0
+                     """
+        [[[environment]]]
+            CMD_CMP = nccmp -d --force
+            KGO_DIR = /opt/niwa/um_sys/jules/rose-stem-kgo/{{ KGO_VERSION }}
+
+    # Loobos variants
+    [[nccmp_niwa_xc50_intel_loobos<loobos_single>]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_single}/output
+
+    [[nccmp_niwa_xc50_intel_loobos<loobos_with_spinup>]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}/output
+
+    [[nccmp_niwa_xc50_intel_loobos<loobos_jules_c1p1>]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}/output
+
+    [[nccmp_niwa_xc50_intel_loobos_jules_es_1p0_biocrop]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_loobos_jules_es_1p0_biocrop/output
+
+    [[nccmp_niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand/output
+
+    # GSWP2 variants
+    [[nccmp_niwa_xc50_intel_gswp2<gswp2_single>]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_gswp2_${CYLC_TASK_PARAM_gswp2_single}/output
+
+    [[nccmp_niwa_xc50_intel_gswp2<gswp2_with_spinup>_restart]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_restart/output
+
+    [[nccmp_niwa_xc50_intel_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_gswp2_irrig_limit_${CYLC_TASK_PARAM_gswp2_irrig}_river_storage/output
+
+    [[nccmp_niwa_xc50_intel_gswp2_es<gswp2_es_1p1>]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_gswp2_es_${CYLC_TASK_PARAM_gswp2_es_1p1}/output
+
+    # Eraint variants
+    [[nccmp_niwa_xc50_intel_eraint<eraint_tests>]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_eraint_${CYLC_TASK_PARAM_eraint_tests}/output
+
+    # Imogen
+    [[nccmp_niwa_xc50_intel_imogen<imogen_with_spinup>]]
+        inherit = NIWA_XC50_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../niwa_xc50_intel_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}/output
+
+###############################################################################
+## Housekeeping jobs
+###############################################################################
+
+    [[NIWA_XC50_HOUSEKEEPING]]
+        inherit = NIWA_XC50, HOUSEKEEPING
+
+    # Loobos variants
+    [[housekeep_niwa_xc50_intel_loobos<loobos_single>]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_single}
+
+    [[housekeep_niwa_xc50_intel_loobos<loobos_with_spinup>_spinup]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup
+
+    [[housekeep_niwa_xc50_intel_loobos<loobos_with_spinup>]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}
+
+    [[housekeep_niwa_xc50_intel_loobos<loobos_jules_c1p1>]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}
+
+    [[housekeep_niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_loobos_jules_es_1p0_biocrop_spinup
+
+    [[housekeep_niwa_xc50_intel_loobos_jules_es_1p0_biocrop]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_loobos_jules_es_1p0_biocrop
+
+    [[housekeep_niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_loobos_jules_es_1p0_biocrop_agexpand
+
+    # GSWP2 variants
+    [[housekeep_niwa_xc50_intel_gswp2<gswp2_single>]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_gswp2_${CYLC_TASK_PARAM_gswp2_single}
+
+    [[housekeep_niwa_xc50_intel_gswp2<gswp2_with_spinup>_spinup]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup
+
+    [[housekeep_niwa_xc50_intel_gswp2<gswp2_with_spinup>_restart]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_restart
+
+    [[housekeep_niwa_xc50_intel_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_gswp2_irrig_limit_${CYLC_TASK_PARAM_gswp2_irrig}_river_storage
+
+    [[housekeep_niwa_xc50_intel_gswp2_es<gswp2_es_1p1>]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_gswp2_es_${CYLC_TASK_PARAM_gswp2_es_1p1}
+
+    # Eraint variants
+    [[housekeep_niwa_xc50_intel_eraint<eraint_tests>]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_eraint_${CYLC_TASK_PARAM_eraint_tests}
+
+    # Imogen variants
+    [[housekeep_niwa_xc50_intel_imogen<imogen_with_spinup>_spinup]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup
+
+    [[housekeep_niwa_xc50_intel_imogen<imogen_with_spinup>]]
+        inherit = NIWA_XC50_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../niwa_xc50_intel_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}

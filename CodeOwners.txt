@@ -1,0 +1,38 @@
+*******************************************************************************
+**************************** CodeOwners.txt ***********************************
+*******************************************************************************
+The purpose of this page is to list leadership of the major components of JULES.
+Please note the following considerations:
+ * Leadership is not a commitment for the individual(s) to undertake all work
+   requested or all reviewing for the owned code section
+ * Any planned changes to a section should be discussed with the module leader
+   to ensure plans are appropriate
+ * Module leaders should be given the option to be a science/technical reviewer
+   for any code changes that alter their code sections
+ * The interface between components needs to be agreed by all affected parties.
+ * When passing on module leadership, leaders should ensure that this page is
+   updated appropriately.
+ * Rose meta-data (in rose-meta) will be owned by the appropriate module leader
+
+************************ Science Module Leaders *******************************
+Surface                          John Edwards and Rich Ellis
+Hydrology                        Nic Gedney and Sonja Folwell
+Vegetation                       Lina Mercado, Karina Williams and Rebecca Oliver
+Veg3 RED Demography              Andy Wiltshire and Arthur Argles
+Biogeochemistry                  Eleanor Burke and Noah Smith
+Biogenic fluxes                  Garry Hayman and James Weber
+Fire                             Doug Kelley and Chantelle Burton
+Lakes                            Helen Johnson
+Evaluation                       Nina Raoult and Siyuan Tian
+CABLE Science                    Ian Harman and Claire Carouge
+IMOGEN                           Chris Huntingford and Eleanor Burke
+
+************************ Code Owners ******************************************
+JULES Code Owner                            Giorgia Line (deputy Simulation System and Deployment Team)
+Technical                                   Simulation System and Deployment Team
+OpenMP                                      HPC Optimisation Team
+Rose Test Suite (rose-stem)                 James Bruten and Roddy Sharp
+Rose Metadata and Namelist Infrastructure   Maggie Hendry
+    (module leaders are responsible for metadata content)
+Upgrade Macros                              Erica Neininger and James Bruten
+River Routing Infrastructure                Maggie Hendry

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# *****************************COPYRIGHT******************************
+# (C) Crown copyright Met Office. All rights reserved.
+# For further details please refer to the file COPYRIGHT.txt
+# which you should have received as part of this distribution.
+# *****************************COPYRIGHT******************************
+
+# META_DIR and JULES_APPS - provided by this app's Rose file extraction.
+META_DIR=$PWD/rose-meta/
+JULES_APPS=$PWD/rose-stem/app
+# APP_DIRS - should either be passed down from suite level or be the input
+# argument to the script.
+# This should contain a space separated list of app directories and/or
+# wildcards.
+# For example "loobos_* gswp2_*" will run the macro on app directories
+# beginning with loobos or gswp2.
+APP_DIRS=${APP_DIRS:-$@}
+MY_RC=0
+
+echo "[INFO] Running --validate on each app directory"
+for jules_app in $(cd "$JULES_APPS" && ls -d $APP_DIRS); do
+    rose macro -C "$JULES_APPS"/"$jules_app" -M $META_DIR \
+	--validate --no-warn version
+    RC=$?
+    if [[ $RC -eq 0 ]]; then
+        echo "[OK] $jules_app"
+    else
+        MY_RC=$RC
+        echo "[FAIL] $jules_app did not validate- see stderr for details"
+        echo "[FAIL] $jules_app" 1>&2
+    fi
+done
+
+exit $MY_RC 
+

@@ -1,0 +1,22 @@
+###############################################################################
+## Name graphs
+###############################################################################
+{% if 'terra' in environ['HOSTNAME'] %}
+{%- set name_graphs_xc40_intel = {
+        "bom_xc40_intel_build" : "remote_init_xc40 => fcm_make_bom_xc40_intel_opt"
+    }
+%}
+{% else %}
+{%- set name_graphs_xc40_intel = {
+        "bom_xc40_intel_build" : "remote_init_xc40 => fcm_make_bom_xc40_intel_opt => fcm_make2_bom_xc40_intel_opt"
+    }
+%}
+{% endif %}
+
+###############################################################################
+## Group definitions
+###############################################################################
+{%- set groups_xc40_intel = {
+        "xc40_intel" : ["bom_xc40_intel_build"]
+    }
+%}

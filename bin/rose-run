@@ -1,0 +1,32 @@
+#! /usr/bin/env bash
+
+################################################################################
+## This script checks whether an executable, given by argument,
+## was compiled with a 'real' MPI library and executes it in the appropriate
+## way
+##
+## Since JULES executables with MPI must be statically linked, it does this
+## using the following process:
+##
+##    1. Use nm to print the symbols in the executable
+##    2. Look for a routine called mpi_init in the text section
+##       This section contains all the symbols that came from code, rather
+##       than from linking
+##    3. If such a routine exists, then the MPI dummy library was used
+##       If it doesn't, then a real MPI library was used
+################################################################################
+
+# If there is a routine called mpi_init in the text (code) section of the exe,
+# then it is using the dummy library
+# If not, we assume a 'real' MPI library
+nm `which $1` | grep -i 'T mpi_init' > /dev/null 2>&1
+
+if [ $? -eq 0 ]; then
+    # If the grep command executed successfully, we have a non-MPI run
+    echo "[INFO] Running JULES in serial mode"
+    exec $1
+else
+    # If the grep command failed, we have a 'real' MPI library
+    echo "[INFO] Running JULES in parallel MPI mode"
+    exec rose mpi-launch -v $1
+fi

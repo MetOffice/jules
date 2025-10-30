@@ -1,0 +1,76 @@
+#! /usr/bin/env bash
+
+##########################################################################
+# This script takes two directories as arguments and compares the files
+# in the first directory with the files with the same name in the second
+# directory
+#
+# Comparison continues for all files, even after one fails
+#
+# By default, comparison is done using cmp, however this can be 
+# overridden by setting the environment variable $CMD_CMP
+# The only thing that the command must do is return 0 if the files are
+# considered the same and != 0 otherwise
+#
+# It will continue to compare all files even after one fails
+##########################################################################
+
+# Check we have sensible arguments
+if [[ $# != 2 ]]; then
+    echo "[fail] Exactly two arguments required" 1>&2
+    echo "       Usage: compare_all <output_dir> <kgo_dir>" 1>&2
+    exit 1
+fi
+
+out_dir=$1
+kgo_dir=$2
+echo "[info] Comparing files in $out_dir with KGO in $kgo_dir"
+
+# If CMD_CMP is not set, use the default command
+if [ -z "$CMD_CMP" ]; then
+    CMD_CMP="cmp"
+fi
+echo "[info] Command for comparisons - $CMD_CMP"
+
+# Get the files in the output directory
+# We enable null globbing for this statement so that * expands to 0
+# files if there are no files, instead of a literal *
+shopt -s nullglob
+out_files=( $out_dir/* )
+shopt -u nullglob
+
+# No output files is a failure
+if [[ ${#out_files[@]} -le 0 ]]; then
+    echo "[fail] No output files to compare" 1>&2
+    exit 1
+fi
+
+# Compare each file in turn
+# Note that we don't exit on first failure, we let all files compare
+failed=0
+for file in "${out_files[@]}"; do
+    file=$(basename "$file")
+    echo "[info]        Comparing $file..."
+    
+    # Check that the KGO file exists so we can give a decent error message
+    if [ ! -f "$kgo_dir/$file" ]; then
+        echo "[fail]        KGO file does not exist" 1>&2
+        failed=1
+        continue
+    fi
+    
+    $CMD_CMP "$out_dir/$file" "$kgo_dir/$file"
+    if [[ $? -eq 0 ]]; then
+        echo "[success]     Comparison successful"
+    else
+        echo "[fail]        Comparison failed" 1>&2
+        failed=1
+    fi
+done
+
+if [[ $failed -eq 0 ]]; then
+    echo "[success] All files compared successfully"
+else
+    echo "[fail] At least one file failed to compare" 1>&2
+    exit 1
+fi
