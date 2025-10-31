@@ -22,5 +22,5 @@ jules:
     ref:
 
 SimSys_Scripts:
-    source: git@github.com:james-bruten-mo/SimSys_Scripts.git
-    ref: git_migration_pkg_branch
+    source: git@github.com:MetOffice/SimSys_Scripts.git
+    ref: main
