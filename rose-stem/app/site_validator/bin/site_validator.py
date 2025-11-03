@@ -12,6 +12,7 @@ Expected to be run as part of a rose-stem suite
 """
 
 import sys
+from pathlib import Path
 import subprocess
 import argparse
 
@@ -20,7 +21,6 @@ WORKING_CONFIGS = {
     "jasmin": ["all"],
     "meto": ["all", "ex1a", "azspice"],
     "nci": ["all"],
-    "niwa": ["all"],
     "vm": ["all"],
 }
 
@@ -48,8 +48,8 @@ def generate_validate_command(source, site, group):
     suitename = f"test_validate_jules_{site}_{group}"
 
     install_cmd = (
-        "cylc validate --check-circular "
-        f"-z g={group}"
+        "cylc validate --debug --check-circular "
+        f"-z g={group} "
         f"-S SITE='{site}' "
         f"{source}"
     )
