@@ -49,12 +49,8 @@ def generate_validate_command(source, site, group):
 
     install_cmd = (
         "cylc validate --check-circular "
-        f"-S RUN_NAMES=['{group}'] "
+        f"-z g={group}"
         f"-S SITE='{site}' "
-        f"-S SOURCE_JULES='{source}' "
-        f"-S SOURCE_JULES_BASE='{source}' "
-        f"-S HOST_SOURCE_JULES='{source}' "
-        f"-S HOST_SOURCE_JULES_BASE='{source}' "
         f"{source}"
     )
 
