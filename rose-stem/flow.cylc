@@ -9,7 +9,7 @@
 {% do LOG.info("Site: " + SITE) %}
 
 {% set SOURCE_DIRECTORY = ROSE_ORIG_HOST~":"~CYLC_WORKFLOW_SRC_DIR~"/.." %}
-{# Inlcude log message for suite_report #}
+{# Include log message for suite_report #}
 {% do LOG.info("JULES SOURCE CLONE="~SOURCE_DIRECTORY) %}
 
 {# Read the sources of dependencies from the dependencies.yaml file #}
