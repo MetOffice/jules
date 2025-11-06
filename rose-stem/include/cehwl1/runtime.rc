@@ -45,7 +45,7 @@
         script = true
 
     [[extract_source]]
-        inherit = SOURCE_EXTRACTION, CEH_COMPUTE
+        inherit = SOURCE_EXTRACTION, LINUX
 
     [[CEH_LOOBOS]]
         inherit = None, CEH_COMPUTE
