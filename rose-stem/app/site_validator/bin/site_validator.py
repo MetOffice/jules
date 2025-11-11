@@ -12,7 +12,6 @@ Expected to be run as part of a rose-stem suite
 """
 
 import sys
-from pathlib import Path
 import subprocess
 import argparse
 
