@@ -6,25 +6,45 @@
     [[LINUX]]
         platform = localhost
 
+    [[SOURCE_EXTRACTION]]
+        post-script = """
+cp $SOURCE_DIRECTORY/jules/dependencies.yaml $CYLC_WORKFLOW_RUN_DIR
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/suite_report_git.py $CYLC_WORKFLOW_RUN_DIR/bin
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/suite_data.py $CYLC_WORKFLOW_RUN_DIR/bin
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/git_bdiff.py $CYLC_WORKFLOW_RUN_DIR/bin
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/get_git_sources.py $CYLC_WORKFLOW_RUN_DIR/bin
+"""
+        [[[environment]]]
+            ROSE_TASK_APP = extract_source
+            DEPENDENCIES = {{dependencies}}
+            USE_MIRRORS = {{USE_MIRRORS}}
+            USE_TOKENS = {{USE_TOKENS}}
+        {% if USE_MIRRORS %}
+            {% if "GIT_MIRROR_LOC" in SITE_VARS %}
+            GIT_MIRROR_LOC = {{SITE_VARS.GIT_MIRROR_LOC}}
+            {% else %}
+                {{ raise(
+                    "Trying to run with mirrors without setting a mirror location. "
+                    "Ensure 'GIT_MIRROR_LOC' is included in SITE_VARS."
+                    ) }}
+            {% endif %}
+        {% endif %}
+
+    [[SOURCE_SYNC]]
+        script = """
+hostname=$(rose host-select $host 2>/dev/null || echo $host)
+echo "rsyncing source to $hostname"
+RELATIVE_SOURCE_DIRECTORY=`echo $SOURCE_DIRECTORY | sed "s|$HOME/||"`
+ssh $hostname mkdir -p $RELATIVE_SOURCE_DIRECTORY
+rsync -avz --exclude=".*" $SOURCE_DIRECTORY/* $hostname:$RELATIVE_SOURCE_DIRECTORY/
+"""
+
 # Family for extract jobs
     [[EXTRACT]]
     script = "rose task-run --verbose --define='args=--ignore-lock'"
         [[[environment]]]
-            HOST_SOURCE_JULES_BASE = {{ HOST_SOURCE_JULES_BASE }}
-{%- if SITE == 'vm' or SITE == 'cehwl1' or SITE == 'jasmin' %}
-            HOST_SOURCE_JULES_BASE = {{ HOST_SOURCE_JULES_BASE|replace(ROSE_ORIG_HOST+":","",1) }}
-{% elif SITE in ('bom', 'nci') %}
-            HOST_SOURCE_JULES_BASE = {{ SOURCE_JULES_BASE }}
-{%- endif %}
             VN = {{ VN }}
             ROSE_TASK_APP = fcm_make_jules
-            {% if REMOTE_JASMIN %}
-                JULES_SOURCE = {{ REMOTE_JULES_SOURCE }}
-            {% elif SITE in ('bom', 'nci', 'vm') %}
-                JULES_SOURCE = {{ SOURCE_JULES }}
-            {% else %}
-                JULES_SOURCE = {{HOST_SOURCE_JULES}}
-            {% endif %}
             JULES_NETCDF = netcdf
             JULES_FFLAGS_EXTRA  =
             JULES_LDFLAGS_EXTRA =

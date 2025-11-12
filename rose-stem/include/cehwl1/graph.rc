@@ -2,40 +2,40 @@
 ## Name graphs
 ###############################################################################
 {%- set name_graphs = {
-        "loobos_gl4" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_gl4" : "remote_init_ceh => extract_source => fcm_make_debug => \
                         loobos_gl4 => nccmp_loobos_gl4 => housekeep_loobos_gl4",
 
-        "loobos_gl4_cable" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_gl4_cable" : "remote_init_ceh => extract_source => fcm_make_debug => \
                         loobos_gl4_cable => nccmp_loobos_gl4_cable => housekeep_loobos_gl4_cable",
 
-        "loobos_gl7" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_gl7" : "remote_init_ceh => extract_source => fcm_make_debug => \
                         loobos_gl7 => nccmp_loobos_gl7 => housekeep_loobos_gl7",
 
-        "loobos_gl8" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_gl8" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_gl8 => nccmp_loobos_gl8 => housekeep_loobos_gl8",
 
-        "loobos_gl8_medlyn" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_gl8_medlyn" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_gl8_medlyn => nccmp_loobos_gl8_medlyn => housekeep_loobos_gl8_medlyn",
 
-        "loobos_vegdrag" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_vegdrag" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_vegdrag => nccmp_loobos_vegdrag => housekeep_loobos_vegdrag",
 
-        "loobos_euro4" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_euro4" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_euro4 => nccmp_loobos_euro4 => housekeep_loobos_euro4",
 
-        "loobos_forecast" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_forecast" : "remote_init_ceh => extract_source => fcm_make_debug => \
                              loobos_forecast => nccmp_loobos_forecast => housekeep_loobos_forecast",
 
-        "loobos_ukv" : "remote_init_ceh => fcm_make_debug => loobos_ukv & loobos_ukv_deposition
+        "loobos_ukv" : "remote_init_ceh => extract_source => fcm_make_debug => loobos_ukv & loobos_ukv_deposition
                         loobos_ukv => nccmp_loobos_ukv => housekeep_loobos_ukv
                         loobos_ukv_deposition => nccmp_loobos_ukv_deposition => \
                         housekeep_loobos_ukv_deposition",
 
-        "loobos_trif" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_trif" : "remote_init_ceh => extract_source => fcm_make_debug => \
                         loobos_trif_spinup => loobos_trif => nccmp_loobos_trif => \
                         housekeep_loobos_trif_spinup & housekeep_loobos_trif",
 
-        "loobos_julesc" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_julesc" : "remote_init_ceh => extract_source => fcm_make_debug => \
                            loobos_julesc_spinup => loobos_julesc & \
                            loobos_jules_c1p1 & loobos_jules_c1p1_fire
                            loobos_julesc => nccmp_loobos_julesc
@@ -46,20 +46,20 @@
                            housekeep_loobos_julesc_spinup & housekeep_loobos_julesc \
                            & housekeep_loobos_jules_c1p1 & housekeep_loobos_jules_c1p1_fire",
 
-        "loobos_jules_layeredcn" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_jules_layeredcn" : "remote_init_ceh => extract_source => fcm_make_debug => \
                            loobos_jules_layeredcn_spinup => loobos_jules_layeredcn => \
                            nccmp_loobos_jules_layeredcn => \
                            housekeep_loobos_jules_layeredcn_spinup & housekeep_loobos_jules_layeredcn",
 
-        "loobos_jules_cn" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_jules_cn" : "remote_init_ceh => extract_source => fcm_make_debug => \
                            loobos_jules_cn_spinup => loobos_jules_cn => nccmp_loobos_jules_cn => \
                            housekeep_loobos_jules_cn_spinup & housekeep_loobos_jules_cn",
 
-        "loobos_jules_es_1p0" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_jules_es_1p0" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_jules_es_1p0_spinup => loobos_jules_es_1p0 => nccmp_loobos_jules_es_1p0 => \
                             housekeep_loobos_jules_es_1p0_spinup & housekeep_loobos_jules_es_1p0",
 
-        "loobos_jules_es_1p0_biocrop" : "remote_init_ceh => fcm_make_debug =>                                        \
+        "loobos_jules_es_1p0_biocrop" : "remote_init_ceh => extract_source => fcm_make_debug =>                                        \
                           loobos_jules_es_1p0_biocrop_spinup => loobos_jules_es_1p0_biocrop \
                           & loobos_jules_es_1p0_biocrop_agexpand => \
                           nccmp_loobos_jules_es_1p0_biocrop \
@@ -68,7 +68,7 @@
                           & housekeep_loobos_jules_es_1p0_biocrop \
                           & housekeep_loobos_jules_es_1p0_biocrop_agexpand",
 
-        "loobos_jules_es_1p0_deposition" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_jules_es_1p0_deposition" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_jules_es_1p0_deposition_spinup => \
                             loobos_jules_es_1p0_deposition \
                             & loobos_jules_es_1p0_deposition_dd1 \
@@ -88,119 +88,119 @@
                             & housekeep_loobos_jules_es_1p0_deposition_dd2h2 \
                             & housekeep_loobos_jules_es_1p0_deposition_spinup",
 
-        "loobos_crops" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_crops" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_crops => nccmp_loobos_crops => housekeep_loobos_crops",
 
-        "loobos_prescribe_sthuf" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_prescribe_sthuf" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_prescribe_sthuf => nccmp_loobos_prescribe_sthuf => housekeep_loobos_prescribe_sthuf",
 
-        "loobos_irrig" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_irrig" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_irrig => nccmp_loobos_irrig => housekeep_loobos_irrig",
 
-        "loobos_irrig_nirrtile" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_irrig_nirrtile" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_irrig_nirrtile => nccmp_loobos_irrig_nirrtile => housekeep_loobos_irrig_nirrtile",
 
-        "loobos_fire" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_fire" : "remote_init_ceh => extract_source => fcm_make_debug => \
                          loobos_fire_spinup => loobos_fire => nccmp_loobos_fire => \
                          housekeep_loobos_fire_spinup & housekeep_loobos_fire",
 
-        "loobos_daily_disagg" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_daily_disagg" : "remote_init_ceh => extract_source => fcm_make_debug => \
                                  loobos_daily_disagg => nccmp_loobos_daily_disagg => \
                                  housekeep_loobos_daily_disagg",
 
-        "loobos_crm1_traitF" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_crm1_traitF" : "remote_init_ceh => extract_source => fcm_make_debug => \
                                 loobos_crm1_traitF => nccmp_loobos_crm1_traitF => \
                                 housekeeping_loobos_crm1_traitF",
 
-        "loobos_crm4_traitF" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_crm4_traitF" : "remote_init_ceh => extract_source => fcm_make_debug => \
                                 loobos_crm4_traitF => nccmp_loobos_crm4_traitF => \
                                 housekeeping_loobos_crm4_traitF",
 
-        "loobos_crm5_traitF" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_crm5_traitF" : "remote_init_ceh => extract_source => fcm_make_debug => \
                                 loobos_crm5_traitF => nccmp_loobos_crm5_traitF => \
                                 housekeeping_loobos_crm5_traitF",
 
-        "loobos_crm6_traitF" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_crm6_traitF" : "remote_init_ceh => extract_source => fcm_make_debug => \
                                 loobos_crm6_traitF => nccmp_loobos_crm6_traitF => \
                                 housekeeping_loobos_crm6_traitF",
 
-        "loobos_crm6_traitT" : "remote_init_ceh => fcm_make_debug => loobos_crm6_traitT & loobos_crm6_traitT_farquhar
+        "loobos_crm6_traitT" : "remote_init_ceh => extract_source => fcm_make_debug => loobos_crm6_traitT & loobos_crm6_traitT_farquhar
                                 loobos_crm6_traitT => nccmp_loobos_crm6_traitT => housekeeping_loobos_crm6_traitT
                                 loobos_crm6_traitT_farquhar => nccmp_loobos_crm6_traitT_farquhar => housekeeping_loobos_crm6_traitT_farquhar",
 
-        "loobos_crm6_traitF_srfT" : "remote_init_ceh => fcm_make_debug => \
+        "loobos_crm6_traitF_srfT" : "remote_init_ceh => extract_source => fcm_make_debug => \
                                      loobos_crm6_traitF_srfT => nccmp_loobos_crm6_traitF_srfT => \
                                      housekeeping_loobos_crm6_traitF_srfT",
 
-        "gswp2_irrig_limit_low_river_storage" : "remote_init_ceh => fcm_make_omp => gswp2_trip_spinup => gswp2_irrig_limit_low_river_storage => nccmp_gswp2_irrig_limit_low_river_storage => housekeep_gswp2_trip_spinup => housekeep_gswp2_irrig_limit_low_river_storage",
+        "gswp2_irrig_limit_low_river_storage" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_trip_spinup => gswp2_irrig_limit_low_river_storage => nccmp_gswp2_irrig_limit_low_river_storage => housekeep_gswp2_trip_spinup => housekeep_gswp2_irrig_limit_low_river_storage",
 
-        "gswp2_irrig_limit_high_river_storage" : "remote_init_ceh => fcm_make_omp => gswp2_trip_spinup => gswp2_irrig_limit_high_river_storage => nccmp_gswp2_irrig_limit_high_river_storage => housekeep_gswp2_trip_spinup => housekeep_gswp2_irrig_limit_high_river_storage",
+        "gswp2_irrig_limit_high_river_storage" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_trip_spinup => gswp2_irrig_limit_high_river_storage => nccmp_gswp2_irrig_limit_high_river_storage => housekeep_gswp2_trip_spinup => housekeep_gswp2_irrig_limit_high_river_storage",
 
-        "gswp2_rivers" : "remote_init_ceh => fcm_make_omp => gswp2_rivers & gswp2_rivers_overbank_hypso
+        "gswp2_rivers" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_rivers & gswp2_rivers_overbank_hypso
                           gswp2_rivers => nccmp_gswp2_rivers => housekeep_gswp2_rivers
                           gswp2_rivers_overbank_hypso => nccmp_gswp2_rivers_overbank_hypso => housekeep_gswp2_rivers_overbank_hypso",
 
-        "gswp2_rivers_rivers-only" : "remote_init_ceh => fcm_make_omp => gswp2_rivers => nccmp_gswp2_rivers & gswp2_rivers_rivers-only
-                                      remote_init_ceh => fcm_make_omp_rivers-only => gswp2_rivers_rivers-only => nccmp_gswp2_rivers_rivers-only => \
+        "gswp2_rivers_rivers-only" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_rivers => nccmp_gswp2_rivers & gswp2_rivers_rivers-only
+                                      remote_init_ceh => extract_source => fcm_make_omp_rivers-only => gswp2_rivers_rivers-only => nccmp_gswp2_rivers_rivers-only => \
                                       housekeep_gswp2_rivers_rivers-only & housekeep_gswp2_rivers",
 
-        "gswp2_rivers_restart" : "remote_init_ceh => fcm_make_omp => gswp2_rivers_spinup => gswp2_rivers_restart => nccmp_gswp2_rivers_restart => housekeep_gswp2_rivers_spinup => housekeep_gswp2_rivers_restart",
+        "gswp2_rivers_restart" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_rivers_spinup => gswp2_rivers_restart => nccmp_gswp2_rivers_restart => housekeep_gswp2_rivers_spinup => housekeep_gswp2_rivers_restart",
 
-        "gswp2_trip" : "remote_init_ceh => fcm_make_omp => gswp2_trip => nccmp_gswp2_trip => housekeep_gswp2_trip",
+        "gswp2_trip" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_trip => nccmp_gswp2_trip => housekeep_gswp2_trip",
 
-        "gswp2_trip_rivers-only" : "remote_init_ceh => fcm_make_omp => gswp2_trip => nccmp_gswp2_trip & gswp2_trip_rivers-only
-                                    remote_init_ceh => fcm_make_omp_rivers-only => gswp2_trip_rivers-only => nccmp_gswp2_trip_rivers-only => \
+        "gswp2_trip_rivers-only" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_trip => nccmp_gswp2_trip & gswp2_trip_rivers-only
+                                    remote_init_ceh => extract_source => fcm_make_omp_rivers-only => gswp2_trip_rivers-only => nccmp_gswp2_trip_rivers-only => \
                                     housekeep_gswp2_trip_rivers-only & housekeep_gswp2_trip",
 
-        "gswp2_trip_restart" : "remote_init_ceh => fcm_make_omp => gswp2_trip_spinup => gswp2_trip_restart => nccmp_gswp2_trip_restart => housekeep_gswp2_trip_spinup => housekeep_gswp2_trip_restart",
+        "gswp2_trip_restart" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_trip_spinup => gswp2_trip_restart => nccmp_gswp2_trip_restart => housekeep_gswp2_trip_spinup => housekeep_gswp2_trip_restart",
 
-        "gswp2_closures" : "remote_init_ceh => fcm_make_omp => gswp2_closures => nccmp_gswp2_closures => housekeep_gswp2_closures",
+        "gswp2_closures" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_closures => nccmp_gswp2_closures => housekeep_gswp2_closures",
 
-        "gswp2_euro4" : "remote_init_ceh => fcm_make_omp => gswp2_euro4 => nccmp_gswp2_euro4 => housekeep_gswp2_euro4",
+        "gswp2_euro4" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_euro4 => nccmp_gswp2_euro4 => housekeep_gswp2_euro4",
 
-        "gswp2_gl4" : "remote_init_ceh => fcm_make_omp => gswp2_gl4=> nccmp_gswp2_gl4=> housekeep_gswp2_gl4",
+        "gswp2_gl4" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_gl4=> nccmp_gswp2_gl4=> housekeep_gswp2_gl4",
 
-        "gswp2_gl7" : "remote_init_ceh => fcm_make_omp => gswp2_gl7=> nccmp_gswp2_gl7=> housekeep_gswp2_gl7",
+        "gswp2_gl7" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_gl7=> nccmp_gswp2_gl7=> housekeep_gswp2_gl7",
 
-        "gswp2_ukv" : "remote_init_ceh => fcm_make_omp => gswp2_ukv => nccmp_gswp2_ukv => housekeep_gswp2_ukv",
+        "gswp2_ukv" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_ukv => nccmp_gswp2_ukv => housekeep_gswp2_ukv",
 
-        "gswp2_ukv_flake" : "remote_init_ceh => fcm_make_omp => gswp2_ukv_flake =>  nccmp_gswp2_ukv_flake => housekeep_gswp2_ukv_flake",
+        "gswp2_ukv_flake" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_ukv_flake =>  nccmp_gswp2_ukv_flake => housekeep_gswp2_ukv_flake",
 
-        "eraint_rfm_2ddata" : "remote_init_ceh => fcm_make_omp => eraint_rfm_2ddata => nccmp_eraint_rfm_2ddata => housekeep_eraint_rfm_2ddata",
+        "eraint_rfm_2ddata" : "remote_init_ceh => extract_source => fcm_make_omp => eraint_rfm_2ddata => nccmp_eraint_rfm_2ddata => housekeep_eraint_rfm_2ddata",
 
-        "eraint_trip_2ddata" : "remote_init_ceh => fcm_make_omp => eraint_trip_2ddata => nccmp_eraint_trip_2ddata => housekeep_eraint_trip_2ddata",
+        "eraint_trip_2ddata" : "remote_init_ceh => extract_source => fcm_make_omp => eraint_trip_2ddata => nccmp_eraint_trip_2ddata => housekeep_eraint_trip_2ddata",
 
-        "gswp2_es_1p1" : "remote_init_ceh => fcm_make_omp => gswp2_es_1p1 => nccmp_gswp2_es_1p1 => housekeep_gswp2_es_1p1",
+        "gswp2_es_1p1" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_es_1p1 => nccmp_gswp2_es_1p1 => housekeep_gswp2_es_1p1",
 
-        "gswp2_es_curr" : "remote_init_ceh => fcm_make_omp => gswp2_es_curr => nccmp_gswp2_es_curr => housekeep_gswp2_es_curr",
+        "gswp2_es_curr" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_es_curr => nccmp_gswp2_es_curr => housekeep_gswp2_es_curr",
 
-        "gswp2_es_beta" : "remote_init_ceh => fcm_make_omp => gswp2_es_beta => nccmp_gswp2_es_beta => housekeep_gswp2_es_beta",
+        "gswp2_es_beta" : "remote_init_ceh => extract_source => fcm_make_omp => gswp2_es_beta => nccmp_gswp2_es_beta => housekeep_gswp2_es_beta",
 
-        "imogen_layeredc" : "remote_init_ceh => fcm_make_omp => \
+        "imogen_layeredc" : "remote_init_ceh => extract_source => fcm_make_omp => \
                            imogen_layeredc_spinup => imogen_layeredc => \
                            nccmp_imogen_layeredc => \
                            housekeep_imogen_layeredc_spinup & housekeep_imogen_layeredc",
 
-        "imogen_layeredc_co2conc" : "remote_init_ceh => fcm_make_omp => \
+        "imogen_layeredc_co2conc" : "remote_init_ceh => extract_source => fcm_make_omp => \
                            imogen_layeredc_spinup => imogen_layeredc_co2conc => \
                            nccmp_imogen_layeredc_co2conc => \
                            housekeep_imogen_layeredc_spinup & housekeep_imogen_layeredc_co2conc",
 
-        "imogen_layeredc_dtempg" : "remote_init_ceh => fcm_make_omp => \
+        "imogen_layeredc_dtempg" : "remote_init_ceh => extract_source => fcm_make_omp => \
                            imogen_layeredc_spinup => imogen_layeredc_dtempg => \
                            nccmp_imogen_layeredc_dtempg => \
                            housekeep_imogen_layeredc_spinup & housekeep_imogen_layeredc_dtempg",
 
-        "imogen_layeredc_ch4" : "remote_init_ceh => fcm_make_omp => \
+        "imogen_layeredc_ch4" : "remote_init_ceh => extract_source => fcm_make_omp => \
                            imogen_layeredc_spinup => imogen_layeredc_ch4 => \
                            nccmp_imogen_layeredc_ch4 => \
                            housekeep_imogen_layeredc_spinup & housekeep_imogen_layeredc_ch4",
 
-        "umdp3_check" : "umdp3_checker",
+        "umdp3_check" : "extract_source => umdp3_checker",
 
-        "metadata_check" : "metadata_checker",
+        "metadata_check" : "extract_source => metadata_checker",
 
-        "site_validator" : "site_validator",
+        "site_validator" : "extract_source => site_validator",
 
     }
 %}

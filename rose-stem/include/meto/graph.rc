@@ -9,14 +9,6 @@
   {% set METO_HOST_EX = "exab" %}
 {% elif USE_EXCD is defined and USE_EXCD %}
   {% set METO_HOST_EX = "excd" %}
-{% elif USE_EXA is defined and USE_EXA %}
-  {% set METO_HOST_EX = "exa" %}
-{% elif USE_EXB is defined and USE_EXB %}
-  {% set METO_HOST_EX = "exb" %}
-{% elif USE_EXC is defined and USE_EXC %}
-  {% set METO_HOST_EX = "exc" %}
-{% elif USE_EXD is defined and USE_EXD %}
-  {% set METO_HOST_EX = "exd" %}
 {% else %}
     {# randomly choose either ab or cd #}
     {% from "random" import randint %}
@@ -30,6 +22,7 @@
 
 
 {% do SITE_VARS.update({"LAUNCH_PLATFORM": "azspice"}) %}
+{% do SITE_VARS.update({"GIT_MIRROR_LOC": "/data/users/gitassist/git_mirrors"}) %}
 
 
 ###############################################################################
@@ -43,9 +36,9 @@
 ## Name graphs
 ###############################################################################
 {%- set name_graphs = {
-         "umdp3_check" : "umdp3_checker",
-         "metadata_check" : "metadata_checker",
-         "site_validator": "site_validator",
+         "umdp3_check" : "extract_source => umdp3_checker",
+         "metadata_check" : "extract_source => metadata_checker",
+         "site_validator": "extract_source => site_validator",
 } %}
 {%- do name_graphs.update(name_graphs_azspice_gnu.items()) %}
 {%- do name_graphs.update(name_graphs_ex1a_cce.items()) %}

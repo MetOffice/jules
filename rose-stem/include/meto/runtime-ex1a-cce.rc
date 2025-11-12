@@ -15,14 +15,6 @@
             JULES_REMOTE = remote
 
     [[METO_EX1A_CCE_BUILD]]
-        inherit = None, METO_EX1A_CCE_ENV, METO_EX1A_QUEUE, BUILD_RIVER
-        [[[directives]]]
-            -l select=1:ncpus=8:mem=4G
-        [[[environment]]]
-            ROSE_TASK_N_JOBS = 8
-            JULES_PLATFORM = meto-ex1a-cce
-
-    [[METO_EX1A_CCE_BUILD_RIVERS-ONLY]]
         inherit = None, METO_EX1A_CCE_ENV, METO_EX1A_QUEUE, BUILD
         [[[directives]]]
             -l select=1:ncpus=8:mem=4G
@@ -30,43 +22,33 @@
             ROSE_TASK_N_JOBS = 8
             JULES_PLATFORM = meto-ex1a-cce
 
-# Debug build for Loobos jobs
-#   Extract on Linux
-    [[fcm_make_meto_ex1a_cce_debug]]
-        inherit = METO_EX1A_CCE_EXTRACT
+    [[METO_EX1A_CCE_BUILD_RIVERS-ONLY]]
+        inherit = None, METO_EX1A_CCE_ENV, METO_EX1A_QUEUE, BUILD_RIVER
+        [[[directives]]]
+            -l select=1:ncpus=8:mem=4G
         [[[environment]]]
-            JULES_BUILD = debug
-            JULES_OMP = noomp
+            ROSE_TASK_N_JOBS = 8
+            JULES_PLATFORM = meto-ex1a-cce
+
+# Debug build for Loobos jobs
 #   Build on EX1A
-    [[fcm_make2_meto_ex1a_cce_debug]]
+    [[fcm_make_meto_ex1a_cce_debug]]
         inherit = METO_EX1A_CCE_BUILD
         [[[environment]]]
             JULES_BUILD = debug
             JULES_OMP = noomp
 
 # Normal build without OpenMP
-#   Extract on Linux
-    [[fcm_make_meto_ex1a_cce_noomp]]
-        inherit = METO_EX1A_CCE_EXTRACT
-        [[[environment]]]
-            JULES_BUILD = normal
-            JULES_OMP = noomp
 #   Build on EX1A
-    [[fcm_make2_meto_ex1a_cce_noomp]]
+    [[fcm_make_meto_ex1a_cce_noomp]]
         inherit = METO_EX1A_CCE_BUILD
         [[[environment]]]
             JULES_BUILD = normal
             JULES_OMP = noomp
 
 # Normal build with OpenMP
-#   Extract on Linux
-    [[fcm_make_meto_ex1a_cce_omp]]
-        inherit = METO_EX1A_CCE_EXTRACT
-        [[[environment]]]
-            JULES_BUILD = normal
-            JULES_OMP = omp
 #   Build on EX1A
-    [[fcm_make2_meto_ex1a_cce_omp]]
+    [[fcm_make_meto_ex1a_cce_omp]]
         inherit = METO_EX1A_CCE_BUILD
         [[[environment]]]
             JULES_BUILD = normal
@@ -74,15 +56,8 @@
 
 
     # Rivers only build with OpenMP
-#   Extract on Linux
-    [[fcm_make_meto_ex1a_cce_rivers-only_omp]]
-        inherit = METO_EX1A_CCE_EXTRACT_RIVERS-ONLY
-        [[[environment]]]
-            JULES_BUILD = normal
-            JULES_OMP = omp
-            SOURCE_PATH_PREFIX = river
 #   Build on EX1A
-    [[fcm_make2_meto_ex1a_cce_rivers-only_omp]]
+    [[fcm_make_meto_ex1a_cce_rivers-only_omp]]
         inherit = METO_EX1A_CCE_BUILD_RIVERS-ONLY
         [[[environment]]]
             JULES_BUILD = normal

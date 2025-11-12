@@ -16,42 +16,24 @@
             JULES_PLATFORM = meto-ex1a-gfortran
 
 # Debug build for Loobos jobs
-#   Extract on Linux
-    [[fcm_make_meto_ex1a_gfortran_debug]]
-        inherit = METO_EX1A_GFORTRAN_EXTRACT
-        [[[environment]]]
-            JULES_BUILD = debug
-            JULES_OMP = noomp
 #   Build on EX1A
-    [[fcm_make2_meto_ex1a_gfortran_debug]]
+    [[fcm_make_meto_ex1a_gfortran_debug]]
         inherit = METO_EX1A_GFORTRAN_BUILD
         [[[environment]]]
             JULES_BUILD = debug
             JULES_OMP = noomp
 
 # Normal build without OpenMP
-#   Extract on Linux
-    [[fcm_make_meto_ex1a_gfortran_noomp]]
-        inherit = METO_EX1A_GFORTRAN_EXTRACT
-        [[[environment]]]
-            JULES_BUILD = normal
-            JULES_OMP = noomp
 #   Build on EX1A
-    [[fcm_make2_meto_ex1a_gfortran_noomp]]
+    [[fcm_make_meto_ex1a_gfortran_noomp]]
         inherit = METO_EX1A_GFORTRAN_BUILD
         [[[environment]]]
             JULES_BUILD = normal
             JULES_OMP = noomp
 
 # Normal build with OpenMP
-#   Extract on Linux
-    [[fcm_make_meto_ex1a_gfortran_omp]]
-        inherit = METO_EX1A_GFORTRAN_EXTRACT
-        [[[environment]]]
-            JULES_BUILD = normal
-            JULES_OMP = omp
 #   Build on EX1A
-    [[fcm_make2_meto_ex1a_gfortran_omp]]
+    [[fcm_make_meto_ex1a_gfortran_omp]]
         inherit = METO_EX1A_GFORTRAN_BUILD
         [[[environment]]]
             JULES_BUILD = normal
