@@ -86,6 +86,8 @@ Code Reviewer: <!-- CR id, filled by SSD -->
 - [ ] Documentation is sufficient (do documentation papers need updating)
 - [ ] Sufficient testing has been completed
 
+_Please alert the code reviewer via a tag when you have approved the SR_
+
 # Code Review
 
 <!-- To be completed by the Code Reviewer -->
