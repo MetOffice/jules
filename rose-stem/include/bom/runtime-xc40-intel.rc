@@ -41,6 +41,13 @@
             -P = {{ environ['PROJECT']|default('pr_nwp') }}
             -W umask = 0022
 
+    [[extract_source]]
+        inherit = SOURCE_EXTRACTION, BOM_LINUX
+
+    [[extract_source_xc40]]
+        inherit = SOURCE_EXTRACTION, BOM_LINUX
+        [[[environment]]]
+            host = $( rose config rose-host-select group{hpc} | head -n 1 )
 
     [[remote_init_xc40]]
         inherit = BOM_XC40

@@ -8,9 +8,9 @@
 ## Name graphs
 ###############################################################################
 {%- set name_graphs = {
-        "umdp3_check"       : "umdp3_checker",
-        "metadata_check"       : "metadata_checker",
-        "site_validator" : "site_validator",
+        "umdp3_check"       : "export_source => umdp3_checker",
+        "metadata_check"       : "export_source => metadata_checker",
+        "site_validator" : "export_source => site_validator",
 } %}
 {%- do name_graphs.update(name_graphs_cs500.items()) %}
 {%- do name_graphs.update(name_graphs_xc50.items()) %}
