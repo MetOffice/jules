@@ -2,7 +2,7 @@
 ## Build jobs
 ###############################################################################
 # Override SCRIPTS family.
-# (normally found in runtime-common.rc, Done to enforce loading of
+# (normally found in runtime-common.cylc, Done to enforce loading of
 # Python 3 on JASMIN which is required by UMDP3 checker)
     [[SCRIPTS]]
             env-script = "module load jaspy/3.7/r20210320"

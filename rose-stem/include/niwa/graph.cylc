@@ -1,8 +1,8 @@
 ###############################################################################
 ## Imports
 ###############################################################################
-%include 'include/niwa/graph-cs500.rc'
-%include 'include/niwa/graph-xc50.rc'
+%include 'include/niwa/graph-cs500.cylc'
+%include 'include/niwa/graph-xc50.cylc'
 
 ###############################################################################
 ## Name graphs

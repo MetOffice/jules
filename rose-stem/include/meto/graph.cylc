@@ -28,9 +28,9 @@
 ###############################################################################
 ## Imports
 ###############################################################################
-%include 'include/meto/graph-azspice-gnu.rc'
-%include 'include/meto/graph-ex1a-cce.rc'
-%include 'include/meto/graph-ex1a-gfortran.rc'
+%include 'include/meto/graph-azspice-gnu.cylc'
+%include 'include/meto/graph-ex1a-cce.cylc'
+%include 'include/meto/graph-ex1a-gfortran.cylc'
 
 ###############################################################################
 ## Name graphs
