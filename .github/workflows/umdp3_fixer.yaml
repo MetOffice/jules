@@ -7,4 +7,4 @@ on:
 
 jobs:
     umdp3_fixer:
-        uses: MetOffice/growss/umdp3_fixer_action/umdp3_fixer.yaml@main
+        uses: MetOffice/growss/.github/workflows/umdp3_fixer.yaml@main
