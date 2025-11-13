@@ -10,6 +10,11 @@
         inherit = METO_AZSPICE
         script = true
 
+    [[extract_source]]
+        inherit = SOURCE_EXTRACTION
+        platform = {{ROSE_ORIG_HOST}}
+        execution time limit = PT15M
+
 # Family for Azspice build jobs
     [[METO_AZSPICE_BUILD]]
         inherit = None, EXTRACT_AND_BUILD, METO_AZSPICE

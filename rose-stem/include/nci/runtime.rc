@@ -23,6 +23,9 @@
         inherit = NCI
         script = true
 
+    [[extract_source]]
+        inherit = SOURCE_EXTRACTION, NCI
+
 # Family for Linux build jobs
     [[NCI_EXTRACT]]
         inherit = EXTRACT

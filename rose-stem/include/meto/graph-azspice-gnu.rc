@@ -4,16 +4,15 @@
 {%- if COVERAGE == true %}
     # If coverage stats are requested, all gnu runs must use the same build in order for the
     # profiling stats to be generated and aggregated correctly
-    {%- set loobos_build   = "remote_init_azspice => fcm_make_meto_azspice_gnu_coverage" %}
-    {%- set rivers_build   = "remote_init_azspice => fcm_make_meto_azspice_gnu_coverage" %}
-    {%- set closures_build = "remote_init_azspice => fcm_make_meto_azspice_gnu_coverage" %}
-    {%- set imogen_build   = "remote_init_azspice => fcm_make_meto_azspice_gnu_coverage" %}
+    {%- set loobos_build   = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
+    {%- set rivers_build   = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
+    {%- set closures_build = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
+    {%- set imogen_build   = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
 {%- else %}
-    {%- set loobos_build    = "remote_init_azspice => fcm_make_meto_azspice_gnu_debug_noomp_nompi" %}
-    {# {%- set loobos_build    = "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi" %} #}
-    {%- set rivers_build    = "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi" %}
-    {%- set closures_build  = "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi" %}
-    {%- set imogen_build    = "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi" %}
+    {%- set loobos_build    = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_debug_noomp_nompi" %}
+    {%- set rivers_build    = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_omp_mpi" %}
+    {%- set closures_build  = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_omp_mpi" %}
+    {%- set imogen_build    = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_omp_mpi" %}
 {%- endif %}
 
 {%- set name_graphs_azspice_gnu = {
@@ -312,7 +311,7 @@
         "meto_azspice_gnu_gswp2_rivers_rivers-only" : "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi => \
 						      meto_azspice_gnu_gswp2_rivers => \
 						      nccmp_meto_azspice_gnu_gswp2_rivers & meto_azspice_gnu_gswp2_rivers_rivers-only
-                                      		      remote_init_azspice => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+                                      		      remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
 						      meto_azspice_gnu_gswp2_rivers_rivers-only => \
 						      nccmp_meto_azspice_gnu_gswp2_rivers_rivers-only => \
                                       		      housekeep_meto_azspice_gnu_gswp2_rivers_rivers-only & housekeep_meto_azspice_gnu_gswp2_rivers",
@@ -320,7 +319,7 @@
         "meto_azspice_gnu_gswp2_trip_rivers-only" : "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi => \
 						    meto_azspice_gnu_gswp2_trip => \
 						    nccmp_meto_azspice_gnu_gswp2_trip & meto_azspice_gnu_gswp2_trip_rivers-only
-                                      		    remote_init_azspice => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+                                      		    remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
 						    meto_azspice_gnu_gswp2_trip_rivers-only => \
 						    nccmp_meto_azspice_gnu_gswp2_trip_rivers-only => \
                                       		    housekeep_meto_azspice_gnu_gswp2_trip_rivers-only & housekeep_meto_azspice_gnu_gswp2_trip",
@@ -333,9 +332,9 @@
 							  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1
 							  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1 => \
 							  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2
-                                      		    	  remote_init_azspice => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
 						    	  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1
-                                      		    	  remote_init_azspice => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
 						    	  meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun => \
 							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun => \
 							  housekeep_meto_azspice_gnu_gswp2_trip_spinup & \
@@ -367,9 +366,9 @@
 							  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1
 							  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1 => \
 							  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2
-                                      		    	  remote_init_azspice => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
 						    	  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1
-                                      		    	  remote_init_azspice => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
 						    	  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun => \
 							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun => \
 							  housekeep_meto_azspice_gnu_gswp2_rivers_spinup & \
