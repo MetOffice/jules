@@ -75,5 +75,5 @@
         [[[environment]]]
             KGO_DIR = /g/data/access/jules/rose-stem-kgo/{{ KGO_VERSION }}
 
-%include 'include/nci/runtime-intel.rc'
-%include 'include/nci/runtime-gfortran.rc'
+%include 'include/nci/runtime-intel.cylc'
+%include 'include/nci/runtime-gfortran.cylc'

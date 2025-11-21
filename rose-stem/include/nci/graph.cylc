@@ -1,5 +1,5 @@
-%include 'include/nci/graph-intel.rc'
-%include 'include/nci/graph-gfortran.rc'
+%include 'include/nci/graph-intel.cylc'
+%include 'include/nci/graph-gfortran.cylc'
 
 
 
