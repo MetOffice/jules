@@ -1,0 +1,11 @@
+name: jules-user-guide
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.13.2
+  - doc8>=2.0.0
+  - sphinx-lint==1.0.1
+  - sphinx==8.2.3
+

@@ -1,0 +1,11 @@
+[project]
+name = "jules"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "doc8>=2.0.0",
+    "sphinx==8.2.3",
+    "sphinx-lint==1.0.1",
+]
