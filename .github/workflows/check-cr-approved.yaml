@@ -1,0 +1,12 @@
+name: Check CR approved
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, edited]
+    pull_request_review:
+        types: [submitted, edited, dismissed]
+    workflow_dispatch:
+
+jobs:
+    check_cr_approved:
+        uses: MetOffice/growss/.github/workflows/check-cr-approved.yaml@main
