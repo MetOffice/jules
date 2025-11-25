@@ -1,7 +1,6 @@
 ``ancillaries.nml``
 ===================
 
-
 This file sets up spatially varying ancillary values. It contains the following namelists: :nml:lst:`JULES_FRAC`, :nml:lst:`JULES_VEGETATION_PROPS`, :nml:lst:`JULES_SOIL_PROPS`, :nml:lst:`JULES_TOP`, :nml:lst:`JULES_PDM`, :nml:lst:`JULES_AGRIC`, :nml:lst:`JULES_CROP_PROPS`, :nml:lst:`JULES_IRRIG_PROPS`, :nml:lst:`JULES_RIVERS_PROPS`, :nml:lst:`JULES_WATER_RESOURCES_PROPS`, :nml:lst:`URBAN_PROPERTIES` , :nml:lst:`JULES_CO2` and :nml:lst:`JULES_FLAKE`.
 
 Data associated with each of these namelists can optionally be read from the dump file (if present) by setting ``read_from_dump`` to true. This functionality provides closer alignment with UM functionality and can help ensure that the correct ancillary data remain associated with the model state.
@@ -30,14 +29,12 @@ If using either URBAN-2T or MORUSES then the total *urban* fraction can be speci
    FALSE
       Use the other namelist members to determine how to populate variables.
 
-
 .. nml:member:: file
 
    :type: character
    :default: None
 
    The name of the file to read surface type fractional coverage data from.
-
 
 .. nml:member:: frac_name
 
@@ -50,8 +47,6 @@ If using either URBAN-2T or MORUSES then the total *urban* fraction can be speci
        This is only used for NetCDF files.
        For ASCII files, the surface type fractional coverage data is expected to be the first (ideally only) variable in the file.
 
-
-
    .. note::
        The open water fraction of this array (given by :nml:mem:`JULES_SURFACE_TYPES::lake`) should contain permanent water, and wetland extents that are not being otherwise simulated.
        If groundwater inundation is being simulated (i.e. TOPMODEL is active :nml:mem:`JULES_HYDROLOGY::l_top` = TRUE and therefore fsat is being calculated) then all groundwater-maintained wetlands must be excluded from :nml:mem:`JULES_FRAC::frac_name`.
@@ -59,7 +54,6 @@ If using either URBAN-2T or MORUSES then the total *urban* fraction can be speci
        Finally, note that simulation of a potential future climate scenario with greatly reduced areas for lakes that are currently 'permanent' would require suitable modification of the ancillary provided here.
 
    In the file, the variable must have a single levels dimension of size ``ntype`` called :nml:mem:`JULES_INPUT_GRID::type_dim_name`, and should not have a time dimension.
-
 
 
 ``JULES_VEGETATION_PROPS`` namelist members
@@ -201,8 +195,6 @@ List of vegetation parameters
 |                 | :ref:`Kumarathunge et al (2019)<References_ancillaries>`. This variable should not   |
 |                 | have a time dimension nor any "levels" dimension.                                    |
 +-----------------+--------------------------------------------------------------------------------------+
-
-
 
 
 ``JULES_SOIL_PROPS`` namelist members
@@ -416,7 +408,7 @@ In all cases, the variables must have no time dimension.
 
 .. nml:namelist :: JULES_TOP
 
-This namelist reads spatially varying parameter values for the TOPMODEL-type parameterisation of runoff. The values are only used if :nml:mem:`JULES_HYDROLOGY::l_top` = TRUE. The description below is very brief. For further details, see the references under :nml:mem:`JULES_HYDROLOGY::l_top`.
+This namelist reads spatially varying parameter values for the TOPMODEL-type parametrisation of runoff. The values are only used if :nml:mem:`JULES_HYDROLOGY::l_top` = TRUE. The description below is very brief. For further details, see the references under :nml:mem:`JULES_HYDROLOGY::l_top`.
 
 
 .. nml:member:: read_from_dump
@@ -562,7 +554,7 @@ All of the TOPMODEL variables listed below are expected to have no levels dimens
 
 .. nml:namelist :: JULES_PDM
 
-This namelist reads spatially varying parameter values for the PDM-type parameterisation of runoff. The values are only used if :nml:mem:`JULES_HYDROLOGY::l_pdm` = TRUE. The description below is very brief. For further details, see the references under :nml:mem:`JULES_HYDROLOGY::l_pdm`.
+This namelist reads spatially varying parameter values for the PDM-type parametrisation of runoff. The values are only used if :nml:mem:`JULES_HYDROLOGY::l_pdm` = TRUE. The description below is very brief. For further details, see the references under :nml:mem:`JULES_HYDROLOGY::l_pdm`.
 
 
 .. nml:member:: read_list
@@ -1023,7 +1015,7 @@ All of the crop variables listed below are expected to have a single levels dime
    References:
 
    * Osborne et al, `JULES-crop: a parametrisation of crops in the Joint UK Land Environment Simulator <http://www.geosci-model-dev.net/8/1139/2015/gmd-8-1139-2015.html>`_, Geosci. Model Dev., 8, 1139-1155, 2015.
-   * Mathison et al, 'Developing a sequential cropping capability in the JULESvn5.2 land–surface model', Geosci. Model Dev. Discuss., https://doi.org/10.5194/gmd-2019-85, in review, 2019
+   * Mathison et al, 'Developing a sequential cropping capability in the JULESvn5.2 land-surface model', Geosci. Model Dev. Discuss., https://doi.org/10.5194/gmd-2019-85, in review, 2019
 
 
 ``JULES_IRRIG_PROPS`` namelist members
@@ -1096,7 +1088,6 @@ This namelist specifies the options available for initialising irrigated fractio
    The constant irrigated fraction to be applied to specific surface tiles given in :nml:mem:`JULES_IRRIG::irrigtiles`.
 
 
-
 ``JULES_RIVERS_PROPS`` namelist members
 ---------------------------------------
 
@@ -1127,9 +1118,7 @@ This namelist specifies how spatially varying river routing properties including
    The most satisfactory situation is one in which the areas covered by land and river gridboxes are identical (though the resolutions can differ). In that case all the runoff that is generated on the land is correctly captured by the river network, and each river length has a well-defined input of local runoff. However there are situations in which the user might be prepared to allow other configurations - e.g. if studying a particular catchment, land in headwaters of surrounding catchments might not be covered by the river ancillary.
 
 
-
 .. nml:group:: Members used to define the river routing input grid
-
 
    .. nml:member:: coordinate_file
 
@@ -1137,7 +1126,6 @@ This namelist specifies how spatially varying river routing properties including
       :default: None
 
       The file from which to read coordinate information for the river routing input grid. This is only used when :nml:mem:`file` includes :doc:`variable-name templating </input/file-name-templating>` or when :nml:mem:`read_list` = TRUE, i.e. it is only used when ancillary variables will come from multiple files, in which case this variable is used to provide clarity as to where the coordinates are read from.
-
 
    .. nml:member:: x_dim_name
 
@@ -1148,7 +1136,6 @@ This namelist specifies how spatially varying river routing properties including
 
       .. note:: For ASCII files, this can be anything. For NetCDF files, it should be the name of the dimension in :nml:mem:`file` (if that does not include :doc:`variable-name templating </input/file-name-templating>`) or in :nml:mem:`coordinate_file` (if :nml:mem:`file` includes templating).
       .. note:: Values for the coordinates along the x dimension of the river routing input grid will be read from the input file to define the river grid, and it is assumed that the file contains a variable with the same name as the dimension (x_dim_name).
-
 
    .. nml:member:: y_dim_name
 
@@ -1543,13 +1530,13 @@ Since both grids are 1\ |deg| x 1\ |deg|, we define the 2D regular lat-lon grid 
 
 
 .. |deg| unicode:: U+00B0
-
+.. |iacute| replace:: &iacute;
 
 
 .. seealso::
       References:
 
-      * Appx B of Lewis HW, Castillo Sanchez JM, Graham J, Saulter A, Bornemann J, Arnold A, Fallmann J, Harris C, Pearson D, Ramsdale S, Martínez de la Torre A, Bricheno L, Blyth E, Bell VA, Davies H, Marthews TR, O'Neill C, Rumbold H, O'Dea E, Brereton A, Guihou K, Hines A, Butenschon M, Dadson SJ, Palmer T, Holt J, Reynard N, Best M, Edwards J & Siddorn J (2018). The UKC2 regional coupled environmental prediction system. Geoscientific Model Development 11:1-42.
+      * Appx B of Lewis HW, Castillo Sanchez JM, Graham J, Saulter A, Bornemann J, Arnold A, Fallmann J, Harris C, Pearson D, Ramsdale S, Mart|iacute|nez de la Torre A, Bricheno L, Blyth E, Bell VA, Davies H, Marthews TR, O'Neill C, Rumbold H, O'Dea E, Brereton A, Guihou K, Hines A, Butenschon M, Dadson SJ, Palmer T, Holt J, Reynard N, Best M, Edwards J & Siddorn J (2018). The UKC2 regional coupled environmental prediction system. Geoscientific Model Development 11:1-42.
       * Bell, V.A. et al. (2007) Development of a high resolution grid-based river flow model for use with regional climate model output. Hydrology and Earth System Sciences. 11 532-549
       * Oki, T., et al (1999) Assessment of annual runoff from land surface models using Total Runoff Integrating Pathways (TRIP). Journal of the Meteorological Society of Japan. 77 235-255
 
@@ -1680,16 +1667,16 @@ The following table summarises ancillary fields for the water resources code, sp
 
 .. tabularcolumns:: |p{3cm}|L|
 
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| Name                       | Description                                                                                               |
-+============================+===========================================================================================================+
-| ``conv_loss_frac``         | Fraction of abstracted water that is lost during conveyance from source to user.                          |
-|                            |                                                                                                           |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``sfc_water_frac``         | Target for the fraction of demand that will be met from surface water (rather than groundwater).          |
-|                            | This is only used if :nml:mem:`JULES_WATER_RESOURCES::partition_method` = 1.                              |
-|                            |                                                                                                           |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
++----------------------+--------------------------------------------------------------------------------------------------+
+| Name                 | Description                                                                                      |
++======================+==================================================================================================+
+| ``conv_loss_frac``   | Fraction of abstracted water that is lost during conveyance from source to user.                 |
+|                      |                                                                                                  |
++----------------------+--------------------------------------------------------------------------------------------------+
+| ``sfc_water_frac``   | Target for the fraction of demand that will be met from surface water (rather than groundwater). |
+|                      | This is only used if :nml:mem:`JULES_WATER_RESOURCES::partition_method` = 1.                     |
+|                      |                                                                                                  |
++----------------------+--------------------------------------------------------------------------------------------------+
 
 
 
@@ -1808,32 +1795,31 @@ List of urban properties
 
 All of the urban property variables listed below are expected to have no levels dimensions and no time dimension.
 
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| Variable name | Description [#]_                 | Notes                                                                               |
-+===============+==================================+=====================================================================================+
-| ``wrr``       | Repeating width ratio (or canyon | If :nml:mem:`JULES_URBAN::l_urban_empirical` = TRUE                                 |
-|               | fraction, W/R)                   | then this is updated with calculated values.                                        |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| **The following apply to MORUSES only**                                                                                                |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``hwr``       | Height-to-width ratio (H/W)      | See for ``wrr`` above.                                                              |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``hgt``       | Building height (H)              | See for ``wrr`` above.                                                              |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``ztm``       | Effective roughness length of    | If :nml:mem:`JULES_URBAN::l_moruses_macdonald` = TRUE                               |
-|               | urban areas                      | then this is updated with calculated values.                                        |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``disp``      | Displacement height              | See for ``ztm`` above.                                                              |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``albwl``     | Wall albedo                      | Data only used if :nml:mem:`JULES_URBAN::l_moruses_albedo` = TRUE.                  |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``albrd``     | Road albedo                      | See for ``albwl`` above.                                                            |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``emisw``     | Wall emissivity                  | Data only used if :nml:mem:`JULES_URBAN::l_moruses_emissivity` = TRUE.              |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-| ``emisr``     | Road emissivity                  | See for ``emisw`` above.                                                            |
-+---------------+----------------------------------+-------------------------------------------------------------------------------------+
-
++---------------+----------------------------------+------------------------------------------------------------------------+
+| Variable name | Description [#]_                 | Notes                                                                  |
++===============+==================================+========================================================================+
+| ``wrr``       | Repeating width ratio (or canyon | If :nml:mem:`JULES_URBAN::l_urban_empirical` = TRUE                    |
+|               | fraction, W/R)                   | then this is updated with calculated values.                           |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| **The following apply to MORUSES only**                                                                                   |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``hwr``       | Height-to-width ratio (H/W)      | See for ``wrr`` above.                                                 |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``hgt``       | Building height (H)              | See for ``wrr`` above.                                                 |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``ztm``       | Effective roughness length of    | If :nml:mem:`JULES_URBAN::l_moruses_macdonald` = TRUE                  |
+|               | urban areas                      | then this is updated with calculated values.                           |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``disp``      | Displacement height              | See for ``ztm`` above.                                                 |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``albwl``     | Wall albedo                      | Data only used if :nml:mem:`JULES_URBAN::l_moruses_albedo` = TRUE.     |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``albrd``     | Road albedo                      | See for ``albwl`` above.                                               |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``emisw``     | Wall emissivity                  | Data only used if :nml:mem:`JULES_URBAN::l_moruses_emissivity` = TRUE. |
++---------------+----------------------------------+------------------------------------------------------------------------+
+| ``emisr``     | Road emissivity                  | See for ``emisw`` above.                                               |
++---------------+----------------------------------+------------------------------------------------------------------------+
 
 
 .. rubric:: Footnotes

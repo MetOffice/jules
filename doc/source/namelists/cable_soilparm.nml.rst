@@ -1,7 +1,6 @@
 ``cable_soilparm.nml``
 ============================
 
-
 This file contains a namelist called :nml:lst:`CABLE_SOILPARM` that sets time-invariant parameters for different soil types for the CABLE land surface model.
 
 ``CABLE_SOILPARM`` namelist members
@@ -99,6 +98,3 @@ The number of soil types is stored in the `n_soiltypes` parameter and for the cu
    :default: MDI
 
    Soil specific heat capacity (J kg\ :sup:`-1` K\ :sup:`-1`).
-
-
-

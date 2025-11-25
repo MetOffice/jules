@@ -16,7 +16,7 @@ The JULES I/O code is comprised of several 'layers' with clearly defined respons
 
 .. figure:: io_modular_structure.png
    :alt: Modular structure of the JULES I/O code
-   
+
    Modular structure of the JULES I/O code
 
 The core component in the I/O framework is the common file handling API. This layer provides a common interface for different file formats that is then used by the rest of the code. The drivers for ASCII and NetCDF files implement this interface. The interface is based around the concepts of dimensions and variables, much like NetCDF (except that nothing is inferred from metadata - all information about variables and dimensions must be prescribed), but adds the concept of a "record" to that:
@@ -25,7 +25,7 @@ Dimension
     A file has one or more dimensions. Each regular dimension has a name and a size.
 
     One dimension is special, and is referred to as the record dimension. It has a name but has no defined size. A typical use of the record dimension is to represent time.
-    
+
 Variable
     A file has one or more variables. The size of each variable is defined using the dimensions previously defined in the file. Each variable can opt to use the record dimension or not - if a variable uses the record dimension it must be the last dimension that the variable has.
 
@@ -36,13 +36,13 @@ Record
 
     .. figure:: records_in_file.png
        :alt: Records in a file
-      
+
        Records in a file
 
     In the figure, each variable has dimensions x, y and n, where n is the record dimension. Each green box represents the (2D plane of) values of a variable for a certain value of n. A record is then the collection of all variables at a certain value of n.
-    
+
     A good analogy is the lines in an ASCII file, where each column represents a variable and each line is a record (in fact, this is a generalisation to multiple dimensions of that exact concept).
-    
+
 Files keep track of the record they are currently pointing at (it is the responsibility of the file-type drivers to do this in the way that best suits the file format they implement). When a file receives a read or write request for a particular variable, the values are read from or written to the current record.
 
 The record abstraction also allows two useful operations - seek and advance. When a file receives an instruction to seek to a particular record, it sets its internal pointer so that read/write requests access the given record (a use of this within JULES is looping the input files round spin-up cycles). An advance instruction just moves the internal pointer on to the next record.
@@ -63,7 +63,7 @@ This should provide a reasonable introduction to the JULES I/O framework, but lo
 Implementing new variables for input and output
 -----------------------------------------------
 
-The only I/O code that needs to be modified to add new variables for input and output is in ``model_interface_mod`` (the routines in ``src/io/model_interface``). All interaction between the I/O code and the model happens in this module (apart from reading and writing dump files). 
+The only I/O code that needs to be modified to add new variables for input and output is in ``model_interface_mod`` (the routines in ``src/io/model_interface``). All interaction between the I/O code and the model happens in this module (apart from reading and writing dump files).
 
 Before adding any code to ``model_interface_mod``, the variable the user wishes to make available for input and/or output must be accessible to ``model_interface_mod``. This is usually accomplished by placing the variable in a module and importing the module into ``model_interface_mod`` where required, e.g.:
 
@@ -71,21 +71,21 @@ Before adding any code to ``model_interface_mod``, the variable the user wishes 
 
    ! Declare the variable in a module
    MODULE my_module
-   
+
      REAL, ALLOCATABLE :: my_var(:)
-     
+
      ! ...
    END MODULE my_module
-   
-   
+
+
    ! ... Later, in model_interface_mod
    USE my_module, ONLY : my_var
-   
+
 
 ``model_interface_mod`` contains several routines:
 
-*   Two routines that populate and extract data from the relevant model variables. These are ``populate_var`` and ``extract_var`` respectively.
-*   Routines that provide various pieces of information (e.g. string identifiers, number and size of 'levels' dimensions) about the available variables to the input and output layers. Internally, a metadata array that contains information about the available variables is used to implement these 'information providing' routines.
+* Two routines that populate and extract data from the relevant model variables. These are ``populate_var`` and ``extract_var`` respectively.
+* Routines that provide various pieces of information (e.g. string identifiers, number and size of 'levels' dimensions) about the available variables to the input and output layers. Internally, a metadata array that contains information about the available variables is used to implement these 'information providing' routines.
 
 
 In most cases, the following edits will be sufficient to add a variable for input and/or output:
@@ -107,11 +107,11 @@ In most cases, the following edits will be sufficient to add a variable for inpu
 
 ``variable_metadata.inc``
     .. note:: Required for both input and output variables.
-    
+
     This file contains the ``DATA`` definition for the variable metadata array. The metadata array contains objects of the derived type ``var_metadata``, which is defined in ``model_interface_mod.F90``. A typical entry in this array will look something like:
-    
+
     .. code-block:: fortran
-    
+
        !-----------------------------------------------------------------------------
        ! Metadata for latitude
        !-----------------------------------------------------------------------------
@@ -125,15 +125,15 @@ In most cases, the following edits will be sufficient to add a variable for inpu
        ! Units
            "degrees"                                                                 &
          ) /
-         
+
     This allows us to define all the static information about a variable in one place:
-    
+
     String identifier
         This is the name used to identify the variable in namelists (as seen elsewhere in the User Guide)
-        
+
     Variable type
         This indicates the number and size of the 'levels' dimensions for the variable. For a full list of types see the file ``get_var_levs_dims.inc``; some of the available types are:
-        
+
         +----------------------+-----------------------------------------------------------------------------------------------------+
         | Type                 | Number and size of 'levels' dimension(s)                                                            |
         +======================+=====================================================================================================+
@@ -157,15 +157,15 @@ In most cases, the following edits will be sufficient to add a variable for inpu
         | ``VAR_TYPE_SNOW``    | Two levels dimensions: the first of size ``nsurft`` and the second of size                          |
         |                      | :nml:mem:`JULES_SNOW::nsmax`                                                                        |
         +----------------------+-----------------------------------------------------------------------------------------------------+
-        
+
         Adding a new type is a relatively simple procedure:
-        
+
         #.  A new ``PARAMETER`` must be added for the type in ``model_interface_mod.F90``
         #.  A new ``CASE`` must be added to the ``SELECT`` statement in ``get_var_levs_dims.inc`` that correctly returns the number, names and sizes of the levels dimensions.
-        
+
     Long name
         This is the name used in the ``long_name`` attribute for the variable in output files.
-        
+
     Units
         This is the units given in the ``units`` attribute for the variable in output files.
 

@@ -11,27 +11,27 @@ Time templating
 
 If any of the time templating substitution strings are present in a file name, then JULES assumes time-templating is to be used. The valid substitution strings for time templating are:
 
-+-----------------------+------------------------------------------------------------------------------------------------+
-| Substitution string   | Replaced with                                                                                  |
-+=======================+================================================================================================+
-| ``%y4``               | 4-digit year                                                                                   |
-+-----------------------+------------------------------------------------------------------------------------------------+
-| ``%y2``               | 2-digit year                                                                                   |
-+-----------------------+------------------------------------------------------------------------------------------------+
-| ``%m2``               | 2-digit month                                                                                  |
-+-----------------------+------------------------------------------------------------------------------------------------+
-| ``%m1``               | 1- or 2-digit month                                                                            |
-+-----------------------+------------------------------------------------------------------------------------------------+
-| ``%mc``               | 3-character month abbreviation                                                                 |
-+-----------------------+------------------------------------------------------------------------------------------------+
-| ``%d2``               | 2-digit day of month                                                                           |
-+-----------------------+------------------------------------------------------------------------------------------------+
++-----------------------+----------------------------------+
+| Substitution string   | Replaced with                    |
++=======================+==================================+
+| ``%y4``               | 4-digit year                     |
++-----------------------+----------------------------------+
+| ``%y2``               | 2-digit year                     |
++-----------------------+----------------------------------+
+| ``%m2``               | 2-digit month                    |
++-----------------------+----------------------------------+
+| ``%m1``               | 1- or 2-digit month              |
++-----------------------+----------------------------------+
+| ``%mc``               | 3-character month abbreviation   |
++-----------------------+----------------------------------+
+| ``%d2``               | 2-digit day of month             |
++-----------------------+----------------------------------+
 
 JULES will automatically detect the period (or frequency) of files based on the specific substitution strings in the following manner:
 
 .. figure:: time_templating_flow_diagram.png
    :alt: Time templating flow diagram
-   
+
    Flow diagram showing detection of file period from time templated string
 
 This means that monthly files must also have a year substitution string present, and daily files must have both month and year substitution strings present. Only yearly, monthly and daily files are allowed with time templating, with each file containing a single period (year, month or day respectively) of data. For yearly files, the first data in each file must apply from 00:00:00 on 1st January for each year. For monthly files, the first data in the file must apply from 00:00:00 on the 1st of the month. For daily files, the first data in the file must apply from 00:00:00 on the given day. Other configurations can be specified using a list of files with their respective start times.
@@ -53,33 +53,33 @@ Data is in monthly files with all related variables in the same file.
 
 Template:
 
-.. code-block:: none
+.. code-block:: text
 
     /data/met_data_%y4%m2.nc
 
 Example filenames:
 
-.. code-block:: none
+.. code-block:: text
 
     /data/met_data_199001.nc
     /data/met_data_199002.nc
     ...
     /data/met_data_200410.nc
-    
+
 Variable name templating only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Ancillary (non-time-varying) data with each variable in similarly named but separate files.
 
 Template:
-    
-.. code-block:: none
+
+.. code-block:: text
 
     /ancil/soil_%vv.nc
-        
+
 Example filenames:
-    
-.. code-block:: none
+
+.. code-block:: text
 
     /data/soil_satcon.nc
     /data/soil_sathh.nc
@@ -91,32 +91,32 @@ Data is in monthly files with each variable in similarly named but separate file
 
 Template:
 
-.. code-block:: none
+.. code-block:: text
 
     /data/%vv_%y4%mc.nc
-    
+
 Example filenames:
 
-.. code-block:: none
+.. code-block:: text
 
     /data/Rain_1990jan.nc
     /data/Wind_1990jan.nc
     ...
     /data/Rain_2000oct.nc
     /data/Wind_2000oct.nc
-    
+
 Variable name templating with a list of files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Data in 6-monthly files with each variable in similarly named but separate files.
-    
+
 Since the time templating cannot handle 6-monthly files, the files and their start times must be specified as a list. However, variable name templating can still be used.
-    
+
 Also note that it is possible to use a substitution string more than once in a template.
 
 Template list:
 
-.. code-block:: none
+.. code-block:: text
 
     ./%vv/met_%vv_199001.nc
     ./%vv/met_%vv_199007.nc
@@ -125,7 +125,7 @@ Template list:
 
 Example filenames:
 
-.. code-block:: none
+.. code-block:: text
 
     ./Rain/met_Rain_199001.nc
     ./Wind/met_Wind_199001.nc

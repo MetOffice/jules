@@ -39,7 +39,7 @@ General/Technical changes
  *  Added a further restriction on the type of processor used for rose stem testing on JASMIN. (#1222)
  *  Updated list of module leaders. (#1240)
 
-    
+
 Bugs fixed
 ----------
 
@@ -50,7 +50,7 @@ Bugs fixed
  *  Ensured that soileccose types are set up correctly. (#1229)
  *  Ensured Python3 is in path on both MONSooN and JASMIN systems. (#1216, 1231)
 
-    
+
 Documentation updates
 ---------------------
 

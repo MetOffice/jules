@@ -1,19 +1,18 @@
 ``urban.nml``
 =============
 
-
 This file contains one namelist called :nml:lst:`JULES_URBAN`.
 
 This section predominantly sets the options available for the two-tile urban scheme MORUSES. These namelists are only read if :nml:mem:`JULES_SURFACE::l_urban2t`, which requires both the :nml:mem:`JULES_SURFACE_TYPES::urban_canyon` and :nml:mem:`JULES_SURFACE_TYPES::urban_roof` surface types to be used. MORUSES provides parameters for: snow free canyon albedo (:nml:mem:`JULES_URBAN::l_moruses_albedo`), canyon emissivity (:nml:mem:`JULES_URBAN::l_moruses_emissivity`), roughness length for heat (:nml:mem:`JULES_URBAN::l_moruses_rough`), roughness length for momentum (:nml:mem:`JULES_URBAN::l_moruses_macdonald`) and thermal inertia (:nml:mem:`JULES_URBAN::l_moruses_storage`). Ancillary data, predominantly required for MORUSES, is read in via :nml:lst:`URBAN_PROPERTIES`.
 
-For all other parameters that MORUSES does not provide, and for any MORUSES parametrisations that are turned off, values from :doc:`nveg_params.nml` will be used instead. See the switches below for more information.
+For all other parameters that MORUSES does not provide, and for any MORUSES parameterisations that are turned off, values from :doc:`nveg_params.nml` will be used instead. See the switches below for more information.
 
 
    .. seealso::
       References:
 
-      *   Porson, A., et al. (2010), Implementation of a new urban energy budget scheme in the MetUM. Part I: Description and idealized simulations, Quarterly Journal of the Royal Meteorological Society, 136: 1514-1529. doi: 10.1002/qj.668
-      *   Porson, A., et al. (2010), Implementation of a new urban energy budget scheme into MetUM. Part II: Validation against observations and model Intercomparison, Quarterly Journal of the Royal Meteorological Society, 136: 1530-1542. doi: 10.1002/qj.572
+      * Porson, A., et al. (2010), Implementation of a new urban energy budget scheme in the MetUM. Part I: Description and idealized simulations, Quarterly Journal of the Royal Meteorological Society, 136: 1514-1529. doi: 10.1002/qj.668
+      * Porson, A., et al. (2010), Implementation of a new urban energy budget scheme into MetUM. Part II: Validation against observations and model Intercomparison, Quarterly Journal of the Royal Meteorological Society, 136: 1530-1542. doi: 10.1002/qj.572
 
 
 ``JULES_URBAN`` namelist members
@@ -104,10 +103,10 @@ For all other parameters that MORUSES does not provide, and for any MORUSES para
 
    MORUSES switch for thermal inertia and coupling with the underlying soil for canyon and roof.
 
-   MORUSES consists of two surfaces; a canyon (:nml:mem:`JULES_SURFACE_TYPES::urban_canyon`) and a roof (:nml:mem:`JULES_SURFACE_TYPES::urban_roof`). This MORUSES parametrisation calculates the heat capacity of each of these surface types and also modifies how they are coupled with the underlying soil. The heat capacities of the canyon and roof are calculated using the properties of the urban fabric and the geometry of the canyon. The roof has a lower thermal inertia and can respond more rapidly to changes in forcing. The nature of the coupling (radiative, conductive or none) is controlled via :nml:mem:`JULES_NVEGPARM::vf_nvg_io` as descibed below.
+   MORUSES consists of two surfaces; a canyon (:nml:mem:`JULES_SURFACE_TYPES::urban_canyon`) and a roof (:nml:mem:`JULES_SURFACE_TYPES::urban_roof`). This MORUSES parameterisation calculates the heat capacity of each of these surface types and also modifies how they are coupled with the underlying soil. The heat capacities of the canyon and roof are calculated using the properties of the urban fabric and the geometry of the canyon. The roof has a lower thermal inertia and can respond more rapidly to changes in forcing. The nature of the coupling (radiative, conductive or none) is controlled via :nml:mem:`JULES_NVEGPARM::vf_nvg_io` as descibed below.
 
    **The canyon**:
-   Consists of two walls and a road where the road only is coupled to the underlying soil. The walls are uncoupled and have a zero-flux boundary condition. The coupling of the road is therefore parametrised using a canyon scaling factor. The nature of the canyon (or road surface) coupling is specified as follows:
+   Consists of two walls and a road where the road only is coupled to the underlying soil. The walls are uncoupled and have a zero-flux boundary condition. The coupling of the road is therefore parameterised using a canyon scaling factor. The nature of the canyon (or road surface) coupling is specified as follows:
 
    :nml:mem:`JULES_NVEGPARM::vf_nvg_io` (:nml:mem:`JULES_SURFACE_TYPES::urban_canyon`):
        = =====================
@@ -175,7 +174,7 @@ For all other parameters that MORUSES does not provide, and for any MORUSES para
 
    Switch to use empirical relationships for urban geometry, based on total urban fraction. Dimensions calculated are W/R, H/W and H.
 
-   If no MORUSES parametrisations are used, i.e. the basic URBAN-2T, then only W/R is required.
+   If no MORUSES parameterisations are used, i.e. the basic URBAN-2T, then only W/R is required.
 
    If the roof fraction is not supplied i.e. canyon fraction = total urban fraction, then W/R will be used to calculate the canyon and roof fractions. W/R is also used to distribute anthropogenic heat between the roof and the canyon if :nml:mem:`JULES_SURFACE::l_anthrop_heat_src` = TRUE.
 

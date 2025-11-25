@@ -87,7 +87,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
       :suggested: 1 (spatial resolution coarser than 20 km gridcells), ~10 (high-resolution)
 
       The threshold drainage area (specified in number of cells) draining to a gridbox, above which the grid cell is considered to be a river point (see a_T in Bell et al. 2007:541).
-      
+
       Remaining points are treated as land (drainage area = 0) or sea (drainage area < 0). See Bell et al. (2007).
 
 
@@ -216,7 +216,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
       * Dadson S.J. et al. (2011) Evaluation of a grid-based river flow model configured for use in a regional climate model. Journal of Hydrology. 411 238-250
       * Falloon, P.D. et al (2007) New global river routing scheme in the Unified Model. Hadley Centre Technical Note 72, available from `the Met Office Library <http://www.metoffice.gov.uk/learning/library/publications/science/climate-science-technical-notes>`_.
       * Jones R., Dadson, S. and Bell, V.A. (2007) Report on European grid-based river-flow modelling for application to Regional Climate Models. Met Office Hadley Centre deliverable report.
-      * Oki, T. and Sud, Y.C. (1998) Design of Total Runoff Integrating Pathways (TRIP)—A Global River Channel Network. Earth Interactions, 2: 1-37.
+      * Oki, T. and Sud, Y.C. (1998) Design of Total Runoff Integrating Pathways (TRIP)--A Global River Channel Network. Earth Interactions, 2: 1-37.
       * Oki, T., et al (1999) Assessment of annual runoff from land surface models using Total Runoff Integrating Pathways (TRIP). Journal of the Meteorological Society of Japan. 77 235-255
 
 
@@ -330,7 +330,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
 
          :type: real
          :default: none
-	 :suggested: 0.08 (for "several drainages in western Washington State, USA", Cragun 2005)
+         :suggested: 0.08 (for "several drainages in western Washington State, USA", Cragun 2005)
 
          Coefficient in the allometry for bankfull flow (see Sen 2018:eqn3.33).
 
@@ -339,7 +339,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
 
          :type: real
          :default: none
-	 :suggested: 0.95 (for "several drainages in western Washington State, USA", Cragun 2005)
+         :suggested: 0.95 (for "several drainages in western Washington State, USA", Cragun 2005)
 
          Exponent in the allometry for bankfull flow (see Sen 2018:eqn3.33).
 

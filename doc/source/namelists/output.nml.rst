@@ -277,8 +277,6 @@ This namelist should occur :nml:mem:`JULES_OUTPUT::nprofiles` times. Each occurr
       .. note:: A time-accumulation is initialised at the start of a run and thereafter accumulates until the end of the run. This may mean that accuracy is lost, particularly towards the end of long runs, if small increments are added to an already large sum. Furthermore, before being output the accumulation is multiplied by the number of model timesteps in a sample period. This adjusts the accumulation for any intermittent sampling and is designed so that the time accumulation of a flux (e.g. kg s\ :sup:`-1`) can easily be converted to a total (e.g. kg) by subsequently multiplying by the model timestep length during post processing.
 
 
-
-
 Example of requesting output
 ----------------------------
 

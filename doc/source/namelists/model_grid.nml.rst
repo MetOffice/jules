@@ -1,7 +1,6 @@
 ``model_grid.nml``
 ==================
 
-
 This file sets up the grid configuration for the run. It contains seven namelists - :nml:lst:`JULES_INPUT_GRID`, :nml:lst:`JULES_LATLON`, :nml:lst:`JULES_LAND_FRAC`, :nml:lst:`JULES_MODEL_GRID`, :nml:lst:`JULES_NLSIZES`, :nml:lst:`JULES_SURF_HGT` and :nml:lst:`JULES_Z_LAND`
 
 Each run of JULES involves two grids: the input grid and the model grid. The input grid is the grid on which all input data are held. The model grid is the set of points on which the model is run. The model grid is the grid of points that will be processed by JULES, and is a subset of the input grid.
@@ -29,7 +28,7 @@ In most cases, the model grid will be represented internally as a vector of poin
    :type: logical
    :default: F
 
-   Indicates if the input grid is 1D or 2D.                                    
+   Indicates if the input grid is 1D or 2D.
 
    TRUE
       Variables have one grid dimension in the input file(s) - a points dimensions (e.g. a vector of land points with grid dimension "land").
@@ -45,7 +44,7 @@ In most cases, the model grid will be represented internally as a vector of poin
       :type: character
       :default: "land"
 
-      The name of the single grid dimension.                                      
+      The name of the single grid dimension.
 
       .. note:: For ASCII files, this can be anything. For NetCDF files, it should the name of the dimension in input file(s).
 
@@ -56,47 +55,47 @@ In most cases, the model grid will be represented internally as a vector of poin
       :permitted: >= 1
       :default: 0
 
-      The size of the single grid dimension.                                      
+      The size of the single grid dimension.
 
 
 .. nml:group:: Only used when :nml:mem:`grid_is_1d` = FALSE
 
    .. nml:member:: x_dim_name
-   
+
       :type: character
       :default: "x"
-   
-      The name of the x dimension (it may, but does not have to, coincide with :nml:mem:`JULES_RIVERS_PROPS::x_dim_name`). 
+
+      The name of the x dimension (it may, but does not have to, coincide with :nml:mem:`JULES_RIVERS_PROPS::x_dim_name`).
 
       .. note:: For ASCII files, this can be anything. For NetCDF files, it should be the name of the dimension in the input file(s).
-   
-   
+
+
    .. nml:member:: y_dim_name
-   
+
       :type: character
       :default: "y"
-   
+
       The name of the y dimension (it may, but does not have to, coincide with :nml:mem:`JULES_RIVERS_PROPS::y_dim_name`).
-   
+
       .. note:: For ASCII files, this can be anything. For NetCDF files, it should be the name of the dimension in the input file(s).
-   
-   
+
+
    .. nml:member:: nx
-   
+
       :type: integer
       :permitted: >= 1
       :default: 0
-   
-      The size of the x dimension.                                                
-   
-   
+
+      The size of the x dimension.
+
+
    .. nml:member:: ny
-   
+
       :type: integer
       :permitted: >= 1
       :default: 0
-   
-      The size of the y dimension.                                                
+
+      The size of the y dimension.
 
 
 .. nml:member:: time_dim_name
@@ -117,8 +116,8 @@ In most cases, the model grid will be represented internally as a vector of poin
    The dimension name used when variables have an additional dimension of size :nml:mem:`JULES_SURFACE_TYPES::npft`.
 
    .. note:: For ASCII files, this can be anything. For NetCDF files, it should the name of the dimension in input file(s).
-   
-   
+
+
 .. nml:member:: cpft_dim_name
 
    :type: character
@@ -197,8 +196,8 @@ In most cases, the model grid will be represented internally as a vector of poin
    The dimension name used when variables have an additional dimension of size  ``dim_cs1``.
 
    .. note:: For ASCII files, this can be anything. For NetCDF files, it should the name of the dimension in input file(s).
-   
-   
+
+
 .. nml:member:: bedrock_dim_name
 
    :type: character
@@ -350,30 +349,30 @@ The following table summarises ancillary fields that give the location and relat
 
 .. tabularcolumns:: |p{3cm}|L|
 
-+----------------------------+------------------------------------------------------------------------------------------+
-| Name                       | Description                                                                              |
-+============================+==========================================================================================+
-| ``latitude``               | Latitude of each point. Always required.                                                 |
-|                            |                                                                                          |
-+----------------------------+------------------------------------------------------------------------------------------+
-| ``longitude``              | Longitude of each point. Always required.                                                |
-|                            | Values in the range -180 to 360 are allowed.                                             |
-+----------------------------+------------------------------------------------------------------------------------------+
-| ``projection_x_coord``     | Values of the projection coordinate in the x direction.                                  |
-|                            | This is only required if :nml:mem:`l_coord_latlon` = FALSE.                              |
-|                            | Note that these can have any valid unit.                                                 |
-+----------------------------+------------------------------------------------------------------------------------------+
-| ``projection_y_coord``     | Values of the projection coordinate in the y direction.                                  |
-|                            | This is only required if :nml:mem:`l_coord_latlon` = FALSE.                              |
-|                            | Note that these can have any valid unit.                                                 |
-+----------------------------+------------------------------------------------------------------------------------------+
-| ``grid_area``              | The area of each gridbox (m\ :sup`2`).                                                   |
-|                            | This is requred if irrigation is being modelled with                                     |
-|                            | :nml:mem:`JULES_WATER_RESOURCES::l_water_resources` = TRUE and                           |
-|                            | :nml:mem:`JULES_WATER_RESOURCES::l_water_irrigation` = TRUE.                             |
-|                            | It is also required when using IMOGEN:                                                   |
-|                            | :nml:mem:`IMOGEN_ONOFF_SWITCH::l_imogen` = TRUE                                          |
-+----------------------------+------------------------------------------------------------------------------------------+
++----------------------------+-----------------------------------------------------------------+
+| Name                       | Description                                                     |
++============================+=================================================================+
+| ``latitude``               | Latitude of each point. Always required.                        |
+|                            |                                                                 |
++----------------------------+-----------------------------------------------------------------+
+| ``longitude``              | Longitude of each point. Always required.                       |
+|                            | Values in the range -180 to 360 are allowed.                    |
++----------------------------+-----------------------------------------------------------------+
+| ``projection_x_coord``     | Values of the projection coordinate in the x direction.         |
+|                            | This is only required if :nml:mem:`l_coord_latlon` = FALSE.     |
+|                            | Note that these can have any valid unit.                        |
++----------------------------+-----------------------------------------------------------------+
+| ``projection_y_coord``     | Values of the projection coordinate in the y direction.         |
+|                            | This is only required if :nml:mem:`l_coord_latlon` = FALSE.     |
+|                            | Note that these can have any valid unit.                        |
++----------------------------+-----------------------------------------------------------------+
+| ``grid_area``              | The area of each gridbox (m\ :sup:`2`).                         |
+|                            | This is required if irrigation is being modelled with           |
+|                            | :nml:mem:`JULES_WATER_RESOURCES::l_water_resources` = TRUE and  |
+|                            | :nml:mem:`JULES_WATER_RESOURCES::l_water_irrigation` = TRUE.    |
+|                            | It is also required when using IMOGEN:                          |
+|                            | :nml:mem:`IMOGEN_ONOFF_SWITCH::l_imogen` = TRUE                 |
++----------------------------+-----------------------------------------------------------------+
 
 Examples of how to specify the model domain using through this namelist are provided at the end of this section.
 
@@ -387,7 +386,7 @@ Land fraction is the fraction of each gridbox that is land. Currently, JULES con
 
 .. warning::
    When the input grid consists of a single location (1D and :nml:mem:`JULES_INPUT_GRID::npoints` = 1 or 2D and :nml:mem:`JULES_INPUT_GRID::nx` = :nml:mem:`JULES_INPUT_GRID::ny` = 1), that single location is assumed to be 100% land.
-   
+
    IMOGEN also currently assumes 100% land for each land grid cell.
 
 
@@ -399,7 +398,7 @@ For any input grid with more than a single location, the following are used:
    :type: character
    :default: None
 
-   The name of the file to read land fraction data from.                       
+   The name of the file to read land fraction data from.
 
 
 .. nml:member:: land_frac_name
@@ -407,7 +406,7 @@ For any input grid with more than a single location, the following are used:
    :type: character
    :default: 'land_fraction'
 
-   The name of the variable containing the land fraction data.                 
+   The name of the variable containing the land fraction data.
 
    In the file, the variable must have no levels dimensions and no time dimension.
 
@@ -426,7 +425,7 @@ Members of this namelist are used to select the points to be modelled from the i
    :type: logical
    :default: T
 
-   TRUE                                                                        
+   TRUE
        Model land points only (from the points that are selected with other options).
 
    FALSE
@@ -442,7 +441,7 @@ Members of this namelist are used to select the points to be modelled from the i
    :type: logical
    :default: F
 
-   TRUE                                                                        
+   TRUE
        Force the model grid to be 1D, even if it would otherwise have been 2D.
 
    FALSE
@@ -454,7 +453,7 @@ Members of this namelist are used to select the points to be modelled from the i
    :type: logical
    :default: F
 
-   TRUE                                                                        
+   TRUE
        The model grid is a subset of the full input grid, specified using some valid combination of the options below.
 
    FALSE
@@ -464,63 +463,63 @@ Members of this namelist are used to select the points to be modelled from the i
 .. nml:group:: Only used if :nml:mem:`use_subgrid` = TRUE
 
    .. nml:member:: l_bounds
-   
+
       :type: logical
       :default: None
-   
-      TRUE                                                                        
+
+      TRUE
           Subset of points to model will be selected using bounds for the coordinates variables.
-   
+
       FALSE
           Subset of points to model will be selected using a list of coordinate pairs for each point.
 
       If :nml:mem:`JULES_LATLON::l_coord_latlon` = TRUE, the coordinates used here are latitude and longitude.
 
       If :nml:mem:`JULES_LATLON::l_coord_latlon` = FALSE, the coordinates used here are the values stored in the variables projection_x_coord and projection_y_coord.
-   
-   
+
+
    .. nml:group:: Only used if :nml:mem:`l_bounds` = TRUE
-   
+
       .. nml:member:: y_bounds
-      
+
          :type: real(2)
          :default: None
-      
+
          The lower and upper bounds (in that order) for the y coordinate used to select points. Assuming that the coordinate is latitude (see  :nml:mem:`JULES_LATLON::l_coord_latlon`) the model grid will comprise the points where ``y_bounds(1) <= latitude <= y_bounds(2)``.
-       
-       
+
+
       .. nml:member:: x_bounds
-      
+
          :type: real(2)
          :default: None
-      
+
          The lower and upper bounds (in that order) for the x coordinate used to select points. Assuming that the coordinate is longitude (see  :nml:mem:`JULES_LATLON::l_coord_latlon`) the model grid will comprise the points where ``x_bounds(1) <= longitude <= x_bounds(2)``.
 
          If the x coordinate is longitude, the values of x_bounds should lie in the range [-180, 360]. A special case is that in which the desired subgrid straddles the edge of a global input grid. For example, if the input grid has longitudes in [0, 360] and a domain of 20 degrees of longitude centred on 0degE is required, this should be indicated using ``xbounds=-10,10`` (not xbounds=360,370 because values > 360 are not recognised). In this case the JULES code recognises the cyclic nature of longitude and correctly picks up points in both hemispheres, even though -10degE is outwith the longitude values in the input grid.
-   
-   
+
+
    .. nml:group:: Only used if :nml:mem:`l_bounds` = FALSE
-   
+
       .. nml:member:: npoints
-   
+
          :type: integer
          :permitted: >= 1
          :default: 0
-      
+
          The number of points to model.
-         
-      
+
+
       .. nml:member:: points_file
-      
+
          :type: character
          :default: None
-      
+
          The name of the file containing the coordinates for each point.
 
          If :nml:mem:`JULES_LATLON::l_coord_latlon` = TRUE, the coordinates used here are latitude and longitude. Each line in the file should contain the latitude and longitude (in that order) for a point.
 
          If :nml:mem:`JULES_LATLON::l_coord_latlon` = FALSE, the coordinates used here are the values stored in the variables projection_x_coord and projection_y_coord. Each line in the file should contain the value for projection_y_coord and projection_x_coord (in that order; note this is y then x) for a point.
-     
+
          An error is raised and the run terminates if any coordinate pair does not match to a location in the input grid.
 
 
@@ -546,11 +545,11 @@ This namelist is used to set the number of levels in the boundary layer.
 
 .. nml:namelist:: JULES_SURF_HGT
 
-This namelist sets the elevation of each surface tile. Elevations can either be *relative to the gridbox mean* or *have constant elevation bands above sea-level*. 
- 
-If tile elevations are set relative to the gridbox mean, then the gridbox mean elevation is not required. The gridbox mean elevation is implicit in the near-surface meteorological data that are provided (higher locations will tend to be colder, have lower pressure, etc.). The elevation of each tile is used to alter the values of the air temperature and humidity (and possibly downwelling longwave, see :nml:mem:`JULES_SURFACE::l_elev_lw_down`) over that tile relative to the surface. 
+This namelist sets the elevation of each surface tile. Elevations can either be *relative to the gridbox mean* or *have constant elevation bands above sea-level*.
 
-If any tile uses absolute heights (i.e. :nml:mem:`JULES_SURF_HGT::l_elev_absolute_height` has at least one element that is .true.), then the gridbox mean elevation must also be supplied. This is read in from the optional :nml:lst:`JULES_Z_LAND` namelist which is described below. The model calculates elevations relative to the gridbox mean by taking the difference between the absolute elevation and the gridbox mean. 
+If tile elevations are set relative to the gridbox mean, then the gridbox mean elevation is not required. The gridbox mean elevation is implicit in the near-surface meteorological data that are provided (higher locations will tend to be colder, have lower pressure, etc.). The elevation of each tile is used to alter the values of the air temperature and humidity (and possibly downwelling longwave, see :nml:mem:`JULES_SURFACE::l_elev_lw_down`) over that tile relative to the surface.
+
+If any tile uses absolute heights (i.e. :nml:mem:`JULES_SURF_HGT::l_elev_absolute_height` has at least one element that is .true.), then the gridbox mean elevation must also be supplied. This is read in from the optional :nml:lst:`JULES_Z_LAND` namelist which is described below. The model calculates elevations relative to the gridbox mean by taking the difference between the absolute elevation and the gridbox mean.
 
 If any tile uses absolute heights, then tile heights are set constant across a domain, regardless of whether each tile's height is specified as a relative offset or absolute. This makes it simple to set zero-offset heights for tiles that should not be considered in the elevation bands. It is no longer possible to have spatially varying tile heights if this option is used.
 
@@ -561,7 +560,7 @@ If any tile uses absolute heights, then tile heights are set constant across a d
    :default: T
 
    Switch used to simplify the initialisation of tile elevation.
-   
+
    .. note:: If :nml:mem:`JULES_SURFACE::l_aggregate` = TRUE, this switch is also set to TRUE.
 
    TRUE
@@ -578,11 +577,11 @@ If any tile uses absolute heights, then tile heights are set constant across a d
       :type: logical(nsurft)
       :default: F
 
-      TRUE                                                                    
-         Heights of surface tiles are absolute values above sea-level. If this option is used, then the elevation of the forcing data must also be provided (see :nml:lst:`JULES_Z_LAND` namelist below). 
+      TRUE
+         Heights of surface tiles are absolute values above sea-level. If this option is used, then the elevation of the forcing data must also be provided (see :nml:lst:`JULES_Z_LAND` namelist below).
 
       FALSE
-         Surface tile heights are relative to the gridbox mean.  
+         Surface tile heights are relative to the gridbox mean.
 
 
    .. nml:member:: use_file
@@ -590,95 +589,95 @@ If any tile uses absolute heights, then tile heights are set constant across a d
       :type: logical
       :default: T
 
-      This indicates if surface tile heights relative to the gridbox mean should be read from a specified file or namelist. 
+      This indicates if surface tile heights relative to the gridbox mean should be read from a specified file or namelist.
 
       TRUE
-       The variable will be read from a file if the input grid consists of more than location. 
- 
+       The variable will be read from a file if the input grid consists of more than location.
+
       FALSE
-       The variable will be read from a namelist if the input grid is for a single location.  
+       The variable will be read from a namelist if the input grid is for a single location.
 
 .. nml:group:: Only used if :nml:mem:`use_file` = TRUE
 
    .. nml:member:: file
-   
+
       :type: character
       :default: None
-   
-      The name of the file containing surface tile heights relative to the gridbox mean.                      
-   
+
+      The name of the file containing surface tile heights relative to the gridbox mean.
+
    .. nml:member:: surf_hgt_name
-   
+
       :type: character
       :default: 'surf_hgt'
-   
-      The name of the variable containing surface tile heights relative to the gridbox mean. In the file, the variable must have a single levels dimension of size ``nsurft`` called :nml:mem:`JULES_INPUT_GRID::tile_dim_name`.  
-   
+
+      The name of the variable containing surface tile heights relative to the gridbox mean. In the file, the variable must have a single levels dimension of size ``nsurft`` called :nml:mem:`JULES_INPUT_GRID::tile_dim_name`.
+
 .. nml:group:: Only used if :nml:mem:`use_file` = FALSE
 
    .. nml:member:: surf_hgt_io
-   
+
       :type: real(nsurft)
       :default: None
-        
-      Surface tile heights relative to the gridbox mean for a single location. 
-    
-  
+
+      Surface tile heights relative to the gridbox mean for a single location.
+
+
 ``JULES_Z_LAND`` namelist members
 -----------------------------------
 
-This is an optional namelist and only used if any surface tile has :nml:mem:`JULES_SURF_HGT::l_elev_absolute_height` = TRUE. The namelist sets values for the elevation bands and reads the elevation of the forcing data.  
+This is an optional namelist and only used if any surface tile has :nml:mem:`JULES_SURF_HGT::l_elev_absolute_height` = TRUE. The namelist sets values for the elevation bands and reads the elevation of the forcing data.
 
 .. nml:namelist:: JULES_Z_LAND
 
 .. nml:member:: surf_hgt_band
-   
+
    :type: real(nsurft)
    :default: None
 
-   Spatially invariant elevation bands for each surface tile. These may be relative to the gridbox mean or absolute elevations above sea-level depending on :nml:mem:`JULES_SURF_HGT::l_elev_absolute_height`. 
+   Spatially invariant elevation bands for each surface tile. These may be relative to the gridbox mean or absolute elevations above sea-level depending on :nml:mem:`JULES_SURF_HGT::l_elev_absolute_height`.
 
 .. nml:member:: use_file
- 
+
    :type: logical
    :default: T
- 
-   This indicates if the elevation of the forcing data should be read from a file or from a namelist.
- 
-   TRUE
-      The variable will be read from a file if the input grid consists of more than location.  
-   FALSE
-      The variable will be read from a namelist if the input grid is for a single location.   
 
-.. nml:group:: Used if :nml:mem:`JULES_Z_LAND::use_file` = TRUE 
+   This indicates if the elevation of the forcing data should be read from a file or from a namelist.
+
+   TRUE
+      The variable will be read from a file if the input grid consists of more than location.
+   FALSE
+      The variable will be read from a namelist if the input grid is for a single location.
+
+.. nml:group:: Used if :nml:mem:`JULES_Z_LAND::use_file` = TRUE
 
    .. nml:member:: file
-   
+
       :type: character
       :default: None
-   
+
       The name of the file containing the elevation of the forcing data.
 
    .. nml:member:: z_land_name
-   
+
       :type: character
       :default: 'z_land'
-   
-      The name of the variable containing the elevation of the forcing data. In the file, the variable must have no level dimensions and no time dimensions.     
 
-.. nml:group:: Used if :nml:mem:`JULES_Z_LAND::use_file` = FALSE 
- 
+      The name of the variable containing the elevation of the forcing data. In the file, the variable must have no level dimensions and no time dimensions.
+
+.. nml:group:: Used if :nml:mem:`JULES_Z_LAND::use_file` = FALSE
+
    .. nml:member:: z_land_io
-   
+
       :type: real
       :default: None
-   
-      Elevation of the forcing data for a single location.   
+
+      Elevation of the forcing data for a single location.
 
 Example
 ~~~~~~~
 
-The following gives an example of how you would set up the namelists to use elevation bands above sea-level. 
+The following gives an example of how you would set up the namelists to use elevation bands above sea-level.
 
 ::
 
@@ -693,7 +692,7 @@ The following gives an example of how you would set up the namelists to use elev
 
     &JULES_Z_LAND
 
-      # Set values for the elevation bands. 
+      # Set values for the elevation bands.
       surf_hgt_band          = 6*0.0, 1000.0, 2000.0, 3000.0,
 
       # Read the WFDEI forcing data elevation from a file
@@ -718,7 +717,7 @@ A single location
       nx = 1,
       ny = 1
     /
-    
+
     &JULES_LATLON
       l_coord_latlon = T
       nvars     = 2,
@@ -726,11 +725,11 @@ A single location
       use_file  = .false., .false.,
       const_val = 52.168, 5.744
     /
-    
+
     &JULES_LAND_FRAC /
 
     &JULES_MODEL_GRID /
-    
+
     &JULES_SURF_HGT
       zero_height = T
     /
@@ -760,10 +759,10 @@ In this example, input files contain data on a vector of land points. The land p
 
     &JULES_INPUT_GRID
       grid_is_1D = T,
-      
+
       npoints = 15238,
       grid_dim_name = "land",
-      
+
       time_dim_name = "time"
     /
 
@@ -785,7 +784,7 @@ In this example, input files contain data on a 2D latitude/longitude grid. The x
 
       time_dim_name = "time"
     /
-    
+
 Specifying a subgrid using a given range of latitude and longitude
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -798,13 +797,13 @@ This can be used with either a 1D or 2D input grid. ::
       use_file  = .true., .true.,
       file      = 'lat_lon.nc',
     /
-    
+
     &JULES_LAND_FRAC
       file = 'land_mask.nc',
 
       land_frac_name = 'land_frac'
     /
-    
+
     &JULES_MODEL_GRID
       land_only = F,
 
@@ -819,7 +818,7 @@ This can be used with either a 1D or 2D input grid. ::
 This setup reads latitude, longitude and land fraction for each gridbox in the full input grid (1D or 2D) from the named variables in the specified files.
 
 In :nml:lst:`JULES_MODEL_GRID`, :nml:mem:`JULES_MODEL_GRID::use_subgrid` indicates that a subset of the input grid will be selected as the model grid. :nml:mem:`JULES_MODEL_GRID::l_bounds` then indicates that latitude and longitude bounds will be used to select the subgrid. :nml:mem:`JULES_MODEL_GRID::land_only` = FALSE means that sea and sea-ice points will remain in the model grid if any are selected. The model grid will then be a vector containing the selected points (those that fall within the latitude/longitude bounds), even if those points could be used to form a rectangular region.
-    
+
 Specifying a subgrid using a given range of projection coordinates (not latitude and longitude)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -832,13 +831,13 @@ This can be used with either a 1D or 2D input grid. ::
       use_file  = .true., .true., .true., .true.,
       file      = 'lat_lon.nc',
     /
-    
+
     &JULES_LAND_FRAC
       file = 'land_mask.nc',
 
       land_frac_name = 'land_frac'
     /
-    
+
     &JULES_MODEL_GRID
       land_only = F,
 
@@ -881,7 +880,7 @@ This can be used with either a 1D or 2D input grid. ::
       npoints = 4,
       points_file = 'points.txt'
     /
-    
+
 This setup reads latitude, longitude and land fraction for each gridbox in the full input grid (1D or 2D) from the named variables in the specified files.
 
 In :nml:lst:`JULES_MODEL_GRID`, :nml:mem:`JULES_MODEL_GRID::use_subgrid` indicates that a subset of the input grid will be selected as the model grid. :nml:mem:`JULES_MODEL_GRID::l_bounds` then indicates that a list of latitudes and longitudes will be used to select the subgrid. :nml:mem:`JULES_MODEL_GRID::land_only` is not given, meaning it takes its default value, TRUE. This means that any sea or sea-ice points specified in the list of points will be discarded. The model grid will then be a vector
@@ -904,14 +903,14 @@ The only configuration that yields a 2D model grid
 
       nx = 96,
       ny = 56,
-      
+
       # ...
     /
 
     &JULES_LATLON
       # <specified from file>
     /
-    
+
     &JULES_LAND_FRAC
       # <specified from file>
     /

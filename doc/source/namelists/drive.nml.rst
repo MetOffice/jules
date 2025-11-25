@@ -1,7 +1,6 @@
 ``drive.nml``
 =============
 
-
 This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicates how meteorological driving data is input.
 
 
@@ -23,7 +22,7 @@ This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicate
    :type: real
    :default: None
 
-   If total preciption or total rainfall are given, then :nml:mem:`t_for_con_rain` is the near-surface air temperature (K) at or above which rainfall is assumed to be convective in origin. At lower temperatures, all the rainfall is assumed to be large-scale in origin. In this configuration all snow is assumed to be large-scale in origin. The default value used to be 373.15 K but in general this is not recommended as it effectively means all precipitation is large-scale; a value of 293.15 K might be more appropriate.
+   If total precipitation or total rainfall are given, then :nml:mem:`t_for_con_rain` is the near-surface air temperature (K) at or above which rainfall is assumed to be convective in origin. At lower temperatures, all the rainfall is assumed to be large-scale in origin. In this configuration all snow is assumed to be large-scale in origin. The default value used to be 373.15 K but in general this is not recommended as it effectively means all precipitation is large-scale; a value of 293.15 K might be more appropriate.
 
    Also see :nml:mem:`JULES_SOIL::confrac`.
 
@@ -53,81 +52,81 @@ This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicate
 
       TRUE
           Disaggregator is used.
-       
+
           .. warning::
              The disaggregator requires:
-          
+
              #. Daily forcing data, i.e. :nml:mem:`data_period` = 86400
              #. :nml:mem:`JULES_TIME::main_run_start`, :nml:mem:`JULES_SPINUP::spinup_start` and :nml:mem:`data_start` to be 00:00:00 for some day.
 
       FALSE
           Disaggregator is not used.
-       
-       
+
+
    .. nml:member:: l_disagg_const_rh
- 
+
       :type: logical
       :default: F
 
       Switch controlling sub-daily disaggregation of humidity.
-   
+
       Only used if :nml:mem:`l_daily_disagg` = TRUE.
 
       TRUE
-          Relative humidity is kept constant over day.  
+          Relative humidity is kept constant over day.
 
       FALSE
           Specific humidity is kept constant over day (apart from when limited by specific humidity at saturation).
-       
-       
+
+
    .. nml:member:: dur_conv_rain
 
       :type: real
       :default: None
 
       Duration of a convective rainfall event in seconds for use in the disaggregator. See HCTN96 section 2.4. A value of 21600s (6 hours) used to be the default.
-   
+
       Only used if :nml:mem:`l_daily_disagg` = TRUE.
-   
-    
+
+
    .. nml:member:: dur_ls_rain
 
       :type: real
       :default: None
 
       Duration of a large-scale rainfall event in seconds for use in the disaggregator. See HCTN96 section 2.4. A value of 3600s (1 hour) used to be the default.
-   
+
       Only used if :nml:mem:`l_daily_disagg` = TRUE.
-   
-   
+
+
    .. nml:member:: dur_conv_snow
 
       :type: real
       :default: None
 
       Duration of a convective snowfall event in seconds for use in the disaggregator. See HCTN96 section 2.4. A value of 3600s (1 hour) used to be the default.
-   
+
       Only used if :nml:mem:`l_daily_disagg` = TRUE.
-   
-   
+
+
    .. nml:member:: dur_ls_snow
 
       :type: real
       :default: None
 
       Duration of a large-scale snowfall event in seconds for use in the disaggregator. See HCTN96 section 2.4. A value of 3600s (1 hour) used to be the default.
-   
+
       Only used if :nml:mem:`l_daily_disagg` = TRUE.
-       
-       
-   .. nml:member:: precip_disagg_method 
+
+
+   .. nml:member:: precip_disagg_method
 
       :type: integer
       :permitted: 1, 2, 3 or 4
       :default: None
 
       Switch controlling the disaggregation method for precipitation. See HCTN96 section 2.4. The default value used to be 2.
-   
+
       Only used if :nml:mem:`l_daily_disagg` = TRUE.
 
       1.  Do not disaggregate precipitation.
@@ -161,7 +160,7 @@ This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicate
       :default: None
 
       Relative perturbation for precipitation variables (a multiplicative factor). Only used if :nml:mem:`l_perturb_driving` = TRUE.
-      
+
 
 .. nml:group:: Members used to specify ``z1_tq`` and ``z1_uv``
 
@@ -176,15 +175,15 @@ This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicate
 
    .. nml:member:: z1_tq_vary
 
-      :type: logical 
-      :default: F 
-     
-      Switch to indicate whether ``z1_tq`` (the height (m) at which the temperature and humidity data are valid) should be constant for all points or spatially varying. The height is relative to the zero-plane, not the ground.  
+      :type: logical
+      :default: F
 
-      TRUE 
-          Spatially varying ``z1_tq`` will be read from the file specified in :nml:mem:`z1_tq_file`. 
+      Switch to indicate whether ``z1_tq`` (the height (m) at which the temperature and humidity data are valid) should be constant for all points or spatially varying. The height is relative to the zero-plane, not the ground.
 
-      FALSE 
+      TRUE
+          Spatially varying ``z1_tq`` will be read from the file specified in :nml:mem:`z1_tq_file`.
+
+      FALSE
           ``z1_tq`` will be set to a constant value, specified in :nml:mem:`z1_tq_in`, at all points.
 
 
@@ -195,35 +194,35 @@ This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicate
       :default: None
 
       Constant value for ``z1_tq`` to be used for every point.
-      
+
       Only required if :nml:mem:`z1_tq_vary` = F.
 
 
-   .. nml:member:: z1_tq_file 
+   .. nml:member:: z1_tq_file
 
-      :type: character 
-      :default: None 
-   
+      :type: character
+      :default: None
+
       File to read spatially varying ``z1_tq`` from.
-      
+
       Only required if :nml:mem:`z1_tq_vary` = T.
 
 
-   .. nml:member:: z1_tq_var_name 
+   .. nml:member:: z1_tq_var_name
 
-      :type: character 
+      :type: character
       :default: 'z1_tq_in'
 
       The name of the variable in :nml:mem:`z1_tq_file` containing the data for ``z1_tq``.
-      
+
       The variable should have no levels dimensions and no time dimension.
-      
+
       .. note::
          This is not used for ASCII files.
-         
+
          However, since ASCII files can only be used for single-point runs, it is recommended to set :nml:mem:`z1_tq_vary` = F and use :nml:mem:`z1_tq_in` anyway.
 
-       
+
 .. nml:group:: Members used to specify boundary layer height
 
    .. nml:member:: bl_height
@@ -234,34 +233,34 @@ This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicate
 
       Height above ground to top of the atmospheric boundary layer (m). This value is disregarded if ``bl_height`` is provided as prescribed data (see :ref:`supported-prescribed-variables`).
 
-       
+
 .. nml:group:: Members used to specify the start, end and period of the data
 
    .. nml:member:: data_start
    .. nml:member:: data_end
-   
+
       :type: character
       :default: None
-   
+
       The times of the start of the first timestep of data and the end of the last timestep of data.
-   
+
       Each run of JULES (configured in :doc:`timesteps.nml`) can use part or all of the specified data. However, there must be data for all times between run start and run end (determined by :nml:mem:`JULES_TIME::main_run_start`, :nml:mem:`JULES_TIME::main_run_end`, :nml:mem:`JULES_SPINUP::spinup_start` and :nml:mem:`JULES_SPINUP::spinup_end`).
-   
+
       The times must be given in the format::
-   
+
            "yyyy-mm-dd hh:mm:ss"
-   
-   
+
+
    .. nml:member:: data_period
-   
+
       :type: integer
       :permitted: -2, -1 or > 0
       :default: None
-   
+
       The period, in seconds, of the data.
-   
+
       Special cases:
-   
+
       | **-1:** Monthly data
       | **-2:** Yearly data
 
@@ -269,94 +268,94 @@ This file contains a single namelist called :nml:lst:`JULES_DRIVE` that indicate
 .. nml:group:: Members used to specify the files containing the data
 
    .. nml:member:: read_list
-   
+
       :type: logical
       :default: F
-   
+
       Switch controlling how data file names are determined for a given time.
-   
+
       TRUE
           Use a list of data file names with times of first data.
-   
+
       FALSE
           Use a single data file for all times or a template describing the names of the data files.
-   
-   
+
+
    .. nml:member:: nfiles
-   
+
       :type: integer
       :permitted: >= 0
       :default: 0
-   
+
       Only used if :nml:mem:`read_list` = TRUE.
-   
+
       The number of data files to read name and time of first data for.
-   
-   
+
+
    .. nml:member:: file
-   
+
       :type: character
       :default: None
-   
+
       If :nml:mem:`read_list` = TRUE, this is the file to read the list of data file names and times from. Each line should be of the form::
-   
+
           '/data/file', 'yyyy-mm-dd hh:mm:ss'
-   
+
       In this case data file names may contain variable name templating only, with the proviso that either no file names use variable name templating or all file names do. The files must appear in chronological order.
-    
+
       If :nml:mem:`read_list` = FALSE, this is either the single data file (if no templating is used) or a template for data file names. Both :doc:`time and variable name templating </input/file-name-templating>` may be used.
 
 
 .. nml:group:: Members used to specify the provided variables
 
    .. nml:member:: nvars
-   
+
       :type: integer
       :permitted: >= 0
       :default: 0
-   
+
       The number of forcing variables that will be provided.
-   
+
       See :ref:`list-of-jules-forcing-variables` for the available forcing variables and their possible configurations.
-   
-   
+
+
    .. nml:member:: var
-   
+
       :type: character(nvars)
       :default: None
-   
+
       List of forcing variable names as recognised by JULES (see :ref:`list-of-jules-forcing-variables`). Names are case sensitive.
-   
+
       .. note:: For ASCII files, variable names must be in the order they appear in the file.
-   
-   
+
+
    .. nml:member:: var_name
-   
+
       :type: character(nvars)
       :default: '' (empty string)
-   
+
       For each JULES variable specified in :nml:mem:`var`, this is the name of the variable in the file(s) containing the data.
 
       If the empty string (the default) is given for any variable, then the corresponding value from :nml:mem:`var` is used instead.
-   
+
       .. note:: For ASCII files, this is not used - only the order in the file matters, as described above.
-   
-   
+
+
    .. nml:member:: tpl_name
-   
+
       :type: character(nvars)
       :default: None
-   
+
       For each JULES variable specified in :nml:mem:`var`, this is the string to substitute into the file name(s) in place of the variable name substitution string.
-    
+
       If the file name(s) do not use variable name templating, this is not used.
-   
-   
+
+
    .. nml:member:: interp
-    
+
       :type: character(nvars)
       :default: None
-   
+
       For each JULES variable specified in :nml:mem:`var`, this indicates how the variable is to be interpolated in time (see :doc:`/input/temporal-interpolation`).
 
 
@@ -370,15 +369,15 @@ All of the available forcing variables listed in the sections below, are expecte
 Pressure, Humidity and Temperature
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| Name                       | Description                                                                                               |
-+============================+===========================================================================================================+
-| ``pstar``                  | Air pressure (Pa).                                                                                        |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``q``                      | Specific humidity (kg kg\ :sup:`-1`).                                                                     |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``t``                      | Air temperature (K).                                                                                      |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
++-----------------+-----------------------------------------+
+| Name            | Description                             |
++=================+=========================================+
+| ``pstar``       | Air pressure (Pa).                      |
++-----------------+-----------------------------------------+
+| ``q``           | Specific humidity (kg kg\ :sup:`-1`).   |
++-----------------+-----------------------------------------+
+| ``t``           | Air temperature (K).                    |
++-----------------+-----------------------------------------+
 
 Radiation variables
 ^^^^^^^^^^^^^^^^^^^
@@ -403,21 +402,21 @@ If any of the four combinations of radiation variables listed above are provided
 
 ``diff_rad`` can be used with any of the four methods. If it is given, diffuse radiation is input from file. If it is not given, :nml:mem:`JULES_DRIVE::diff_frac_const` is used instead to partition the downward shortwave radiation into diffuse and direct.
 
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| Name                       | Description                                                                                               |
-+============================+===========================================================================================================+
-| ``rad_net``                | Net (all wavelength) downward radiation (W m\ :sup:`-2`).                                                 |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``lw_net``                 | Net downward longwave radiation (W m\ :sup:`-2`).                                                         |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``sw_net``                 | Net downward shortwave radiation (W m\ :sup:`-2`).                                                        |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``lw_down``                | Downward longwave radiation (W m\ :sup:`-2`).                                                             |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``sw_down``                | Downward shortwave radiation (W m\ :sup:`-2`).                                                            |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``diff_rad``               | Diffuse radiation (W m\ :sup:`-2`).                                                                       |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
++--------------+-----------------------------------------------------------+
+| Name         | Description                                               |
++==============+===========================================================+
+| ``rad_net``  | Net (all wavelength) downward radiation (W m\ :sup:`-2`). |
++--------------+-----------------------------------------------------------+
+| ``lw_net``   | Net downward longwave radiation (W m\ :sup:`-2`).         |
++--------------+-----------------------------------------------------------+
+| ``sw_net``   | Net downward shortwave radiation (W m\ :sup:`-2`).        |
++--------------+-----------------------------------------------------------+
+| ``lw_down``  | Downward longwave radiation (W m\ :sup:`-2`).             |
++--------------+-----------------------------------------------------------+
+| ``sw_down``  | Downward shortwave radiation (W m\ :sup:`-2`).            |
++--------------+-----------------------------------------------------------+
+| ``diff_rad`` | Diffuse radiation (W m\ :sup:`-2`).                       |
++--------------+-----------------------------------------------------------+
 
 Precipitation variables
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -442,23 +441,23 @@ The concept of convective and large-scale (or dynamical) components of precipita
 
 .. warning:: If :nml:mem:`l_daily_disagg` = TRUE, then :nml:mem:`interp` for each precipitation variable should be ``f`` or ``nf``.
 
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| Name                       | Description                                                                                               |
-+============================+===========================================================================================================+
-| ``precip``                 | Precipitation rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                                        |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``tot_rain``               | Rainfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                                             |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``tot_snow``               | Snowfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                                             |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``ls_rain``                | Large-scale rainfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                                 |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``con_rain``               | Convective rainfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                                  |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``ls_snow``                | Large-scale snowfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                                 |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``con_snow``               | Convective snowfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                                  |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
++---------------+-------------------------------------------------------------+
+| Name          | Description                                                 |
++===============+=============================================================+
+| ``precip``    | Precipitation rate (kg m\ :sup:`-2` s\ :sup:`-1`).          |
++---------------+-------------------------------------------------------------+
+| ``tot_rain``  | Rainfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).               |
++---------------+-------------------------------------------------------------+
+| ``tot_snow``  | Snowfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).               |
++---------------+-------------------------------------------------------------+
+| ``ls_rain``   | Large-scale rainfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).   |
++---------------+-------------------------------------------------------------+
+| ``con_rain``  | Convective rainfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).    |
++---------------+-------------------------------------------------------------+
+| ``ls_snow``   | Large-scale snowfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).   |
++---------------+-------------------------------------------------------------+
+| ``con_snow``  | Convective snowfall rate (kg m\ :sup:`-2` s\ :sup:`-1`).    |
++---------------+-------------------------------------------------------------+
 
 Wind variables
 ^^^^^^^^^^^^^^
@@ -473,15 +472,15 @@ The wind variables can be given in one of two ways:
 
 If ``wind`` is given, then the first method is used. The second method is used in all other cases.
 
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| Name                       | Description                                                                                               |
-+============================+===========================================================================================================+
-| ``wind``                   | Total wind speed (m s\ :sup:`-1`).                                                                        |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``u``                      | Zonal component of the wind (m s\ :sup:`-1`).                                                             |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``v``                      | Meridional component of the wind (m s\ :sup:`-1`).                                                        |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
++------------+----------------------------------------------------------------+
+| Name       | Description                                                    |
++============+================================================================+
+| ``wind``   | Total wind speed (m s\ :sup:`-1`).                             |
++------------+----------------------------------------------------------------+
+| ``u``      | Zonal component of the wind (m s\ :sup:`-1`).                  |
++------------+----------------------------------------------------------------+
+| ``v``      | Meridional component of the wind (m s\ :sup:`-1`).             |
++------------+----------------------------------------------------------------+
 
 
 Daily disaggregator variables
@@ -489,11 +488,11 @@ Daily disaggregator variables
 
 If :nml:mem:`l_daily_disagg` = TRUE, then the diurnal temperature range is also required:
 
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| Name                       | Description                                                                                               |
-+============================+===========================================================================================================+
-| ``dt_range``               | Diurnal temperature range (K).                                                                            |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
++---------------+-------------------------------------------------------------+
+| Name          | Description                                                 |
++===============+=============================================================+
+| ``dt_range``  | Diurnal temperature range (K).                              |
++---------------+-------------------------------------------------------------+
 
 
 Examples of specifying driving data
@@ -583,5 +582,3 @@ The presence of the variable name templating string in each file name shows that
 Furthermore, files for each variable are stored in separate directories. The values from :nml:mem:`JULES_DRIVE::tpl_name` will be substituted into the file name templates in place of the substitution string (``%vv``). For example, pressure is held in files with names like ``met_data/PSurf_data/PSurf198207.nc``, and temperature in files like ``met_data/Tair_data/Tair198207.nc``.
 
 The driving variable setup is as the previous example.
-
-

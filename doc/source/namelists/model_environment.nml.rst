@@ -1,7 +1,6 @@
 ``model_environment.nml``
 =========================
 
-
 This file sets the model environment options e.g. whether JULES is
 coupled to the UM or run in a standalone environment. It contains one
 namelist called :nml:lst:`JULES_MODEL_ENVIRONMENT`.
@@ -39,7 +38,7 @@ app.
 
       = ==============================
       0 JULES is being run standalone. |br|
-	Any options that are only available to the parent model (e.g. the UM) will be trigger ignored.
+        Any options that are only available to the parent model (e.g. the UM) will be trigger ignored.
       1 JULES is being run coupled to the UM. |br|
       2 JULES is being run coupled via OASIS (available to Rivers-only executable only). |br|
         Options not available to the UM are trigger-ignored.
@@ -59,10 +58,8 @@ app.
       consolidated will appear in the following checking routines as
       they are completed.
 
-      * `src/control/standalone/check_unavailable_options_mod.F90
-	<https://code.metoffice.gov.uk/trac/jules/browser/main/trunk/src/control/standalone/check_unavailable_options_mod.F90>`_
-      * `src/control/um/check_jules_unavailable_options_mod.F90
-	<https://code.metoffice.gov.uk/trac/jules/browser/main/trunk/src/control/um/check_jules_unavailable_options_mod.F90>`_
+      * `src/control/standalone/check_unavailable_options_mod.F90 <https://github.com/MetOffice/jules/blob/main/src/control/standalone/check_unavailable_options_mod.F90>`_
+      * `src/control/um/check_unavailable_options_mod.F90 <https://github.com/MetOffice/jules/blob/main/src/control/um/check_unavailable_options_mod.F90>`_
 
 .. nml:member:: lsm_id
 

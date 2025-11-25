@@ -14,23 +14,23 @@ When JULES needs to know what type of interpolation to use for a variable, the f
 
 ``i``
     Linear interpolation from the data timestep to the model timestep.
-     
+
     For instantaneous data (e.g. air temperature, surface pressure), this is almost always the flag that should be used.
-     
+
 ``nb``, ``nc`` and ``nf``
-    Values will be held constant with time for all model timesteps associated with a particular data timestep. 
-    
+    Values will be held constant with time for all model timesteps associated with a particular data timestep.
+
     One of these flags should be used for flux variables that are *discontinuous* by nature, e.g. precipitation.
-    
+
     ``nb`` should be used if the dataset uses backwards average values, ``nf`` should be used if the data set uses forwards average values and ``nc`` should be used if the dataset uses centred average values (this is quite rare).
-     
+
 ``b``, ``c`` and ``f``
     Data is interpolated using a simplified version of the Sheng and Zwiers (1998) [#]_ method that conserves the period means of the data.
-    
+
     One of these flags should be used for flux variables that are *continuous* in nature, e.g. radiation.
 
     In order to ensure conservation of the average, these flags should be used only if the data period is an even multiple of the model timestep (i.e., if ``data_period = 2 * n * timestep_len; n = 1, 2, 3, ...``). The curve-fitting process tends to produce occasional values near turning points that fall outside the range of the input values.
-    
+
     Similar to above, ``b`` should be used if the dataset uses backwards average values, ``f`` should be used if the data set uses forwards average values and ``c`` should be used if the dataset uses centred average values.
 
 
@@ -54,7 +54,7 @@ Also, note that for centred data (flags ``c`` and ``nc``) the time of the data s
 
 .. figure:: interp_examples.png
    :alt: Examples of JULES interpolation modes
-   
+
    Examples of data interpolated with ``i``, ``nb``, ``nf``, ``b`` and ``f``, plotted against the data they are derived from
 
 

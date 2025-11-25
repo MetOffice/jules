@@ -1,9 +1,7 @@
 ``jules_radiation.nml``
 =======================
 
-
 This file sets the radiation options. It contains one namelist called :nml:lst:`JULES_RADIATION`.
-
 
 
 ``JULES_RADIATION`` namelist members
@@ -55,8 +53,8 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
 
    FALSE
        Produces both a direct ('black' sky) and a diffuse ('white' sky) albedo.
-       
-       
+
+
 .. nml:member:: l_niso_direct
 
    :type: logical
@@ -90,7 +88,7 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
 
    FALSE
        Calculate albedo of snow using only snow depth.
-       
+
 .. nml:member:: l_embedded_snow
 
    :type: logical
@@ -103,7 +101,7 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
 
    FALSE
        No effect.
-  
+
 .. nml:member:: l_mask_snow_orog
 
    :type: logical
@@ -118,7 +116,7 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
    FALSE
       No effect.
 
-       
+
 .. nml:member:: l_albedo_obs
 
    :type: logical
@@ -139,8 +137,7 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
        :nml:mem:`JULES_RADIATION::l_spec_albedo` = FALSE the single
        (averaged) waveband albedo is required.
 
-       .. note:: Observed albedo(s) must be prescribed in
-		 :doc:`prescribed_data.nml`.
+       .. note:: Observed albedo(s) must be prescribed in :doc:`prescribed_data.nml`.
 
    FALSE
        Do not scale the albedo values on tiles.
@@ -201,15 +198,15 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
    Weights to form the overall albedo from its components (VIS direct,
    VIS diffuse, NIR direct, NIR diffuse)
    (Ideally, if :nml:mem:`JULES_RADIATION::l_partition_albsoil` = T,
-   :nml:mem:`JULES_RADIATION::wght_alb` and 
+   :nml:mem:`JULES_RADIATION::wght_alb` and
    :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` should be consistent, with
-   :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` equal to 
+   :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` equal to
    :math:`\sum_{3,4}`
-   :nml:mem:`JULES_RADIATION::wght_alb` :math:`/ \sum_1^4` 
+   :nml:mem:`JULES_RADIATION::wght_alb` :math:`/ \sum_1^4`
    :nml:mem:`JULES_RADIATION::wght_alb`.
-   However, :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` 
-   is applied only to bare soil and having a single parameter 
-   is more transparent to the user, while 
+   However, :nml:mem:`JULES_RADIATION::swdn_frac_albsoil`
+   is applied only to bare soil and having a single parameter
+   is more transparent to the user, while
    :nml:mem:`JULES_RADIATION::wght_alb`
    is used only in diagnostics in standalone JULES and may have
    historical settings. Hence, the consistency of these two variables
@@ -238,7 +235,7 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
 
    TRUE
       Partition the soil albedo between the visible and near infrared parts
-      of the spectrum using :nml:mem:`JULES_RADIATION::ratio_albsoil` and 
+      of the spectrum using :nml:mem:`JULES_RADIATION::ratio_albsoil` and
       :nml:mem:`JULES_RADIATION::swdn_frac_albsoil`.
 
    FALSE
@@ -260,29 +257,32 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
    The fraction of the total downward SW radiation assumed to be in the
    NIR part of the spectrum for partitioning the soil albedo.
    Used if :nml:mem:`JULES_RADIATION::l_partition_albsoil` = T.
-   (Ideally, :nml:mem:`JULES_RADIATION::wght_alb` and 
+   (Ideally, :nml:mem:`JULES_RADIATION::wght_alb` and
    :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` should be consistent, with
-   :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` equal to 
+   :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` equal to
    :math:`\sum_{3,4}`
-   :nml:mem:`JULES_RADIATION::wght_alb` :math:`/ \sum_1^4` 
+   :nml:mem:`JULES_RADIATION::wght_alb` :math:`/ \sum_1^4`
    :nml:mem:`JULES_RADIATION::wght_alb`.
-   However, :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` is applied 
-   only to bare soil and having a single parameter is more transparent 
+   However, :nml:mem:`JULES_RADIATION::swdn_frac_albsoil` is applied
+   only to bare soil and having a single parameter is more transparent
    to the user, while :nml:mem:`JULES_RADIATION::wght_alb`
    is used only in diagnostics in standalone JULES and may have
    historical settings. Hence, the consistency of these two variables
    is not enforced.)
+
+.. |eacute| replace:: &eacute;
+.. |ccedil| replace:: &ccedil;
 
 .. seealso::
    References:
 
    * Barker, H.W. and Li, Z. (1995), Improved Simulation of Clear-Sky
      Shortwave Radiative Transfer in the CCC-GCM. J. Climate, 8,
-     2213–2223, `doi:10.1175/1520-0442(1995)008<2213:ISOCSS>2.0.CO;2
+     2213-2223, `doi:10.1175/1520-0442(1995)008<2213:ISOCSS>2.0.CO;2
      <https://doi.org/10.1175/1520-0442%281995%29008%3C2213%3AISOCSS%3E2.0.CO%3B2>`_
    * Briegleb, B. and Ramanathan, V. (1982), Spectral and Diurnal
      Variations in Clear Sky Planetary Albedo. J. Appl. Meteor., 21,
-     1160–1171, `doi:10.1175/1520-0450(1982)021<1160:SADVIC>2.0.CO;2
+     1160-1171, `doi:10.1175/1520-0450(1982)021<1160:SADVIC>2.0.CO;2
      <https://doi.org/10.1175/1520-0450%281982%29021%3C1160%3ASADVIC%3E2.0.CO%3B2>`_
    * Liu, J. , Zhang, Z. , Inoue, J. and Horton, R. M. (2007),
      Evaluation of snow/ice albedo parameterizations and their impacts
@@ -302,9 +302,9 @@ This file sets the radiation options. It contains one namelist called :nml:lst:`
      Robert M. Haberle. Astrobiology. Jan 2012. ahead of print
      `doi:10.1089/ast.2011.0668
      <http://doi.org/10.1089/ast.2011.0668>`_
-   * Martin Turbet, Jérémy Leconte, Franck Selsis, Emeline Bolmont,
-     François Forget, Ignasi Ribas, Sean N. Raymond and Guillem
-     Anglada-Escudé (2016), The habitability of Proxima Centauri
+   * Martin Turbet, J|eacute|r|eacute|my Leconte, Franck Selsis, Emeline Bolmont,
+     Fran|ccedil|ois Forget, Ignasi Ribas, Sean N. Raymond and Guillem
+     Anglada-Escud|eacute| (2016), The habitability of Proxima Centauri
      b - II. Possible climates and observability, A&A, 596, A112,
      `doi:10.1051/0004-6361/201629577
      <https://doi.org/10.1051/0004-6361/201629577>`_

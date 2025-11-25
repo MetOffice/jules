@@ -12,7 +12,7 @@ Help pages for the FCM make command itself (rather than the configuration file) 
 .. code-block:: bash
 
     fcm help make
-    
+
 The FCM configuration file for building JULES is ``etc/fcm-make/make.cfg``. This file uses the environment variables below to determine the settings to use when compiling JULES.
 
 Running FCM make with this configuration file will create some files and directories in the specified build directory (see the ``-C`` option of ``fcm make``; defaults to the current working directory). The JULES executable will be produced in the specified build directory at ``build/bin/jules.exe``.
@@ -25,10 +25,10 @@ Environment variables used when building JULES using FCM make
 
 ``JULES_PLATFORM``
     Used to select settings for a pre-defined platform. The default values of other variables may depend on the choice of this setting; differences from the generic defaults are included in the descriptions below.
-    
+
     .. note::
         If you have many users using the same platform to run JULES, you may want to contribute a suitable platform configuration.
-    
+
     +----------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------+
     | Permitted value            | Purpose                                                                                                                                                      |
     +============================+==============================================================================================================================================================+
@@ -69,12 +69,12 @@ Environment variables used when building JULES using FCM make
     | ``uoe-linux-gfortran``     | Use settings for the GFortran compiler on University of Exeter Linux system (SL7).                                                                           |
     |                            |                                                                                                                                                              |
     +----------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------+
-    
+
 ``JULES_REMOTE``, ``JULES_REMOTE_HOST``, ``JULES_REMOTE_PATH``
     .. warning:: Advanced users only
 
     Used to determine whether the build will happen on a local or remote machine.
-    
+
     +-----------------+----------------------------------------------------------------------------------+
     | Permitted value | Purpose                                                                          |
     +=================+==================================================================================+
@@ -88,10 +88,10 @@ Environment variables used when building JULES using FCM make
     |                 | The compilation can then be completed on the remote machine. See below for an    |
     |                 | example.                                                                         |
     +-----------------+----------------------------------------------------------------------------------+
-    
+
 ``JULES_COMPILER``
     Used to select compiler specific settings.
-    
+
     +-----------------+----------------------------------------------------------------------------------+
     | Permitted value | Purpose                                                                          |
     +=================+==================================================================================+
@@ -116,10 +116,10 @@ Environment variables used when building JULES using FCM make
     +-----------------+----------------------------------------------------------------------------------+
     | ``fast``        | Compile JULES with additional settings for faster execution.                     |
     +-----------------+----------------------------------------------------------------------------------+
-    
+
 ``JULES_OMP``
     Used to determine whether to build with OpenMP or not.
-    
+
     +-----------------+----------------------------------------------------------------------------------+
     | Permitted value | Purpose                                                                          |
     +=================+==================================================================================+
@@ -130,7 +130,7 @@ Environment variables used when building JULES using FCM make
 
 ``JULES_MPI``
     Used to determine whether to build with MPI enabled or not.
-    
+
     +-----------------+----------------------------------------------------------------------------------+
     | Permitted value | Purpose                                                                          |
     +=================+==================================================================================+
@@ -141,7 +141,7 @@ Environment variables used when building JULES using FCM make
 
 ``JULES_NETCDF``
     Indicates whether to use a dummy NetCDF library or a 'real' NetCDF library.
-    
+
     +-----------------+----------------------------------------------------------------------------------+
     | Permitted value | Purpose                                                                          |
     +=================+==================================================================================+
@@ -157,15 +157,15 @@ Environment variables used when building JULES using FCM make
 
 ``JULES_NETCDF_PATH``
     Path to NetCDF installation.
-    
+
     This sets ``JULES_NETCDF_INC_PATH = $JULES_NETCDF_PATH/include`` and ``JULES_NETCDF_LIB_PATH = $JULES_NETCDF_PATH/lib``. These can be overridden by setting the variables directly.
-    
+
 ``JULES_NETCDF_INC_PATH``
     Path to NetCDF include directory (i.e. directory containing ``netcdf.mod``).
-    
+
 ``JULES_NETCDF_LIB_PATH``
     Path to NetCDF library directory (i.e. directory containing ``libnetcdff.a`` and ``libnetcdf.a``).
-    
+
 .. note::
     When compiled in parallel mode, NetCDF must be statically linked. This means the compiler must be able to find all required library and include files (i.e. for NetCDF, HDF5, curl and zlib) in ``JULES_NETCDF_INC_PATH``, ``JULES_NETCDF_LIB_PATH`` or the default search path.
 
@@ -200,7 +200,7 @@ To create a fast JULES executable with NetCDF using the Intel compiler:
     $ export JULES_NETCDF=netcdf
     $ export JULES_NETCDF_PATH=/path/to/netcdf  # Replace this with the correct path
     $ fcm make -j 2 -f etc/fcm-make/make.cfg --new
-    
+
 To create a fast JULES executable with NetCDF using the GFortran compiler on a Met Office Linux system (making use of the platform setting):
 
 .. code-block:: bash
@@ -209,7 +209,7 @@ To create a fast JULES executable with NetCDF using the GFortran compiler on a M
     $ export JULES_BUILD=fast
     $ export JULES_NETCDF=netcdf  # Note that we don't need to specify paths
     $ fcm make -j 2 -f etc/fcm-make/make.cfg --new
-    
+
 To create a normal JULES executable with NetCDF and OpenMP using the Intel compiler on a remote machine:
 
 .. code-block:: bash
@@ -229,14 +229,14 @@ To create a normal JULES executable with NetCDF and OpenMP using the Intel compi
 To create a normal JULES executable with MPI enabled, using the Intel compiler with array bounds checking turned on:
 
 .. code-block:: bash
-   
+
     $ export JULES_COMPILER=intel
     $ export JULES_MPI=mpi
     $ export JULES_NETCDF=netcdf  # We have to use NetCDF for distributed simulations
     $ export JULES_NETCDF_PATH=/path/to/parallel/netcdf  # NetCDF must be compiled with parallel I/O enabled
     $ export JULES_FFLAGS_EXTRA="-check bounds"  # Must be quoted because of the space
     $ fcm make -j 2 -f etc/fcm-make/make.cfg --new
-    
+
 
 Tips for effective use of FCM make
 ----------------------------------
@@ -244,7 +244,7 @@ Tips for effective use of FCM make
 * To check the current values of the environment variables JULES will use to build, use the command ``env | grep JULES``
 
 * If you always use the same compilation options for JULES, consider adding the export lines to the ``.profile`` file in your ``$HOME`` directory. Commands in the ``.profile`` file are automatically executed in any shell that you open, so defining environment variables there ensures your build environment remains consistent across shells and restarts of your computer. The definitions can still be overridden on the command line if required.
-    
+
 
 .. _JULES development virtual machine: https://code.metoffice.gov.uk/trac/jules/wiki/JULESVirtualMachine
 .. _GNU Fortran compiler: https://www.gnu.org/software/gcc/fortran/

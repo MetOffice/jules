@@ -21,7 +21,7 @@ This file contains options and parameters for modelling of dry deposition of atm
    :default: FALSE
 
    Switch to activate deposition code in JULES.
-   
+
    TRUE
       Model deposition in JULES.
 
@@ -61,7 +61,7 @@ This file contains options and parameters for modelling of dry deposition of atm
       1. | Parameterisation based on Conrad & Seiler uptake scheme in the UKCA.
       2. | Parameterisation based on Paulot et al. scheme.
 
-      Note: The Paulot et al. scheme is currently not available in UM-coupled JULES applications. 
+      Note: The Paulot et al. scheme is currently not available in UM-coupled JULES applications.
 
 
    .. nml:member:: l_deposition_flux
@@ -72,7 +72,7 @@ This file contains options and parameters for modelling of dry deposition of atm
       Switch for calculation of deposition fluxes as opposed to deposition velocities.
 
       TRUE
-         Calculate deposition fluxes. This requires that the concentrations of atmopsheric tracer species are provided as prescribed data (see :ref:`supported-prescribed-variables`).
+         Calculate deposition fluxes. This requires that the concentrations of atmospheric tracer species are provided as prescribed data (see :ref:`supported-prescribed-variables`).
 
       FALSE
          Calculate deposition velocities.
@@ -92,7 +92,7 @@ This file contains options and parameters for modelling of dry deposition of atm
       :type: real
       :default: none
 
-      Latitude of southern limit of tundra (radians). This is used to alter the calculation of deposition of certain species in the tundra region (actually for all points north of this limit). Only used if the list of species (see :nml:mem:`JULES_DEPOSITION_SPECIES::dep_species_name_io`) includes one or more of 'CO', 'NO2', 'O3', 'PAN', 'PPAN', 'MPAN' or 'ONITU'. 
+      Latitude of southern limit of tundra (radians). This is used to alter the calculation of deposition of certain species in the tundra region (actually for all points north of this limit). Only used if the list of species (see :nml:mem:`JULES_DEPOSITION_SPECIES::dep_species_name_io`) includes one or more of 'CO', 'NO2', 'O3', 'PAN', 'PPAN', 'MPAN' or 'ONITU'.
 
 
    .. nml:member:: dzl_const
@@ -100,7 +100,7 @@ This file contains options and parameters for modelling of dry deposition of atm
       :type: real
       :default: none
 
-      Constant value for separation of boundary layer levels (m). All layer thicknesses are set to this value. This is used as a simple way to prescribe the layer thicknesses in standalone mode. This value can be overriden by prescribed data - see :nml:lst:`JULES_PRESCRIBED`. This can be considered as the representative depth for tracer concentration and the depth over which the deposition flux is removed.
+      Constant value for separation of boundary layer levels (m). All layer thicknesses are set to this value. This is used as a simple way to prescribe the layer thicknesses in standalone mode. This value can be overridden by prescribed data - see :nml:lst:`JULES_PRESCRIBED`. This can be considered as the representative depth for tracer concentration and the depth over which the deposition flux is removed.
 
 
    .. nml:member:: l_deposition_from_ukca
@@ -142,7 +142,7 @@ This file contains options and parameters for modelling of dry deposition of atm
       :type: logical
       :default: FALSE
 
-      Switch from the UKCA controlling which atmospheric levels in the boundary layer are used for dry deposition. For UM-coupled JULES applications, the UKCA interactive dry deposition switch (l_ukca_intdd in the run_ukca namelist) needs to be true. 
+      Switch from the UKCA controlling which atmospheric levels in the boundary layer are used for dry deposition. For UM-coupled JULES applications, the UKCA interactive dry deposition switch (l_ukca_intdd in the run_ukca namelist) needs to be true.
 
       TRUE
          Deposition occurs only from the lowest level in the atmospheric boundary layer.
@@ -200,7 +200,7 @@ Notes on the ``JULES_DEPOSITION`` namelist
 
 The height of the atmospheric boundary layer is required and is set to a default constant value of 1000 m. This value can be overridden via the namelist variable :nml:mem:`JULES_DRIVE::bl_height`, or can be prescribed (i.e. allowed to vary in time and/or space) by providing ``bl_height`` as prescribed data (see :ref:`supported-prescribed-variables`).
 
-The number of model levels in the boundary layer is required and is set to a default balues of 1. This can be overridden via the namelist variable :nml:mem:`JULES_NLSIZES::bl_levels`. The number of levels is only used to communicate with the atmospheric model (e.g. UKCA).
+The number of model levels in the boundary layer is required and is set to a default values of 1. This can be overridden via the namelist variable :nml:mem:`JULES_NLSIZES::bl_levels`. The number of levels is only used to communicate with the atmospheric model (e.g. UKCA).
 
 The separation of the model levels in the boundary layer is required and is set to a constant value via :nml:mem:`dzl_const`. The separation can be prescribed (i.e. allowed to vary in time and/or space) by providing ``level_separation`` as prescribed data (see :ref:`supported-prescribed-variables`). This can be considered as the representative depth for tracer concentration and the depth over which the deposition flux is removed.
 
@@ -212,7 +212,7 @@ If deposition fluxes (rather than deposition velocities) are to be calculated (s
 
 .. nml:namelist:: JULES_DEPOSITION_SPECIES
 
-This namelist should occur :nml:mem:`JULES_DEPOSITION::ndry_dep_species` times, with each occurence containing parameters for an atmospheric tracer species that is to be considered in dry deposition.
+This namelist should occur :nml:mem:`JULES_DEPOSITION::ndry_dep_species` times, with each occurrence containing parameters for an atmospheric tracer species that is to be considered in dry deposition.
 
 .. nml:member:: dep_species_name_io
 

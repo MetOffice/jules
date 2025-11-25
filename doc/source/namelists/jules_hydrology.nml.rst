@@ -1,9 +1,7 @@
 ``jules_hydrology.nml``
 =======================
 
-
 This file sets the hydrology options. It contains one namelist called :nml:lst:`JULES_HYDROLOGY`.
-
 
 
 ``JULES_HYDROLOGY`` namelist members
@@ -93,7 +91,7 @@ This file sets the hydrology options. It contains one namelist called :nml:lst:`
    :default: F
 
    TRUE
-       Limit the soil conductance to the value when the top layer soil moisture is at the critical soil moisture. Below this threshold, the soil conductance follows Best et al. (2011) equation 7. 
+       Limit the soil conductance to the value when the top layer soil moisture is at the critical soil moisture. Below this threshold, the soil conductance follows Best et al. (2011) equation 7.
 
    FALSE
        Allow the soil conductance to increase as the top layer soil moisture goes above the critical soil moisture, as in Best et al. (2011) equation 7.
@@ -199,7 +197,7 @@ This file sets the hydrology options. It contains one namelist called :nml:lst:`
 
          A value of 6.0 has been tested for slope fields calculated from a high resolution DEM dataset (50m IHDTM for Great Britain).
 
-	 For slopes calculated from coarser DEM datasets, a lower value might be more appropriate as fine-resolution features of the terrain are not included.
+    For slopes calculated from coarser DEM datasets, a lower value might be more appropriate as fine-resolution features of the terrain are not included.
 
 
    .. nml:group:: Only used if :nml:mem:`l_spdmvar` = FALSE

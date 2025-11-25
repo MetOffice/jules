@@ -44,7 +44,7 @@ Bugs fixed
  * Enables ability to perform bit comparable NRUN in the UM. (#612)
  * Fix JULES rose stem so that it works on the MO XCS-C system (aka MONSooN). (#615)
  * Fixed broken hyperlinks in the user guide. (#636)
-   
+
 Documentation updates
 ---------------------
 Documentation can be viewed on the github page `<http://jules-lsm.github.io/>`_.

@@ -1,16 +1,15 @@
 ``imogen.nml``
 ==============
 
-
 This file contains three namelists called :nml:lst:`IMOGEN_ONOFF_SWITCH`, :nml:lst:`IMOGEN_RUN_LIST` and :nml:lst:`IMOGEN_ANLG_VALS_LIST`. Values from this section are only used if IMOGEN is enabled. This is done via the following switch: :nml:mem:`IMOGEN_ONOFF_SWITCH::l_imogen` = TRUE.
 
 Since IMOGEN calculates the forcing for an entire year at once, an IMOGEN run must have a start time of 00:00:00 on the 1st of January for some year.
 
-IMOGEN uses the netcdf read functions in JULES to load the files to derive the driving data. The driving data is derived from: specific humidity (kg/kg), precipitation (kg/m2/s), wind speed (m/s), incoming shortwave radiation (W/m2), incoming longwave radiation (W/m2), air temeprature (K) and diurnal range of air temperature (K). IMOGEN also needs ``grid_area`` read in via :nml:lst:`JULES_LATLON`. 
+IMOGEN uses the netcdf read functions in JULES to load the files to derive the driving data. The driving data is derived from: specific humidity (kg/kg), precipitation (kg/m2/s), wind speed (m/s), incoming shortwave radiation (W/m2), incoming longwave radiation (W/m2), air temperature (K) and diurnal range of air temperature (K). IMOGEN also needs ``grid_area`` read in via :nml:lst:`JULES_LATLON`.
 
 IMOGEN can either take a daily or a monthly climatology to drive JULES. This is controlled by :nml:mem:`IMOGEN_ONOFF_SWITCH::l_daily_metdata_climatol`. If the driving data changes during runtime (:nml:mem:`IMOGEN_RUN_LIST::l_change_metdata` = TRUE) there are different methods for changing it (:nml:mem:`IMOGEN_RUN_LIST::change_metdata_method`).
 
-If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 2, then use anomalies from the given climatology. Otherwise (:nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` set to 1 or 3) use pattern-scaling (spatial patterns of changes in each meteorological driving variable per degree of global temperature change). Patterns can be derived at the required spatial resolution using ESMValTool <https://esmvaltool.org/>.
+If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 2, then use anomalies from the given climatology. Otherwise (:nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` set to 1 or 3) use pattern-scaling (spatial patterns of changes in each meteorological driving variable per degree of global temperature change). Patterns can be derived at the required spatial resolution using `ESMValTool <https://esmvaltool.org/>`__.
 
 If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the global mean temperature change via the :nml:lst:`JULES_PRESCRIBED`. IMOGEN still reads the other 1d data from ascii files  - this will change in the near future.
 
@@ -21,7 +20,7 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
      An analogue model to derive additional climate change scenarios
      from existing GCM simulations, Climate Dynamics 16(8): 575-586.
      https://doi.org/10.1007/s003820000067
-   * Huntingford, C., et al. (2010), 
+   * Huntingford, C., et al. (2010),
      IMOGEN: an intermediate complexity model to evaluate terrestrial
      impacts of a changing climate,
      Geoscientific Model Development 3(2): 679-687.
@@ -32,12 +31,12 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
      Nature Geoscience 11(8): 568-573.
      https://doi.org/10.1038/s41561-018-0174-9
    * Zelazowski, P., et al. (2018),
-     Climate pattern-scaling set for an ensemble of 22 
-     GCMs–adding uncertainty to the IMOGEN version 2.0 impact system,
+     Climate pattern-scaling set for an ensemble of 22
+     GCMs-adding uncertainty to the IMOGEN version 2.0 impact system,
      Geoscientific Model Development 11.2: 541-560.
      https://doi.org/10.5194/gmd-11-541-2018
    * Mathison, C., et al. (2024),
-     A rapid application emissions-to-impacts tool for scenario assessment: 
+     A rapid application emissions-to-impacts tool for scenario assessment:
      Probabilistic Regional Impacts from Model patterns and Emissions (PRIME),
      Geoscientific Model Development.
      https://doi.org/10.5194/egusphere-2023-2932, 2024
@@ -60,7 +59,7 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
 
    FALSE
        No effect.
-    
+
    .. note::
       If IMOGEN is enabled, at most only :nml:mem:`JULES_DRIVE::z1_tq_vary`, :nml:mem:`JULES_DRIVE::z1_tq_in`, :nml:mem:`JULES_DRIVE::z1_uv_in`, :nml:mem:`JULES_DRIVE::z1_tq_file` and :nml:mem:`JULES_DRIVE::z1_tq_var_name` are used from the :nml:lst:`JULES_DRIVE` namelist.
 
@@ -106,7 +105,7 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
    If used, file containing non-CO2 radiative forcing values.
 
    This file is expected to be in a specific format - see the IMOGEN example.
-   
+
 
 .. nml:member:: nyr_non_co2
 
@@ -196,6 +195,14 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
    Only if :nml:mem:`land_feed_ch4` = TRUE.
 
 
+.. nml:member:: l_drive_with_global_temps
+
+   :type: logical
+   :default: F
+
+   If TRUE, use imogen to provide jules forcing based on the global mean temperature change and the climate patterns.
+
+
 .. nml:member:: l_change_metdata
 
    :type: logical
@@ -217,8 +224,8 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
    1. | IMOGEN provides jules forcing based on the analogue model and spatial patterns of sensitivity to global mean temperature change.
       | This can including changing atmospheric CO2 (:nml:mem:`include_co2` = TRUE) and can be emissions driven (:nml:mem:`c_emissions` = True) or concentration driven (:nml:mem:`c_emissions` = False)
       | Feedbacks can be included (:nml:mem:`land_feed_ch4`, :nml:mem:`land_feed_co2`, :nml:mem:`ocean_feed`)
-      | An additional non-CO2 rdiative forcing can also be prescribed (:nml:mem:`file_non_co2_radf`).
-   2. | Time series of anomaly data provided 
+      | An additional non-CO2 radiative forcing can also be prescribed (:nml:mem:`file_non_co2_radf`).
+   2. | Time series of anomaly data provided
       | Requires CO2 concentration data (:nml:mem:`include_co2` = TRUE and :nml:mem:`c_emissions` = False)
       | Currently no feedbacks included
    3. | IMOGEN provides jules forcing based on the global mean temperature change and the climate patterns.
@@ -400,7 +407,7 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
    :type: character
    :default: None
 
-   Netcdf file containing the patterns.  It should be monthly data (12 months total) with the dimension 'imogen_drive' representing time. 
+   Netcdf file containing the patterns.  It should be monthly data (12 months total) with the dimension 'imogen_drive' representing time.
 
 
 .. nml:member:: file_clim
@@ -417,7 +424,3 @@ If :nml:mem:`IMOGEN_RUN_LIST::change_metdata_method` = 3, then IMOGEN reads the 
    :default: None
 
    Netcdf files containing prescribed anomalies. There should be one for each year and should be in the form 'file_base_anom' followed by 'year' (4 digits) and '.nc'
-
-
-
-

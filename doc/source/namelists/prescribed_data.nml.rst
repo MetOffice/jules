@@ -1,7 +1,6 @@
 ``prescribed_data.nml``
 =======================
 
-
 This file contains a variable number of namelists that are used to prescribe time-varying input data that is not meteorological forcing. The namelist :nml:lst:`JULES_PRESCRIBED` should occur only once at the top of the file. The value of :nml:mem:`JULES_PRESCRIBED::n_datasets` in :nml:lst:`JULES_PRESCRIBED` then determines how many times the namelist :nml:lst:`JULES_PRESCRIBED_DATASET` should occur.
 
 
@@ -20,7 +19,6 @@ This file contains a variable number of namelists that are used to prescribe tim
    The number of datasets that will be specified using instances of the :nml:lst:`JULES_PRESCRIBED_DATASET` namelist.
 
 
-
 ``JULES_PRESCRIBED_DATASET`` namelist members
 ---------------------------------------------
 
@@ -33,43 +31,43 @@ This namelist should occur :nml:mem:`JULES_PRESCRIBED::n_datasets` times. Each o
 
    .. nml:member:: data_start
    .. nml:member:: data_end
-      
+
       :type: character
       :default: None
-   
+
       The times of the start of the first timestep of data and the end of the last timestep of data.
-   
+
       Each run of JULES (configured in :doc:`timesteps.nml`) can use part or all of the specified data. However, there must be data for all times between run start and run end (determined by :nml:mem:`JULES_TIME::main_run_start`, :nml:mem:`JULES_TIME::main_run_end`, :nml:mem:`JULES_SPINUP::spinup_start` and :nml:mem:`JULES_SPINUP::spinup_end`).
-    
+
       The times must be given in the format::
-   
+
            "yyyy-mm-dd hh:mm:ss"
-   
-   
+
+
    .. nml:member:: data_period
-   
+
       :type: integer
       :permitted: -2, -1 or > 0
       :default: None
-   
+
       The period, in seconds, of the data.
-   
+
       Special cases:
-   
+
       | **-1:** Monthly data
       | **-2:** Yearly data
-   
-   
+
+
    .. nml:member:: is_climatology
-   
+
       :type: logical
       :default: F
-   
+
       Indicates whether the data is to be used as a climatology (use the same data for every year).
-   
+
       TRUE
           Interpret the data as a climatology. :nml:mem:`data_start` and :nml:mem:`data_end` must be such that exactly one year of data is specified.
-   
+
       FALSE
           Do not interpret the data as a climatology.
 
@@ -77,94 +75,94 @@ This namelist should occur :nml:mem:`JULES_PRESCRIBED::n_datasets` times. Each o
 .. nml:group:: Members used to specify the files containing the data
 
    .. nml:member:: read_list
-   
+
       :type: logical
       :default: F
-   
+
       Switch controlling how data file names are determined for a given time.
-   
+
       TRUE
           Use a list of data file names with times of first data.
-   
+
       FALSE
           Use a single data file for all times or a template describing the names of the data files.
-   
-   
+
+
    .. nml:member:: nfiles
-   
+
       :type: integer
       :permitted: >= 0
       :default: 0
-   
+
       Only used if :nml:mem:`read_list` = TRUE.
-   
+
       The number of data files to read name and time of first data for.
-   
-   
+
+
    .. nml:member:: file
-   
+
       :type: character
       :default: None
-   
+
       If :nml:mem:`read_list` = TRUE, this is the file to read the list of data file names and times from. Each line should be of the form::
-   
+
           '/data/file', 'yyyy-mm-dd hh:mm:ss'
-   
+
       In this case data file names may contain variable name templating only, with the proviso that either no file names use variable name templating or all file names do. The files must appear in chronological order.
-   
+
       If :nml:mem:`read_list` = FALSE, this is either the single data file (if no templating is used) or a template for data file names. Both :doc:`time and variable name templating </input/file-name-templating>` may be used.
 
 
 .. nml:group:: Members used to specify the provided variables
 
    .. nml:member:: nvars
-   
+
       :type: integer
       :permitted: >= 0
       :default: 0
-   
+
       The number of variables that the dataset will provide.
-   
+
       See :ref:`supported-prescribed-variables` for the supported variables.
-   
-   
+
+
    .. nml:member:: var
-   
+
       :type: character(nvars)
       :default: None
-   
+
       List of variable names as recognised by JULES (see :ref:`supported-prescribed-variables`). Names are case sensitive.
-   
+
       .. note:: For ASCII files, variable names must be in the order they appear in the file.
-   
-   
+
+
    .. nml:member:: var_name
-   
+
       :type: character(nvars)
       :default: '' (empty string)
-   
+
       For each JULES variable specified in :nml:mem:`var`, this is the name of the variable in the file(s) containing the data.
 
       If the empty string (the default) is given for any variable, then the corresponding value from :nml:mem:`var` is used instead.
-   
+
       .. note:: For ASCII files, this is not used - only the order in the file matters, as described above.
-   
-   
+
+
    .. nml:member:: tpl_name
-   
+
       :type: character(nvars)
       :default: None
-   
+
       For each JULES variable specified in :nml:mem:`var`, this is the string to substitute into the file name(s) in place of the variable name substitution string.
-   
+
       If the file name(s) do not use variable name templating, this is not used.
-   
-   
+
+
    .. nml:member:: interp
-   
+
       :type: character(nvars)
       :default: None
-   
+
       For each JULES variable specified in :nml:mem:`var`, this indicates how the variable is to be interpolated in time (see :doc:`/input/temporal-interpolation`).
 
 

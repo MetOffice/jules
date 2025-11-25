@@ -19,7 +19,7 @@ General/Technical changes
  *  Change kind type names to avoid clash with Fortran intrinsics. (#1408)
  *  Removed some include files by moving code to module files. (#1411, 1412. 1418)
 
-    
+
 Bugs fixed
 ----------
 

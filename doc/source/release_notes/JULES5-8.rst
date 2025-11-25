@@ -19,7 +19,7 @@ General/Technical changes
  *  Access the gather_field and scatter_field subroutines via modules. (#1051)
  *  The url fields in HEAD metadata now have the "latest" tag, allowing both the UM and JULES to have the same url field. (#1017)
 
-    
+
 Bugs fixed
 ----------
 

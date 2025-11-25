@@ -26,7 +26,7 @@ General/Technical changes
 
  *  ModuleLeaders file renamed for consistency with other projects. (#1452)
 
-    
+
 Bugs fixed
 ----------
 

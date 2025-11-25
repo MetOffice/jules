@@ -1,7 +1,6 @@
 ``initial_conditions.nml``
 ==========================
 
-
 This file contains a single namelist called :nml:lst:`JULES_INITIAL` that is used to set up the initial state of prognostic variables.
 
 

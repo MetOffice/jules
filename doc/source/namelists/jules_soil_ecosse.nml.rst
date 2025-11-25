@@ -15,7 +15,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
 
    * Smith et al., 2010, Estimating changes in Scottish soil carbon stocks using ECOSSE. I. Model description and uncertainties, Climate Research, 45: 179-192. (https://doi.org/10.3354/cr00899).
 
-   * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description – Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701–722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
+   * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description - Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701-722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
 
 
 ``JULES_SOIL_ECOSSE`` namelist members
@@ -30,7 +30,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
    :default: T
 
    Switch to include soil nitrogen in ECOSSE.
-   
+
    TRUE
       Model soil carbon and nitrogen.
 
@@ -44,7 +44,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
    :default: T
 
    Switch to match ECOSSE soil C and N layers to those for soil moisture.
-   
+
    TRUE
       Use the same layering as for soil moisture. The number of soil carbon layers will equal :nml:mem:`JULES_SOIL::sm_levels`, with layer thicknesses given by :nml:mem:`JULES_SOIL::dzsoil_io`.
 
@@ -85,14 +85,14 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
    :default: T
 
    Switch controlling the averaging of the physical driving variables that are input to ECOSSE (e.g. soil temperature).
-   
+
    TRUE
       Average the driving variables over the ECOSSE timestep length.
 
    FALSE
       Use instantaneous values of the driving variables at the time when ECOSSE is called.
 
- 
+
 .. nml:member:: plant_input_profile
 
    :type: INTEGER
@@ -100,7 +100,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
    :default: 1
 
    Switch for the vertical distribution of litterfall inputs of C and N to the soil.
-      
+
    Possible values are:
 
    1. | Fraction :nml:mem:`pi_sfc_frac` of inputs are distributed uniformly in a surface layer of depth :nml:mem:`pi_sfc_depth`, the remainder are distributed according to the distribution of roots.
@@ -193,7 +193,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
 
    Constants in the 4-pool from of the decomposition temperature modifier (:nml:mem:`temp_modifier` = 2).
 
-   Note that these default values are also those harwired in the code for use with the 4-pool model (:nml:mem:`JULES_SOIL_BIOGEOCHEM::soil_bgc_model` = 2, :nml:mem:`JULES_SOIL_BIOGEOCHEM::l_q10` = F ).
+   Note that these default values are also those hardwired in the code for use with the 4-pool model (:nml:mem:`JULES_SOIL_BIOGEOCHEM::soil_bgc_model` = 2, :nml:mem:`JULES_SOIL_BIOGEOCHEM::l_q10` = F ).
 
 
 
@@ -212,7 +212,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
 
    Minimum allowed value of the water rate modifier for decomposition when the Clark et al. (2011) form is used (:nml:mem:`water_modifier` = 1).
 
-   Note that this default value is also that harwired in the code for use with the 4-pool model (:nml:mem:`JULES_SOIL_BIOGEOCHEM::soil_bgc_model` = 2).
+   Note that this default value is also that hardwired in the code for use with the 4-pool model (:nml:mem:`JULES_SOIL_BIOGEOCHEM::soil_bgc_model` = 2).
 
 
 .. nml:group:: Parameters for ECOSSE that are only used if soil N is included (:nml:mem:`l_soil_n` = TRUE).
@@ -224,7 +224,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
       :default: T
 
       Switch controlling how lack of nitrogen affects soil decomposition.
-   
+
       TRUE
          Reduce the decomposition rate.
 
@@ -238,9 +238,9 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
       :permitted: 0 <= depo_nit_frac <= 1
       :default: 1.0
 
-      The fraction of nitrogen deposition that is aded to the soil nitrate pool. The complement is aded to the ammonium pool.
+      The fraction of nitrogen deposition that is added to the soil nitrate pool. The complement is added to the ammonium pool.
 
-	 
+
    .. nml:member:: bacteria_min_frac
 
       :type: REAL
@@ -291,7 +291,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
 
       The C:N ratio of soil fungi.
 
-   
+
    .. nml:member:: depth_nitrif
 
       :type: REAL
@@ -342,7 +342,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
       Fraction of nitrification lost as gas through full nitrification.
 
 
-		  
+
    .. nml:member:: nitrif_frac_no
 
       :type: REAL
@@ -366,7 +366,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
       :default: 0.005
 
       Factor in denitrification calculation to convert flux of CO\ :sub:`2` into a representation of biological activity (m\ :sup:`2` kg\ :sup:`-1`).
-	 
+
 
    .. nml:member:: denit_frac_n2_fc
 
@@ -375,7 +375,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
       :default: 0.55
 
       Proportion of denitrified N that becomes N\ :sub:`2` when soil moisture is at field capacity.
-	 
+
 
    .. nml:member:: denit_nitrate_equal
 
@@ -383,15 +383,15 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
       :default: 0.4
 
       Amount of N in soil nitrate at which denitrified N is released as equal amounts of N\ :sub:`2` and N\ :sub:`2`O (kg m\ :sup:`-3`).
-	 
+
 
    .. nml:member:: denit_water_coeff
 
       :type: REAL(3)
-      :default: 0.62, 0.38, 1.74 
+      :default: 0.62, 0.38, 1.74
 
       Constants describing water modifier for denitrification.
-	 
+
 
    .. nml:member:: amm_leach_min
 
@@ -399,7 +399,7 @@ This file sets options and parameters for the ECOSSE model of soil biogeochemist
       :default: 0.02
 
       Minimum allowed amount of N in soil ammonium after leaching (kg m\ :sup:`-3`).
-	 
+
 
    .. nml:member:: n_inorg_max_conc
 

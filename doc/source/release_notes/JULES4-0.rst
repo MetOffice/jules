@@ -25,7 +25,7 @@ JULES vn4.0 also sees a major revamp of the science-related namelists. The monol
 
 This has been with the aim of providing a GUI for editing the JULES namelists using `Rose <http://metomi.github.io/rose/doc/html/index.html>`_, which is now available - see :doc:`/building-and-running/rose`.
 
-It also has the advantage that the new namelists are cut-and-paste-able between the UM and JULES, which should make it easier to ensure that the same science is being used in online and offline runs. 
+It also has the advantage that the new namelists are cut-and-paste-able between the UM and JULES, which should make it easier to ensure that the same science is being used in online and offline runs.
 
 
 Removal of GNU make build files
@@ -40,11 +40,11 @@ Directory structure
 Dependencies
  *  The JULES GNU Makefiles required that dependencies be manually maintained, both in terms of the order of sub-makes and actual file dependencies within the sub-makes.
  *  FCM make automatically detects all dependencies and does things in the correct order.
-   
+
 Parallel builds
  *  JULES builds with GNU make could not be parallelised, because of the use of directory level sub-makes.
  *  FCM make considers each individual file, so builds can be parallelised.
-   
+
 Integration with Rose
  *  FCM make has good integration with Rose, allowing the Rose GUI for JULES to configure and run builds as well as the namelists.
 

@@ -44,7 +44,7 @@ This namelist is used to read PFT parameters that are only needed by the dynamic
    0. Natural vegetation.
    1. Crop.
    2. Pasture.
-   3. Bioenergy crops or trees. 
+   3. Bioenergy crops or trees.
 
 .. nml:member:: g_area_io
 
@@ -142,7 +142,7 @@ This namelist is used to read PFT parameters that are only needed by the dynamic
    0. No automatic expansion of PFT area when the agricultural area increases.
    1. Automatically plant out new crop areas with the selected PFT.
 
-.. nml:group:: Only used when :nml:mem:`JULES_VEGETATION::l_trif_biocrop` = TRUE  
+.. nml:group:: Only used when :nml:mem:`JULES_VEGETATION::l_trif_biocrop` = TRUE
 
    .. nml:member:: harvest_type_io
 
@@ -156,7 +156,7 @@ This namelist is used to read PFT parameters that are only needed by the dynamic
 
       .. note:: For "natural" PFTs (:nml:mem:`JULES_TRIFFID::crop_io` = 0), this must be set to 0. For agricultural PFTs, this can be set to 0, 1 or 2.
 
-   .. nml:group:: Only used when :nml:mem:`JULES_TRIFFID::harvest_type_io` = 2 
+   .. nml:group:: Only used when :nml:mem:`JULES_TRIFFID::harvest_type_io` = 2
 
       A placeholder value must be used for all other PFTs.
 
@@ -166,7 +166,7 @@ This namelist is used to read PFT parameters that are only needed by the dynamic
          :permitted: >= 0
          :default: none
 
-         Harvest freqency in years. 
+         Harvest freqency in years.
 
       .. nml:member:: harvest_ht_io
 
@@ -174,7 +174,7 @@ This namelist is used to read PFT parameters that are only needed by the dynamic
          :permitted: > 0
          :default: none
 
-         Height [m] to which the PFT is reduced at each harvest cycle. 
+         Height [m] to which the PFT is reduced at each harvest cycle.
 
-      .. note:: :nml:mem:`lai_min_io` must be set such that PFT height at :nml:mem:`lai_min_io` <= :nml:mem:`harvest_ht_io`, otherwise JULES will not start (the required value will be shown in error output). 
+      .. note:: :nml:mem:`lai_min_io` must be set such that PFT height at :nml:mem:`lai_min_io` <= :nml:mem:`harvest_ht_io`, otherwise JULES will not start (the required value will be shown in error output).
 

@@ -56,7 +56,7 @@ Bugs fixed
  *  Bug in tiling that could affect lake quantities (in UM runs using FLake). (#641)
  *  Fix of a minor OpenMP race condition. (#674)
  *  Moved an ALLOCATE statement to fix a memory bug in the UM affecting ESM runs. (#639)
-   
+
 Documentation updates
 ---------------------
 Documentation can be viewed on the github page `<http://jules-lsm.github.io/>`_.

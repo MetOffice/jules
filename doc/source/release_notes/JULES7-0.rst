@@ -30,7 +30,7 @@ General/Technical changes
  *  Passing CABLE vars (TYPEs) from top level through to and into surf_couple layer. (#1226)
  *  Updated the module load of the make_jules_release script. (#1263)
 
-    
+
 Bugs fixed
 ----------
 

@@ -62,7 +62,7 @@ Bugs fixed
  * Bug fix for albpft_jls.F90 (#458)
  * Bug fix to allow compilation without netCDF (#464)
  * Bug fixes for metadata and upgrade macro (#404, #459, #490)
-   
+
 Documentation updates
 ---------------------
 Coding standards, and documentation can be viewed on the github page `<http://jules-lsm.github.io/>`_.

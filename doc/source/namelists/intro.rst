@@ -18,13 +18,13 @@ Values for character variables must be enclosed in either single(' ') or double 
 identical::
 
     list_variable = 0.1  0.2  0.3  0.4  0.5
-    
+
     list_variable(1) = 0.1
     list_variable(2) = 0.2
     list_variable(3) = 0.3
     list_variable(4) = 0.4
     list_variable(5) = 0.5
-    
+
 Namelists are an ideal input mechanism for programs like JULES that have a large number of inputs, most of which users never change from the default. Since each variable can have a sensible default value specified in the code, the user need only specify variables they wish to change from the default. This can substantially reduce the size and complexity of the namelist files. For example, suppose that in the above
 example the namelist member ``logical_variable`` has a default value of ``.TRUE.``. Then the following namelist specification is equivalent to that above::
 

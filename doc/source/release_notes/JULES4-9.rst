@@ -58,7 +58,7 @@ Bugs fixed
  * Corrected a bug in the sea ice albedo scheme, which affects the calculation of bare ice albedo when multilayer thermodynamics are used in coupled UM-JULES-NEMO-CICE. (#547)
  * Bug fix to variable intent in surf_couple_implicit. (#542)
  * Bug fix for UM runs relating to clash between STASH items (#557)
-   
+
 Documentation updates
 ---------------------
 Coding standards, and documentation can be viewed on the github page `<http://jules-lsm.github.io/>`_.

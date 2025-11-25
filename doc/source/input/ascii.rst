@@ -1,7 +1,7 @@
 ASCII files
 ===========
 
-JULES only supports the use of ASCII files for data at a single location. In this case, the input grid can be specified either as a 1D grid with length 1 or as a 2D grid of size 1 x 1. The data should be laid out in columns with one timestep of data per row (with time increasing with the number of rows). For variables with additional 'levels' dimensions (e.g. soil layers), the values for each level should be in consecutive columns. 
+JULES only supports the use of ASCII files for data at a single location. In this case, the input grid can be specified either as a 1D grid with length 1 or as a 2D grid of size 1 x 1. The data should be laid out in columns with one timestep of data per row (with time increasing with the number of rows). For variables with additional 'levels' dimensions (e.g. soil layers), the values for each level should be in consecutive columns.
 
 .. note:: Variables should be given to JULES in the order they appear in the file, and there should be no unused variables in between. This may mean that some datasets may require pre-processing for use with JULES, even if they are already columnar.
 
@@ -47,6 +47,6 @@ Time varying data with an additional dimension
       0.0  0.0  0.2  0.0  0.0    0.0  0.0  0.6  0.0  0.0
       0.0  0.0  0.2  0.0  0.0    0.0  0.0  0.6  0.0  0.0
       0.0  0.0  0.2  0.0  0.0    0.0  0.0  0.7  0.0  0.0
-    # ... 
+    # ...
 
 These variables have one value for each plant functional type (see :doc:`/overview/intro`). For each variable, the values for each pft are in consecutive columns. Each row is one timestep of data.

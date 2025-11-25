@@ -56,17 +56,19 @@ This namelist specifies the different options available for setting up the irrig
 
       .. warning::
          The irrigation supply code in JULES is still in development,
-  	 and is available in this release to support beta testing
-  	 activities.
+         and is available in this release to support beta testing
+         activities.
 
          Users should ensure that results are as expected, and provide
-  	 feedback where deficiencies are identified.
+         feedback where deficiencies are identified.
 
    FALSE
       Tiles will be irrigated to critical point from an unconstrained water supply.
 
 
    This must be set to FALSE if :nml:mem:`JULES_WATER_RESOURCES::l_water_irrigation` = TRUE.
+
+.. |oumlaut| replace:: &ouml;
 
 .. nml:member:: irr_crop
 
@@ -78,7 +80,7 @@ This namelist specifies the different options available for setting up the irrig
       on the gridbox) lasts the entire year.
 
    1. Irrigation season is determined from driving data according to
-      :ref:`Döll & Siebert (2002)<References_irrig>` method. No irrigation
+      :ref:`D|oumlaut|ll & Siebert (2002)<References_irrig>` method. No irrigation
       is applied outside the irrigation season.
 
    2. Irrigation season is determined by maximum dvi across all
@@ -128,7 +130,7 @@ This namelist specifies the different options available for setting up the irrig
 
    Irrigation will be updated every :nml:mem:`nstep_irrig` timesteps. For example, with a model timestep of 1 hour, :nml:mem:`nstep_irrig` = 24 means that irrigation will be updated on the 24th timestep, i.e. daily updates.
 
-   :nml:mem:`nstep_irrig` = NINT(frequency of irrigation update (in sec)) / :nml:mem:`JULES_TIME::timestep_len`)
+   :nml:mem:`nstep_irrig` = NINT(frequency of irrigation update (in sec)) / :nml:mem:`JULES_TIME::timestep_len`
 
 
 .. _References_irrig:
@@ -136,6 +138,6 @@ This namelist specifies the different options available for setting up the irrig
 ``JULES_IRRIG`` references
 -------------------------------
 
-* Döll, P., and Siebert, S., Global modeling of irrigation water
+* D|oumlaut|ll, P., and Siebert, S., Global modeling of irrigation water
   requirements, Water Resour. Res., 38(4),
   https://doi.org/10.1029/2001WR000355, 2002.

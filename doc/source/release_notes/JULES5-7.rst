@@ -35,7 +35,7 @@ General/Technical changes
  *  Fixed the make_jules_release script to push latest documentation onto the master on GitHub. (#957)
  *  The example namelists (difficult to maintain) and benchmarking suite (obselete) have been removed. (#928, 969)
 
-    
+
 Bugs fixed
 ----------
 

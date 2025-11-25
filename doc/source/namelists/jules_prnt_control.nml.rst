@@ -1,7 +1,6 @@
 ``jules_prnt_control.nml``
 ==========================
 
-
 This file contains one namelist called :nml:lst:`JULES_PRNT_CONTROL`.
 
 This namelist sets options for output of diagnostic and informative messages.

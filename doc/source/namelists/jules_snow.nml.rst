@@ -1,9 +1,7 @@
 ``jules_snow.nml``
 ==================
 
-
 This file sets the snow options and parameters. It contains one namelist called :nml:lst:`JULES_SNOW`.
-
 
 
 ``JULES_SNOW`` namelist members
@@ -177,17 +175,17 @@ HCTN30 refers to Hadley Centre technical note 30, available from `the Met Office
       When:
 
       :nml:mem:`JULES_RADIATION::l_snow_albedo` = TRUE
-	   These parameters are used as limits at all snow-covered
-	   grid points.
+      These parameters are used as limits at all snow-covered
+      grid points.
 
       :nml:mem:`JULES_RADIATION::l_embedded_snow` = TRUE
-	   These parameters are not used.
+      These parameters are not used.
 
       :nml:mem:`JULES_SURFACE::l_elev_land_ice` = TRUE
-	   Irrespective of whether either of the two previous options
-	   are selected, these parameters are used to adjust the albedo
-	   of dense snow to a value more appropriate for firn. See
-	   also :nml:mem:`aicemax`.
+      Irrespective of whether either of the two previous options
+      are selected, these parameters are used to adjust the albedo
+      of dense snow to a value more appropriate for firn. See
+      also :nml:mem:`aicemax`.
 
 
    .. nml:member:: aicemax
@@ -348,8 +346,7 @@ HCTN30 refers to Hadley Centre technical note 30, available from `the Met Office
       :type: real
       :default: 0.265
 
-      Thermal conductivity of lying snow (W m\ :sup:`-1` K\
-      :sup:`-1`).
+      Thermal conductivity of lying snow (W m\ :sup:`-1` K\ :sup:`-1`).
 
       This value is used for all snow if :nml:mem:`nsmax` = 0, but only
       for thin snow if :nml:mem:`nsmax` > 0.  See HCTN30 Eq.42. for its
@@ -473,7 +470,7 @@ HCTN30 refers to Hadley Centre technical note 30, available from `the Met Office
 
       TRUE
           Pass rainfall and melting from the canopy to the snowpack as
-	  infiltration.
+          infiltration.
 
       FALSE
           No effect.
@@ -539,13 +536,13 @@ HCTN30 refers to Hadley Centre technical note 30, available from `the Met Office
       Scheme used to calculate the rate of growth of snow grains.
 
       0. Invokes the original scheme based on :ref:`Marshall
-	 (1989)<References_snow>`, with no dependence of the rate of
-	 growth of small grains on the temperature.
+         (1989)<References_snow>`, with no dependence of the rate of
+         growth of small grains on the temperature.
 
       1. Invokes the scheme for growth of snow grains proposed by
-	 :ref:`Taillandier et al. (2007)<References_snow>` for
-	 equitemperature metamorphism. Growth is significantly
-	 slower than the default scheme at low temperatures.
+         :ref:`Taillandier et al. (2007)<References_snow>` for
+         equitemperature metamorphism. Growth is significantly
+         slower than the default scheme at low temperatures.
 
 
    .. nml:member:: i_relayer_opt
@@ -559,11 +556,11 @@ HCTN30 refers to Hadley Centre technical note 30, available from `the Met Office
       Only used if :nml:mem:`nsmax` > 0.
 
       0. Invokes the original scheme with relayering of the grain size
-	 involving the grain size itself.
+         involving the grain size itself.
       1. Relayering is done using the inverse of the grain size. This
-	 is more consistent with conserving the specific surface area
-	 of snow, though full conservation would require mass
-	 weighting to be invoked during regridding.
+         is more consistent with conserving the specific surface area
+         of snow, though full conservation would require mass
+         weighting to be invoked during regridding.
 
 
    .. nml:member:: i_basal_melting_opt
@@ -582,12 +579,9 @@ HCTN30 refers to Hadley Centre technical note 30, available from `the Met Office
 
       0. Default: Basal melting is omitted.
       1. Basal melting takes place instantaneously if the temperature
-	 of the first soil layer is above freezing, until the snow is
-	 removed or the temperature of soil layer is reduced to
-	 freezing.
-
-
-
+         of the first soil layer is above freezing, until the snow is
+         removed or the temperature of soil layer is reduced to
+         freezing.
 
 
 Example of the evolution of snow layer thickness
@@ -616,8 +610,6 @@ The table below gives an example of how the number and thickness of snow layers 
 |                    |           |                      | dealt with by increasing the thickness in this bottom layer.                    |
 +--------------------+-----------+----------------------+---------------------------------------------------------------------------------+
 
-
-
 .. |mu| unicode:: &#x03BC; .. u
 
 .. _References_snow:
@@ -628,21 +620,19 @@ The table below gives an example of how the number and thickness of snow layers 
 * Calonne, N., Flin, F., Morin, S., Lesaffre, B., du
   Roscoat, S. Rolland, and Geindreau, C. (2011). Numerical and
   experimental investigations of the effective thermal conductivity of
-  snow, Geophys. Res. Lett., 38, L23501,
-  https://doi.org/10.1029/2011GL049234.
+  snow, Geophys. Res. Lett., 38, L23501, https://doi.org/10.1029/2011GL049234
 * Dutra, E., Balsamo, G., Viterbo, P., Miranda, P. M., Beljaars, A.,
   Schar, C., and Elder, K. (2010). An improved snow scheme for the ECMWF land
   surface model: Description and offline validation, J. Hydrometeorol.,
-  11, 899–916, https://doi.org/10.1175/2010JHM1249.1.
+  11, 899-916, https://doi.org/10.1175/2010JHM1249.1
 * Marshall, S.E. (1989). A physical parameterization of snow albedo for
   use in climate models. NCAR Cooperative Thesis 123. Boulder, CO :
-  National Center for Atmospheric
-  Research. https://atmos.washington.edu/~sgw/PAPERS/1989_Marshall.pdf
+  National Center for Atmospheric Research.
+  https://atmos.washington.edu/~sgw/PAPERS/1989_Marshall.pdf
 * Taillandier, A.-S., F. Domine, W. R. Simpson, M. Sturm,
   and T. A. Douglas (2007). Rate of decrease of the specific surface
   area of dry snow: Isothermal and temperature gradient
-  conditions, J. Geophys. Res., 112, F03003,
-  https://doi.org/10.1029/2006JF000514.
+  conditions, J. Geophys. Res., 112, F03003, https://doi.org/10.1029/2006JF000514
 * Yen, Y.-C. (1981). Review of thermal properties of snow, ice and sea
   ice. Cold Regions Research and Engineering Laboratory (CRREL) Report
-  81-10.  https://hdl.handle.net/11681/9469
+  81-10, https://hdl.handle.net/11681/9469

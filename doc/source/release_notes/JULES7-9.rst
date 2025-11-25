@@ -26,7 +26,7 @@ General/Technical changes
  *  Allow JULES to build using Fab on azspice at the Met Office. (#1596)
  *  Provide a set up for rivers-only jobs on the Met Office EX machines. (1598)
 
-    
+
 Bugs fixed
 ----------
 

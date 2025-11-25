@@ -1,13 +1,11 @@
 ``jules_soil_biogeochem.nml``
 =============================
 
-
 This file sets options and parameters for soil biogeochemistry.
 
 If using the single-pool or 4-pool soil models, all soil parameters are read from this file.
 
 If using the ECOSSE soil model, most soil parameters are read from a separate file (:ref:`jules-soil-ecosse-namelist`).
-
 
 
 ``JULES_SOIL_BIOGEOCHEM`` namelist members
@@ -98,7 +96,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
          * Jenkinson, D.S., 1990. The turnover of organic carbon and nitrogen in soil. Philosophical Transactions of the Royal Society of London. Series B: Biological Sciences, 329(1255), pp.361-368. (https://doi.org/10.1098/rstb.1990.0177)
 
-         * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description – Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701–722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
+         * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description - Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701-722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
 
    .. nml:member:: l_soil_resp_lev2
 
@@ -140,7 +138,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
          References:
 
          * Burke, E. J., Chadburn, S. E., and Ekici, A.: A vertical representation of soil carbon in the JULES land surface scheme (vn4.3_permafrost) with a focus on permafrost regions, Geosci. Model Dev., 10, 959-975, doi:10.5194/gmd-10-959-2017, 2017.
-	   
+
    .. nml:member:: l_label_frac_cs
 
       :type: logical
@@ -157,7 +155,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       .. seealso::
          References:
 
-         * Burke, E. J., Chadburn, S. E., and Ekici, A.: A vertical representation of soil carbon in the JULES land surface scheme (vn4.3_permafrost) with a focus on permafrost regions, Geosci. Model Dev., 10, 959-975, doi:10.5194/gmd-10-959-2017, 2017. 
+         * Burke, E. J., Chadburn, S. E., and Ekici, A.: A vertical representation of soil carbon in the JULES land surface scheme (vn4.3_permafrost) with a focus on permafrost regions, Geosci. Model Dev., 10, 959-975, doi:10.5194/gmd-10-959-2017, 2017.
 
    .. nml:member:: kaps_4pool
 
@@ -212,7 +210,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       :type: real
       :default: 0.2
 
-      Parameter controlling the depth to which fire burns soil litter carbon in metres. At depths shallower than this value, the fire can burn soil carbon in the two litter pools (dpm and rpm). If z_burn_max falls within a layer only a proportion of the soil carbon is burnt. Only used with layered soil carbon scheme (:nml:mem:`l_layeredc` = TRUE) and fire (either :nml:mem:`JULES_VEGETATION::l_trif_fire` or :nml:mem:`JULES_VEGETATION::l_inferno` or both). In reality the burn depth varies so please check whether the default value of 0.2 is suitable for your application. 
+      Parameter controlling the depth to which fire burns soil litter carbon in metres. At depths shallower than this value, the fire can burn soil carbon in the two litter pools (dpm and rpm). If z_burn_max falls within a layer only a proportion of the soil carbon is burnt. Only used with layered soil carbon scheme (:nml:mem:`l_layeredc` = TRUE) and fire (either :nml:mem:`JULES_VEGETATION::l_trif_fire` or :nml:mem:`JULES_VEGETATION::l_inferno` or both). In reality the burn depth varies so please check whether the default value of 0.2 is suitable for your application.
 
 
 .. nml:group:: Parameters for the 4-pool- or ECOSSE-based models (only used if :nml:mem:`soil_bgc_model` = 2 or 3):
@@ -304,8 +302,8 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
       .. note:: In the UM the recommended value depends on :nml:mem:`JULES_VEGETATION::l_triffid` as follows:
 
-	| :nml:mem:`JULES_VEGETATION::l_triffid` = FALSE, :nml:mem:`const_ch4_cs` = 5.41e-12
-	| :nml:mem:`JULES_VEGETATION::l_triffid` = TRUE, :nml:mem:`const_ch4_cs` = 5.41e-10
+   | :nml:mem:`JULES_VEGETATION::l_triffid` = FALSE, :nml:mem:`const_ch4_cs` = 5.41e-12
+   | :nml:mem:`JULES_VEGETATION::l_triffid` = TRUE, :nml:mem:`const_ch4_cs` = 5.41e-10
 
    .. nml:member:: q10_ch4_cs
 
@@ -437,7 +435,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       Reference for microbial methane scheme:
 
    * Chadburn, S. E. et al (2020),
-     Modeled Microbial Dynamics Explain the Apparent Temperature Sensitivity 
+     Modeled Microbial Dynamics Explain the Apparent Temperature Sensitivity
      of Wetland Methane Emissions. Global Biogeochemical Cycles, 34:
      e2020GB006678. `https://doi.org/10.1029/2020GB006678
      <https://doi.org/10.1029/2020GB006678>`_

@@ -34,7 +34,7 @@ This file sets options for water resource modelling. It contains a single nameli
    :default: none
 
    The number of model timesteps per water resource timestep. (The main model timestep is given by :nml:mem:`JULES_TIME::timestep_len`.)
-   
+
    For example, :nml:mem:`nstep_water_res` = 12 means that demands for water will be accumulated over 12 model timesteps before the water resource code is called on the 12th timestep.
 
    The water resource and river routing models must be in synchrony (i.e. be called on the same timesteps).
@@ -83,7 +83,7 @@ This file sets options for water resource modelling. It contains a single nameli
       Switch for modelling of water for industrial use. This requires that the industrial demand is prescribed as an input to the model (see :doc:`prescribed_data.nml`).
 
       TRUE
-          Consider demand for water for industrial use. 
+          Consider demand for water for industrial use.
 
       FALSE
           Do not consider industrial demand.

@@ -1,9 +1,7 @@
 ``jules_soil.nml``
 ==================
 
-
 This file sets the soil options and parameters. It contains one namelist called :nml:lst:`JULES_SOIL`.
-
 
 
 ``JULES_SOIL`` namelist members
@@ -20,11 +18,11 @@ This file sets the soil options and parameters. It contains one namelist called 
    Number of soil layers.
 
    A value of 4 is often used, with soil layer depths that have been tuned using this.
-   
+
    .. warning::
       If :nml:mem:`JULES_SURFACE_TYPES::ncpft` > 0, ``sm_levels >= 3`` is required.
 
-   
+
 .. nml:member:: l_vg_soil
 
    :type: logical
@@ -40,7 +38,7 @@ This file sets the soil options and parameters. It contains one namelist called 
 
    .. seealso::
       References:
-   
+
       * Brooks, R.H. and A.T. Corey, 1964, Hydraulic properties of porous media. Colorado State University Hydrology Papers 3.
       * van Genuchten, M.T., 1980, A Closed-form Equation for Predicting the Hydraulic Conductivity of Unsaturated Soils. Soil Science Society of America Journal, 44:892-898.
 
@@ -51,8 +49,8 @@ This file sets the soil options and parameters. It contains one namelist called 
    :default: F
 
    Switch to calculate vertical gradient of soil suction with the assumption of linearity only for fractional saturation (consistent with the calculation of hydraulic conductivity).
-   
-   
+
+
 .. nml:member:: l_soil_sat_down
 
    :type: logical
@@ -101,10 +99,10 @@ This file sets the soil options and parameters. It contains one namelist called 
 
    .. seealso::
       References:
-   
+
       * Chadburn et al (2015). An improved representation of physical permafrost dynamics in a global land-surface scheme. Geoscientific Model Development
       * Dharssi et al (2009). New soil physical properties implemented in the Unified Model at PS18. Met Office Technical note 528
-      * Johansen (1975). Thermal conductivity of soils. PhD thesis. University of Trondheim, Norway 
+      * Johansen (1975). Thermal conductivity of soils. PhD thesis. University of Trondheim, Norway
       * Peters-Lidard et al (1998). The effect of soil thermal conductivity parameterisation on surface energy fluxes and temperatures. J. Atmos. Sci. 55:1209-1224
 
 
@@ -114,15 +112,15 @@ This file sets the soil options and parameters. It contains one namelist called 
    :default: F
 
    Switch for using a thermal bedrock column beneath the soil column. The bedrock has no hydrological processes - diffusion of heat is the only process represented.
-   
+
    Properties of the bedrock can be set using :nml:mem:`ns_deep`, :nml:mem:`hcapdeep`, :nml:mem:`hcondeep` and :nml:mem:`dzdeep`.
-   
+
    TRUE
        An additional bedrock column is used below the soil column.
-       
+
    FALSE
        No effect.
-   
+
    .. seealso::
       For full details see Chadburn et al. (2015)
 
@@ -213,7 +211,7 @@ This file sets the soil options and parameters. It contains one namelist called 
    :type: real
    :default: None
 
-   Depth of the tiled solid-ice bedrock-type layer used underneath individual ice tiles if :nml:mem:`JULES_SURFACE::l_elev_land_ice` is TRUE. 
+   Depth of the tiled solid-ice bedrock-type layer used underneath individual ice tiles if :nml:mem:`JULES_SURFACE::l_elev_land_ice` is TRUE.
    Effectively this sets the amount of thermal buffering each surface tile has to heat fluxes penetrating through the snowpack.
 
 .. nml:member:: l_tile_soil
@@ -226,7 +224,7 @@ This file sets the soil options and parameters. It contains one namelist called 
    See also :nml:mem:`l_broadcast_ancils` and :nml:mem:`JULES_INITIAL::l_broadcast_soilt`.
 
    .. note::
-      Setting :nml:mem:`l_tile_soil` = TRUE means a separate soil tile exists for each surface tile (rather than all surface tiles using the same, single soil tile). This also alters the names of many of the soil prognostic and ancillary variables that are used (see elsewhere), with the suffix "_soilt'' being added to indicate the presence of soil tiling. The switches :nml:mem:`l_broadcast_ancils` and :nml:mem:`JULES_INITIAL::l_broadcast_soilt` allow soil tiling to be used with input files that do not contain soil tile information. Setting :nml:mem:`l_broadcast_ancils` = TRUE means that a soil ancillary file that does not contain soil tiles can be used in a tiled run. Setting :nml:mem:`JULES_INITIAL::l_broadcast_soilt` = TRUE means an initital state file that does not contain soil tiles can be used to initialise a run with soil tiles.
+      Setting :nml:mem:`l_tile_soil` = TRUE means a separate soil tile exists for each surface tile (rather than all surface tiles using the same, single soil tile). This also alters the names of many of the soil prognostic and ancillary variables that are used (see elsewhere), with the suffix "_soilt'' being added to indicate the presence of soil tiling. The switches :nml:mem:`l_broadcast_ancils` and :nml:mem:`JULES_INITIAL::l_broadcast_soilt` allow soil tiling to be used with input files that do not contain soil tile information. Setting :nml:mem:`l_broadcast_ancils` = TRUE means that a soil ancillary file that does not contain soil tiles can be used in a tiled run. Setting :nml:mem:`JULES_INITIAL::l_broadcast_soilt` = TRUE means an initial state file that does not contain soil tiles can be used to initialise a run with soil tiles.
 
 .. nml:member:: l_broadcast_ancils
 

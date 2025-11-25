@@ -1,9 +1,7 @@
 ``jules_surface.nml``
 =====================
 
-
 This file sets the surface options. It contains one namelist called :nml:lst:`JULES_SURFACE`.
-
 
 
 ``JULES_SURFACE`` namelist members
@@ -204,9 +202,9 @@ This file sets the surface options. It contains one namelist called :nml:lst:`JU
       but each tile has an independent single layer bedrock-type solid ice boundary condition under the snowpack.
 
       In addition, when selected, dense snowpacks on elevated ice gridboxes are parameterised to behave more like firn in two ways:
-      1) The meltwater-holding capacity of snow layers reduces as a linear function of their density, becoming zero
+      #. The meltwater-holding capacity of snow layers reduces as a linear function of their density, becoming zero
       above the pore-closure density of 850 kg/m^2 so as to restrict retention of melt within the snowpack.
-      2) Where the top few centimetres of the pack has a density appropriate to firn/bare ice
+      #. Where the top few centimetres of the pack has a density appropriate to firn/bare ice
       and the grain-size physics otherwise used for snow albedo become less appropriate,
       surface albedo becomes a function of density, tending towards that of bare ice as density increases
       (see :nml:mem:`JULES_SNOW::rho_firn_albedo`, :nml:mem:`JULES_SNOW::amax`, :nml:mem:`JULES_SNOW::aicemax`).
@@ -244,7 +242,7 @@ This file sets the surface options. It contains one namelist called :nml:lst:`JU
       switches from stable to unstable, due to the low turbulence determined by the stable buoyancy flux.
 
       With the interactive buoyancy flux option (l_mo_buoyancy_flux = true) the surface energy balance and buoyancy flux are calculated within the iterative calculation for the Monin-Obukhov similarity theory for the surface exchange
-      coefficients. On occations when the stability is around neutral it is possible that the iterative calculation does not converge. In this case the larger of the last two calculated transfer coefficients is then used to prevent
+      coefficients. On occasions when the stability is around neutral it is possible that the iterative calculation does not converge. In this case the larger of the last two calculated transfer coefficients is then used to prevent
       any unrealistic surface temperatures.
 
 .. nml:group:: Surface parameters

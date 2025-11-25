@@ -188,7 +188,7 @@ ease the direct links to these documents are:
    :type: real(npft)
    :default: None
 
-   Leaf reflection coefficient for VIS (photosyntehtically active radiation). See HCTN30 Table 3.
+   Leaf reflection coefficient for VIS (photosynthetically active radiation). See HCTN30 Table 3.
 
    Always used unless :nml:mem:`JULES_VEGETATION::can_rad_mod` = 1 and
    :nml:mem:`JULES_RADIATION::l_spec_albedo` = FALSE.
@@ -915,19 +915,13 @@ ease the direct links to these documents are:
    .. seealso::
       References:
 
-      * Clark et al., 2011, The Joint UK Land Environment Simulator
-	(JULES), model description – Part 2: Carbon fluxes and
-	vegetation dynamics, Geosci. Model Dev., 4, 701-722,
-	https://doi.org/10.5194/gmd-4-701-2011
-      * Pinty, B., T. Lavergne, R. E. Dickinson,
-	J.-L. Widlowski, N. Gobron, and M. M. Verstraete (2006),
-	Simplifying the interaction of land surfaces with radiation
-	for relating remote sensing products to climate
-	models, J. Geophys. Res., 111, D02116,
-	https://doi.org/10.1029/2005JD005952.
-
-
-   
+      * Clark et al., 2011, The Joint UK Land Environment Simulator (JULES),
+        model description - Part 2: Carbon fluxes and vegetation dynamics,
+        Geosci. Model Dev., 4, 701-722, https://doi.org/10.5194/gmd-4-701-2011
+      * Pinty, B., T. Lavergne, R. E. Dickinson, J.-L. Widlowski, N. Gobron,
+        and M. M. Verstraete (2006), Simplifying the interaction of
+        land surfaces with radiation for relating remote sensing products to
+        climate models, J. Geophys. Res., 111, D02116, https://doi.org/10.1029/2005JD005952.
 
 
 .. nml:group:: Only used with the Farquhar model of leaf photosynthesis (:nml:mem:`JULES_VEGETATION::photo_model` = 2). A value is required for each PFT, but only those for C\ :sub:`3` plants are used (since only C\ :sub:`3` plants use the Farquhar model). Below, J\ :sub:`max` is the potential rate of electron transport, and V\ :sub:`cmax` is the maximum rate of carboxylation of Rubisco.
@@ -984,7 +978,7 @@ ease the direct links to these documents are:
       Ratio of J\ :sub:`max` to V\ :sub:`cmax` at 25 deg C (mol electrons [mol\ :sup:`-1` CO\ :sub:`2`]).
 
       .. note::
-         If thermal adaptation or acclimation of photosynthesis is selected (:nml:mem:`JULES_VEGETATION::photo_acclim_model` = 1 or 2) together with :nml:mem:`JULES_VEGETATION::photo_jv_model` =2 (J\ :sub:`max`/V\ :sub:`cmax` calculated assuming constant total nitrogen allocation)), this value is used along with parameters :nml:mem:`JULES_VEGETATION::n_alloc_jmax` and :nml:mem:`JULES_VEGETATION::n_alloc_vcmax` to calculate the final value of J\ :sub:`max`/V\ :sub:`cmax`.
+         If thermal adaptation or acclimation of photosynthesis is selected (:nml:mem:`JULES_VEGETATION::photo_acclim_model` = 1 or 2) together with :nml:mem:`JULES_VEGETATION::photo_jv_model` =2 (J\ :sub:`max`/V\ :sub:`cmax` calculated assuming constant total nitrogen allocation), this value is used along with parameters :nml:mem:`JULES_VEGETATION::n_alloc_jmax` and :nml:mem:`JULES_VEGETATION::n_alloc_vcmax` to calculate the final value of J\ :sub:`max`/V\ :sub:`cmax`.
 
 
 .. nml:group:: Only used if thermal adaptation or acclimation of photosynthetic capacity is NOT modelled (:nml:mem:`JULES_VEGETATION::photo_acclim_model` = 0). A value is required for each PFT, but only those for C\ :sub:`3` plants are used (since only C\ :sub:`3` plants use the Farquhar model).
@@ -995,7 +989,7 @@ ease the direct links to these documents are:
       :type: real(npft)
       :default: None
 
-      Entropy factor for temperature reponse of  J\ :sub:`max` (J mol\ :sup:`-1` K\ :sup:`-1`).
+      Entropy factor for temperature response of  J\ :sub:`max` (J mol\ :sup:`-1` K\ :sup:`-1`).
 
 
    .. nml:member:: ds_vcmax_io
@@ -1003,7 +997,7 @@ ease the direct links to these documents are:
       :type: real(npft)
       :default: None
 
-      Entropy factor for temperature reponse of  V\ :sub:`cmax` (J mol\ :sup:`-1` K\ :sup:`-1`).
+      Entropy factor for temperature response of  V\ :sub:`cmax` (J mol\ :sup:`-1` K\ :sup:`-1`).
 
 .. nml:group:: Only used if the respiration is modelled using the SUGAR carbohydrate model (:nml:mem:`JULES_VEGETATION::l_sugar` = T). A value is required for each PFT.
 

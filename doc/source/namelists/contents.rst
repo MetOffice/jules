@@ -2,7 +2,8 @@ The JULES namelist files
 ========================
 
 
-Each run of JULES is controlled by a number of files containing Fortran namelists. These files specify details including:
+Each run of JULES is controlled by a number of files containing Fortran
+namelists. These files specify details including:
 
 * Switches to allow different model configurations to be selected at run-time.
 * Start and end times for the run.
@@ -11,8 +12,9 @@ Each run of JULES is controlled by a number of files containing Fortran namelist
 * Values for various parameters.
 * The required output.
 
-These files have specific names, and JULES expects all these files to exist for every run (even when their contents are not required). JULES also expects that the namelists within each file appear in the order given below.
-
+These files have specific names, and JULES expects all these files to exist for
+every run (even when their contents are not required). JULES also expects that
+the namelists within each file appear in the order given below.
 
 .. toctree::
    :maxdepth: 2
@@ -46,7 +48,7 @@ These files have specific names, and JULES expects all these files to exist for 
    cable_soilparm.nml
    crop_params.nml
    triffid_params.nml
-   red_params.nml
+   red_parms.nml
    urban.nml
    fire.nml
    drive.nml

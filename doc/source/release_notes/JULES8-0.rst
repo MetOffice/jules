@@ -22,7 +22,7 @@ General/Technical changes
  *  The river number ancillary (used for coupling to the ocean model) has been updated with one consistent with the river routing ancillary. They now pass the rivers ancillary checking routine, hence `l_ignore_ancil_rivers_check` has been removed. (#1460)
  *  Code for CABLE removed for licensing purposes. The CABLE code will only reside within its own repository and will be included at compilation time in future releases. (#1633)
 
-    
+
 Bugs fixed
 ----------
 
@@ -44,4 +44,9 @@ Documentation updates
 
 
 Documentation can be viewed on the github page `<http://jules-lsm.github.io/>`_.
+
+After migrating to GitHub, the JULES code repository is now available at
+`https://github.com/MetOffice/jules <https://github.com/MetOffice/jules>`_.
+The user guide documentation is also included and can be accessed at
+`https://metoffice.github.io/jules/ <https://metoffice.github.io/jules/>`_.
 

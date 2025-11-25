@@ -51,7 +51,7 @@ Changes to testing
  *  Rose-stem fcm-make tasks will ignore lock files that would otherwise prevent retriggering. (#860)
  *  Expanded coverage of the rose-stem metadata validation test to include more apps. (#886)
  *  Upgraded ``suite_report.py``. (#889)
-    
+
 Documentation updates
 ---------------------
 

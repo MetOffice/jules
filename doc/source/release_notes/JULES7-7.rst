@@ -12,7 +12,7 @@ General/Technical changes
 
  *  Initialisation related to the CaMa-Flood model of river routing and inundation. Note that this model is still in development and cannot yet be used. (#1000)
  *  Developments to allow the blending height to be increased and passed between timesteps - for use with the UM atmospheric model. (#1500)
-    
+
 Bugs fixed
 ----------
 

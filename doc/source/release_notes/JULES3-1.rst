@@ -26,11 +26,13 @@ The user interface also sees significant changes. The monolithic .jin run contro
 Other changes
 -------------
 
+.. |eacute| replace:: &eacute;
+
 There are several not-insignificant changes to the science code:
 
 * Structures are now used for dimensioning variables - this allows for more flexibility of grids than the old system of row_length/rows and halos.
 * Move to a new implicit solver - ``sf_impl2`` is now used rather than ``sf_impl`` for consistency with the UM. However, the way the implicit coupling is set up means it operates in a similar way to the old scheme.
-* A change in the way fresh snow is handled in the multi-layer snow scheme - the density of fresh snow is now prescribed by a new variable (``rho_snow_fresh``). Suggested by Cécile Ménard and implemented by Doug Clark.
+* A change in the way fresh snow is handled in the multi-layer snow scheme - the density of fresh snow is now prescribed by a new variable (``rho_snow_fresh``). Suggested by C|eacute|cile M|eacute|nard and implemented by Doug Clark.
 * Bug fix from Doug Clark for the multi-layer snow scheme that fixes problems with the model oscillating between 0 and 1 snow layers every timestep, preventing snow melt.
 * Changes to the sea-ice surface exchange when operating as part of the UM. This will not affect the majority of users.
 * Slight changes to the coupling between the explicit and implicit schemes. The vast majority of users will not need to worry about this.

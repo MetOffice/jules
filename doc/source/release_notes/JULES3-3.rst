@@ -35,19 +35,19 @@ Disambiguation of sea ice roughness lengths for heat and momentum
 
 Improvements to the numerics in the soil hydrology
     Previously, the soil hydrology scheme coped poorly with significant gradients in soil moisture because of the sensitive dependence of the hydraulic conductivity and soil water suction on the soil moisture. See the new switch ``l_dpsids_dsdz``.
-    
+
 Implicit numerics for land ice
     Previously, the updating of land ice temperatures was always explicit, limiting the thickness of soil levels that can be used with standard time steps. There is now an option for implicit numerics for land ice - see the new switch ``l_land_ice_imp``.
-    
+
 Scaling of land surface albedo to agree with a given input
     An option has been added to prescribe the grid-box mean snow-free albedo to a given input (e.g. observations, climatology). See the new switch ``l_albedo_obs``. For SW albedos, the albedos of the individual tiles are scaled linearly so that the grid-box mean albedo matches the observations, within limits for each tile. When VIS and NIR albedos are required then the input parameters are scaled and corrected in a similar manner. The change was included in the Global Land configuration at vn5.0: https://code.metoffice.gov.uk/trac/GL/ticket/8.
-    
+
 BVOC emissions now on a switch
     Previously, BVOC emissions diagnostics were calculated all the time, regardless of whether they were output. A new switch - ``l_bvoc_emis`` - has been added to enable the calculation of these diagnostics only when required.
-    
+
 Improvements to logging
     A new namelist file - ``logging.nml`` - has been added to give more control over log output from JULES. Previously all output was directed to ``stdout``.
-    
+
 Specify namelist directory as an argument
     It is now possible to specify the directory containing the namelist files as a command line argument to JULES. If no argument is given, JULES looks for the namelist files in the current working directory. Previously, JULES had to be executed in the directory containing the namelists - this change should make it easier to run JULES in batch mode.
 

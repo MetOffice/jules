@@ -20,7 +20,7 @@ General/Technical changes
  *  Increase compile-time checking with Cray's CCE. (#1061)
  *  Updated configuration for NIWA. (#1387)
 
-    
+
 Bugs fixed
 ----------
 

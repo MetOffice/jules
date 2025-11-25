@@ -8,22 +8,22 @@ Once a :doc:`JULES executable is compiled <fcm>` and the :doc:`namelists </namel
 1. Run the JULES executable in the namelist directory with no arguments:
 
    .. code-block:: bash
-   
+
       cd /path/to/namelist/dir
       /path/to/jules.exe
-      
+
 2. Run the JULES executable with the namelist directory as an argument:
 
    .. code-block:: bash
-   
+
       /path/to/jules.exe  /path/to/namelist/dir
-      
-      
+
+
 .. warning::
    Any relative paths given to JULES via the namelists (e.g. :nml:mem:`JULES_FRAC::file` in :nml:lst:`JULES_FRAC`) will be interpreted *relative to the current working directory*.
-   
+
    This means that if the user plans to use the second method to run JULES (e.g. in a batch environment), it is advisable to use fully-qualified path names for all files specified in the namelists.
-   
+
    To allow runs to be portable across different machines, it is common to specify data files relative to the namelist directory. In this case, JULES must be run using the first method to allow the relative paths to be resolved correctly.
 
 
@@ -35,7 +35,7 @@ General example of running JULES from the command line
    .. code-block:: bash
 
        $ cd /jules/root/dir
-    
+
 #. Build JULES:
 
    .. code-block:: bash
@@ -64,8 +64,8 @@ If JULES is compiled with OpenMP, then it must be told how many OpenMP threads t
 
     $ export OMP_NUM_THREADS=4  # Use 4 threads for OpenMP parallel regions
     $ /path/to/jules.exe
-    
-    
+
+
 Running JULES with MPI
 ----------------------
 
@@ -78,5 +78,5 @@ If JULES is compiled with MPI, then it must be run using commands from your MPI 
 .. code-block:: bash
 
     $ mpirun -n 4 /path/to/jules.exe  # Run JULES using 4 MPI tasks
-    
+
 Detailed discussion of ``mpiexec``/``mpirun`` is beyond the scope of this document - please refer to the documentation for your chosen MPI distribution for the available options and features.

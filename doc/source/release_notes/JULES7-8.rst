@@ -16,7 +16,7 @@ General/Technical changes
  *  Allowing JULES to be used on the Met Office's Azspice system. Change to the default EX machine for rose stem and allowing use of EXCD. (#1576, 1580, 1585)
  *  Updates for the upgraded JASMIN system. (#1586)
 
-    
+
 Bugs fixed
 ----------
 

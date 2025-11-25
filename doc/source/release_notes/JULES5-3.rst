@@ -49,7 +49,7 @@ Changes to testing
  *  Implemented code to align continuation ampersands in column 79 as part of `umdp3_fixer.py`. (#823)
  *  The Met Office rose stem suite now runs all Linux tasks on SPICE, and the metadata checker task is now included in the JASMIN rose stem suite. (#819)
  *  Correction for rose stem on MONSooN. (#852)
-    
+
 Documentation updates
 ---------------------
 

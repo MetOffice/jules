@@ -30,7 +30,7 @@ General/Technical changes
  *  Updated Python scripts to be Python 3 compatible. (#1091)
  *  Preparing the JULES vn6.2 release. (#1204)
 
-    
+
 Bugs fixed
 ----------
 
@@ -40,7 +40,7 @@ Bugs fixed
  *  Prevent error in internal write of ctile_orog_fix (potentially many characters long) into a 3 character buffer. (#1205)
  *  Fix arguments to subroutine next_time. (#1209)
 
-    
+
 Documentation updates
 ---------------------
 

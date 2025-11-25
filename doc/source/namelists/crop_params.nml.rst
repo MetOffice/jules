@@ -1,7 +1,6 @@
 ``crop_params.nml``
 ===================
 
-
 This file contains a single namelist called :nml:lst:`JULES_CROPPARM` that sets time- and space-invariant parameters for each crop type.
 
 
@@ -10,15 +9,15 @@ This file contains a single namelist called :nml:lst:`JULES_CROPPARM` that sets 
 
 .. nml:namelist:: JULES_CROPPARM
 
-This namelist reads the values of parameters for each of the crop functional types. These parameters are a function of crop pft only.  These parameters are only required if :nml:mem:`JULES_SURFACE_TYPES::ncpft` > 0.  The crop pfts should be in the same order as in :doc:`pft_params.nml`. 
+This namelist reads the values of parameters for each of the crop functional types. These parameters are a function of crop pft only.  These parameters are only required if :nml:mem:`JULES_SURFACE_TYPES::ncpft` > 0.  The crop pfts should be in the same order as in :doc:`pft_params.nml`.
 
 .. seealso::
    References:
-  
+
    * Osborne et al, `JULES-crop: a parametrisation of crops in the Joint UK Land Environment Simulator <http://www.geosci-model-dev.net/8/1139/2015/gmd-8-1139-2015.html>`_, Geosci. Model Dev., 8, 1139-1155, 2015.
-  
+
    Parameters introduced after the Osborne et al 2015 paper are described in the appendix of
-   
+
    * Williams et al, `Evaluation of JULES-crop performance against site observations of irrigated maize from Mead, Nebraska <https://www.geosci-model-dev.net/10/1291/2017/gmd-10-1291-2017.html>`_, Geosci. Model Dev., 10, 1291-1320, 2017.
 
 .. nml:member:: t_bse_io
@@ -58,7 +57,7 @@ This namelist reads the values of parameters for each of the crop functional typ
    :type: real(ncpft)
    :default: None
 
-   Critical photoperiod (hours).         
+   Critical photoperiod (hours).
 
 
 .. nml:member:: pp_sens_io
@@ -76,22 +75,22 @@ This namelist reads the values of parameters for each of the crop functional typ
 
    Coefficient determining relative growth of roots vertically and horizontally.
 
-  
+
 .. nml:member:: alpha1_io
 
    :type: real(ncpft)
    :default: None
 
    Coefficient for determining partitioning.
-   
-   
+
+
 .. nml:member:: alpha2_io
 
    :type: real(ncpft)
    :default: None
 
    Coefficient for determining partitioning.
-   
+
 
 .. nml:member:: alpha3_io
 
@@ -108,15 +107,15 @@ This namelist reads the values of parameters for each of the crop functional typ
 
    Coefficient for determining partitioning.
 
-   
+
 .. nml:member:: beta2_io
 
    :type: real(ncpft)
    :default: None
 
    Coefficient for determining partitioning.
-   
-   
+
+
 .. nml:member:: beta3_io
 
    :type: real(ncpft)
@@ -131,16 +130,16 @@ This namelist reads the values of parameters for each of the crop functional typ
    :default: None
 
    Coefficient for determining specific leaf area (m\ :sup:`2` kg\ :sup:`-1`).
-   
-   
+
+
 .. nml:member:: delta_io
 
    :type: real(ncpft)
    :default: None
 
    Coefficient for determining specific leaf area (m\ :sup:`2` kg\ :sup:`-1`).
-   
-   
+
+
 .. nml:member:: remob_io
 
    :type: real(ncpft)
@@ -219,14 +218,14 @@ This namelist reads the values of parameters for each of the crop functional typ
    :default: None
 
    Carbon in crop at emergence in kgC/m2.
-   
-   
+
+
 .. nml:member:: initial_c_dvi_io
 
    :type: real(ncpft)
    :default: None
 
-   DVI at which the crop carbon is set to :nml:mem:`initial_carbon_io`. Should be at emergence (0.0) or shortly after. 
+   DVI at which the crop carbon is set to :nml:mem:`initial_carbon_io`. Should be at emergence (0.0) or shortly after.
 
 
 .. nml:member:: sen_dvi_io
@@ -234,7 +233,7 @@ This namelist reads the values of parameters for each of the crop functional typ
    :type: real(ncpft)
    :default: None
 
-   DVI at which leaf senescence begins. 
+   DVI at which leaf senescence begins.
 
 
 .. nml:member:: t_mort_io

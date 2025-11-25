@@ -8,7 +8,7 @@ The major change in version 3.0 is the introduction of the IMOGEN impacts tool. 
 * New process understanding can be tested for its global implications.
 * New process understanding can also be checked for stability before full inclusion in a GCM.
 * By adding climate change anomalies to datasets such as the CRU dataset, then GCM biases can be removed.
-  
+
 It must be recognised that the system is "off-line", and so if major changes to the land surface occur there might be local and regional feedbacks that can only be predicted using a fully coupled GCM. Hence IMOGEN doesn't replace GCMs, but it does give a very powerful first-look as to potential land surface changes in an anthropogenically forced varying climate. This was accomplished with help from Mark Lomas at the University of Sheffield and Chris Huntingford at CEH.
 
 There are also several small bug fixes:

@@ -1,7 +1,6 @@
 ``jules_vegetation.nml``
 ========================
 
-
 This file sets the vegetation options. It contains one namelist called :nml:lst:`JULES_VEGETATION`.
 
 
@@ -18,15 +17,15 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    Switch for using trait-based physiology.
 
    TRUE
-       Vcmax is calculated based on observed leaf traits. Leaf
-       nitrogen (nmass: kgN kgLeaf\ :sup:`-1`) and leaf mass (LMA:
-       kgLeaf m\ :sup:`-2`) can be based on observations from the TRY
-       database. Vcmax (umol CO\ :sub:`2` m\ :sup:`-2` s\ :sup:`-1`) is based
-       on linear regressions as in :ref:`Kattge et al. 2009<References_vegetation>`. Two additional
-       parameters are needed: vint and vsl - the intercept and slope,
-       respectively, that relate the leaf nitrogen to vcmax. Sigl is
-       replaced with LMA (sigl=LMA*Cmass, where Cmass is the
-       kgC kgLeaf\ :sup:`-1` and is 0.4).
+       Vcmax is calculated based on observed leaf traits. Leaf nitrogen
+       (nmass: kgN kgLeaf\ :sup:`-1`) and leaf mass (LMA: kgLeaf m\ :sup:`-2`)
+       can be based on observations from the TRY database.
+       Vcmax (umol CO\ :sub:`2` m\ :sup:`-2` s\ :sup:`-1`) is based on linear
+       regressions as in :ref:`Kattge et al. 2009<References_vegetation>`.
+       Two additional parameters are needed: vint and vsl - the intercept and
+       slope, respectively, that relate the leaf nitrogen to vcmax. Sigl is
+       replaced with LMA (sigl=LMA*Cmass, where Cmass is the kgC
+       kgLeaf\ :sup:`-1` and is 0.4).
 
    FALSE
        Vcmax is calculated based on parameters nl0 (kgN kgC\ :sup:`-1`) and neff.
@@ -98,9 +97,8 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    FALSE
       Use the vegetation competition described in :ref:`HCTN24<References_vegetation>`.
 
-      This is hard-wired for 5 PFTs (BT, NT, C3, C4, SH, in that
-      order) with co-competition for grasses and trees in
-      ``lokta_jls.F90``.
+      This is hard-wired for 5 PFTs (BT, NT, C3, C4, SH, in that order) with
+      co-competition for grasses and trees in ``lokta_jls.F90``.
 
 .. nml:member:: l_nitrogen
 
@@ -251,9 +249,9 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
       :nml:mem:`JULES_VEGETATION::l_use_pft_psi` = T.
 
    .. note:: The option :nml:mem:`JULES_VEGETATION::fsmc_shape` = 1 is
-	     still in development. Users should ensure that results
-	     are as expected, and provide feedback where deficiencies
-	     are identified.
+        still in development. Users should ensure that results
+        are as expected, and provide feedback where deficiencies
+        are identified.
 
 .. nml:member:: l_use_pft_psi
 
@@ -272,14 +270,14 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
        :nml:mem:`JULES_PFTPARM::fsmc_p0_io`.
 
    .. note:: Soil respiration and surface conductance of bare soil
-	     respectively will depend on ``sm_wilt`` and ``sm_crit``
-	     in :nml:lst:`JULES_SOIL_PROPS`, regardless of the setting
-	     of :nml:mem:`JULES_VEGETATION::fsmc_shape`.
+        respectively will depend on ``sm_wilt`` and ``sm_crit``
+        in :nml:lst:`JULES_SOIL_PROPS`, regardless of the setting
+        of :nml:mem:`JULES_VEGETATION::fsmc_shape`.
 
    .. note:: The option :nml:mem:`JULES_VEGETATION::l_use_pft_psi` = T
-	     is still in development. Users should ensure that results
-	     are as expected, and provide feedback where deficiencies
-	     are identified.
+        is still in development. Users should ensure that results
+        are as expected, and provide feedback where deficiencies
+        are identified.
 
 
 .. nml:member:: l_vegcan_soilfx
@@ -407,7 +405,7 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    Allows for representation of bioenergy crops with continuous or periodic harvesting of agricultural PFTs at prescribed intervals. Requires :nml:mem:`JULES_VEGETATION::l_trif_crop` = TRUE.
 
    TRUE
-       Crop, pasture, and bioenergy crop areas are defined by the :nml:mem:`JULES_AGRIC::frac_agr`, :nml:mem:`JULES_AGRIC::frac_past`, :nml:mem:`JULES_AGRIC::frac_biocrop` variables respectively. Harvests are permitted from any land class and enabled for each PFT separately using the :nml:mem:`JULES_TRIFFID::harvest_type_io` variable. Harvesting may be continuous (as per the existing scheme in  :nml:mem:`JULES_VEGETATION::l_trif_crop`, when :nml:mem:`JULES_TRIFFID::harvest_type_io` is 1), or performed at prescribed intervals defined using the :nml:mem:`JULES_TRIFFID::harvest_freq_io` and :nml:mem:`JULES_TRIFFID::harvest_ht_io` variables (when :nml:mem:`JULES_TRIFFID::harvest_type_io` is 2). 
+       Crop, pasture, and bioenergy crop areas are defined by the :nml:mem:`JULES_AGRIC::frac_agr`, :nml:mem:`JULES_AGRIC::frac_past`, :nml:mem:`JULES_AGRIC::frac_biocrop` variables respectively. Harvests are permitted from any land class and enabled for each PFT separately using the :nml:mem:`JULES_TRIFFID::harvest_type_io` variable. Harvesting may be continuous (as per the existing scheme in  :nml:mem:`JULES_VEGETATION::l_trif_crop`, when :nml:mem:`JULES_TRIFFID::harvest_type_io` is 1), or performed at prescribed intervals defined using the :nml:mem:`JULES_TRIFFID::harvest_freq_io` and :nml:mem:`JULES_TRIFFID::harvest_ht_io` variables (when :nml:mem:`JULES_TRIFFID::harvest_type_io` is 2).
 
    FALSE
        Land use classes, PFT partitioning, and harvests are as defined by the :nml:mem:`JULES_VEGETATION::l_trif_crop` switch.
@@ -447,10 +445,10 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
 
    .. note::
        :nml:mem:`can_model` = 1 does not mean that there is no
-	    vegetation canopy. It means that the surface is
-	    represented as a single entity, rather than having
-	    distinct surface and canopy levels for the purposes of
-	    radiative processes.
+       vegetation canopy. It means that the surface is
+       represented as a single entity, rather than having
+       distinct surface and canopy levels for the purposes of
+       radiative processes.
 
 
 .. nml:member:: can_rad_mod
@@ -490,15 +488,15 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    .. note:: :nml:mem:`can_rad_mod` = 1 and 6 are recommended.
 
    .. note:: When using :nml:mem:`can_rad_mod` = 4, 5 or 6 it is
-	     recommended to use driving data that contains direct and
-	     diffuse radiation separately rather than a constant
-	     diffuse fraction.
+        recommended to use driving data that contains direct and
+        diffuse radiation separately rather than a constant
+        diffuse fraction.
 
    .. seealso:: Descriptions of option 1 can be found in
-		:ref:`Jogireddy et al. (2006)<References_vegetation>`, and an
-		application of option 4 can be found in :ref:`Mercado
-		et al. (2007)<References_vegetation>`. Options 1 to 5 are
-		described in :ref:`Clark et al (2011)<References_vegetation>`.
+      :ref:`Jogireddy et al. (2006)<References_vegetation>`, and an
+      application of option 4 can be found in :ref:`Mercado
+      et al. (2007)<References_vegetation>`. Options 1 to 5 are
+      described in :ref:`Clark et al (2011)<References_vegetation>`.
 
 
 .. nml:member:: ilayers
@@ -532,7 +530,7 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    .. seealso::
       References:
 
-      * Collatz et al., 1991, Physiological and environmental regulation of stomatal conductance, photosynthesis, and transpiration – a model that includes a laminar boundary layer, Agricultural and Forest Meteorology, https://doi.org/10.1016/0168-1923(91)90002-8.
+      * Collatz et al., 1991, Physiological and environmental regulation of stomatal conductance, photosynthesis, and transpiration - a model that includes a laminar boundary layer, Agricultural and Forest Meteorology, https://doi.org/10.1016/0168-1923(91)90002-8.
       * Collatz et al., 1992, Coupled Photosynthesis-Stomatal Conductance Model for Leaves of C\ :sub:`4` Plants, Australian Journal of Plant Physiology, https://doi.org/10.1071/PP9920519.
       * Farquhar et al., 1980, A biochemical model of photosynthetic CO\ :sub:`2` assimilation in leaves of C\ :sub:`3` species, Planta, https://doi.org/10.1007/BF0038623.
 
@@ -583,7 +581,7 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    :type: real
    :default: 5.241e-4
 
-   Power in sigmodial function used to get competition coefficients.
+   Power in sigmoidal function used to get competition coefficients.
 
    See Hadley Centre Technical Note 24, Eq.3.
 
@@ -656,8 +654,7 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    :default: F
 
    Switch to use the Robust Ecosystem Demography (RED).
-   This is based on :ref:`Argles, Arthur PK, et al.
-   (2020)`.
+   This is based on :ref:`Argles, Arthur PK, et al. (2020)<References_vegetation>`.
 
    Only use if any :nml:mem:`l_triffid` = TRUE.
 
@@ -930,7 +927,7 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
       :type: real(3)
       :default: None
 
-      Coefficients for the ratio J\ :sub:`25`/V\ :sub:`25` (mol electrons [mol\ :sup:`-1` CO\ :sub:`2`] and (mol electrons [mol\ :sup:`-1` CO\ :sub:`2`] K\ :sup:`-1`).  Replaces the use of :nml:mem:`JULES_PFTPARM::jv25_ratio_io`.
+      Coefficients for the ratio J\ :sub:`25`/V\ :sub:`25` (mol electrons [mol\ :sup:`-1` CO\ :sub:`2`]) and (mol electrons [mol\ :sup:`-1` CO\ :sub:`2`] K\ :sup:`-1`). Replaces the use of :nml:mem:`JULES_PFTPARM::jv25_ratio_io`.
 
 
 .. nml:group:: Only used with thermal acclimation of photosynthesis (:nml:mem:`photo_acclim_model` = 2 or 3).
@@ -948,7 +945,7 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    :type: logical
    :default: F
 
-   Switch that enables sequential cropping (crop rotations). 
+   Switch that enables sequential cropping (crop rotations).
    Only used
    if :nml:mem:`JULES_SURFACE_TYPES::ncpft` > 0 and
    if :nml:mem:`JULES_VEGETATION::l_prescsow` = T.
@@ -965,22 +962,22 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
 
 ``JULES_VEGETATION`` references
 -------------------------------
-* Argles, A. P. K., Moore, J. R., Huntingford, C., Wiltshire, A. J., 
-  Harper, A. B., Jones, C. D., and Cox, P. M.: Robust Ecosystem Demography 
-  (RED version 1.0): a parsimonious approach to modelling vegetation 
-  dynamics in Earth system models, Geosci. Model Dev., 13, 4067–4089, 
+* Argles, A. P. K., Moore, J. R., Huntingford, C., Wiltshire, A. J.,
+  Harper, A. B., Jones, C. D., and Cox, P. M.: Robust Ecosystem Demography
+  (RED version 1.0): a parsimonious approach to modelling vegetation
+  dynamics in Earth system models, Geosci. Model Dev., 13, 4067-4089,
   https://doi.org/10.5194/gmd-13-4067-2020
 * Best et al., 2011, The Joint UK Land Environment Simulator (JULES),
-  model description – Part 1: Energy and water fluxes, Geosci. Model
+  model description - Part 1: Energy and water fluxes, Geosci. Model
   Dev., https://doi.org/10.5194/gmd-4-677-2011.
 * Clark et al., 2011, The Joint UK Land Environment Simulator (JULES)
-  model description – Part 2: Carbon fluxes and vegetation dynamics,
+  model description - Part 2: Carbon fluxes and vegetation dynamics,
   Geosci. Model Dev., 4, 701-722,
   https://doi.org/10.5194/gmd-4-701-2011
 * Eller et al. (2020), Stomatal optimization based on xylem hydraulics
   (SOX) improves land surface model simulation of vegetation responses
   to climate. New Phytologist 226:
-  1622–1637 https://doi.org/10.1111/nph.16419
+  1622-1637 https://doi.org/10.1111/nph.16419
 * Harman, I.N. & Finnigan, J.J. (2007), A simple unified theory for
   flow in the canopy and roughness sublayer. Boundary-Layer Meteorol.
   123: 339. https://doi.org/10.1007/s10546-006-9145-6
@@ -1029,7 +1026,7 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
   Jogireddy, V.: Improving the representation of radiative
   interception and photosynthesis for climate model applications,
   Tellus B, 59,
-  553–565, 2007. https://doi.org/10.1111/j.1600-0889.2007.00256.x
+  553-565, 2007. https://doi.org/10.1111/j.1600-0889.2007.00256.x
 * Mercado et al., 2018, Large sensitivity in land carbon storage due to
   geographical and temporal variation in the thermal response of
   photosynthetic capacity, New Phytologist, 218: 1462--1477,
@@ -1044,9 +1041,9 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
 * Mathison, C , Challinor, A. J., Deva, C., Falloon, P., Garrigues, S.,
   Moulin, S., Williams, K., and Wiltshire, A. (2019),
   Developing a sequential cropping capability in the JULESvn5.2
-  land–surface model, Geosci. Model Dev. Discuss.,
+  land-surface model, Geosci. Model Dev. Discuss.,
   https://doi.org/10.5194/gmd-2019-85, in review, 2019.
-* Jones et al., 2020, The impact of a simple representation of 
-  non-structural carbohydrates on the simulated response of tropical 
-  forests to drought, Biogeosciences, 17: 3589--3612. 
+* Jones et al., 2020, The impact of a simple representation of
+  non-structural carbohydrates on the simulated response of tropical
+  forests to drought, Biogeosciences, 17: 3589--3612.
   https://doi.org/10.5194/bg-17-3589-2020

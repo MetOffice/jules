@@ -10,7 +10,7 @@ Ticket numbers are indicated below, e.g. #1512.
 General/Technical changes
 -------------------------
 
- *  Changes to how river ancillary files are processed. (#1512) 
+ *  Changes to how river ancillary files are processed. (#1512)
  *  Added water tracers to the UM_TRIP river routing. (#1466)
  *  Completion of the water tracer code development so water tracers can track water through the UM and JULES. (#1389)
  *  Allowed flexible number of soil layers in the UM atmospheric model. (#1188)
@@ -19,7 +19,7 @@ General/Technical changes
  *  1-D fields for surface and sub-surface runoff coupling between LFRic and TRIP replaced with 2-D coupling. (#1527)
  *  Altered usage of the model_type option for LFRic use cases. (#1521)
  *  Updated CodeOwners file. (#1538)
-    
+
 Bugs fixed
 ----------
 

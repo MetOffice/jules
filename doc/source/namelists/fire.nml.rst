@@ -22,7 +22,6 @@ This file contains a single namelist called :nml:lst:`FIRE_SWITCHES` that sets t
        The fire module will not be executed and subsequent members of the namelist will have no effect.
 
 
-
 .. nml:member:: mcarthur_flag
 
    :type: boolean

@@ -74,7 +74,7 @@ Variables that are available for output from JULES are listed in this section, s
 Meteorology
 -------------------------------------------------------------------
 
-Unlesss stated otherwise these variables have values at both land and sea points.
+Unless stated otherwise these variables have values at both land and sea points.
 
 .. tabularcolumns:: |p{2.5cm}|p{10.8cm}|p{2.2cm}|
 
@@ -196,7 +196,7 @@ Radiation
 
 
 Energy and momentum fluxes, and surface temperatures
--------------------------------------------------------------------
+----------------------------------------------------
 
 .. tabularcolumns:: |p{3.5cm}|p{9.8cm}|p{2.2cm}|
 
@@ -246,7 +246,7 @@ Energy and momentum fluxes, and surface temperatures
 
 
 Soil moisture and temperature, and soil characteristics
--------------------------------------------------------------------
+-------------------------------------------------------
 
 .. tabularcolumns:: |p{4.0cm}|p{9.3cm}|p{2.2cm}|
 
@@ -319,7 +319,7 @@ Soil moisture and temperature, and soil characteristics
 
 
 Hydrology
--------------------------------------------------------------------
+---------
 
 .. tabularcolumns:: |p{4.6cm}|p{8.7cm}|p{2.2cm}|
 
@@ -413,7 +413,7 @@ Hydrology
 
 
 Rivers
--------------------------------------------------------------------
+------
 
 .. tabularcolumns:: |p{4.6cm}|p{8.7cm}|p{2.2cm}|
 
@@ -484,7 +484,7 @@ Rivers
 
 
 Snow
--------------------------------------------------------------------
+----
 
 .. tabularcolumns:: |p{4.5cm}|p{8.8cm}|p{2.2cm}|
 
@@ -575,7 +575,7 @@ Snow
 
 
 Vegetation carbon and related fluxes
--------------------------------------------------------------------
+------------------------------------
 
 .. tabularcolumns:: |p{3.5cm}|p{9.8cm}|p{2.2cm}|
 
@@ -755,7 +755,7 @@ Vegetation carbon and related fluxes
 
 
 Vegetation nitrogen and related fluxes
--------------------------------------------------------------------
+--------------------------------------
 
 .. tabularcolumns:: |p{4.5cm}|p{8.8cm}|p{2.2cm}|
 
@@ -859,7 +859,7 @@ Vegetation nitrogen and related fluxes
 
 
 Soil carbon and related fluxes
--------------------------------------------------------------------
+------------------------------
 
 .. tabularcolumns:: |p{4.6cm}|p{8.7cm}|p{2.2cm}|
 
@@ -960,7 +960,7 @@ Soil carbon and related fluxes
 
 
 Soil nitrogen and related fluxes
--------------------------------------------------------------------
+--------------------------------
 
 .. tabularcolumns:: |p{4.0cm}|p{9.3cm}|p{2.2cm}|
 
@@ -1057,7 +1057,7 @@ Soil nitrogen and related fluxes
 
 
 Fire
--------------------------------------------------------------------
+----
 
 .. tabularcolumns:: |p{4.0cm}|p{9.3cm}|p{2.2cm}|
 
@@ -1158,7 +1158,7 @@ Fire
 
 
 Crops
--------------------------------------------------------------------
+-----
 
 These variables are only available when :nml:mem:`JULES_SURFACE_TYPES::ncpft` > 0.
 
@@ -1215,7 +1215,7 @@ These variables are only available when :nml:mem:`JULES_SURFACE_TYPES::ncpft` > 
 
 
 Trace gas concentrations and fluxes
--------------------------------------------------------------------
+-----------------------------------
 
 .. tabularcolumns:: |p{3.0cm}|p{10.3cm}|p{2.2cm}|
 
@@ -1248,7 +1248,7 @@ Trace gas concentrations and fluxes
 
 
 Trace gas dry deposition parameters and fluxes
--------------------------------------------------------------------
+----------------------------------------------
 
 .. tabularcolumns:: |p{4.5cm}|p{8.8cm}|p{2.2cm}|
 
@@ -1259,7 +1259,7 @@ Trace gas dry deposition parameters and fluxes
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``deposition_rb``         | Quasi-laminar resistance (Rb) by chemical tracer (s m\ :sup:`-1`).             | tracer     |
 +---------------------------+--------------------------------------------------------------------------------+------------+
-| ``deposition_rc``         | Surface resistance (Rc) by surface type and chemical tracer (s m\ :sup:`-1`).  | ntype,     |  
+| ``deposition_rc``         | Surface resistance (Rc) by surface type and chemical tracer (s m\ :sup:`-1`).  | ntype,     |
 |                           |                                                                                | tracer     |
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``deposition_rc_stom``    | Stomatal component of surface resistance (Rc) by surface type and              | ntype,     |
@@ -1283,7 +1283,7 @@ Trace gas dry deposition parameters and fluxes
 
 
 Water resources
--------------------------------------------------------------------
+---------------
 
 These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_resources` = TRUE.
 
@@ -1401,7 +1401,7 @@ Urban
 
 
 IMOGEN
--------------------------------------------------------------------
+------
 
 .. tabularcolumns:: |p{3.5cm}|p{9.8cm}|p{2.2cm}|
 
@@ -1427,7 +1427,7 @@ IMOGEN
 
 
 Grid and indexing variables
--------------------------------------------------------------------
+---------------------------
 
 .. tabularcolumns:: |p{2.5cm}|p{10.8cm}|p{2.2cm}|
 
@@ -1450,7 +1450,6 @@ Grid and indexing variables
 +--------------------+----------------------------------------------------------------------------------------+------------+
 | ``tile_index``     | Index (gridbox number) of land points with each surface type.                          | ntype      |
 +--------------------+----------------------------------------------------------------------------------------+------------+
-
 
 
 .. |mu| unicode:: &#x03BC; .. u

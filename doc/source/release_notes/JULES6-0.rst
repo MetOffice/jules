@@ -30,7 +30,7 @@ General/Technical changes
  *  Fixed bad characters in metadata. (#1103)
  *  Further work to keep JULES and UM metadata consistent. (#1118)
 
-    
+
 Bugs fixed
 ----------
 

@@ -28,7 +28,7 @@ General/Technical changes
  *  Altered OMP directives to remove data race conditions. (#952)
  *  Removed the requirement to have some environment variables that are used in build configs defined/initiliased at the app/suite level. (#939)
 
-    
+
 Changes to testing
 ------------------
  *  Updated rose stem testing to include JULES-ES-1.0 configuration. (#915)

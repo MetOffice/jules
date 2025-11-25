@@ -37,7 +37,7 @@ Other changes
 
 Tidying of boundary layer code
     Some small changes have been made to tidy up some of the boundary layer code (i.e. routines in ``src/science/surface``) - this is mostly removing unused variables and tidying up subroutine argument lists.
-    
+
 OpenMP related changes
     Some `OpenMP <http://en.wikipedia.org/wiki/OpenMP>`_ directives have been added to certain loops. OpenMP is a form of shared-memory parallelism in which the user inserts directives (specially formatted code comments) providing information that allows the compiler to parallelise sections of code (in particular loops) without worrying about corrupting data. It is used in the UM, but is currently not enabled when compiling JULES standalone.
 

@@ -3,14 +3,14 @@ JULES version 4.1 Release Notes
 
 
 Irrigation demand
------------------ 
+-----------------
 
 When enabled, irrigation demand adds water to the soil moisture up to the critical point, meaning that vegetation does not experience water stress. At the moment the amount of water added is not limited, although it will be limited in a future version.
 
-There are two schemes that can be used to determine when to irrigate: 
- 
+There are two schemes that can be used to determine when to irrigate:
+
 1. This method calculates optimum planting dates for non-rice crops using averages from driving data and so requires at least one year of driving data. It was written by Nic Gedney and is based on the crop calendar from Doell & Siebert (2002).
-2. Uses development index (dvi) across all tiles from JULES-crop (written by Rutger Dankers). Maximum dvi must exceed -1 (indicates sowing) for irrigation to occur. 
+2. Uses development index (dvi) across all tiles from JULES-crop (written by Rutger Dankers). Maximum dvi must exceed -1 (indicates sowing) for irrigation to occur.
 
 See the documentation for :nml:mem:`JULES_IRRIG::l_irrig_dmd` for more details.
 

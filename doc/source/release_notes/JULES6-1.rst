@@ -24,7 +24,7 @@ General/Technical changes
  *  Improved performance in RA3 configurations. (#1113)
  *  Added further platform files for JASMIN. (#1145)
 
-    
+
 Bugs fixed
 ----------
 
@@ -34,7 +34,7 @@ Bugs fixed
  *  Prevent memory issues when using the INFERNO fire scheme in UM configurations. (#1149)
  *  Bug fix to add Rose metadata and upgrade macro for :nml:lst:`JULES_VEGETATION_PROPS` namelist. (#1141)
 
-    
+
 Changes to testing
 ------------------
 

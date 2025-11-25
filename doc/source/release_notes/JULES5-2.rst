@@ -30,7 +30,7 @@ General/Technical changes
  *  JULES parameters included in the Random Parameter (RP) scheme (for UM runs). (#675)
  *  Rationalised some of the code for the reading and writing of dumps. (#763)
  *  Alignment of JULES and UM urban control and initialisation code. (#319)
- *  Reduced model overhead when running DrHook profiling. (#782)    
+ *  Reduced model overhead when running DrHook profiling. (#782)
  *  Fixed oddities found while investigating the use of CamFort. (#769)
  *  JULES source code fully compliant with the Fortran 2003 standard. (#711)
  *  Corrections to code comments and other minor changes. (#725, 690)
@@ -64,7 +64,7 @@ Bugs fixed
  *  Fix of host specification in `runtime.rc` for site cehwl1. (#731)
  *  Updated the configuration for University of Exeter (`uoe-linux-gfortran.cfg`). (#735)
  *  Fix so rose stem IMOGEN tests work at NCI. (#792)
-    
+
 Documentation updates
 ---------------------
  *  Removed the science configurations section from the documentation. (#736).

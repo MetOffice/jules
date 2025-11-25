@@ -30,7 +30,7 @@ General/Technical changes
  *  All transparent, non-functional metadata consolidated with the UM, including `sort-key`, `description`, `url` and `help`, which has been removed where duplicated by the JULES user guide or merged in. (#1055)
  *  Keep standalone and UM JULES meta data consistent. (#1083)
 
-    
+
 Bugs fixed
 ----------
 

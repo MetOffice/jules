@@ -1,7 +1,6 @@
 ``science_fixes.nml``
 =====================
 
-
 This file contains one namelist called :nml:lst:`JULES_TEMP_FIXES`.
 
 This namelist sets 'short-term' temporary logicals used to protect science bug
@@ -35,11 +34,11 @@ is retired. See module for when the switch is due for review.
    :type: logical
    :default: F
 
-   This switch improves the calculation of surface air density in the  
-   surface turbulent fluxes.  It includes appropriate use of dry air density 
-   when the atmospheric water vapour is expressed as a mixing ratio 
-   (l_mr_physics = .TRUE.), otherwise use the wet air density when 
-   it is expressed as a specific humidity. 
+   This switch improves the calculation of surface air density in the
+   surface turbulent fluxes.  It includes appropriate use of dry air density
+   when the atmospheric water vapour is expressed as a mixing ratio
+   (l_mr_physics = .TRUE.), otherwise use the wet air density when
+   it is expressed as a specific humidity.
 
 
 .. nml:member:: l_dtcanfix
@@ -92,9 +91,9 @@ is retired. See module for when the switch is due for review.
    :type: logical
    :default: F
 
-   If true, this switch corrects a bug in the surface energy balance 
+   If true, this switch corrects a bug in the surface energy balance
    when the MORUSES radiative roof coupling is used
-   (see :nml:mem:`JULES_URBAN::l_moruses_storage`). 
+   (see :nml:mem:`JULES_URBAN::l_moruses_storage`).
    If false, the thermal conductivity of the soil (hcons) is erroneously
    set to zero, which causes the roof to be effectively uncoupled when
    :nml:mem:`JULES_VEGETATION::l_vegcan_soilfx`.
@@ -112,7 +111,7 @@ is retired. See module for when the switch is due for review.
    Secondly,the interception of snow on an overloaded canopy will, under
    the original method of calculation, be negative. With the fix, this is
    set to 0 and any snow above the canopy snow capacity is unloaded.
-   Overloaded canopies may be produced by changess in the snow amounts or
+   Overloaded canopies may be produced by changes in the snow amounts or
    by reductions in the LAI from which the canopy capacity is calculated.
 
 .. nml:member:: l_fix_osa_chloro

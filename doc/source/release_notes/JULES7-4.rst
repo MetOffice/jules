@@ -23,7 +23,7 @@ General/Technical changes
  *  Added prognostic variables for the RED vegetation model to model dump files. (#1230)
  *  Adding water tracers to the surface scheme - the first stage of adding water tracers/isotopes to JULES. (#1390)
 
-    
+
 Bugs fixed
 ----------
 

@@ -1,5 +1,6 @@
 ``jules_surface_types.nml``
 ===========================
+
 .. _top_jules_surface_types:
 
 This file configures the surface types used by JULES. It contains one
@@ -21,9 +22,9 @@ and removed in the GUI window as described in the table below. To:
    ====== =================================================
 
 .. note:: Please be aware that while the surface type IDs have been
-	  made available and are used to check the surface type
-	  configuration at runtime, they are not yet used by the JULES
-	  I/O.
+      made available and are used to check the surface type
+      configuration at runtime, they are not yet used by the JULES
+      I/O.
 
 ``JULES_SURFACE_TYPES`` namelist members
 ----------------------------------------
@@ -71,105 +72,109 @@ and removed in the GUI window as described in the table below. To:
    A negative value, when permitted, indicates that the surface type
    is not in use.
 
-   .. nml:member:: urban
+.. nml:member:: urban
 
-      :type: integer
-      :permitted: -1, npft+1:ntype
-      :default: -32768
+   :type: integer
+   :permitted: -1, npft+1:ntype
+   :default: -32768
 
-      Index of the urban surface type (#6).
+   Index of the urban surface type (#6).
 
-      Can only be used if :nml:mem:`JULES_SURFACE::l_urban2t` = FALSE.
-
-
-   .. nml:member:: lake
-
-      :type: integer
-      :permitted: npft+1:ntype
-      :default: -32768
-
-      Index of the lake surface type (#7).
+   Can only be used if :nml:mem:`JULES_SURFACE::l_urban2t` = FALSE.
 
 
-   .. nml:member:: soil
+.. nml:member:: lake
 
-      :type: integer
-      :permitted: npft+1:ntype
-      :default: -32768
+   :type: integer
+   :permitted: npft+1:ntype
+   :default: -32768
 
-      Index of the soil surface type (#8).
-
-      .. note:: A soil surface type must be given (although the fraction may be set to zero).
+   Index of the lake surface type (#7).
 
 
-   .. nml:member:: ice
+.. nml:member:: soil
 
-      :type: integer
-      :permitted: npft+1:ntype
-      :default: -32768
+   :type: integer
+   :permitted: npft+1:ntype
+   :default: -32768
 
-      Index of the ice surface type (#9).
+   Index of the soil surface type (#8).
 
-      .. note:: In the UM the ice surface type must be specified (although the fraction may be set to zero).
-
-
-   .. nml:group:: Multiple ice tiles allowed to exist in an ice gridbox
-
-      These surface types can only be used when multiple ice tiles are
-      allowed in a gridbox i.e. when
-      :nml:mem:`JULES_SURFACE::l_elev_land_ice` = TRUE.
-
-      .. nml:member:: elev_ice
-
-	 :type: integer
-	 :permitted: -1,npft+1:ntype
-	 :default: -32768
-
-	 Indices of the elevated ice types (#901-925).
-
-	 Must be grouped together with values ``npft < elev_ice <=
-	 ntype`` OR ``elev_ice = -1`` to indicate they are not used
-	 (i.e. all elevated rock instead).
-
-      .. nml:member:: elev_rock
-
-	 :type: integer
-	 :permitted: -1,npft+1:ntype
-	 :default: -32768
-
-	 Indices of the elevated non-glaciated bedrock types
-	 (#926-950).
-
-	 Must be grouped together, with values ``npft < elev_rock <=
-	 ntype`` OR ``elev_rock = -1`` to indicate they are not used
-	 (i.e. all elevated ice instead).
+   .. note:: A soil surface type must be given (although the fraction may be set to zero).
 
 
-   .. nml:group:: Two-tile urban schemes including MORUSES
+.. nml:member:: ice
 
-      These surface types can only be used when :nml:mem:`JULES_SURFACE::l_urban2t` = TRUE.
+   :type: integer
+   :permitted: npft+1:ntype
+   :default: -32768
 
-      .. nml:member:: urban_canyon
+   Index of the ice surface type (#9).
 
-	 :type: integer
-	 :permitted: npft+1:ntype
-	 :default: -32768
-
-	 Index of the urban canyon surface type (#601).
+   .. note:: In the UM the ice surface type must be specified (although the fraction may be set to zero).
 
 
-      .. nml:member:: urban_roof
+.. nml:group:: Multiple ice tiles allowed to exist in an ice gridbox
 
-	 :type: integer
-	 :permitted: npft+1:ntype
-	 :default: -32768
+   These surface types can only be used when multiple ice tiles are
+   allowed in a gridbox i.e. when
+   :nml:mem:`JULES_SURFACE::l_elev_land_ice` = TRUE.
 
-	 Index of the urban roof surface type (#602).
+.. nml:member:: elev_ice
+
+   :type: integer
+   :permitted: -1,npft+1:ntype
+   :default: -32768
+
+   Indices of the elevated ice types (#901-925).
+
+   Must be grouped together with values ``npft < elev_ice <=
+   ntype`` OR ``elev_ice = -1`` to indicate they are not used
+   (i.e. all elevated rock instead).
+
+.. nml:member:: elev_rock
+
+   :type: integer
+   :permitted: -1,npft+1:ntype
+   :default: -32768
+
+   Indices of the elevated non-glaciated bedrock types
+   (#926-950).
+
+   Must be grouped together, with values ``npft < elev_rock <=
+   ntype`` OR ``elev_rock = -1`` to indicate they are not used
+   (i.e. all elevated ice instead).
 
 
-      .. note::
+.. nml:group:: Two-tile urban schemes including MORUSES
 
-	 When giving urban fraction data (see :nml:lst:`JULES_FRAC`), total *urban* fraction may be given instead of the separate canyon and roof fractions by entering it under the canyon fraction. When initialising if the roof fraction is zero, the canyon fraction will be interpreted as the total *urban* fraction and be partitioned according to the canyon fraction (W/R, see :nml:lst:`URBAN_PROPERTIES`).
+   These surface types can only be used when :nml:mem:`JULES_SURFACE::l_urban2t` = TRUE.
+
+.. nml:member:: urban_canyon
+
+   :type: integer
+   :permitted: npft+1:ntype
+   :default: -32768
+
+   Index of the urban canyon surface type (#601).
+
+
+.. nml:member:: urban_roof
+
+   :type: integer
+   :permitted: npft+1:ntype
+   :default: -32768
+
+   Index of the urban roof surface type (#602).
+
+   .. note::
+
+      When giving urban fraction data (see :nml:lst:`JULES_FRAC`),
+      total *urban* fraction may be given instead of the separate canyon and
+      roof fractions by entering it under the canyon fraction. When initialising
+      if the roof fraction is zero, the canyon fraction will be interpreted as
+      the total *urban* fraction and be partitioned according to the canyon
+      fraction (W/R, see :nml:lst:`URBAN_PROPERTIES`).
 
 .. nml:group:: Surface types with ``compulsory=false``
 
@@ -179,148 +184,148 @@ and removed in the GUI window as described in the table below. To:
    surface type if it is not required (see explanation at the
    :ref:`top<top_jules_surface_types>` of this page).
 
-   .. nml:member:: usr_type
+.. nml:member:: usr_type
 
-      :type: integer
-      :permitted: 1:ntype
-      :default: -32768
+   :type: integer
+   :permitted: 1:ntype
+   :default: -32768
 
-      Index of user specified surface type (#10-99).
+   Index of user specified surface type (#10-99).
 
-      A user surface type can be used when experimenting with new
-      surface configurations without a code change. These can be
-      either vegetated or non-vegetated and are used solely to assign an
-      ID number.
+   A user surface type can be used when experimenting with new
+   surface configurations without a code change. These can be
+   either vegetated or non-vegetated and are used solely to assign an
+   ID number.
 
-   .. nml:group:: Vegetated surface types
+.. nml:group:: Vegetated surface types
 
-      A negative value, when permitted, indicates that the surface
-      type is not in use.
+   A negative value, when permitted, indicates that the surface
+   type is not in use.
 
-      .. nml:member:: brd_leaf
+.. nml:member:: brd_leaf
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of the original broadleaf PFT surface type (#1).
+   Index of the original broadleaf PFT surface type (#1).
 
-      .. nml:member:: brd_leaf_dec
+.. nml:member:: brd_leaf_dec
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of broadleaf (decidous) PFT surface type (#101)
+   Index of broadleaf (deciduous) PFT surface type (#101)
 
-      .. nml:member:: brd_leaf_eg_trop
+.. nml:member:: brd_leaf_eg_trop
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of broadleaf (evergreen tropical) PFT surface type (#102).
+   Index of broadleaf (evergreen tropical) PFT surface type (#102).
 
-      .. nml:member:: brd_leaf_eg_temp
+.. nml:member:: brd_leaf_eg_temp
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of broadleaf (evergreen temperate) PFT surface type (#103).
+   Index of broadleaf (evergreen temperate) PFT surface type (#103).
 
-      .. nml:member:: ndl_leaf
+.. nml:member:: ndl_leaf
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of original needleleaf PFT surface type (#2).
+   Index of original needleleaf PFT surface type (#2).
 
-      .. nml:member:: ndl_leaf_dec
+.. nml:member:: ndl_leaf_dec
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of needleleaf (deciduous) PFT surface type (#201).
+   Index of needleleaf (deciduous) PFT surface type (#201).
 
-      .. nml:member:: ndl_leaf_eg
+.. nml:member:: ndl_leaf_eg
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of needleleaf (evergreen) PFT surface type (#202).
+   Index of needleleaf (evergreen) PFT surface type (#202).
 
-      .. nml:member:: c3_grass
+.. nml:member:: c3_grass
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of original C3 grass PFT surface type (#3).
+   Index of original C3 grass PFT surface type (#3).
 
-      .. nml:member:: c3_crop
+.. nml:member:: c3_crop
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of C3 crop PFT surface type (#301).
+   Index of C3 crop PFT surface type (#301).
 
-      .. nml:member:: c3_pasture
+.. nml:member:: c3_pasture
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of C3 pasture PFT surface type (#302).
+   Index of C3 pasture PFT surface type (#302).
 
-      .. nml:member:: c4_grass
+.. nml:member:: c4_grass
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of original C4 grass PFT surface type (#4).
+   Index of original C4 grass PFT surface type (#4).
 
-      .. nml:member:: c4_crop
+.. nml:member:: c4_crop
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of C4 crop PFT surface type (#401).
+   Index of C4 crop PFT surface type (#401).
 
-      .. nml:member:: c4_pasture
+.. nml:member:: c4_pasture
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of C4 pasture PFT surface type (#402).
+   Index of C4 pasture PFT surface type (#402).
 
-      .. nml:member:: shrub
+.. nml:member:: shrub
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of original shrub PFT surface type (#5).
+   Index of original shrub PFT surface type (#5).
 
-      .. nml:member:: shrub_dec
+.. nml:member:: shrub_dec
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of shrub (deciduous) PFT surface type (#501).
+   Index of shrub (deciduous) PFT surface type (#501).
 
-      .. nml:member:: shrub_eg
+.. nml:member:: shrub_eg
 
-	 :type: integer
-	 :permitted: 1:npft
-	 :default: -32768
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
 
-	 Index of shrub (evergreen) PFT surface type (#502).
+   Index of shrub (evergreen) PFT surface type (#502).

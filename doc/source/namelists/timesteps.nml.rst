@@ -25,8 +25,8 @@ This file sets the start and end time of the run. It can also be used to specify
 
    FALSE
        Each year consists of 365 or 366 days.
-       
-       
+
+
 .. nml:member:: l_leap
 
    :type: logical
@@ -39,7 +39,7 @@ This file sets the start and end time of the run. It can also be used to specify
 
    FALSE
        Each year consists of 365 days.
-       
+
 
 .. nml:member:: l_local_solar_time
 
@@ -53,7 +53,7 @@ This file sets the start and end time of the run. It can also be used to specify
 
    FALSE
        The time convention applying within the model and the driving data is assumed to be UTC.
-       
+
 
 .. nml:member:: timestep_len
 

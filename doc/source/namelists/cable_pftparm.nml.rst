@@ -4,7 +4,7 @@
 This file sets the time and space-invariant parameters for plant functional types for the CABLE land surface model. It contains one namelist called :nml:lst:`CABLE_PFTPARM`.
 
 ``CABLE_PFTPARM`` namelist members
------------------------------------
+----------------------------------
 
 .. nml:namelist:: CABLE_PFTPARM
 

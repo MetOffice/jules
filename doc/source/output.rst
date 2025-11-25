@@ -33,13 +33,13 @@ JULES output files contain two time related variables to allow model output to b
 
 ``time_bounds``
     For each output period, this variable contains two values - the start and end of the output period. The output period is then the half-open interval given by:
-    
+
     .. code-block:: fortran
 
         time_bounds(1) < time <= time_bounds(2)
-        
+
     This is the interval that means, minima, maxima and accumulations are calculated over.
-    
+
 During each model timestep, JULES captures values for output at the end of the timestep (i.e. after all the science code). This means that in output files, snapshot data at a particular timestep is:
 
 * The state of the model at the end of the model timestep.
