@@ -61,15 +61,15 @@ Code Reviewer: <!-- CR id, filled by SSD -->
 ## Contributor License Agreement (CLA)
 
 - [ ] **Required** - I confirm that I have read and agree to the project's
-      [Contributor License Agreement](todo-enter-link-to-cla)
+      [Contributor License Agreement](https://metoffice.github.io/simulation-systems/FurtherDetails/contributing.html)
 
 ## AI Assistance and Attribution
 
 - [ ] Some of the content of this change has been produced with the assistance
       of _Generative AI tool name_ (e.g., Met Office Github Copilot Enterprise,
       Github Copilot Personal, ChatGPT GPT-4, etc) and I have followed the
-      [Simulation Systems AI policy](todo-enter-link-to-policy-page) (including
-      attribution labels)
+      [Simulation Systems AI policy](https://metoffice.github.io/simulation-systems/FurtherDetails/ai.html)
+      (including attribution labels)
 
 ## Documentation
 
