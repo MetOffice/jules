@@ -1,7 +1,7 @@
 [project]
 name = "jules"
-version = "0.1.0"
-description = "Add your description here"
+version = "8.0.0"
+description = "Joint UK Land Environment Simulator User Guide"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
