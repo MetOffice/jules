@@ -9,11 +9,7 @@
         inherit = METO_AZSPICE_GNU_BUILD
         pre-script = """
                      module purge
-                     module load csc/2025.11.19
-                     module load gcc/12.2.0
-                     module load mpich/4.2.3
-                     module load eccodes/2.34.0
-                     module load netcdf-fortran/4.6.1
+                     module load um/vn14.0
                      module list 2>&1
                      """
 
@@ -21,11 +17,7 @@
         inherit = METO_AZSPICE_GNU_BUILD
         pre-script = """
                      module purge
-                     module load csc/2025.11.19
-                     module load gcc/12.2.0
-                     module load mpich/4.2.3
-                     module load eccodes/2.34.0
-                     module load netcdf-fortran/4.6.1
+                     module load um/vn14.0
                      module list 2>&1
                      """
 
