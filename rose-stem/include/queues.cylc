@@ -1,0 +1,18 @@
+# Import site-specific queues
+
+{% if REMOTE_JASMIN or SITE == 'jasmin' %}
+{% else %}
+{% if SITE == 'meto' %}
+%include 'include/meto/queues.cylc'
+{% elif SITE == 'vm' %}
+%include 'include/vm/queues.cylc'
+{% elif SITE == 'niwa' %}
+%include 'include/niwa/queues.cylc'
+{% elif SITE == 'cehwl1' %}
+%include 'include/cehwl1/queues.cylc'
+{% elif SITE == 'nci' %}
+%include 'include/nci/queues.cylc'
+{% elif SITE == 'bom' %}
+%include 'include/bom/queues.cylc'
+{% endif %}
+{% endif %}

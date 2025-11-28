@@ -1,0 +1,136 @@
+###############################################################################
+## Common families
+###############################################################################
+
+# Family for all Linux jobs
+    [[LINUX]]
+        platform = localhost
+
+    [[SOURCE_EXTRACTION]]
+        post-script = """
+cp $SOURCE_DIRECTORY/jules/dependencies.yaml $CYLC_WORKFLOW_RUN_DIR
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/suite_report_git.py $CYLC_WORKFLOW_RUN_DIR/bin
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/suite_data.py $CYLC_WORKFLOW_RUN_DIR/bin
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/git_bdiff.py $CYLC_WORKFLOW_RUN_DIR/bin
+cp $SOURCE_DIRECTORY/SimSys_Scripts/github_scripts/get_git_sources.py $CYLC_WORKFLOW_RUN_DIR/bin
+"""
+        [[[environment]]]
+            ROSE_TASK_APP = extract_source
+            DEPENDENCIES = {{dependencies}}
+            USE_MIRRORS = {{USE_MIRRORS}}
+            USE_TOKENS = {{USE_TOKENS}}
+        {% if USE_MIRRORS %}
+            {% if "GIT_MIRROR_LOC" in SITE_VARS %}
+            GIT_MIRROR_LOC = {{SITE_VARS.GIT_MIRROR_LOC}}
+            {% else %}
+                {{ raise(
+                    "Trying to run with mirrors without setting a mirror location. "
+                    "Ensure 'GIT_MIRROR_LOC' is included in SITE_VARS."
+                    ) }}
+            {% endif %}
+        {% endif %}
+
+    [[SOURCE_SYNC]]
+        script = """
+hostname=$(rose host-select $host 2>/dev/null || echo $host)
+echo "rsyncing source to $hostname"
+RELATIVE_SOURCE_DIRECTORY=`echo $SOURCE_DIRECTORY | sed "s|$HOME/||"`
+ssh $hostname mkdir -p $RELATIVE_SOURCE_DIRECTORY
+rsync -avz --exclude=".*" $SOURCE_DIRECTORY/* $hostname:$RELATIVE_SOURCE_DIRECTORY/
+"""
+
+# Family for extract jobs
+    [[EXTRACT]]
+    script = "rose task-run --verbose --define='args=--ignore-lock'"
+        [[[environment]]]
+            VN = {{ VN }}
+            ROSE_TASK_APP = fcm_make_jules
+            JULES_NETCDF = netcdf
+            JULES_FFLAGS_EXTRA  =
+            JULES_LDFLAGS_EXTRA =
+
+# Family for build jobs
+# Accepts the environment variable BUILD_HOST, which is used as an argument to rose host-select
+    [[BUILD]]
+        inherit = None, EXTRACT
+
+    [[EXTRACT_AND_BUILD]]
+        inherit = None, EXTRACT
+        [[[environment]]]
+            JULES_REMOTE = local
+
+###############################################################################
+# Family for standalone Rivers extract jobs
+    [[EXTRACT_RIVER]]
+        inherit = None, EXTRACT
+        [[[environment]]]
+            ROSE_TASK_APP = fcm_make_river
+
+# Family for standalone Rivers build jobs
+# Accepts the environment variable BUILD_HOST, which is used as an argument to rose host-select
+    [[BUILD_RIVER]]
+        inherit = None, EXTRACT_RIVER
+
+    [[EXTRACT_AND_BUILD_RIVER]]
+        inherit = None, EXTRACT_RIVER
+        [[[environment]]]
+            JULES_REMOTE = local
+
+###############################################################################
+
+# Family for compute jobs
+# Accepts the environment variable BUILD_NAME, which is the name of the build job to use executable from
+    [[COMPUTE]]
+        script = "mkdir -p output ; rose task-run --path= --path=share/${BUILD_NAME}/build/bin"
+
+# Family for comparison jobs
+# Accepts two environment variables:
+#   OUTPUT_DIR - the job output directory to compare files from
+#   KGO_DIR - the directory containing files to compare to
+    [[COMPARISON]]
+        script = "compare_all $OUTPUT_DIR $KGO_DIR"
+
+# Sub-family for NetCDF comparison jobs
+    [[NETCDF_COMPARISON]]
+        inherit = COMPARISON
+        [[[environment]]]
+            CMD_CMP = nccmp -d --force
+
+# Family for housekeeping jobs
+# Accepts the environment variable DIR1, the directory to delete
+    [[HOUSEKEEPING]]
+{%- if HOUSEKEEPING == true %}
+        script = "rm -rf $DIR1"
+{%- else %}
+        script = "echo Housekeeping is off"
+{%- endif %}
+
+# Groups that can be used for display
+    [[LOOBOS]]
+    [[GSWP2]]
+    [[ERAINT]]
+    [[IMOGEN]]
+    [[KGO_CHECK]]
+    [[SURF]]
+
+
+###############################################################################
+## Site-specific runtime definitions
+###############################################################################
+{% if REMOTE_JASMIN or SITE == 'jasmin' %}
+%include 'include/jasmin/runtime.cylc'
+{% else %}
+{% if SITE == 'meto' %}
+%include 'include/meto/runtime.cylc'
+{% elif SITE == 'vm' %}
+%include 'include/vm/runtime.cylc'
+{% elif SITE == 'niwa' %}
+%include 'include/niwa/runtime.cylc'
+{% elif SITE == 'cehwl1' %}
+%include 'include/cehwl1/runtime.cylc'
+{% elif SITE == 'nci' %}
+%include 'include/nci/runtime.cylc'
+{% elif SITE == 'bom' %}
+%include 'include/bom/runtime.cylc'
+{% endif %}
+{% endif %}

@@ -43,10 +43,10 @@
 
 
 {#- Import variable definitions #}
-%include 'include/variables.rc'
+%include 'include/variables.cylc'
 
 {#- Import any Cylc task parameters #}
-%include 'include/parameters.rc'
+%include 'include/parameters.cylc'
 
 [scheduler]
 UTC mode = True
@@ -58,11 +58,11 @@ install = include/
     stall handlers = "suite_report_git.py -S $CYLC_WORKFLOW_RUN_DIR"
 
 {#- Import the dependency graphs for the available jobs and groups #}
-%include 'include/graph.rc'
+%include 'include/graph.cylc'
 
 [scheduling]
 {#- Import any queues #}
-%include 'include/queues.rc'
+%include 'include/queues.cylc'
 
     [[graph]]
         R1 = """
@@ -118,5 +118,5 @@ export FCM_VERSION={{FCM_VERSION}}
 {% endfor %}
 
 {#- Import family and job definitions #}
-%include 'include/runtime.rc'
-%include 'runtime-common.rc'
+%include 'include/runtime.cylc'
+%include 'runtime-common.cylc'
