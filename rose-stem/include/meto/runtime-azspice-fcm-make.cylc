@@ -54,7 +54,7 @@
         execution time limit = PT5M
         pre-script = """
                      module purge
-                     module load nccmp/1.9.1.0-gcc-12.2.0-3jixlr4
+                     module load um/vn14.0
                      module list 2>&1
                      """
         [[[environment]]]
