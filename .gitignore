@@ -28,5 +28,4 @@ env.bak/
 venv.bak/
 
 # UV
-*uv.lock
 .python-version

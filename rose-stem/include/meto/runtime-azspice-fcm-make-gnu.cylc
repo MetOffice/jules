@@ -9,9 +9,7 @@
         inherit = METO_AZSPICE_GNU_BUILD
         pre-script = """
                      module purge
-                     module load gcc/12.2.0-gcc-12.2.0-elnqzkg
-                     module load mpich/4.2.3-gcc-12.2.0-vqupwpn
-                     module load netcdf-fortran/4.6.1-gcc-12.2.0-3bu2pvj
+                     module load um/vn14.0
                      module list 2>&1
                      """
 
@@ -19,9 +17,7 @@
         inherit = METO_AZSPICE_GNU_BUILD
         pre-script = """
                      module purge
-                     module load gcc/12.2.0-gcc-12.2.0-elnqzkg
-                     module load mpich/4.2.3-gcc-12.2.0-vqupwpn
-                     module load netcdf-fortran/4.6.1-gcc-12.2.0-3bu2pvj
+                     module load um/vn14.0
                      module list 2>&1
                      """
 

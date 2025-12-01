@@ -1,3 +1,10 @@
+# ------------------------------------------------------------------------------
+#  (c) Crown copyright Met Office. All rights reserved.
+#  The file LICENCE, distributed with this code, contains details of the terms
+#  under which the code may be used.
+# ------------------------------------------------------------------------------
+# Build and deploy Sphinx-based user guide documentation to GitHub Pages
+
 name: User Guide
 
 on:
@@ -6,6 +13,9 @@ on:
       - main
   pull_request:
     types: [opened, reopened, synchronize]
+    paths:
+      - 'doc/**'
+      - '.github/workflows/user-guide.yaml'
   workflow_dispatch:
 
 permissions:
@@ -34,9 +44,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.VENV_PATH }}
-          key: ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-${{ hashFiles('pyproject.toml') }}
+          key: ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-${{ hashFiles('doc/pyproject.toml', 'doc/uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-
+            ${{ runner.os }}-uv-
 
       - name: Install dependencies
         working-directory: ./doc
