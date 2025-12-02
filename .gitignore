@@ -4,6 +4,10 @@ results/*.png
 results/*.txt
 processed_data/*.dat
 .*.sw?
+.vscode
+.idea
+*.pyc
+.pytest_cache
 
 # ignore build output
 *build/
