@@ -58,11 +58,6 @@ Code Reviewer: <!-- CR id, filled by SSD -->
 - [ ] Performance of the code has been considered and, if applicable, suitable
       performance measurements have been conducted
 
-## Contributor License Agreement (CLA)
-
-- [ ] **Required** - I confirm that I have read and agree to the project's
-      [Contributor License Agreement](https://metoffice.github.io/simulation-systems/FurtherDetails/contributing.html)
-
 ## AI Assistance and Attribution
 
 - [ ] Some of the content of this change has been produced with the assistance
