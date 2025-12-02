@@ -8,5 +8,6 @@ on:
     workflow_dispatch:
 
 jobs:
-    check_cr_approved:
+    check:
+        if: ${{ github.event.pull_request.number }}
         uses: MetOffice/growss/.github/workflows/check-cr-approved.yaml@main
