@@ -5,7 +5,7 @@
 # (normally found in runtime-common.cylc, Done to enforce loading of
 # Python 3 on JASMIN which is required by UMDP3 checker)
     [[SCRIPTS]]
-            env-script = "module load jaspy/3.7/r20210320"
+            env-script = "module load jaspy"
 
 {% if REMOTE_JASMIN  %}
     [[REMOTE]]
