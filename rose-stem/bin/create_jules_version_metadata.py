@@ -16,6 +16,7 @@ The version numbers can be specified with or without "vn".
 import os
 import sys
 import re
+import shutil
 
 
 def read_file(fname):
@@ -71,12 +72,16 @@ def copy_metadata(dirs, new_version):
     '''Create a vnX.Y metadata. This copies the HEAD metadata to vnX.Y.'''
 
     # First change any spurious umX.Y or vnX.Y in urls to "latest" then copy
-    for dir in dirs:
-        fname = "%s/HEAD/rose-meta.conf" % dir
+    for meta_dir in dirs:
+        fname = f"{meta_dir}/HEAD/rose-meta.conf"
         print(fname)
         check_for_spurious_url_tags(fname)
-        rc, stdout, stderr = run_command("fcm cp %s/HEAD %s/vn%s"%(dir, dir,
-                                                                   new_version))
+        old = os.path.join(meta_dir, "HEAD")
+        new = os.path.join(meta_dir, f"vn{new_version}")
+        shutil.copytree(old, new)
+        rc, stdout, stderr = run_command(f"git add {new}")
+        if rc:
+            raise RuntimeError(f"Error running command 'git add {new}':\n\n{stderr}")
 
 
 def find_dirs(rootdir):
