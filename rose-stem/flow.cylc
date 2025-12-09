@@ -21,7 +21,7 @@
 {% elif g is defined %}
     {% set RUN_NAMES = g %}
 {% else %}
-    {% set RUN_NAMES = ["developer"] %}
+    {% set RUN_NAMES = ["all"] %}
 {% endif %}
 {% do LOG.info("Running groups: "~RUN_NAMES|join('
                    ')) %}
