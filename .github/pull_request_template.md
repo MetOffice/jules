@@ -73,6 +73,33 @@ Code Reviewer: <!-- CR id, filled by SSD -->
 - [ ] Where appropriate I have updated documentation related to this change and
       confirmed that it builds correctly
 
+## Approvals
+
+Please request all relevant approvals. See the CodeOwners.txt file for section
+owners.
+
+### Technical
+
+- [ ] JULES Code Owner
+- [ ] OpenMP
+- [ ] River Routing
+- [ ] Rose Stem
+- [ ] Rose Metadata
+- [ ] Upgrade Macros
+
+### Scientific
+
+- [ ] Surface
+- [ ] Hydrology
+- [ ] Vegetation
+- [ ] Veg3 RED Demography
+- [ ] Biogechemistry
+- [ ] Biogenic fluxes
+- [ ] Fire
+- [ ] Lakes
+- [ ] Evaluation
+- [ ] Imogen
+
 # Sci/Tech Review
 
 <!-- To be completed by the Sci/Tech Reviewer -->
