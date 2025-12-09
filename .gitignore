@@ -1,0 +1,31 @@
+*~
+__pycache__/
+results/*.png
+results/*.txt
+processed_data/*.dat
+.*.sw?
+.vscode
+.idea
+*.pyc
+.pytest_cache
+
+# ignore build output
+*build/
+*_build/
+user_guide/doc/_build
+user_guide/doc/build
+
+# ignore VS Code files
+/.idea
+
+# ignore envs
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# UV
+.python-version

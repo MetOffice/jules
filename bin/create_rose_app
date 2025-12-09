@@ -98,7 +98,7 @@ title=JULES create app suite generated from ${3}
 EOF
 
 ROSE_SUITE_CONF=$(cat <<'EOF'
-[jinja2:suite.rc]
+[template variables]
 BUILD_HOST='localhost'
 COMPUTE_HOST='localhost'
 EOF
@@ -147,7 +147,7 @@ SUITE_RC=$(cat <<'EOF'
             NPROC = $MPI_NUM_TASKS
 EOF
 )
-echo "${SUITE_RC}" > ~/${roses_dir}${suite_name}/suite.rc
+echo "${SUITE_RC}" > ~/${roses_dir}${suite_name}/suite.cylc
 
 
 ################################################################################
@@ -156,10 +156,10 @@ echo "${SUITE_RC}" > ~/${roses_dir}${suite_name}/suite.rc
 echo "[INFO] Creating metadata"
 
 META_FILE=$(cat <<'EOF'
-[jinja2:suite.rc]
+[template variables]
 ns = Hosts
 
-[jinja2:suite.rc=BUILD_HOST]
+[template variables=BUILD_HOST]
 compulsory = true
 description = Host to use to extract and build the model
 help =If using a working copy on a local disk, this should
@@ -167,7 +167,7 @@ help =If using a working copy on a local disk, this should
 ns = Hosts
 sort-key = a 
 
-[jinja2:suite.rc=COMPUTE_HOST]
+[template variables=COMPUTE_HOST]
 compulsory = true
 description = Host to use for model run
 ns=Hosts
