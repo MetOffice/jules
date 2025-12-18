@@ -6,7 +6,7 @@
         inherit = None, EXTRACT_AND_BUILD, LINUX
         [[[environment]]]
             ROSE_TASK_N_JOBS = 2
-            JULES_PLATFORM = ceh
+            JULES_PLATFORM = ceh-rocky9
 
     [[fcm_make_debug]]
         inherit = CEH_BUILD
@@ -24,7 +24,7 @@
         inherit = None, EXTRACT_AND_BUILD_RIVER, LINUX
         [[[environment]]]
             ROSE_TASK_N_JOBS = 2
-            JULES_PLATFORM = ceh
+            JULES_PLATFORM = ceh-rocky9
             JULES_BUILD = normal
             JULES_OMP = omp
 
@@ -35,10 +35,10 @@
         inherit = None, LINUX, COMPUTE
         platform = localhost
         [[[environment]]]
-            LOOBOS_INSTALL_DIR = /data/rosestem/loobos/
-            GSWP2_INSTALL_DIR = /data/rosestem/gswp2
-            ERAINT_INSTALL_DIR = /data/rosestem/eraint/
-            IMOGEN_INSTALL_DIR = /data/rosestem/imogen/
+            LOOBOS_INSTALL_DIR = /mnt/rosestem/loobos/
+            GSWP2_INSTALL_DIR = /mnt/rosestem/gswp2
+            ERAINT_INSTALL_DIR = /mnt/rosestem/eraint/
+            IMOGEN_INSTALL_DIR = /mnt/rosestem/imogen/
 
     [[remote_init_ceh]]
         inherit = CEH_COMPUTE
@@ -406,7 +406,7 @@
     [[CEH_NETCDF_COMPARISON]]
         inherit = None, LINUX, NETCDF_COMPARISON
         [[[environment]]]
-            KGO_DIR = /data/rosestem/rose-stem-kgo/{{ KGO_VERSION }}
+            KGO_DIR = /mnt/rosestem/rose-stem-kgo/{{ KGO_VERSION }}
 
     [[nccmp_loobos_gl4]]
         inherit = KGO_CHECK, CEH_NETCDF_COMPARISON
