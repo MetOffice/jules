@@ -113,3 +113,43 @@ class vn79_t1088(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_water_resources", "partition_method"], "2")
         self.add_setting(config, ["namelist:jules_water_resources", "sfc_water_factor"], "2.0")
         return config, self.reports
+    
+class vn79_t1529(MacroUpgrade):
+
+    """ Upgrade macro from JULES by Heather Rumbold """
+
+    BEFORE_TAG = "vn7.9_t1088"
+    AFTER_TAG = "vn7.9_t1529"
+
+    def upgrade(self,config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        """
+        Add switches to indicate whether a JULES surface tile is irrigated (pft and nvg)
+        """
+
+        # Add the pft size
+        npft = int(
+            self.get_setting_value(config, ["namelist:jules_surface_types", "npft"])
+        )
+
+        # Add the nnvg size
+        nnvg = int(
+            self.get_setting_value(config, ["namelist:jules_surface_types", "nnvg"])
+        )
+        
+        # Add settings 
+        self.add_setting(
+            config,
+            ["namelist:jules_pftparm", "irrig_pft_io"],
+            ",".join(["0"] * npft),
+            False,
+        )
+        self.add_setting(
+            config,
+            ["namelist:jules_nvegparm", "irrig_nvg_io"],
+            ",".join(["0"] * nnvg),
+            False,
+        )
+         
+        return config, self.reports

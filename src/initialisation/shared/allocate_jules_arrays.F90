@@ -77,6 +77,7 @@ USE jules_water_tracers_mod,  ONLY: n_wtrac_jls, n_evap_srce
 USE crop_vars_mod,            ONLY: crop_vars_alloc
 USE cropparm,                 ONLY: cropparm_alloc
 USE c_z0h_z0m,                ONLY: c_z0h_z0m_alloc
+USE c_irrigation,             ONLY: c_irrigation_alloc
 USE fire_vars_mod,            ONLY: fire_vars_alloc
 USE fluxes_mod,               ONLY: fluxes_alloc
 USE jules_vars_mod,           ONLY: jules_vars_alloc
@@ -223,6 +224,8 @@ CALL cropparm_alloc(ncpft,l_crop)
 CALL fire_vars_alloc(land_pts,npft, fire_vars_data)
 
 CALL c_z0h_z0m_alloc(ntype)
+
+CALL c_irrigation_alloc(ntype)
 
 CALL jules_vars_alloc(land_pts,ntype,nsurft,rad_nband,nsoilt,sm_levels,        &
                 t_i_length, t_j_length, npft, bl_levels, pdims_s, pdims,       &

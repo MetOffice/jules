@@ -127,6 +127,12 @@
             ROSE_TASK_APP = loobos_gl4
             ROSE_APP_OPT_CONF_KEYS = cable
 
+    [[niwa_cs500_intel_loobos<loobos_single=gl8_irrigon_5050irrigtiles>]]
+        inherit = NIWA_CS500_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+            ROSE_APP_OPT_CONF_KEYS = irrigon_5050irrigtiles            
+
     [[niwa_cs500_intel_loobos<loobos_with_spinup>_spinup]]
         inherit = NIWA_CS500_LOOBOS
         [[[environment]]]

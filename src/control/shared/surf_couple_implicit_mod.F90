@@ -438,7 +438,7 @@ CASE ( jules )
             land_pts,ainfo%land_index,nsurft,ainfo%surft_index,surft_pts,      &
             sm_levels,                                                         &
             canhc_surft,progs%canopy_surft,flake,progs%smc_soilt,tile_frac,    &
-            wt_ext_surft,coast%fland,flandg,                                   &
+            ainfo%non_irrig_frac,wt_ext_surft,coast%fland,flandg,              &
     !IN values defining water tracer field dimensions
             n_wtrac_jls, n_evap_srce,                                          &
     ! IN everything not covered so far :

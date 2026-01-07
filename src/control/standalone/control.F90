@@ -642,7 +642,9 @@ CALL surf_couple_explicit(                                                     &
 !  epot_surft, fracaero_t, fracaero_s,
 !  rhokh, rhokh_surft, rhokh_sice, dtstar_ij_surft,
 !  dtstar_ij_sea, dtstar_ij_sice, z0hssi,
-!  z0mssi, chr1p5m, chr1p5m_sice, canhc_surft, wt_ext_surft, flake
+!  z0mssi, chr1p5m, chr1p5m_sice, canhc_surft, wt_ext_surft, flake,
+!
+!  non_irrig_frac - is now passed through ainfo derived type
 
 !  Items that are passed from explicit to implicit and/or extra.
 !  Cross-check in UM as above.

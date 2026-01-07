@@ -42,6 +42,11 @@
                                            nccmp_meto_azspice_gnu_loobos_gl8_medlyn =>         \
                                            housekeep_meto_azspice_gnu_loobos_gl8_medlyn",
 
+        "meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles" : loobos_build + " =>                       \
+                                         meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles =>           \
+                                         nccmp_meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles =>      \
+                                         housekeep_meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles",
+
         "meto_azspice_gnu_loobos_vegdrag" : loobos_build + " =>                             \
                                            meto_azspice_gnu_loobos_vegdrag =>               \
                                            nccmp_meto_azspice_gnu_loobos_vegdrag =>         \
@@ -422,6 +427,7 @@
                                 "meto_azspice_gnu_loobos_gl4_cable",
                                 "meto_azspice_gnu_loobos_gl8",
                                 "meto_azspice_gnu_loobos_gl8_medlyn",
+                                "meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles",
                                 "meto_azspice_gnu_loobos_vegdrag",
                                 "meto_azspice_gnu_loobos_euro4",
                                 "meto_azspice_gnu_loobos_forecast", "meto_azspice_gnu_loobos_ukv",

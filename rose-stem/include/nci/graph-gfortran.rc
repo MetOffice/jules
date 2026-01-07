@@ -27,6 +27,12 @@
                                         nccmp_nci_gfortran_loobos_gl8_medlyn =>                              \
                                         housekeep_nci_gfortran_loobos_gl8_medlyn",
 
+       "nci_gfortran_loobos_gl8_irrigon_5050irrigtiles" : "remote_init_nci => fcm_make_nci_gfortran_debug => \
+                           nci_gfortran_loobos_gl8_irrigon_5050irrigtiles => \
+                           nccmp_nci_gfortran_loobos_gl8_irrigon_5050irrigtiles => \
+                           housekeep_nci_gfortran_loobos_gl8_irrigon_5050irrigtiles",
+
+
         "nci_gfortran_loobos_vegdrag" : "remote_init_nci => fcm_make_nci_gfortran_debug => \
                                         nci_gfortran_loobos_vegdrag =>                                    \
                                         nccmp_nci_gfortran_loobos_vegdrag =>                              \
@@ -265,7 +271,9 @@
 
         "gfortran_loobos" : ["nci_gfortran_loobos_gl4", "nci_gfortran_loobos_gl4_cable",
                     "nci_gfortran_loobos_gl7", "nci_gfortran_loobos_gl8",
-                    "nci_gfortran_loobos_gl8_medlyn", "nci_gfortran_loobos_vegdrag",
+                    "nci_gfortran_loobos_gl8_medlyn", 
+                    "nci_gfortran_loobos_gl8_irrigon_5050irrigtiles",
+                    "nci_gfortran_loobos_vegdrag",
                     "nci_gfortran_loobos_euro4", "nci_gfortran_loobos_forecast",
                     "nci_gfortran_loobos_ukv", "nci_gfortran_loobos_trif",
                     "nci_gfortran_loobos_crops", "nci_gfortran_loobos_prescribe_sthuf",

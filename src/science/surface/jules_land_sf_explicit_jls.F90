@@ -69,7 +69,7 @@ SUBROUTINE jules_land_sf_explicit (                                            &
  chr1p5m,smc_soilt,hcons_soilt,gpp,npp,resp_p,g_leaf,gpp_pft,npp_pft,          &
  resp_p_pft,resp_s_soilt,resp_s_tot_soilt,resp_l_pft,resp_r_pft,               &
  resp_w_pft,n_leaf,n_root,n_stem,lai_bal,gc_surft,canhc_surft,wt_ext_surft,    &
- flake,surft_index,surft_pts,tile_frac,fsmc_pft,emis_soil,                     &
+ flake,surft_index,surft_pts,tile_frac,non_irrig_frac,fsmc_pft,emis_soil,      &
  growth_sug_pft,growth_sug_gb,f_nsc_pft,lwp_c_pft,psi_root_zone_pft,           &
 ! OUT required for classic aerosols
  cd_land,rib_surft,ch_surft_classic,cd_std_classic,                            &
@@ -160,6 +160,7 @@ USE urbanz0_mod,                ONLY: urbanz0
 USE veg_param,                  ONLY: secs_per_360days
 USE veg3_field_mod,             ONLY: veg_state_type
 USE water_constants_mod,        ONLY: lc, rho_ice, tm
+USE c_irrigation,               ONLY: irrig_tile
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
 ! imported scalar parameters
@@ -619,6 +620,8 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
 ,tile_frac(land_pts,nsurft)                                                    &
                              ! OUT Tile fractions including
                              !     snow cover in the ice tile.
+,non_irrig_frac(land_pts)                                                      &
+                             ! OUT Fraction of non-irrigated tiles.
 ,fsmc_pft(land_pts,npft)                                                       &
                              ! OUT Moisture availability factor.
 ,gc_corr(land_pts,npft)                                                        &
@@ -1187,6 +1190,19 @@ IF ( l_anthrop_heat_src .AND. .NOT. l_aggregate ) THEN
                                   anthrop_heat_surft)
 END IF
 
+! Set up non irrigated fration
+non_irrig_frac(:) = 1.0
+DO n = 1,ntype
+!$OMP PARALLEL DO SCHEDULE(STATIC) DEFAULT(NONE) PRIVATE(l)                    &
+!$OMP SHARED(land_pts, non_irrig_frac, irrig_tile, frac, n)
+  DO l = 1, land_pts
+    IF (irrig_tile(n) > 0) THEN
+      non_irrig_frac(l) =  non_irrig_frac(l) - frac(l,n)
+    END IF
+  END DO
+!$OMP END PARALLEL DO
+END DO
+
 !-----------------------------------------------------------------------
 ! Call physiology routine to calculate surface conductances and carbon
 ! fluxes.
@@ -1196,7 +1212,8 @@ CALL physiol (                                                                 &
   sm_levels,nsurft,n_wtrac_jls,surft_pts,surft_index,                          &
   dim_cs1,                                                                     &
   co2_mmr,co2_3d,co2_dim_len, co2_dim_row,l_co2_interactive,                   &
-  can_model,cs_pool_soilt,veg_state,frac,canht_pft,photosynth_act_rad,         &
+  can_model,cs_pool_soilt,veg_state,frac,non_irrig_frac,                       &
+  canht_pft,photosynth_act_rad,                                                &
   lai_pft,pstar,qw_1,sthu_soilt,sthf_soilt,t_soil_soilt,tstar_surft,           &
   smvccl_soilt,smvcst_soilt,smvcwt_soilt,vshr,z0_surft,z1_uv,o3,               &
   canhc_surft,vfrac_surft,emis_surft,l_emis_surft_set,emis_soil,flake,         &

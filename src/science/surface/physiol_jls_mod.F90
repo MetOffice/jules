@@ -21,7 +21,8 @@ SUBROUTINE physiol (                                                           &
   sm_levels,nsurft,n_wtrac_jls,surft_pts,surft_index,                          &
   dim_cs1,                                                                     &
   co2_mmr,co2_3d,co2_dim_len, co2_dim_row,l_co2_interactive,                   &
-  can_model,cs_pool_soilt,veg_state,frac,canht_pft,photosynth_act_rad,         &
+  can_model,cs_pool_soilt,veg_state,frac,non_irrig_frac,                       &
+  canht_pft,photosynth_act_rad,                                                &
   lai_pft,pstar,qw_1,sthu_soilt,sthf_soilt,t_soil_soilt,tstar_surft,           &
   smvccl_soilt,smvcst_soilt,smvcwt_soilt,vshr,z0_surft,z1_uv_ij,o3,            &
   canhc_surft,vfrac_surft,emis_surft,l_emis_surft_set,emis_soil,flake,         &
@@ -84,6 +85,8 @@ USE theta_field_sizes, ONLY: t_i_length, t_j_length
 USE water_constants_mod, ONLY: rho_water
 
 USE ancil_info, ONLY: dim_cslayer, nsoilt, rad_nband
+
+USE c_irrigation, ONLY: irrig_tile
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
 ! imported scalar parameters
@@ -187,6 +190,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     !Soil carbon (kg C/m2).
   frac(land_pts,ntype),                                                        &
     !Surface type fractions.
+  non_irrig_frac(land_pts),                                                    &
+    !Fraction of non-irrigated tiles.
   canht_pft(land_pts,npft),                                                    &
     !Canopy height (m).
   photosynth_act_rad(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end),     &
@@ -629,7 +634,7 @@ DO n = 1,npft
     resp_l_pft(l,n)   = 0.0
     resp_r_pft(l,n)   = 0.0
     growth_sug_pft(l,n) = 0.0
-    fsmc_pft(l,n)     = 0.0
+    fsmc_pft(l,n)     = 1.0
     apar_diag_pft(l,n)= 0.0
     isoprene_pft(l,n) = 0.0
     terpene_pft(l,n)  = 0.0
@@ -1051,12 +1056,14 @@ DO n = 1,npft
   END IF
 !$OMP END PARALLEL
 
-  CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root,   &
-                sthu_surft(:,m,:),                                             &
-                v_open,smvcst_soilt(:,m,:),                                    &
-                v_close,                                                       &
-                bexp_soilt(:,m,:), sathh_soilt(:,m,:),                         &
-                wt_ext_type(:,:,n),fsmc_pft(:,n),psi_root_zone_pft(:,n))
+  IF (irrig_tile(n) == 0) THEN
+    CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
+                  sthu_surft(:,m,:),                                           &
+                  v_open,smvcst_soilt(:,m,:),                                  &
+                  v_close,                                                     &
+                  bexp_soilt(:,m,:), sathh_soilt(:,m,:),                       &
+                  wt_ext_type(:,:,n),fsmc_pft(:,n),psi_root_zone_pft(:,n))
+  END IF
 
   IF (l_irrig_dmd) THEN
     CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
@@ -1215,7 +1222,7 @@ DO n = 1,npft
   END IF
 
   CALL soil_evap (land_pts,sm_levels,surft_pts(n),surft_index(:,n),            &
-                  gsoil_under_canopy(:),lai_pft_soil_evap(:,n),                &
+                  irrig_tile(n),gsoil_under_canopy(:),lai_pft_soil_evap(:,n),  &
                   gs_type(:,n), wt_ext_type(:,:,n),                            &
                   fsoil(:,n),gsoil_irr_under_canopy(:),                        &
                   gs_irr_type(:,n),wt_ext_irr_type(:,:,n))
@@ -1297,13 +1304,15 @@ END IF !nsoilt
 n = soil
 !$OMP PARALLEL DO IF (surft_pts(n) > 1) DEFAULT(NONE) PRIVATE(l, j)            &
 !$OMP             SHARED(gs_irr_type, gs_type, gsoil_soilt, gsoil_irr_soilt,   &
-!$OMP                    l_irrig_dmd,                                          &
+!$OMP                    l_irrig_dmd, irrig_tile,                              &
 !$OMP                    n, m, surft_index, surft_pts, wt_ext_type,            &
 !$OMP                    wt_ext_irr_type) SCHEDULE(STATIC)
 DO j = 1,surft_pts(n)
   l = surft_index(j,n)
   gs_type(l,n) = gsoil_soilt(l,m)
-  wt_ext_type(l,1,n) = 1.0
+  IF (irrig_tile(n) == 0) THEN
+    wt_ext_type(l,1,n) = 1.0
+  END IF
   IF (l_irrig_dmd) THEN
     gs_irr_type(l,n) = gsoil_irr_soilt(l,m) ! irrigation
     wt_ext_irr_type(l,1,n) = 1.0 ! irrigation
@@ -1619,9 +1628,14 @@ IF ( l_aggregate ) THEN
 !$OMP PARALLEL IF(l_do_omp) DEFAULT(NONE) PRIVATE(k, l)                        &
 !$OMP             SHARED(canhc, canhc_surft, flake, frac, gs, gc_surft, lake,  &
 !$OMP                    land_pts, sm_levels, vfrac, vfrac_surft, l_do_omp,    &
-!$OMP                    wt_ext_soilt, m, wt_ext_surft)
+!$OMP                    wt_ext_soilt, m, wt_ext_surft, non_irrig_frac)
 !$OMP DO SCHEDULE(STATIC)
   DO l = 1,land_pts
+    IF (non_irrig_frac(l)  >   0.0) THEN
+      DO k = 1,sm_levels
+        wt_ext_soilt(l,m,k) = wt_ext_soilt(l,m,k) / non_irrig_frac(l)
+      END DO
+    END IF
     IF ( lake > 0 ) THEN
       flake(l,1) = frac(l,lake)
     ELSE
@@ -1714,6 +1728,17 @@ ELSE
     END DO !surf_pts
 !$OMP END PARALLEL DO
   END DO !ntype
+
+  ! If using shaerd soil, normalise wt_ext_soilt for non irrigated tiles
+  IF (nsoilt == 1) THEN
+    DO l = 1,land_pts
+      IF (non_irrig_frac(l)  >   0.0) THEN
+        DO k = 1,sm_levels
+          wt_ext_soilt(l,1,k) = wt_ext_soilt(l,1,k) / non_irrig_frac(l)
+        END DO
+      END IF
+    END DO
+  END IF
 
   IF (l_flake_model) THEN
     ! Normalise wt_ext_soilt, excluding the lake tile fraction.
@@ -1867,6 +1892,15 @@ IF (l_use_pft_psi ) THEN
 !$OMP END PARALLEL DO
     END DO
   END DO
+  IF (nsoilt == 1) THEN
+    DO k = 1,sm_levels
+      DO l = 1,land_pts
+        IF (non_irrig_frac(l)  >   0.0) THEN
+          smc_soilt(l,m) = smc_soilt(l,m) / non_irrig_frac(l)
+        END IF
+      END DO
+    END DO
+  END IF
 ELSE
   DO k = 1,sm_levels
     DO m = 1, nsoilt
