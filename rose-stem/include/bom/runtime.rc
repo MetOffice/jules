@@ -1,2 +1,0 @@
-# Include XC40 definitions
-%include 'include/bom/runtime-xc40-intel.rc'

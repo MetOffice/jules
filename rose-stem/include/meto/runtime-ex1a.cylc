@@ -1,0 +1,125 @@
+###############################################################################
+## Common classes
+###############################################################################
+{% if METO_HOST_EX == "exz" %}
+    {% set jules_install_dir = "/common/jules" %}
+{% else %}
+    {% set jules_install_dir = "/common/internal/jules" %}
+{% endif %}
+
+    [[METO_EX1A]]
+        platform = {{ METO_HOST_EX }}
+ 	    execution time limit = PT10M
+        [[[directives]]]
+            -S = /bin/bash
+
+    [[remote_init_ex1a]]
+        inherit = METO_EX1A
+        script = true
+        execution time limit = PT2M
+
+    [[extract_source_ex1a]]
+        inherit = SOURCE_SYNC
+        platform = {{ROSE_ORIG_HOST}}
+        [[[environment]]]
+            host = {{METO_HOST_EX}}
+
+{#
+  Cray compiler using a blended CPE 23.05 and CCE 15.0.0 approach.
+  Redundantly load craype-x86-milan to target Milan arch.
+#}
+    [[METO_EX1A_CCE_ENV]]
+        env-script = """
+                     module switch PrgEnv-cray PrgEnv-cray/8.4.0
+                     module load cpe/23.05
+                     module swap cce cce/15.0.0
+                     module load craype-x86-milan
+                     module load cray-hdf5-parallel/1.12.2.3
+                     module load cray-netcdf-hdf5parallel/4.9.0.3
+                     module load nccmp/1.9.1.0
+                     module list 2>&1
+                     """
+
+{#
+  Gfortran compiler with CPE 23.05 and GCC 12.2.0.
+  Redundantly load craype-x86-milan to target Milan arch.
+#}
+    [[METO_EX1A_GFORTRAN_ENV]]
+        env-script = """
+                     module switch PrgEnv-cray PrgEnv-gnu/8.4.0
+                     module load cpe/23.05
+                     module switch gcc gcc/12.2.0
+                     module load craype-x86-milan
+                     module load cray-hdf5-parallel/1.12.2.3
+                     module load cray-netcdf-hdf5parallel/4.9.0.3
+                     module load nccmp/1.9.1.0
+                     module list 2>&1
+                     """
+
+# The queue family for jobs that will not use a whole compute node. For the foreseeable future
+# jules jobs are expected not to take up more than one whole node (256 cores). Note using this
+# family requires that the environment variable MPI_NUM_TASKS be set to the number of MPI tasks,
+# and OMP_NUM_THREADS set to number of omp threads per task.
+    [[METO_EX1A_QUEUE]]
+        inherit = None, METO_EX1A
+        [[[directives]]]
+            -q = shared
+        [[[environment]]]
+            ROSE_LAUNCHER = mpiexec
+            ROSE_LAUNCHER_PREOPTS = --cpu-bind=depth -n ${MPI_NUM_TASKS:-1} -d $OMP_NUM_THREADS
+            ROSE_LAUNCHER_ULIMIT_OPTS = -s unlimited -c unlimited
+
+# Families for different counts of CPUs, nodes, MPI tasks and OpenMP threads
+# We need all these separate families to make sure environment variables come out in the correct order
+# Each compute job should inherit from one each of the CORES, OMPTHREADS and MPITASKS groups, in that order
+
+    [[METO_EX1A_CORES_1]]
+        inherit = METO_EX1A_QUEUE
+        [[[directives]]]
+            -l select=1:ncpus=1:mem=2G
+
+# 8 physical cores == 1 Milan chiplet
+    [[METO_EX1A_CORES_8]]
+        inherit = METO_EX1A_QUEUE
+        [[[directives]]]
+            -l select=1:ncpus=8:mem=16G
+
+# 32 physical cores == 4 Milan chiplets
+    [[METO_EX1A_CORES_32]]
+        inherit = METO_EX1A_QUEUE
+        [[[directives]]]
+            -l select=1:ncpus=32:mem=64G
+
+    [[METO_EX1A_OMPTHREADS_1]]
+        [[[environment]]]
+            OMP_NUM_THREADS = 1
+
+    [[METO_EX1A_OMPTHREADS_4]]
+        [[[environment]]]
+            OMP_NUM_THREADS = 4
+
+    [[METO_EX1A_OMPTHREADS_8]]
+        [[[environment]]]
+            OMP_NUM_THREADS = 8
+
+    [[METO_EX1A_MPITASKS_1]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 1
+            NPROC = $MPI_NUM_TASKS
+
+    [[METO_EX1A_MPITASKS_4]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 4
+            NPROC = $MPI_NUM_TASKS
+
+    [[METO_EX1A_MPITASKS_8]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 8
+            NPROC = $MPI_NUM_TASKS
+
+    [[METO_EX1A_MPITASKS_32]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 32
+            NPROC = $MPI_NUM_TASKS
+
+
