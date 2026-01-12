@@ -83,33 +83,61 @@ class vn79_t1392(MacroUpgrade):
 
 
 class vn79_t1371(MacroUpgrade):
-
-    """ Upgrade macro from JULES by Katty Huang """
+    """Upgrade macro from JULES by Katty Huang"""
 
     BEFORE_TAG = "vn7.9_t1392"
     AFTER_TAG = "vn7.9_t1371"
 
-    def upgrade(self,config, meta_config=None):
+    def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
         # Add settings
-        self.add_setting(config, ["namelist:jules_surface","anthrop_heat_option"], "0")
-        self.add_setting(config, ["namelist:jules_surface","anthrop_heat_mean"], "20.0")
+        self.add_setting(
+            config, ["namelist:jules_surface", "anthrop_heat_option"], "0"
+        )
+        self.add_setting(
+            config, ["namelist:jules_surface", "anthrop_heat_mean"], "20.0"
+        )
 
         return config, self.reports
 
 
 class vn79_t1088(MacroUpgrade):
-
     """Upgrade macro from JULES by Douglas Clark"""
 
     BEFORE_TAG = "vn7.9_t1371"
     AFTER_TAG = "vn7.9_t1088"
 
-    def upgrade(self,config, meta_config=None):
+    def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
         # Add settings
-        self.add_setting(config, ["namelist:jules_water_resources", "partition_method"], "2")
-        self.add_setting(config, ["namelist:jules_water_resources", "sfc_water_factor"], "2.0")
+        self.add_setting(
+            config, ["namelist:jules_water_resources", "partition_method"], "2"
+        )
+        self.add_setting(
+            config,
+            ["namelist:jules_water_resources", "sfc_water_factor"],
+            "2.0",
+        )
+        return config, self.reports
+
+
+class vn79_t1591(MacroUpgrade):
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn7.9_t1088"
+    AFTER_TAG = "vn7.9_t1591"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+        # compulsory changed to true
+        self.add_setting(config, ["namelist:jules_surface", "beta1"], "0.83")
+        self.add_setting(config, ["namelist:jules_surface", "beta2"], "0.93")
+        self.add_setting(config, ["namelist:jules_surface", "fwe_c3"], "0.5")
+        self.add_setting(
+            config, ["namelist:jules_surface", "fwe_c4"], "20000.0"
+        )
+        self.add_setting(config, ["namelist:jules_surface", "hleaf"], "5.7e4")
+        self.add_setting(config, ["namelist:jules_surface", "hwood"], "1.1e4")
         return config, self.reports
