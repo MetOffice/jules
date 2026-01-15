@@ -83,7 +83,7 @@ INTEGER, PARAMETER :: niter = 3
 ! Local scalar variables:
 !-----------------------------------------------------------------------------
 INTEGER ::                                                                     &
-  i, j, n, it, nn, nzw
+  i, j, n, it, nn, nzw, nu, niteruse
     !Loop counters
 
 REAL(KIND=real_jlslsm) ::                                                      &
@@ -93,7 +93,10 @@ REAL(KIND=real_jlslsm) ::                                                      &
     !fn calc in Newton-Raphson iteration.
   dfn,                                                                         &
     !derivative of fn.
+  fnnew,                                                                       &
+    !used when Newton-Raphson iteration cannot be applied as dfn is too small
   zwest,                                                                       &
+  zdeep,                                                                       &
   smd,                                                                         &
     !soil moisture deficit
   zdepth(0:nshyd+1),                                                           &
@@ -119,9 +122,9 @@ zdepth(nshyd+1) = zw_max
 !$OMP PARALLEL DO                                                              &
 !$OMP SCHEDULE(STATIC)                                                         &
 !$OMP DEFAULT(NONE)                                                            &
-!$OMP PRIVATE(j,i,zw_old,smd,psisat,zwest,it,fn,dfn,n,nn,nzw)                  &
+!$OMP PRIVATE(j,i,zw_old,smd,psisat,zwest,it,fn,dfn,n,nn,nzw,nu,niteruse,fnnew)&
 !$OMP SHARED(soil_pts,soil_index,zw,smclsat,smcl,smclsatzw,smclzw,sathh,bexp,  &
-!$OMP        v_sat,nshyd,zw_max,zdepth)
+!$OMP        v_sat,nshyd,zw_max,zdepthi,zdeep)
 DO j = 1,soil_pts
   i = soil_index(j)
   zw_old = zw(i)
@@ -143,7 +146,16 @@ DO j = 1,soil_pts
   psisat(:) = -sathh(i,:)
   zwest  = zw_old
 
-  DO it = 1,niter
+  ! Allow for extra iterations if previous water table is at the surface as
+  ! dfn is likely to be too small on the first step for Newton-Raphson
+  ! iteration to be accurately carried out:
+  ! on first time step:
+  niteruse = niter
+  IF (zwest < EPSILON(zwest)) THEN
+    niteruse = niter + 5
+  END IF
+
+  DO it = 1,niteruse
     IF (zwest <  0.0) THEN
       zwest = 0.0
     END IF
@@ -162,26 +174,42 @@ DO j = 1,soil_pts
       END IF
     END DO
 
-    ! soil properties have values defined in layers 1-nshyd
-    !    nzw = MAX(1,nzw)
-    nzw = MIN(nshyd,nzw)
     ! Newton-Raphson. zw(next)=zw-f(zw)/f'(zw).
-    fn = zwest * v_sat(i,nzw) - smd                                            &
-         - v_sat(i,nzw) * bexp(i,nzw) / (bexp(i,nzw) - 1.0) * psisat(nzw)      &
-         * ( 1.0 - ( 1.0 - zwest / psisat(nzw) )**                             &
-           ( 1.0 - 1.0 / bexp(i,nzw) ) )       !   f(zw)
-    dfn =  v_sat(i,nzw) + v_sat(i,nzw) * ( 1.0 - zwest / psisat(nzw) )**       &
-           (-1.0 / bexp(i,nzw))
+    ! Entend for vertically varying soil properties:
+    fn = - smd
+    DO nn = nzw,1,-1
+      ! soil properties have values defined in layers 1-nshyd
+      nu = MIN(nshyd,nn)
+      IF (nn == nzw) THEN
+        zdeep = zwest
+      ELSE
+        zdeep = zdepth(nn)
+      END IF
 
-    IF (ABS(dfn) >  1.0e-10) THEN
+      fn = fn + ( zdeep - zdepth(nn-1) ) * v_sat(i,nu)                         &
+         - v_sat(i,nu) * bexp(i,nu) / (bexp(i,nu) - 1.0) * psisat(nu)          &
+         * ( ( 1.0 - zdepth(nn-1) / psisat(nu) )**( 1.0 - 1.0 / bexp(i,nu) )   &
+         - ( 1.0 - zdeep / psisat(nu) )**( 1.0 - 1.0 / bexp(i,nu) )            &
+         )         !   f(zw)
+    END DO
+    nu = MIN(nshyd,nzw)
+    fnnew = fn + smd - zwest * v_sat(i,nu)
+
+    dfn =  v_sat(i,nu) - v_sat(i,nu) * ( 1.0 - zwest / psisat(nu) )**          &
+           ( -1.0 / bexp(i,nu ) )
+
+    IF (ABS(dfn) >  EPSILON(dfn)) THEN
       zwest = zwest - fn / dfn
+    ELSE
+      ! Assume estimate is correct from equations and so do not need to iterate:
+      zwest = ( smd - fnnew ) / v_sat(i,nu)
     END IF
 
-    IF (zwest <  0) THEN
+    IF (zwest < 0) THEN
       zwest = 0.0
     END IF
 
-    IF (zwest >  zw_max) THEN
+    IF (zwest > zw_max) THEN
       zwest = zw_max
     END IF
   END DO  !  iterations
