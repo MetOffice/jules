@@ -124,7 +124,7 @@ zdepth(nshyd+1) = zw_max
 !$OMP DEFAULT(NONE)                                                            &
 !$OMP PRIVATE(j,i,zw_old,smd,psisat,zwest,it,fn,dfn,n,nn,nzw,nu,niteruse,fnnew)&
 !$OMP SHARED(soil_pts,soil_index,zw,smclsat,smcl,smclsatzw,smclzw,sathh,bexp,  &
-!$OMP        v_sat,nshyd,zw_max,zdepthi,zdeep)
+!$OMP        v_sat,nshyd,zw_max,zdepth,zdeep)
 DO j = 1,soil_pts
   i = soil_index(j)
   zw_old = zw(i)
@@ -175,7 +175,7 @@ DO j = 1,soil_pts
     END DO
 
     ! Newton-Raphson. zw(next)=zw-f(zw)/f'(zw).
-    ! Entend for vertically varying soil properties:
+    ! Intend for vertically varying soil properties:
     fn = - smd
     DO nn = nzw,1,-1
       ! soil properties have values defined in layers 1-nshyd
