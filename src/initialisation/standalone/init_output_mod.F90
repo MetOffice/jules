@@ -347,7 +347,7 @@ USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_renew_gwater,  &
     l_water_resources, l_water_transfers, no_model, nr_gwater_model
 
 USE jules_rivers_mod, ONLY: l_rivers, l_riv_overbank, l_outflow_per_river,     &
-    i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip
+    i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip, l_inland_outflow
 
 USE jules_deposition_mod, ONLY: l_deposition, l_deposition_flux
 
@@ -430,6 +430,21 @@ IF ( is_master_task() ) THEN
     WRITE(jules_message,*)                                                     &
        'outflow_per_river requested without a river number ancillary specified.'
     CALL log_fatal(RoutineName, jules_message)
+  END IF
+
+  IF ( ANY( var(:) == 'inland_outflow_rp' ) ) THEN
+    ! For the special case when the inland basin flow diagnostic is
+    ! requested and the model does not already have l_inland_outflow
+    ! set by the coupler then this will alter the outflow_per_river
+    ! diagnostic. If this is the case then print out a warning.
+    IF ( l_outflow_per_river .AND. (.NOT. l_inland_outflow) ) THEN
+      CALL log_warn( RoutineName,                                              &
+                     "Adding the inland_outflow_rp diagnostic " //             &
+                     "will alter the contents of the outflow_per_river " //    &
+                     "diagnostic." )
+    END IF
+
+    l_inland_outflow = .TRUE.
   END IF
 END IF
 

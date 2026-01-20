@@ -28,8 +28,8 @@ SUBROUTINE check_ancil_rivers( dir_mouth, dir_inland_drainage,                 &
                                rivers_storage )
 
 USE jules_rivers_mod, ONLY: nx_rivers, ny_rivers, n_rivers, i_river_vn,        &
-                            rivers_trip, l_inland, l_outflow_per_river,        &
-                            l_init_storage
+                            rivers_trip, l_inland_outflow,                     &
+                            l_outflow_per_river, l_init_storage
 USE jules_rivers_props_mod, ONLY: l_ignore_ancil_rivers_check
 USE missing_data_mod, ONLY: imdi
 USE string_utils_mod, ONLY: to_string
@@ -115,19 +115,19 @@ IF ( l_outflow_per_river ) THEN
   ! The River routing ancillary includes inland basin flow points. The River
   ! number ancillary supports inland basin flow for water conservation and hence
   ! each inland basin has an accompanying River number, although inland basin
-  ! water conservation is not currently implemented. When l_inland=F, outflow is
-  ! not calculated for inland basins hence we don't include it in the outflow
-  ! per river calculation.
+  ! water conservation is not currently implemented. When l_inland_outflow=F,
+  ! outflow is not calculated for inland basins hence we don't include it in the
+  ! outflow per river calculation.
   check_river_ancil_ctrl(:,:) = 0
   WHERE ( direction_grid(:,:) == dir_inland_drainage )
     check_river_ancil_ctrl(:,:) = 1
   END WHERE
   ! Setting the river number to zero for inland basins, excludes them from the
   ! outflow per river calculation.
-  IF ( .NOT. l_inland ) THEN
+  IF ( .NOT. l_inland_outflow ) THEN
     CALL log_info(RoutineName,                                                 &
        'Inland basins will not be included in outflow per river ' //           &
-       'calculation. l_inland = F.')
+       'calculation. l_inland_outflow = F.')
     WHERE ( check_river_ancil_ctrl(:,:) == 1 )
       rivers_outflow_number(:,:) = 0
     END WHERE

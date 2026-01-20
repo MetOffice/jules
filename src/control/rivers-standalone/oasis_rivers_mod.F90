@@ -75,7 +75,7 @@ CONTAINS
 
 SUBROUTINE check_oasis_rivers()
 
-USE jules_rivers_mod,            ONLY: l_outflow_per_river
+USE jules_rivers_mod,            ONLY: l_outflow_per_river, l_inland_outflow
 USE jules_model_environment_mod, ONLY: l_oasis_rivers
 USE model_time_mod,              ONLY: timestep_len
 USE ereport_mod,                 ONLY: ereport
@@ -128,10 +128,10 @@ ELSE
   ELSE IF (np_send < 0) THEN
     errcode = 107
     CALL ereport(RoutineName, errcode, 'np_send must be >= 0')
-  ELSE IF (np_send > 1) THEN
+  ELSE IF (np_send > 2) THEN
     errcode = 108
     CALL ereport(RoutineName, errcode, 'np_send must be ' //                   &
-                 'in the range 0:1')
+                 'in the range 0:2')
   END IF
 
   ! Check that at least one coupling field is exchanged
@@ -185,6 +185,9 @@ ELSE
       cpl_send(i)%field_name = TRIM(send_fields(i))
       l_runoff_1d         = .TRUE. ! 1d runoff partition required
       l_outflow_per_river = .TRUE. ! Check river number ancillary is given
+    CASE ('inland_outflow')
+      cpl_send(i)%field_name = TRIM(send_fields(i))
+      l_inland_outflow    = .TRUE. ! Generate inland basin flows
     CASE DEFAULT
       errcode = 117
       CALL ereport(RoutineName, errcode,                                       &

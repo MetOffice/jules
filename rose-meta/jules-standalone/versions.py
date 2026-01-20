@@ -42,74 +42,41 @@ from .version77_78 import *
 from .version78_79 import *
 
 
-class vn79_t1460(MacroUpgrade):
-    """Upgrade macro from JULES by Maggie Hendry"""
+class vn79_t1528(MacroUpgrade):
+    """Upgrade macro from JULES #1528 by Dan Copsey"""
 
     BEFORE_TAG = "vn7.9"
-    AFTER_TAG = "vn7.9_t1460"
+    AFTER_TAG = "vn7.9_t1528"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
-        # Remove redundant switch as River routing ancillaries should now be
-        # consistent.
-        self.remove_setting(
-            config,
-            ["namelist:jules_rivers_props", "l_ignore_ancil_rivers_check"],
+
+        # Move the l_inland switch from the rivers namelist to the hydrology
+        # namelist but only when the rivers are turned on. Otherwise set it to
+        # .false.
+        l_inland = ".false."
+        l_rivers = self.get_setting_value(
+            config, ["namelist:jules_rivers", "l_rivers"]
         )
+        if l_rivers == ".true.":
+            l_inland = self.get_setting_value(
+                config, ["namelist:jules_rivers", "l_inland"]
+            )
 
-        return config, self.reports
-
-
-class vn79_t1392(MacroUpgrade):
-    """Upgrade macro from JULES by Maggie Hendry"""
-
-    BEFORE_TAG = "vn7.9_t1460"
-    AFTER_TAG = "vn7.9_t1392"
-
-    def upgrade(self, config, meta_config=None):
-        """Upgrade a JULES runtime app configuration."""
-        # Add is_climatology flag to jules_rivers_props
-        nvars = int(
+        lsm_id = int(
             self.get_setting_value(
-                config, ["namelist:jules_rivers_props", "nvars"]
+                config, ["namelist:jules_model_environment", "lsm_id"]
             )
         )
+        if lsm_id != 3:
+            self.add_setting(
+                config, ["namelist:jules_hydrology", "l_inland"], l_inland
+            )
+        self.remove_setting(config, ["namelist:jules_rivers", "l_inland"])
+
         self.add_setting(
             config,
-            ["namelist:jules_rivers_props", "is_climatology"],
-            ",".join([".false."] * nvars),
+            ["namelist:jules_land_frac", "l_use_land_fraction"],
+            ".false.",
         )
-        return config, self.reports
-
-
-class vn79_t1371(MacroUpgrade):
-
-    """ Upgrade macro from JULES by Katty Huang """
-
-    BEFORE_TAG = "vn7.9_t1392"
-    AFTER_TAG = "vn7.9_t1371"
-
-    def upgrade(self,config, meta_config=None):
-        """Upgrade a JULES runtime app configuration."""
-
-        # Add settings
-        self.add_setting(config, ["namelist:jules_surface","anthrop_heat_option"], "0")
-        self.add_setting(config, ["namelist:jules_surface","anthrop_heat_mean"], "20.0")
-
-        return config, self.reports
-
-
-class vn79_t1088(MacroUpgrade):
-
-    """Upgrade macro from JULES by Douglas Clark"""
-
-    BEFORE_TAG = "vn7.9_t1371"
-    AFTER_TAG = "vn7.9_t1088"
-
-    def upgrade(self,config, meta_config=None):
-        """Upgrade a JULES runtime app configuration."""
-
-        # Add settings
-        self.add_setting(config, ["namelist:jules_water_resources", "partition_method"], "2")
-        self.add_setting(config, ["namelist:jules_water_resources", "sfc_water_factor"], "2.0")
         return config, self.reports

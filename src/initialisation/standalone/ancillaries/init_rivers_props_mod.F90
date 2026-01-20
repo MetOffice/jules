@@ -61,6 +61,7 @@ USE jules_rivers_props_mod, ONLY:                                              &
    x_dim_name, y_dim_name, is_climatology
 
 USE logging_mod, ONLY: log_fatal, log_info
+USE jules_print_mgr,  ONLY: jules_message
 
 USE model_grid_mod, ONLY: global_land_pts, l_coord_latlon
 
@@ -69,6 +70,7 @@ USE model_interface_mod, ONLY: identifier_len
 USE overbank_inundation_mod, ONLY:                                             &
   init_rosgen_vars, overbank_model, overbank_simple_rosgen,                    &
   overbank_hypsometric, overbank_quantiles
+USE coastal, ONLY: l_use_land_fraction
 
 USE parallel_mod, ONLY: is_master_task, master_task_id
 
@@ -144,6 +146,7 @@ LOGICAL ::                                                                     &
     !         downstream point) are provided.
   use_sub_local
     ! A local copy of use_subgrid.
+
 
 !------------------------------------------------------------------------------
 ! Local array variables (not in namelist).
@@ -382,6 +385,21 @@ END IF  !  is_master_task
 ! source on all tasks in init_ic.
 CALL mpi_bcast( l_init_storage, 1, mpi_logical, master_task_id,                &
                 mpi_local_comm, ERROR )
+
+!------------------------------------------------------------------------------
+! Check to see if the 2d rivers grid (dummy_grid) and the 2d land grid
+! (local_grid) are the same. If so then we can copy the land fractions
+! across from the land grid to the rivers grid in process_rivers_data.
+!------------------------------------------------------------------------------
+IF ( l_use_land_fraction ) THEN
+  IF ( ( local_grid%nx /= dummy_grid%nx ) .OR.                                 &
+     ( local_grid%ny /= dummy_grid%ny ) ) THEN
+    WRITE(jules_message,*)                                                     &
+       "JULES model grid must be the same as the 2D Rivers grid, " //          &
+       "when l_use_land_fraction = T"
+    CALL log_fatal( RoutineName, jules_message )
+  END IF
+END IF
 
 !------------------------------------------------------------------------------
 ! Process the ancillary fields to identify river points and populate fields
