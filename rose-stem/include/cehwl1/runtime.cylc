@@ -27,6 +27,7 @@
             JULES_PLATFORM = ceh-rocky9
             JULES_BUILD = normal
             JULES_OMP = omp
+            SOURCE_PATH_PREFIX = river
 
 ###############################################################################
 ## Compute jobs
