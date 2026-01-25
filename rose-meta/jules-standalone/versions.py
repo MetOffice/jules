@@ -47,7 +47,7 @@ class vn80_t1591(MacroUpgrade):
     """Upgrade macro from JULES by Maggie Hendry"""
 
     BEFORE_TAG = "vn8.0"
-    AFTER_TAG = "vn8.0_t1591"
+    AFTER_TAG = "vn8.0_t26"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
