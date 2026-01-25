@@ -42,7 +42,7 @@ from .version77_78 import *
 from .version78_79 import *
 from .version79_80 import *
 
-class vn80_t1591(MacroUpgrade):
+class vn80_t26(MacroUpgrade):
 
     """Upgrade macro from JULES by Maggie Hendry"""
 
