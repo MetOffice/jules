@@ -1,0 +1,302 @@
+###############################################################################
+## Name graphs
+###############################################################################
+{%- set name_graphs_gfortran = {
+        "nci_gfortran_loobos_gl4" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                      nci_gfortran_loobos_gl4 =>    \
+                                      nccmp_nci_gfortran_loobos_gl4 =>                              \
+                                      housekeep_nci_gfortran_loobos_gl4",
+
+        "nci_gfortran_loobos_gl4_cable" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                      nci_gfortran_loobos_gl4_cable =>    \
+                                      nccmp_nci_gfortran_loobos_gl4_cable =>                              \
+                                      housekeep_nci_gfortran_loobos_gl4_cable",
+
+        "nci_gfortran_loobos_gl7" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                      nci_gfortran_loobos_gl7  =>                                   \
+                                      nccmp_nci_gfortran_loobos_gl7 =>                              \
+                                      housekeep_nci_gfortran_loobos_gl7",
+
+        "nci_gfortran_loobos_gl8" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_gl8 =>                                    \
+                                        nccmp_nci_gfortran_loobos_gl8 =>                              \
+                                        housekeep_nci_gfortran_loobos_gl8",
+
+        "nci_gfortran_loobos_gl8_medlyn" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_gl8_medlyn =>                                    \
+                                        nccmp_nci_gfortran_loobos_gl8_medlyn =>                              \
+                                        housekeep_nci_gfortran_loobos_gl8_medlyn",
+
+       "nci_gfortran_loobos_gl8_irrigon_5050irrigtiles" : "remote_init_nci => fcm_make_nci_gfortran_debug => \
+                           nci_gfortran_loobos_gl8_irrigon_5050irrigtiles => \
+                           nccmp_nci_gfortran_loobos_gl8_irrigon_5050irrigtiles => \
+                           housekeep_nci_gfortran_loobos_gl8_irrigon_5050irrigtiles",
+
+
+        "nci_gfortran_loobos_vegdrag" : "remote_init_nci => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_vegdrag =>                                    \
+                                        nccmp_nci_gfortran_loobos_vegdrag =>                              \
+                                        housekeep_nci_gfortran_loobos_vegdrag",
+
+        "nci_gfortran_loobos_euro4" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_euro4 =>                                    \
+                                        nccmp_nci_gfortran_loobos_euro4 =>                              \
+                                        housekeep_nci_gfortran_loobos_euro4",
+
+        "nci_gfortran_loobos_forecast" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                           nci_gfortran_loobos_forecast =>                                 \
+                                           nccmp_nci_gfortran_loobos_forecast =>                           \
+                                           housekeep_nci_gfortran_loobos_forecast",
+
+        "nci_gfortran_loobos_ukv" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                      nci_gfortran_loobos_ukv =>                                      \
+                                      nccmp_nci_gfortran_loobos_ukv =>                                \
+                                      housekeep_nci_gfortran_loobos_ukv",
+
+        "nci_gfortran_loobos_trif" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                      nci_gfortran_loobos_trif_spinup => nci_gfortran_loobos_trif =>   \
+                                      nccmp_nci_gfortran_loobos_trif =>                                \
+                                      housekeep_nci_gfortran_loobos_trif_spinup & housekeep_nci_gfortran_loobos_trif",
+
+        "nci_gfortran_loobos_julesc" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug =>       \
+                                         nci_gfortran_loobos_julesc_spinup => nci_gfortran_loobos_julesc      \
+                                         & nci_gfortran_loobos_jules_c1p1 & nci_gfortran_loobos_jules_c1p1_fire =>  \
+                                         nccmp_nci_gfortran_loobos_julesc & nccmp_nci_gfortran_loobos_jules_c1p1 \
+                                         & nccmp_nci_gfortran_loobos_jules_c1p1_fire => \
+                                         housekeep_nci_gfortran_loobos_julesc_spinup & housekeep_nci_gfortran_loobos_jules_c1p1 \
+                                         & housekeep_nci_gfortran_loobos_jules_c1p1_fire & housekeep_nci_gfortran_loobos_julesc",
+
+        "nci_gfortran_loobos_jules_layeredcn" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug =>       \
+                                         nci_gfortran_loobos_jules_layeredcn_spinup => nci_gfortran_loobos_jules_layeredcn =>   \
+                                         nccmp_nci_gfortran_loobos_jules_layeredcn =>                                   \
+                                         housekeep_nci_gfortran_loobos_jules_layeredcn_spinup & housekeep_nci_gfortran_loobos_jules_layeredcn",
+
+        "nci_gfortran_loobos_jules_cn" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug =>       \
+                                         nci_gfortran_loobos_jules_cn_spinup => nci_gfortran_loobos_jules_cn =>   \
+                                         nccmp_nci_gfortran_loobos_jules_cn =>                                   \
+                                         housekeep_nci_gfortran_loobos_jules_cn_spinup & housekeep_nci_gfortran_loobos_jules_cn",
+
+        "nci_gfortran_loobos_jules_es_1p0" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug =>       \
+                                           nci_gfortran_loobos_jules_es_1p0_spinup => nci_gfortran_loobos_jules_es_1p0 => \
+                                           nccmp_nci_gfortran_loobos_jules_es_1p0 =>                                    \
+                                           housekeep_nci_gfortran_loobos_jules_es_1p0_spinup & housekeep_nci_gfortran_loobos_jules_es_1p0",
+
+        "nci_gfortran_loobos_jules_es_1p0_biocrop" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                           nci_gfortran_loobos_jules_es_1p0_biocrop_spinup => nci_gfortran_loobos_jules_es_1p0_biocrop \
+                                           & nci_gfortran_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           nccmp_nci_gfortran_loobos_jules_es_1p0_biocrop \
+                                           & nccmp_nci_gfortran_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           housekeep_nci_gfortran_loobos_jules_es_1p0_biocrop_spinup \
+                                           & housekeep_nci_gfortran_loobos_jules_es_1p0_biocrop \
+                                           & housekeep_nci_gfortran_loobos_jules_es_1p0_biocrop_agexpand",
+
+        "nci_gfortran_loobos_crops" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_crops =>                                    \
+                                        nccmp_nci_gfortran_loobos_crops =>                              \
+                                        housekeep_nci_gfortran_loobos_crops",
+
+        "nci_gfortran_loobos_prescribe_sthuf" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_prescribe_sthuf =>                                    \
+                                        nccmp_nci_gfortran_loobos_prescribe_sthuf =>                              \
+                                        housekeep_nci_gfortran_loobos_prescribe_sthuf",
+
+        "nci_gfortran_loobos_irrig" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_irrig =>                                    \
+                                        nccmp_nci_gfortran_loobos_irrig =>                              \
+                                        housekeep_nci_gfortran_loobos_irrig",
+
+       "nci_gfortran_loobos_irrig_nirrtile" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                        nci_gfortran_loobos_irrig_nirrtile =>                                    \
+                                        nccmp_nci_gfortran_loobos_irrig_nirrtile =>                              \
+                                        housekeep_nci_gfortran_loobos_irrig_nirrtile",
+
+        "nci_gfortran_loobos_fire" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                       nci_gfortran_loobos_fire_spinup => nci_gfortran_loobos_fire => \
+                                       nccmp_nci_gfortran_loobos_fire =>                               \
+                                       housekeep_nci_gfortran_loobos_fire_spinup & housekeep_nci_gfortran_loobos_fire",
+
+        "nci_gfortran_loobos_daily_disagg" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                               nci_gfortran_loobos_daily_disagg =>                             \
+                                               nccmp_nci_gfortran_loobos_daily_disagg =>                       \
+                                               housekeep_nci_gfortran_loobos_daily_disagg",
+
+        "nci_gfortran_loobos_crm1_traitF" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                              nci_gfortran_loobos_crm1_traitF => \
+                                              nccmp_nci_gfortran_loobos_crm1_traitF => \
+                                              housekeeping_nci_gfortran_loobos_crm1_traitF",
+
+        "nci_gfortran_loobos_crm4_traitF" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                              nci_gfortran_loobos_crm4_traitF => \
+                                              nccmp_nci_gfortran_loobos_crm4_traitF => \
+                                              housekeeping_nci_gfortran_loobos_crm4_traitF",
+
+        "nci_gfortran_loobos_crm5_traitF" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                              nci_gfortran_loobos_crm5_traitF => \
+                                              nccmp_nci_gfortran_loobos_crm5_traitF => \
+                                              housekeeping_nci_gfortran_loobos_crm5_traitF",
+
+        "nci_gfortran_loobos_crm6_traitF" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                              nci_gfortran_loobos_crm6_traitF => \
+                                              nccmp_nci_gfortran_loobos_crm6_traitF => \
+                                              housekeeping_nci_gfortran_loobos_crm6_traitF",
+
+        "nci_gfortran_loobos_crm6_traitT" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                              nci_gfortran_loobos_crm6_traitT & nci_gfortran_loobos_crm6_traitT_farquhar
+                                             nci_gfortran_loobos_crm6_traitT => nccmp_nci_gfortran_loobos_crm6_traitT => \
+                                              housekeeping_nci_gfortran_loobos_crm6_traitT
+                                             nci_gfortran_loobos_crm6_traitT_farquhar => nccmp_nci_gfortran_loobos_crm6_traitT_farquhar => \
+                                              housekeeping_nci_gfortran_loobos_crm6_traitT_farquhar",
+
+        "nci_gfortran_loobos_crm6_traitF_srfT" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_debug => \
+                                                   nci_gfortran_loobos_crm6_traitF_srfT => \
+                                                   nccmp_nci_gfortran_loobos_crm6_traitF_srfT => \
+                                                   housekeeping_nci_gfortran_loobos_crm6_traitF_srfT",
+
+        "nci_gfortran_gswp2_rivers" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_gswp2_rivers & nci_gfortran_gswp2_rivers_overbank_hypso
+                                       nci_gfortran_gswp2_rivers => nccmp_nci_gfortran_gswp2_rivers =>   \
+                                        housekeep_nci_gfortran_gswp2_rivers
+                                       nci_gfortran_gswp2_rivers_overbank_hypso => nccmp_nci_gfortran_gswp2_rivers_overbank_hypso =>   \
+                                        housekeep_nci_gfortran_gswp2_rivers_overbank_hypso",
+
+	"nci_gfortran_gswp2_rivers_restart" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_gswp2_rivers_spinup => nci_gfortran_gswp2_rivers_restart => \
+                                        nccmp_nci_gfortran_gswp2_rivers_restart =>                          \
+                                        housekeep_nci_gfortran_gswp2_rivers_spinup => housekeep_nci_gfortran_gswp2_rivers_restart",
+
+        "nci_gfortran_gswp2_trip" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_gswp2_trip =>                                \
+                                        nccmp_nci_gfortran_gswp2_trip =>                          \
+                                        housekeep_nci_gfortran_gswp2_trip",
+
+        "nci_gfortran_gswp2_trip_restart" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_gswp2_trip_spinup => nci_gfortran_gswp2_trip_restart => \
+                                        nccmp_nci_gfortran_gswp2_trip_restart =>                          \
+                                        housekeep_nci_gfortran_gswp2_trip_spinup => housekeep_nci_gfortran_gswp2_trip_restart",
+
+        "nci_gfortran_gswp2_irrig_limit_low_river_storage" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_gswp2_trip_spinup => nci_gfortran_gswp2_irrig_limit_low_river_storage => \
+                                        nccmp_nci_gfortran_gswp2_irrig_limit_low_river_storage =>                          \
+                                        housekeep_nci_gfortran_gswp2_trip_spinup => housekeep_nci_gfortran_gswp2_irrig_limit_low_river_storage",
+
+        "nci_gfortran_gswp2_irrig_limit_high_river_storage" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_gswp2_trip_spinup => nci_gfortran_gswp2_irrig_limit_high_river_storage => \
+                                        nccmp_nci_gfortran_gswp2_irrig_limit_high_river_storage =>                          \
+                                        housekeep_nci_gfortran_gswp2_trip_spinup => housekeep_nci_gfortran_gswp2_irrig_limit_high_river_storage",
+
+        "nci_gfortran_gswp2_closures" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                          nci_gfortran_gswp2_closures =>                              \
+                                          nccmp_nci_gfortran_gswp2_closures =>                        \
+                                          housekeep_nci_gfortran_gswp2_closures",
+
+        "nci_gfortran_gswp2_euro4" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                          nci_gfortran_gswp2_euro4 =>                              \
+                                          nccmp_nci_gfortran_gswp2_euro4 =>                        \
+                                          housekeep_nci_gfortran_gswp2_euro4",
+
+        "nci_gfortran_gswp2_gl4" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                          nci_gfortran_gswp2_gl4 =>                              \
+                                          nccmp_nci_gfortran_gswp2_gl4 =>                        \
+                                          housekeep_nci_gfortran_gswp2_gl4",
+
+        "nci_gfortran_gswp2_gl7" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                          nci_gfortran_gswp2_gl7 =>                              \
+                                          nccmp_nci_gfortran_gswp2_gl7 =>                        \
+                                          housekeep_nci_gfortran_gswp2_gl7",
+
+        "nci_gfortran_gswp2_ukv" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                          nci_gfortran_gswp2_ukv =>                            \
+                                          nccmp_nci_gfortran_gswp2_ukv =>                      \
+                                          housekeep_nci_gfortran_gswp2_ukv",
+
+        "nci_gfortran_gswp2_ukv_flake" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                          nci_gfortran_gswp2_ukv_flake =>                            \
+                                          nccmp_nci_gfortran_gswp2_ukv_flake =>                      \
+                                          housekeep_nci_gfortran_gswp2_ukv_flake",
+
+        "nci_gfortran_eraint_rfm_2ddata" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_eraint_rfm_2ddata =>                                \
+                                        nccmp_nci_gfortran_eraint_rfm_2ddata =>                          \
+                                        housekeep_nci_gfortran_eraint_rfm_2ddata",
+
+        "nci_gfortran_eraint_trip_2ddata" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                        nci_gfortran_eraint_trip_2ddata =>                                \
+                                        nccmp_nci_gfortran_eraint_trip_2ddata =>                          \
+                                        housekeep_nci_gfortran_eraint_trip_2ddata",
+
+        "nci_gfortran_gswp2_es_1p1" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp  => \
+                                         nci_gfortran_gswp2_es_1p1 => \
+                                         nccmp_nci_gfortran_gswp2_es_1p1 =>                                   \
+                                         housekeep_nci_gfortran_gswp2_es_1p1",
+
+       "nci_gfortran_gswp2_es_curr" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp  => \
+                                         nci_gfortran_gswp2_es_curr => \
+                                         nccmp_nci_gfortran_gswp2_es_curr =>                                   \
+                                         housekeep_nci_gfortran_gswp2_es_curr",
+
+       "nci_gfortran_gswp2_es_beta" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                                         nci_gfortran_gswp2_es_beta => \
+                                         nccmp_nci_gfortran_gswp2_es_beta =>                                   \
+                                         housekeep_nci_gfortran_gswp2_es_beta",
+
+       "nci_gfortran_imogen_layeredc" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                           nci_gfortran_imogen_layeredc_spinup => nci_gfortran_imogen_layeredc => \
+                           nccmp_nci_gfortran_imogen_layeredc => \
+                           housekeep_nci_gfortran_imogen_layeredc_spinup & housekeep_nci_gfortran_imogen_layeredc",
+
+       "nci_gfortran_imogen_layeredc_co2conc" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                           nci_gfortran_imogen_layeredc_spinup => nci_gfortran_imogen_layeredc_co2conc => \
+                           nccmp_nci_gfortran_imogen_layeredc_co2conc => \
+                           housekeep_nci_gfortran_imogen_layeredc_spinup & housekeep_nci_gfortran_imogen_layeredc_co2conc",
+
+       "nci_gfortran_imogen_layeredc_dtempg" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                           nci_gfortran_imogen_layeredc_spinup => nci_gfortran_imogen_layeredc_dtempg => \
+                           nccmp_nci_gfortran_imogen_layeredc_dtempg => \
+                           housekeep_nci_gfortran_imogen_layeredc_spinup & housekeep_nci_gfortran_imogen_layeredc_dtempg",
+
+       "nci_gfortran_imogen_layeredc_ch4" : "remote_init_nci => extract_source => fcm_make_nci_gfortran_omp => \
+                           nci_gfortran_imogen_layeredc_spinup => nci_gfortran_imogen_layeredc_ch4 => \
+                           nccmp_nci_gfortran_imogen_layeredc_ch4 => \
+                           housekeep_nci_gfortran_imogen_layeredc_spinup & housekeep_nci_gfortran_imogen_layeredc_ch4",
+    }
+%}
+
+
+###############################################################################
+## Group definitions
+###############################################################################
+{%- set groups_gfortran = {
+        "gfortan" : ["gfortran_loobos", "gfortran_gswp2", "gfortran_eraint",
+                     "gfortran_gswp2_es", "gfortran_imogen"],
+
+        "gfortran_loobos" : ["nci_gfortran_loobos_gl4", "nci_gfortran_loobos_gl4_cable",
+                    "nci_gfortran_loobos_gl7", "nci_gfortran_loobos_gl8",
+                    "nci_gfortran_loobos_gl8_medlyn", 
+                    "nci_gfortran_loobos_gl8_irrigon_5050irrigtiles",
+                    "nci_gfortran_loobos_vegdrag",
+                    "nci_gfortran_loobos_euro4", "nci_gfortran_loobos_forecast",
+                    "nci_gfortran_loobos_ukv", "nci_gfortran_loobos_trif",
+                    "nci_gfortran_loobos_crops", "nci_gfortran_loobos_prescribe_sthuf",
+                    "nci_gfortran_loobos_fire", "nci_gfortran_loobos_daily_disagg",
+                    "nci_gfortran_loobos_julesc", "nci_gfortran_loobos_irrig",
+                    "nci_gfortran_loobos_irrig_nirrtile",
+                    "nci_gfortran_loobos_jules_cn","nci_gfortran_loobos_jules_layeredcn",
+                    "nci_gfortran_loobos_jules_es_1p0", "nci_gfortran_loobos_jules_es_1p0_biocrop",
+                    "nci_gfortran_loobos_crm1_traitF", "nci_gfortran_loobos_crm4_traitF",
+                    "nci_gfortran_loobos_crm5_traitF", "nci_gfortran_loobos_crm6_traitF",
+                    "nci_gfortran_loobos_crm6_traitT", "nci_gfortran_loobos_crm6_traitF_srfT"],
+
+        "gfortran_gswp2" : ["nci_gfortran_gswp2_rivers", "nci_gfortran_gswp2_rivers_restart", "nci_gfortran_gswp2_trip",
+                   "nci_gfortran_gswp2_trip_restart", "nci_gfortran_gswp2_irrig_limit_low_river_storage",
+                   "nci_gfortran_gswp2_irrig_limit_high_river_storage", "nci_gfortran_gswp2_closures",
+                   "nci_gfortran_gswp2_euro4","nci_gfortran_gswp2_gl4","nci_gfortran_gswp2_gl7",
+                   "nci_gfortran_gswp2_ukv","nci_gfortran_gswp2_ukv_flake"],
+
+	 "gfortran_eraint" : ["nci_gfortran_eraint_rfm_2ddata", "nci_gfortran_eraint_trip_2ddata"],
+
+        "gfortran_gswp2_es" : ["nci_gfortran_gswp2_es_1p1", "nci_gfortran_gswp2_es_curr", "nci_gfortran_gswp2_es_beta"],
+
+        "gfortran_imogen" : ["nci_gfortran_imogen_layeredc", "nci_gfortran_imogen_layeredc_co2conc",
+                    "nci_gfortran_imogen_layeredc_dtempg", "nci_gfortran_imogen_layeredc_ch4"],
+	}
+%}

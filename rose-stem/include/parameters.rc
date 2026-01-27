@@ -1,5 +1,0 @@
-# Import site-specific parameter sets
-
-{% if SITE == 'niwa' %}
-%include 'include/niwa/parameters.rc'
-{% endif %}

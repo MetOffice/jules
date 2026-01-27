@@ -1,0 +1,120 @@
+###############################################################################
+## Families for Met Office Azspice systems
+###############################################################################
+# Family for Met Office Azspice jobs
+    [[METO_AZSPICE]]
+        platform = spice
+        execution time limit = PT2M
+
+    [[remote_init_azspice]]
+        inherit = METO_AZSPICE
+        script = true
+
+    [[extract_source]]
+        inherit = SOURCE_EXTRACTION
+        platform = {{ROSE_ORIG_HOST}}
+        execution time limit = PT15M
+
+# Family for Azspice build jobs
+    [[METO_AZSPICE_BUILD]]
+        inherit = None, EXTRACT_AND_BUILD, METO_AZSPICE
+        execution time limit = PT15M
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 4
+        [[[directives]]]
+            --mem  = 2048
+            --ntasks = 2
+
+# Family for standalone Rivers Azspice build jobs
+    [[METO_AZSPICE_BUILD_RIVERS_ONLY]]
+        inherit = None, EXTRACT_AND_BUILD_RIVER, METO_AZSPICE
+        execution time limit = PT15M
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 4
+        [[[directives]]]
+            --mem  = 2048
+            --ntasks = 2
+
+# Family for Met Office Azspice compute jobs
+    [[METO_AZSPICE_COMPUTE]]
+        inherit = None, METO_AZSPICE, COMPUTE
+        execution time limit = PT25M
+        [[[environment]]]
+            LOOBOS_INSTALL_DIR = /data/users/julesadmin/jules/rose-stem/loobos-data
+            GSWP2_INSTALL_DIR = /data/users/julesadmin/jules/benchmarking/data/gswp2
+            ERAINT_INSTALL_DIR = /data/users/julesadmin/jules/benchmarking/data/eraint
+            IMOGEN_INSTALL_DIR = /data/users/julesadmin/jules/benchmarking/data/imogen
+            ROSE_LAUNCHER_LIST = mpiexec.hydra
+        [[[directives]]]
+            --mem  = 1024
+
+# Family for Met Office Azspice comparison jobs
+    [[METO_AZSPICE_NETCDF_COMPARISON]]
+        inherit = None, METO_AZSPICE, NETCDF_COMPARISON
+        execution time limit = PT5M
+        pre-script = """
+                     module purge
+                     module load um/vn14.0
+                     module list 2>&1
+                     """
+        [[[environment]]]
+            CMD_CMP = nccmp -d --force -S -B
+            KGO_DIR = /data/users/julesadmin/jules/rose-stem/jules-kgo/{{ KGO_VERSION }}
+
+
+    [[METO_AZSPICE_1_TASK]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 1
+            NPROC = $MPI_NUM_TASKS
+        [[[directives]]]
+            --ntasks=1
+
+    [[METO_AZSPICE_4_TASKS]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 4
+            NPROC = $MPI_NUM_TASKS
+        [[[directives]]]
+            --ntasks=4
+
+    [[METO_AZSPICE_8_TASKS]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 8
+            NPROC = $MPI_NUM_TASKS
+        [[[directives]]]
+            --ntasks=8
+
+    [[METO_AZSPICE_12_TASKS]]
+        [[[environment]]]
+            MPI_NUM_TASKS = 12
+            NPROC = $MPI_NUM_TASKS
+        [[[directives]]]
+            --ntasks=12
+
+    [[METO_AZSPICE_1_THREAD]]
+        [[[environment]]]
+           OMP_NUM_THREADS = 1
+        [[[directives]]]
+           --cpus-per-task=1
+
+    [[METO_AZSPICE_2_THREADS]]
+        [[[environment]]]
+            OMP_NUM_THREADS = 2
+        [[[directives]]]
+           --cpus-per-task=2
+
+    [[METO_AZSPICE_4_THREADS]]
+        [[[environment]]]
+            OMP_NUM_THREADS = 4
+        [[[directives]]]
+           --cpus-per-task=4
+
+    [[METO_AZSPICE_8_THREADS]]
+        [[[environment]]]
+            OMP_NUM_THREADS = 8
+        [[[directives]]]
+           --cpus-per-task=8
+
+# Redefine site-independent SCRIPTS group
+    [[SCRIPTS]]
+        inherit = None, METO_AZSPICE
+        execution time limit = PT10M

@@ -1,0 +1,487 @@
+###############################################################################
+## Name graphs
+###############################################################################
+{%- if COVERAGE == true %}
+    # If coverage stats are requested, all gnu runs must use the same build in order for the
+    # profiling stats to be generated and aggregated correctly
+    {%- set loobos_build   = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
+    {%- set rivers_build   = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
+    {%- set closures_build = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
+    {%- set imogen_build   = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_coverage" %}
+{%- else %}
+    {%- set loobos_build    = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_debug_noomp_nompi" %}
+    {%- set rivers_build    = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_omp_mpi" %}
+    {%- set closures_build  = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_omp_mpi" %}
+    {%- set imogen_build    = "remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_omp_mpi" %}
+{%- endif %}
+
+{%- set name_graphs_azspice_gnu = {
+        "meto_azspice_gnu_loobos_gl4" : loobos_build + " =>                             \
+                                         meto_azspice_gnu_loobos_gl4 =>                 \
+                                         nccmp_meto_azspice_gnu_loobos_gl4 =>           \
+                                         housekeep_meto_azspice_gnu_loobos_gl4",
+
+        "meto_azspice_gnu_loobos_gl4_cable" : loobos_build + " =>                       \
+                                         meto_azspice_gnu_loobos_gl4_cable =>           \
+                                         nccmp_meto_azspice_gnu_loobos_gl4_cable =>      \
+                                         housekeep_meto_azspice_gnu_loobos_gl4_cable",
+
+        "meto_azspice_gnu_loobos_gl7" : loobos_build + " =>                             \
+                                         meto_azspice_gnu_loobos_gl7  =>                \
+                                         nccmp_meto_azspice_gnu_loobos_gl7 =>           \
+                                         housekeep_meto_azspice_gnu_loobos_gl7",
+
+        "meto_azspice_gnu_loobos_gl8" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_gl8 =>               \
+                                           nccmp_meto_azspice_gnu_loobos_gl8 =>         \
+                                           housekeep_meto_azspice_gnu_loobos_gl8",
+
+        "meto_azspice_gnu_loobos_gl8_medlyn" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_gl8_medlyn =>               \
+                                           nccmp_meto_azspice_gnu_loobos_gl8_medlyn =>         \
+                                           housekeep_meto_azspice_gnu_loobos_gl8_medlyn",
+
+        "meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles" : loobos_build + " =>                       \
+                                         meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles =>           \
+                                         nccmp_meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles =>      \
+                                         housekeep_meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles",
+
+        "meto_azspice_gnu_loobos_vegdrag" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_vegdrag =>               \
+                                           nccmp_meto_azspice_gnu_loobos_vegdrag =>         \
+                                           housekeep_meto_azspice_gnu_loobos_vegdrag",
+
+        "meto_azspice_gnu_loobos_euro4" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_euro4 =>               \
+                                           nccmp_meto_azspice_gnu_loobos_euro4 =>         \
+                                           housekeep_meto_azspice_gnu_loobos_euro4",
+
+        "meto_azspice_gnu_loobos_forecast" : loobos_build + " =>                             \
+                                              meto_azspice_gnu_loobos_forecast =>            \
+                                              nccmp_meto_azspice_gnu_loobos_forecast =>      \
+                                              housekeep_meto_azspice_gnu_loobos_forecast",
+
+        "meto_azspice_gnu_loobos_ukv" : loobos_build + " =>                               \
+                                        meto_azspice_gnu_loobos_ukv &                    \
+                                        meto_azspice_gnu_loobos_ukv_deposition
+                                        meto_azspice_gnu_loobos_ukv =>                    \
+                                        nccmp_meto_azspice_gnu_loobos_ukv =>             \
+                                        housekeep_meto_azspice_gnu_loobos_ukv
+                                        meto_azspice_gnu_loobos_ukv_deposition =>         \
+                                        nccmp_meto_azspice_gnu_loobos_ukv_deposition =>  \
+                                        housekeep_meto_azspice_gnu_loobos_ukv_deposition",
+
+        "meto_azspice_gnu_loobos_trif" : loobos_build + " =>                                                   \
+                                         meto_azspice_gnu_loobos_trif_spinup => meto_azspice_gnu_loobos_trif => \
+                                         nccmp_meto_azspice_gnu_loobos_trif =>                                 \
+                                         housekeep_meto_azspice_gnu_loobos_trif_spinup & housekeep_meto_azspice_gnu_loobos_trif",
+
+        "meto_azspice_gnu_loobos_julesc" : loobos_build + " =>                                                                 \
+                                            meto_azspice_gnu_loobos_julesc_spinup => meto_azspice_gnu_loobos_julesc            \
+                                            & meto_azspice_gnu_loobos_jules_c1p1 & meto_azspice_gnu_loobos_jules_c1p1_fire => \
+                                            nccmp_meto_azspice_gnu_loobos_julesc & nccmp_meto_azspice_gnu_loobos_jules_c1p1    \
+                                            & nccmp_meto_azspice_gnu_loobos_jules_c1p1_fire =>                                 \
+                                            housekeep_meto_azspice_gnu_loobos_julesc_spinup & housekeep_meto_azspice_gnu_loobos_julesc  \
+                                            & housekeep_meto_azspice_gnu_loobos_jules_c1p1 & housekeep_meto_azspice_gnu_loobos_jules_c1p1_fire",
+
+        "meto_azspice_gnu_loobos_jules_layeredcn" : loobos_build + " =>                                                         \
+                                            meto_azspice_gnu_loobos_jules_layeredcn_spinup => meto_azspice_gnu_loobos_jules_layeredcn => \
+                                            nccmp_meto_azspice_gnu_loobos_jules_layeredcn =>                                    \
+                                            housekeep_meto_azspice_gnu_loobos_jules_layeredcn_spinup & housekeep_meto_azspice_gnu_loobos_jules_layeredcn",
+
+        "meto_azspice_gnu_loobos_jules_cn" : loobos_build + " =>                                                         \
+                                            meto_azspice_gnu_loobos_jules_cn_spinup => meto_azspice_gnu_loobos_jules_cn => \
+                                            nccmp_meto_azspice_gnu_loobos_jules_cn =>                                    \
+                                            housekeep_meto_azspice_gnu_loobos_jules_cn_spinup & housekeep_meto_azspice_gnu_loobos_jules_cn",
+
+        "meto_azspice_gnu_loobos_jules_es_1p0" : loobos_build + " =>                                                         \
+                                            meto_azspice_gnu_loobos_jules_es_1p0_spinup => meto_azspice_gnu_loobos_jules_es_1p0 => \
+                                            nccmp_meto_azspice_gnu_loobos_jules_es_1p0 =>                                    \
+                                            housekeep_meto_azspice_gnu_loobos_jules_es_1p0_spinup & housekeep_meto_azspice_gnu_loobos_jules_es_1p0",
+
+        "meto_azspice_gnu_loobos_jules_es_1p0_biocrop" : loobos_build + " =>                                        \
+                                           meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup => meto_azspice_gnu_loobos_jules_es_1p0_biocrop \
+                                           & meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           nccmp_meto_azspice_gnu_loobos_jules_es_1p0_biocrop \
+                                           & nccmp_meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand => \
+                                           housekeep_meto_azspice_gnu_loobos_jules_es_1p0_biocrop_spinup \
+                                           & housekeep_meto_azspice_gnu_loobos_jules_es_1p0_biocrop \
+                                           & housekeep_meto_azspice_gnu_loobos_jules_es_1p0_biocrop_agexpand",
+
+        "meto_azspice_gnu_loobos_jules_es_1p0_deposition" : loobos_build + " => \
+                                             meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup => \
+                                               meto_azspice_gnu_loobos_jules_es_1p0_deposition \
+                                               & meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1 \
+                                               & meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2 \
+                                               & meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2
+                                             meto_azspice_gnu_loobos_jules_es_1p0_deposition => \
+                                               nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition
+                                             meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1 => \
+                                               nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1
+                                             meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2 => \
+                                               nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2
+                                             meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2 => \
+                                               nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2
+                                             nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition \
+                                               & nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1 \
+                                               & nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2 \
+                                               & nccmp_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2 => \
+                                               housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition \
+                                               & housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd1 \
+                                               & housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2 \
+                                               & housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_dd2h2 \
+                                               & housekeep_meto_azspice_gnu_loobos_jules_es_1p0_deposition_spinup",
+
+        "meto_azspice_gnu_loobos_crops" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_crops =>               \
+                                           nccmp_meto_azspice_gnu_loobos_crops =>         \
+                                           housekeep_meto_azspice_gnu_loobos_crops",
+
+        "meto_azspice_gnu_loobos_prescribe_sthuf" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_prescribe_sthuf =>               \
+                                           nccmp_meto_azspice_gnu_loobos_prescribe_sthuf =>         \
+                                           housekeep_meto_azspice_gnu_loobos_prescribe_sthuf",
+
+        "meto_azspice_gnu_loobos_irrig" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_irrig =>               \
+                                           nccmp_meto_azspice_gnu_loobos_irrig =>         \
+                                           housekeep_meto_azspice_gnu_loobos_irrig",
+
+        "meto_azspice_gnu_loobos_irrig_nirrtile" : loobos_build + " =>                             \
+                                           meto_azspice_gnu_loobos_irrig_nirrtile =>               \
+                                           nccmp_meto_azspice_gnu_loobos_irrig_nirrtile =>         \
+                                           housekeep_meto_azspice_gnu_loobos_irrig_nirrtile",
+
+        "meto_azspice_gnu_loobos_fire" : loobos_build + " =>                                                     \
+                                          meto_azspice_gnu_loobos_fire_spinup => meto_azspice_gnu_loobos_fire => \
+                                          nccmp_meto_azspice_gnu_loobos_fire =>                                  \
+                                          housekeep_meto_azspice_gnu_loobos_fire_spinup & housekeep_meto_azspice_gnu_loobos_fire",
+
+        "meto_azspice_gnu_loobos_daily_disagg" : loobos_build + " =>                              \
+                                                  meto_azspice_gnu_loobos_daily_disagg =>         \
+                                                  nccmp_meto_azspice_gnu_loobos_daily_disagg =>   \
+                                                  housekeep_meto_azspice_gnu_loobos_daily_disagg",
+
+        "meto_azspice_gnu_loobos_crm1_traitF" : loobos_build + " =>                             \
+                                                 meto_azspice_gnu_loobos_crm1_traitF => \
+                                                 nccmp_meto_azspice_gnu_loobos_crm1_traitF => \
+                                                 housekeeping_meto_azspice_gnu_loobos_crm1_traitF",
+
+        "meto_azspice_gnu_loobos_crm4_traitF" : loobos_build + " =>                             \
+                                                 meto_azspice_gnu_loobos_crm4_traitF => \
+                                                 nccmp_meto_azspice_gnu_loobos_crm4_traitF => \
+                                                 housekeeping_meto_azspice_gnu_loobos_crm4_traitF",
+
+        "meto_azspice_gnu_loobos_crm5_traitF" : loobos_build + " =>                             \
+                                                 meto_azspice_gnu_loobos_crm5_traitF => \
+                                                 nccmp_meto_azspice_gnu_loobos_crm5_traitF => \
+                                                 housekeeping_meto_azspice_gnu_loobos_crm5_traitF",
+
+        "meto_azspice_gnu_loobos_crm6_traitF" : loobos_build + " =>                             \
+                                                 meto_azspice_gnu_loobos_crm6_traitF => \
+                                                 nccmp_meto_azspice_gnu_loobos_crm6_traitF => \
+                                                 housekeeping_meto_azspice_gnu_loobos_crm6_traitF",
+
+        "meto_azspice_gnu_loobos_crm6_traitT" : loobos_build + " =>                             \
+                                                 meto_azspice_gnu_loobos_crm6_traitT & meto_azspice_gnu_loobos_crm6_traitT_farquhar
+                                                meto_azspice_gnu_loobos_crm6_traitT => nccmp_meto_azspice_gnu_loobos_crm6_traitT => \
+                                                 housekeeping_meto_azspice_gnu_loobos_crm6_traitT
+                                                meto_azspice_gnu_loobos_crm6_traitT_farquhar => nccmp_meto_azspice_gnu_loobos_crm6_traitT_farquhar => \
+                                                 housekeeping_meto_azspice_gnu_loobos_crm6_traitT_farquhar",
+
+        "meto_azspice_gnu_loobos_crm6_traitF_srfT" : loobos_build + " =>                             \
+                                                      meto_azspice_gnu_loobos_crm6_traitF_srfT => \
+                                                      nccmp_meto_azspice_gnu_loobos_crm6_traitF_srfT => \
+                                                      housekeeping_meto_azspice_gnu_loobos_crm6_traitF_srfT",
+
+        "meto_azspice_gnu_gswp2_rivers" : rivers_build + " =>                     \
+                                           meto_azspice_gnu_gswp2_rivers => \
+					   nccmp_meto_azspice_gnu_gswp2_rivers => \
+                                           housekeep_meto_azspice_gnu_gswp2_rivers",
+
+
+        "meto_azspice_gnu_gswp2_rivers_hypso" : rivers_build + " =>                     \
+                                               meto_azspice_gnu_gswp2_rivers_overbank_hypso => \
+					       nccmp_meto_azspice_gnu_gswp2_rivers_overbank_hypso => \
+                                               housekeep_meto_azspice_gnu_gswp2_rivers_overbank_hypso",
+
+        "meto_azspice_gnu_gswp2_rivers_restart" : rivers_build + " => \
+                                           meto_azspice_gnu_gswp2_rivers_spinup => meto_azspice_gnu_gswp2_rivers_restart =>       \
+                                           nccmp_meto_azspice_gnu_gswp2_rivers_restart => \
+                                           housekeep_meto_azspice_gnu_gswp2_rivers_spinup => housekeep_meto_azspice_gnu_gswp2_rivers_restart",
+
+        "meto_azspice_gnu_gswp2_trip" : rivers_build + " => \
+                                           meto_azspice_gnu_gswp2_trip =>       \
+                                           nccmp_meto_azspice_gnu_gswp2_trip => \
+                                           housekeep_meto_azspice_gnu_gswp2_trip",
+
+        "meto_azspice_gnu_gswp2_trip_restart" : rivers_build + " => \
+                                           meto_azspice_gnu_gswp2_trip_spinup => meto_azspice_gnu_gswp2_trip_restart =>       \
+                                           nccmp_meto_azspice_gnu_gswp2_trip_restart => \
+                                           housekeep_meto_azspice_gnu_gswp2_trip_spinup => housekeep_meto_azspice_gnu_gswp2_trip_restart",
+
+        "meto_azspice_gnu_gswp2_trip_restart_init_storage" : rivers_build + " => \
+                                           meto_azspice_gnu_gswp2_trip_spinup => meto_azspice_gnu_gswp2_trip_restart_init_storage =>       \
+                                           nccmp_meto_azspice_gnu_gswp2_trip_restart_init_storage => \
+                                           housekeep_meto_azspice_gnu_gswp2_trip_spinup => housekeep_meto_azspice_gnu_gswp2_trip_restart_init_storage",
+
+        "meto_azspice_gnu_gswp2_irrig_limit_low_river_storage" : rivers_build + " => \
+                                           meto_azspice_gnu_gswp2_trip_spinup => meto_azspice_gnu_gswp2_irrig_limit_low_river_storage =>       \
+                                           nccmp_meto_azspice_gnu_gswp2_irrig_limit_low_river_storage => \
+                                           housekeep_meto_azspice_gnu_gswp2_trip_spinup => housekeep_meto_azspice_gnu_gswp2_irrig_limit_low_river_storage",
+
+         "meto_azspice_gnu_gswp2_irrig_limit_high_river_storage" : rivers_build + " => \
+                                           meto_azspice_gnu_gswp2_trip_spinup => meto_azspice_gnu_gswp2_irrig_limit_high_river_storage =>       \
+                                           nccmp_meto_azspice_gnu_gswp2_irrig_limit_high_river_storage => \
+                                           housekeep_meto_azspice_gnu_gswp2_trip_spinup => housekeep_meto_azspice_gnu_gswp2_irrig_limit_high_river_storage",
+
+        "meto_azspice_gnu_gswp2_closures" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_closures =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_closures => \
+                                             housekeep_meto_azspice_gnu_gswp2_closures",
+
+        "meto_azspice_gnu_gswp2_euro4" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_euro4 =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_euro4 => \
+                                             housekeep_meto_azspice_gnu_gswp2_euro4",
+
+        "meto_azspice_gnu_gswp2_gl7" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_gl7 =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_gl7 => \
+                                             housekeep_meto_azspice_gnu_gswp2_gl7",
+
+        "meto_azspice_gnu_gswp2_gl4" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_gl4 =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_gl4 => \
+                                             housekeep_meto_azspice_gnu_gswp2_gl4",
+
+        "meto_azspice_gnu_gswp2_ukv" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_ukv =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_ukv => \
+                                             housekeep_meto_azspice_gnu_gswp2_ukv",
+
+        "meto_azspice_gnu_gswp2_ukv_flake" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_ukv_flake =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_ukv_flake => \
+                                             housekeep_meto_azspice_gnu_gswp2_ukv_flake",
+
+        "meto_azspice_gnu_eraint_rfm_2ddata" : rivers_build + " => \
+                                           meto_azspice_gnu_eraint_rfm_2ddata =>       \
+                                           nccmp_meto_azspice_gnu_eraint_rfm_2ddata => \
+                                           housekeep_meto_azspice_gnu_eraint_rfm_2ddata",
+
+        "meto_azspice_gnu_eraint_trip_2ddata" : rivers_build + " => \
+                                           meto_azspice_gnu_eraint_trip_2ddata =>       \
+                                           nccmp_meto_azspice_gnu_eraint_trip_2ddata => \
+                                           housekeep_meto_azspice_gnu_eraint_trip_2ddata",
+
+        "meto_azspice_gnu_gswp2_es_1p1" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_es_1p1 =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_es_1p1 => \
+                                             housekeep_meto_azspice_gnu_gswp2_es_1p1",
+
+        "meto_azspice_gnu_gswp2_es_curr" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_es_curr =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_es_curr => \
+                                             housekeep_meto_azspice_gnu_gswp2_es_curr",
+
+        "meto_azspice_gnu_gswp2_es_beta" : closures_build + " =>                     \
+                                             meto_azspice_gnu_gswp2_es_beta =>       \
+                                             nccmp_meto_azspice_gnu_gswp2_es_beta => \
+                                             housekeep_meto_azspice_gnu_gswp2_es_beta",
+
+        "meto_azspice_gnu_imogen_layeredc" : imogen_build + " =>                                                         \
+                                            meto_azspice_gnu_imogen_layeredc_spinup => meto_azspice_gnu_imogen_layeredc => \
+                                            nccmp_meto_azspice_gnu_imogen_layeredc =>                                    \
+                                            housekeep_meto_azspice_gnu_imogen_layeredc_spinup & housekeep_meto_azspice_gnu_imogen_layeredc",
+
+        "meto_azspice_gnu_imogen_layeredc_co2conc" : imogen_build + " =>                                                         \
+                                            meto_azspice_gnu_imogen_layeredc_spinup => meto_azspice_gnu_imogen_layeredc_co2conc => \
+                                            nccmp_meto_azspice_gnu_imogen_layeredc_co2conc =>                                    \
+                                            housekeep_meto_azspice_gnu_imogen_layeredc_spinup & housekeep_meto_azspice_gnu_imogen_layeredc_co2conc",
+
+        "meto_azspice_gnu_imogen_layeredc_dtempg" : imogen_build + " =>                                                         \
+                                            meto_azspice_gnu_imogen_layeredc_spinup => meto_azspice_gnu_imogen_layeredc_dtempg => \
+                                            nccmp_meto_azspice_gnu_imogen_layeredc_dtempg =>                                    \
+                                            housekeep_meto_azspice_gnu_imogen_layeredc_spinup & housekeep_meto_azspice_gnu_imogen_layeredc_dtempg",
+
+        "meto_azspice_gnu_imogen_layeredc_ch4" : imogen_build + " =>                                                         \
+                                            meto_azspice_gnu_imogen_layeredc_spinup => meto_azspice_gnu_imogen_layeredc_ch4 => \
+                                            nccmp_meto_azspice_gnu_imogen_layeredc_ch4 =>                                    \
+                                            housekeep_meto_azspice_gnu_imogen_layeredc_spinup & housekeep_meto_azspice_gnu_imogen_layeredc_ch4",
+    }
+%}
+
+{%- set name_graphs_azspice_gnu_no_coverage = {
+        "meto_azspice_gnu_gswp2_rivers_rivers-only" : "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi => \
+						      meto_azspice_gnu_gswp2_rivers => \
+						      nccmp_meto_azspice_gnu_gswp2_rivers & meto_azspice_gnu_gswp2_rivers_rivers-only
+                                      		      remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+						      meto_azspice_gnu_gswp2_rivers_rivers-only => \
+						      nccmp_meto_azspice_gnu_gswp2_rivers_rivers-only => \
+                                      		      housekeep_meto_azspice_gnu_gswp2_rivers_rivers-only & housekeep_meto_azspice_gnu_gswp2_rivers",
+
+        "meto_azspice_gnu_gswp2_trip_rivers-only" : "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi => \
+						    meto_azspice_gnu_gswp2_trip => \
+						    nccmp_meto_azspice_gnu_gswp2_trip & meto_azspice_gnu_gswp2_trip_rivers-only
+                                      		    remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+						    meto_azspice_gnu_gswp2_trip_rivers-only => \
+						    nccmp_meto_azspice_gnu_gswp2_trip_rivers-only => \
+                                      		    housekeep_meto_azspice_gnu_gswp2_trip_rivers-only & housekeep_meto_azspice_gnu_gswp2_trip",
+
+        "meto_azspice_gnu_gswp2_trip_restart_rivers-only" : "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi => \
+							  meto_azspice_gnu_gswp2_trip_spinup => \
+							  meto_azspice_gnu_gswp2_trip_restart => \
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart & \
+							  meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun & \
+							  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1
+							  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1 => \
+							  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+						    	  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+						    	  meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun => \
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun => \
+							  housekeep_meto_azspice_gnu_gswp2_trip_spinup & \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart & \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun
+						    	  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1 => \
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1
+						    	  meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2 => \
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2 & \
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun_nrun2
+						    	  meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun => \
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun_nrun2
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun_nrun2 => \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun & \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1 & \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2 & \
+							  housekeep_meto_azspice_gnu_gswp2_trip_spinup & \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1 => \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun1
+							  nccmp_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2 => \
+							  housekeep_meto_azspice_gnu_gswp2_trip_restart_rivers-only_nrun2",
+
+        "meto_azspice_gnu_gswp2_rivers_restart_rivers-only" : "remote_init_azspice => fcm_make_meto_azspice_gnu_omp_mpi => \
+							  meto_azspice_gnu_gswp2_rivers_spinup => \
+							  meto_azspice_gnu_gswp2_rivers_restart => \
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart & \
+							  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun & \
+							  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1
+							  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1 => \
+							  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+						    	  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1
+                                      		    	  remote_init_azspice => extract_source => fcm_make_meto_azspice_gnu_rivers-only_omp_mpi => \
+						    	  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun => \
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun => \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_spinup & \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart & \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun
+						    	  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1 => \
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1
+						    	  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2 => \
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2 & \
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun_nrun2
+						    	  meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun => \
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun_nrun2
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun_nrun2 => \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun & \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1 & \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2 & \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_spinup & \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1 => \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun1
+							  nccmp_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2 => \
+							  housekeep_meto_azspice_gnu_gswp2_rivers_restart_rivers-only_nrun2",
+    }
+%}
+
+# If coverage stats are requested, make sure the coverage generation will be run
+{%- if COVERAGE == true %}
+    # Add the coverage graph to name_graphs
+    {%- do name_graphs_azspice_gnu.update({
+            "meto_azspice_gnu_coverage" : "METO_AZSPICE_GNU_LOOBOS:succeed-all & METO_AZSPICE_GNU_GSWP2:succeed-all & METO_AZSPICE_GNU_ERAINT:succeed-all & METO_AZSPICE_GNU_IMOGEN:succeed-all => coverage_summary"
+        })
+    %}
+
+    # Add the coverage group to RUN_NAMES
+    {%- do RUN_NAMES.append("meto_azspice_gnu_coverage") %}
+{%- else %}
+    {%- do name_graphs_azspice_gnu.update(name_graphs_azspice_gnu_no_coverage.items()) %}
+{%- endif %}
+
+
+###############################################################################
+## Group definitions
+###############################################################################
+{%- set groups_azspice_gnu = {
+        "azspice_gnu" : ["azspice_gnu_loobos", "azspice_gnu_gswp2",
+                         "azspice_gnu_eraint", "azspice_gnu_gswp2_es",
+                         "azspice_gnu_imogen"],
+
+        "azspice_gnu_loobos" : ["meto_azspice_gnu_loobos_gl7", "meto_azspice_gnu_loobos_gl4",
+                                "meto_azspice_gnu_loobos_gl4_cable",
+                                "meto_azspice_gnu_loobos_gl8",
+                                "meto_azspice_gnu_loobos_gl8_medlyn",
+                                "meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles",
+                                "meto_azspice_gnu_loobos_vegdrag",
+                                "meto_azspice_gnu_loobos_euro4",
+                                "meto_azspice_gnu_loobos_forecast", "meto_azspice_gnu_loobos_ukv",
+                                "meto_azspice_gnu_loobos_trif", "meto_azspice_gnu_loobos_crops",
+                                "meto_azspice_gnu_loobos_prescribe_sthuf",
+                                "meto_azspice_gnu_loobos_fire", "meto_azspice_gnu_loobos_daily_disagg",
+                                "meto_azspice_gnu_loobos_julesc", "meto_azspice_gnu_loobos_irrig",
+                                "meto_azspice_gnu_loobos_irrig_nirrtile",
+                                "meto_azspice_gnu_loobos_jules_layeredcn",
+                                "meto_azspice_gnu_loobos_jules_cn",
+                                "meto_azspice_gnu_loobos_jules_es_1p0",
+                                "meto_azspice_gnu_loobos_jules_es_1p0_biocrop",
+                                "meto_azspice_gnu_loobos_jules_es_1p0_deposition",
+                                "meto_azspice_gnu_loobos_crm1_traitF",
+                                "meto_azspice_gnu_loobos_crm4_traitF",
+                                "meto_azspice_gnu_loobos_crm5_traitF",
+                                "meto_azspice_gnu_loobos_crm6_traitF",
+                                "meto_azspice_gnu_loobos_crm6_traitT",
+                                "meto_azspice_gnu_loobos_crm6_traitF_srfT"],
+
+        "azspice_gnu_gswp2" : ["meto_azspice_gnu_gswp2_rivers", "meto_azspice_gnu_gswp2_rivers_restart",
+                               "meto_azspice_gnu_gswp2_trip", "meto_azspice_gnu_gswp2_trip_restart",
+                               "meto_azspice_gnu_gswp2_trip_restart_init_storage",
+                               "meto_azspice_gnu_gswp2_irrig_limit_low_river_storage",
+                               "meto_azspice_gnu_gswp2_irrig_limit_high_river_storage", "meto_azspice_gnu_gswp2_gl4",
+                               "meto_azspice_gnu_gswp2_closures","meto_azspice_gnu_gswp2_euro4",
+                               "meto_azspice_gnu_gswp2_gl7","meto_azspice_gnu_gswp2_ukv","meto_azspice_gnu_gswp2_ukv_flake",
+			                   "azspice_gnu_gswp2_rivers-only","azspice_gnu_gswp2_restart_rivers-only"],
+
+       "azspice_gnu_gswp2_es" : ["meto_azspice_gnu_gswp2_es_1p1",
+                                 "meto_azspice_gnu_gswp2_es_curr",
+                                 "meto_azspice_gnu_gswp2_es_beta"],
+
+	   "azspice_gnu_gswp2_rivers-only" : ["meto_azspice_gnu_gswp2_rivers_rivers-only", "meto_azspice_gnu_gswp2_trip_rivers-only"],
+
+	   "azspice_gnu_gswp2_restart_rivers-only" : ["meto_azspice_gnu_gswp2_rivers_restart_rivers-only",
+	   			                                  "meto_azspice_gnu_gswp2_trip_restart_rivers-only"],
+
+	   "azspice_gnu_gswp2_restart" : ["meto_azspice_gnu_gswp2_rivers_restart",
+	   			                      "meto_azspice_gnu_gswp2_trip_restart",
+	   			                      "meto_azspice_gnu_gswp2_trip_restart_init_storage",
+	   			                      "azspice_gnu_gswp2_restart_rivers-only"],
+
+	   "azspice_gnu_gswp2_rivers" : ["azspice_gnu_gswp2_restart",
+	   			                     "azspice_gnu_gswp2_rivers-only",
+	   			                     "meto_azspice_gnu_gswp2_irrig_limit_low_river_storage",
+	   			                     "meto_azspice_gnu_gswp2_irrig_limit_high_river_storage",
+	   			                     "meto_azspice_gnu_gswp2_rivers_hypso"],
+
+        "azspice_gnu_eraint" : ["meto_azspice_gnu_eraint_rfm_2ddata", "meto_azspice_gnu_eraint_trip_2ddata"],
+
+        "azspice_gnu_imogen" : ["meto_azspice_gnu_imogen_layeredc",
+                                "meto_azspice_gnu_imogen_layeredc_co2conc",
+                                "meto_azspice_gnu_imogen_layeredc_dtempg",
+                                "meto_azspice_gnu_imogen_layeredc_ch4"],
+
+    }
+%}

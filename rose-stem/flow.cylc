@@ -1,16 +1,32 @@
 #!jinja2
-{% set KILL = False %}
-
-{% if CYLC_VERSION is defined %}
-{% set detected_cylc = CYLC_VERSION.split(".")[0] %}
-{% else %}
-{% set detected_cylc = "0" %}
-{% endif %}
-{% if detected_cylc|int >= 8 %}
 {% from "cylc.flow" import LOG %}
-{% else %}
-{% from "cylc" import LOG %}
+{% from "utils" import get_site %}
+{% from "read_sources" import read_sources  %}
+
+{% if SITE is not defined %}
+    {% set SITE = get_site() %}
 {% endif %}
+{% do LOG.info("Site: " + SITE) %}
+
+{% set SOURCE_DIRECTORY = ROSE_ORIG_HOST~":"~CYLC_WORKFLOW_SRC_DIR~"/.." %}
+{# Include log message for suite_report #}
+{% do LOG.info("JULES SOURCE CLONE="~SOURCE_DIRECTORY) %}
+
+{# Read the sources of dependencies from the dependencies.yaml file #}
+{% set dependencies = read_sources(SOURCE_DIRECTORY, "jules", USE_HEADS) %}
+
+{# Read in groups to run #}
+{% if group is defined %}
+    {% set RUN_NAMES = group %}
+{% elif g is defined %}
+    {% set RUN_NAMES = g %}
+{% else %}
+    {% set RUN_NAMES = ["all"] %}
+{% endif %}
+{% do LOG.info("Running groups: "~RUN_NAMES|join('
+                   ')) %}
+
+{% set KILL = False %}
 
 {% if REMOTE_JASMIN == false %}
      {% if SITE == '' %}
@@ -27,10 +43,10 @@
 
 
 {#- Import variable definitions #}
-%include 'include/variables.rc'
+%include 'include/variables.cylc'
 
 {#- Import any Cylc task parameters #}
-%include 'include/parameters.rc'
+%include 'include/parameters.cylc'
 
 [scheduler]
 UTC mode = True
@@ -38,20 +54,20 @@ install = include/
 [[events]]
     stall timeout = {{ SUITE_TIMEOUT }}
     abort on stall timeout = True
-    shutdown handlers = "suite_report.py"
-    stall handlers = "suite_report.py"
+    shutdown handlers = "suite_report_git.py -S $CYLC_WORKFLOW_RUN_DIR"
+    stall handlers = "suite_report_git.py -S $CYLC_WORKFLOW_RUN_DIR"
 
 {#- Import the dependency graphs for the available jobs and groups #}
-%include 'include/graph.rc'
+%include 'include/graph.cylc'
 
 [scheduling]
 {#- Import any queues #}
-%include 'include/queues.rc'
+%include 'include/queues.cylc'
 
-    [[dependencies]]
-        graph = """
-{# Hardcode export of Simsys_Scripts to always run #}
-export_simsys_scripts
+    [[graph]]
+        R1 = """
+{# Hardcode extract of sources to always run #}
+extract_source
 {#- Recursively add dependencies from RUN_NAMES, replacing groups with subgroups/tasks #}
 {%- set name_graphs_out = [] %}
 {%- set graphs_out = [] %}
@@ -85,15 +101,22 @@ export FCM_VERSION={{FCM_VERSION}}
 """
         script = "rose task-run --verbose"
         [[[events]]]
-            mail events = retry, submission failed, submission timeout, execution timeout
             submission timeout = PT12H
             execution timeout  =  PT3H
         [[[environment]]]
+            SOURCE_DIRECTORY = $CYLC_WORKFLOW_SHARE_DIR/source
+            JULES_SOURCE = $SOURCE_DIRECTORY/jules
             {% if REMOTE_JASMIN == false %}
                 ROSE_ORIG_HOST = {{ ROSE_ORIG_HOST }}
             {% endif %}
-
+{% for dependency, values in dependencies.items() %}
+    {% set str = values["source"] %}
+    {% if values["ref"] %}
+        {% set str = str~"~"~values["ref"] %}
+    {% endif %}
+            {{dependency|upper}}_SOURCE_CODE = {{str}}
+{% endfor %}
 
 {#- Import family and job definitions #}
-%include 'include/runtime.rc'
-%include 'runtime-common.rc'
+%include 'include/runtime.cylc'
+%include 'runtime-common.cylc'
