@@ -17,11 +17,11 @@
         "loobos_gl8_medlyn" : "remote_init_vm => extract_source => fcm_make_debug & install_loobos_data => \
                           loobos_gl8_medlyn => nccmp_loobos_gl8_medlyn => housekeep_loobos_gl8_medlyn",
 
-        "loobos_gl8_irrigon_5050irrigtiles" : "remote_init_vm => fcm_make_debug & install_loobos_data => \
+        "loobos_gl8_irrigon_5050irrigtiles" : "remote_init_vm => extract_source => fcm_make_debug & install_loobos_data => \
                         loobos_gl8_irrigon_5050irrigtiles => nccmp_loobos_gl8_irrigon_5050irrigtiles => \
                         housekeep_loobos_gl8_irrigon_5050irrigtiles",
                         
-        "loobos_vegdrag" : "remote_init_vm => fcm_make_debug & install_loobos_data => \
+        "loobos_vegdrag" : "remote_init_vm => extract_source => fcm_make_debug & install_loobos_data => \
                           loobos_vegdrag => nccmp_loobos_vegdrag => housekeep_loobos_vegdrag",
 
         "loobos_euro4" : "remote_init_vm => extract_source => fcm_make_debug & install_loobos_data => \
