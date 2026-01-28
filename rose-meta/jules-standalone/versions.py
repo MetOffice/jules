@@ -59,7 +59,7 @@ class vn80_t1529(MacroUpgrade):
 
     """ Upgrade macro from JULES by Heather Rumbold """
 
-    BEFORE_TAG = "vn8.0_t1088"
+    BEFORE_TAG = "vn8.0"
     AFTER_TAG = "vn8.0_t1529"
 
     def upgrade(self,config, meta_config=None):
