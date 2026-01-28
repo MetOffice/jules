@@ -55,12 +55,12 @@ class vnYY_txxxx(MacroUpgrade):
         # Add settings
         return config, self.reports
     
-class vn79_t1529(MacroUpgrade):
+class vn80_t1529(MacroUpgrade):
 
     """ Upgrade macro from JULES by Heather Rumbold """
 
-    BEFORE_TAG = "vn7.9_t1088"
-    AFTER_TAG = "vn7.9_t1529"
+    BEFORE_TAG = "vn8.0_t1088"
+    AFTER_TAG = "vn8.0_t1529"
 
     def upgrade(self,config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
