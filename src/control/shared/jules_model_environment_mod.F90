@@ -32,7 +32,7 @@ PUBLIC :: print_nlist_jules_model_environment,                                 &
           check_jules_model_environment
 
 
-INTEGER :: l_jules_parent = imdi ! Switch to identify UM-JULES environment
+INTEGER :: l_jules_parent = imdi ! Switch to identify JULES parent environment
 INTEGER, PUBLIC :: lsm_id = imdi ! Switch to identify land surface model
 INTEGER, PARAMETER, PUBLIC :: jules = 1
 INTEGER, PARAMETER, PUBLIC :: cable = 2
@@ -52,7 +52,7 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_MODEL_ENVIRONMENT_MOD'
 
 CONTAINS
 
-SUBROUTINE check_jules_model_environment()
+SUBROUTINE check_jules_model_environment(l_jules_parent_config)
 
 !-----------------------------------------------------------------------------
 ! Description:
@@ -71,20 +71,25 @@ USE jules_print_mgr, ONLY: jules_message, jules_print
 
 IMPLICIT NONE
 
+! This is only required to be passed by LFRic as l_jules_parent should be kept
+! private, but in LFRic is read by jules_model_environment_config_mod
+INTEGER, INTENT(IN), OPTIONAL :: l_jules_parent_config
+
 ! Options for defining JULES parent models
 INTEGER, PARAMETER ::                                                          &
   jules_standalone = 0,                                                        &
   um_jules         = 1,                                                        &
-  oasis_coupler    = 2
+  oasis_coupler    = 2,                                                        &
+  lfric            = 3
 
 INTEGER :: errcode   ! error code to pass to ereport.
 CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_MODEL_ENVIRONMENT'
 
 !-----------------------------------------------------------------------------
 
-! Check that l_jules_parent is consistent with UM_JULES ifdef.
+! Check that l_jules_parent is consistent with configuration ifdefs.
 ! MONC_JULES (jules:#347) should be added here when available.
-#if defined(UM_JULES)
+#if defined(UM_JULES) && !defined(LFRIC)
 IF ( l_jules_parent /= um_jules ) THEN
   errcode = 10
   WRITE(jules_message,'(A,I0)')                                                &
@@ -100,9 +105,27 @@ IF ( l_jules_parent /= oasis_coupler ) THEN
      l_jules_parent
   CALL ereport(RoutineName, errcode, jules_message )
 END IF
+#elif defined(LFRIC)
+IF ( PRESENT(l_jules_parent_config) ) THEN
+  l_jules_parent = l_jules_parent_config
+ELSE
+  errcode = 30
+  WRITE(jules_message,'(A,I0)')                                                &
+     "l_jules_parent_config is required to be passed by LFRic. This " //       &
+     "allows l_jules_parent to remain private as it should not be used " //    &
+     "in the science code."
+  CALL ereport(RoutineName, errcode, jules_message )
+END IF
+IF ( l_jules_parent_config /= lfric ) THEN
+  errcode = 35
+  WRITE(jules_message,'(A,I0)')                                                &
+     ": l_jules_parent should be 'lfric'/3 for LFRic. l_jules_parent = ",      &
+     l_jules_parent
+  CALL ereport(RoutineName, errcode, jules_message )
+END IF
 #else
 IF ( l_jules_parent /= jules_standalone ) THEN
-  errcode = 30
+  errcode = 40
   WRITE(jules_message,'(A,I0)')                                                &
      "l_jules_parent should be 0 for standalone. l_jules_parent = ",           &
      l_jules_parent
