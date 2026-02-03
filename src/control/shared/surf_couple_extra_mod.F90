@@ -64,6 +64,9 @@ SUBROUTINE surf_couple_extra(                                                  &
    stf_sub_surf_roff,                                                          &
    fexp_soilt, gamtot_soilt, ti_mean_soilt, ti_sig_soilt,                      &
    flash_rate_ancil, pop_den_ancil, wealth_index_ancil,                        &
+   wham_arable_ba_ancil, wham_pasture_ba_ancil, wham_other_man_ancil,          &
+   wham_other_ag_ancil,wham_ignitions_ancil, wham_suppression_ancil,           &
+   road_density_ancil, wham_escaped_ancil,                                     &
    a_fsat_soilt, c_fsat_soilt, a_fwet_soilt, c_fwet_soilt,                     &
    ntype,                                                                      &
    delta_lambda, delta_phi, xx_cos_theta_latitude,                             &
@@ -212,8 +215,8 @@ USE jules_vegetation_mod,     ONLY:                                            &
   l_crop, l_fao_ref_evapotranspiration,                                        &
 #endif
   l_triffid, l_trif_eq, l_phenol, phenol_period, triffid_period,               &
-  l_inferno, ignition_method,                                                  &
-  ignition_vary_natural, ignition_vary_natural_human,                          &
+  l_inferno, l_inferno_wham, ignition_method, fire_mortality_method,           &
+  ignition_vary_natural, ignition_vary_natural_human, ignition_wham,           &
   l_acclim, n_day_photo_acclim, l_red
 
 USE jules_irrig_mod, ONLY: l_irrig_dmd
@@ -344,6 +347,14 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   flash_rate_ancil(row_length,rows),                                           &
   pop_den_ancil(row_length,rows),                                              &
   wealth_index_ancil(row_length,rows),                                         &
+  wham_arable_ba_ancil(row_length,rows),                                       &
+  wham_pasture_ba_ancil(row_length,rows),                                      &
+  wham_other_man_ancil(row_length,rows),                                       &
+  wham_other_ag_ancil(row_length, rows),                                       &
+  wham_ignitions_ancil(row_length,rows),                                       &
+  wham_escaped_ancil(row_length, rows),                                        &
+  wham_suppression_ancil(row_length,rows),                                     &
+  road_density_ancil(row_length,rows),                                         &
   u_s_std_surft(land_pts, nsurft),                                             &
 
   !River routing
@@ -534,7 +545,7 @@ CASE ( jules )
     END DO
   END IF
 
-  ! Compress pop_den and flash rate fields to land points if required.
+  ! Compress ignition fields to land points if required.
   ! In the UM the ancils are 2D fields.
   IF (l_inferno) THEN
     IF (ignition_method == ignition_vary_natural) THEN
@@ -553,6 +564,30 @@ CASE ( jules )
         fire_vars%wealth_index(l) = wealth_index_ancil(i,j)
       END DO
     END IF
+    IF (ignition_method == ignition_wham) THEN
+      DO l = 1, land_pts
+        j = (ainfo%land_index(l) - 1) / row_length + 1
+        i = ainfo%land_index(l) - (j-1) * row_length
+        fire_vars%flash_rate(l)      = flash_rate_ancil(i,j)
+        fire_vars%wham_ignitions(l)  = wham_ignitions_ancil(i, j)
+        fire_vars%wham_suppression(l)= wham_suppression_ancil(i, j)
+      END DO
+    END IF
+    
+    ! Set up WHAM managed burned area if it is being used
+    IF (l_inferno_wham) THEN
+      DO l = 1, land_pts
+        j = (ainfo%land_index(l) - 1) / row_length + 1
+        i = ainfo%land_index(l) - (j-1) * row_length
+        fire_vars%wham_arable_ba(l)  = wham_arable_ba_ancil(i,j)
+        fire_vars%wham_pasture_ba(l) = wham_pasture_ba_ancil(i,j)
+        fire_vars%wham_other_man(l)  = wham_other_man_ancil(i,j)
+        fire_vars%wham_other_ag(l)   = wham_other_ag_ancil(i,j)
+        fire_vars%wham_escaped(l)    = wham_escaped_ancil(i, j)
+        fire_vars%road_density(l)    = road_density_ancil(i, j)
+      END DO
+    END IF
+    
   END IF
 #endif
 
@@ -1044,12 +1079,12 @@ CASE ( jules )
                                   c_soil_dpm_gb, c_soil_rpm_gb)
 
       CALL inferno_io( sf_diag%t1p5m_surft, sf_diag%q1p5m_surft, pstar_gb,     &
-                      psparms%sthu_soilt, sm_levels,                           &
+                      psparms%sthu_soilt, toppdm%fsat_soilt, sm_levels,        &
                       ainfo%frac_surft, c_soil_dpm_gb, c_soil_rpm_gb,          &
                       progs%canht_pft,                                         &
-                      ls_rain_gb, con_rain_gb,                                 &
+                      ls_rain_gb, con_rain_gb, u_1_gb, v_1_gb,                 &
                       fire_vars,                                               &
-                      land_pts, ignition_method,                               &
+                      land_pts, ignition_method, fire_mortality_method,        &
                       nsurft, asteps_since_triffid,                            &
                     ! New Arguments to replace USE statements
                     ! TRIF_VARS_MOD

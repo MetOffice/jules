@@ -9354,4 +9354,173 @@ DATA metadata(722) / var_metadata(                                             &
 ! Units
     "kg s-1"                                                                   &
   ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_arable_ba
+!-----------------------------------------------------------------------------
+DATA metadata(723) / var_metadata(                                             &
+! String identifier
+    'wham_arable_ba',                                                          &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Managed fire burnt area fraction (arable)",                               &
+! Units
+    "fraction of gridbox per month"                                            &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_pasture_ba
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
+! String identifier
+    'wham_pasture_ba',                                                         &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Managed fire burnt area fraction (pasture)",                              &
+! Units
+    "fraction of gridbox per month"                                            &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_other_man
+!-----------------------------------------------------------------------------
+DATA metadata(725) / var_metadata(                                             &
+! String identifier
+    'wham_other_man',                                                          &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Vegetation management fire fraction",                                     &
+! Units
+    "fraction of gridbox per month"                                            &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_ignitions
+!-----------------------------------------------------------------------------
+DATA metadata(726) / var_metadata(                                             &
+! String identifier
+    'wham_ignitions',                                                          &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Unmanaged fires from WHAM ABM",                                           &
+! Units
+    "km-2 yr-1"                                                                &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_suppression
+!-----------------------------------------------------------------------------
+DATA metadata(727) / var_metadata(                                             &
+! String identifier
+    'wham_suppression',                                                        &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Fire suppression from WHAM ABM",                                          &
+! Units
+    "Dimensionless"                                                            &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for road_density
+!-----------------------------------------------------------------------------
+DATA metadata(728) / var_metadata(                                             &
+! String identifier
+    'road_density',                                                            &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Road density",                                                            &
+! Units
+    "km / km-2"                                                                &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham burnt area proportion
+!-----------------------------------------------------------------------------
+DATA metadata(729)/var_metadata(                                               &
+! String identifier
+    'wham_ba_gb',                                                              &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "wham burnt area fraction",                                                &
+! Units
+    "grid box fraction /s"                                                     &
+  )/
+!-----------------------------------------------------------------------------
+! Metadata for wham burnt area proportion
+!-----------------------------------------------------------------------------
+DATA metadata(730)/var_metadata(                                               &
+! String identifier
+    'wham_ba_ft',                                                              &
+! Variable type
+    var_type_pft,                                                              &
+! Long name
+    "wham burnt area per pft",                                                 &
+! Units
+    "Dimensionless"                                                            &
+  )/
+!-----------------------------------------------------------------------------
+! Metadata for normalised fireline intensity
+!-----------------------------------------------------------------------------
+DATA metadata(731)/var_metadata(                                               &
+! String identifier
+    'fire_intensity_ft',                                                       &
+! Variable type
+    var_type_pft,                                                              &
+! Long name
+    "Normalised fireline intensity",                                           &
+! Units
+    "Dimensionless"                                                            &
+  )/
+!-----------------------------------------------------------------------------
+! Metadata for wham_other_man
+!-----------------------------------------------------------------------------
+DATA metadata(732) / var_metadata(                                             &
+! String identifier
+    'wham_other_ag',                                                           &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "WHAM other agricultural burnt fraction",                                  &
+! Units
+    "fraction of gridbox per month"                                            &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_escaped
+!-----------------------------------------------------------------------------
+DATA metadata(733) / var_metadata(                                             &
+! String identifier
+    'wham_escaped',                                                            &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "WHAM escaped prescribed fires",                                           &
+! Units
+    "fraction of gridbox per month"                                            &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_escaped
+!-----------------------------------------------------------------------------
+DATA metadata(734) / var_metadata(                                             &
+! String identifier
+    'fire_intensity_clim',                                                     &
+! Variable type
+    var_type_pft,                                                              &
+! Long name
+    "Impact of climate on fireline intensity",                                 &
+! Units
+    "Dimensionless"                                                            &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for wham_escaped
+!-----------------------------------------------------------------------------
+DATA metadata(735) / var_metadata(                                             &
+! String identifier
+    'fire_intensity_wham',                                                     &
+! Variable type
+    var_type_pft,                                                              &
+! Long name
+    "Impact of mgmt on fireline intensity",                                    &
+! Units
+    "Dimensionless"                                                            &
+  ) /  
 #endif

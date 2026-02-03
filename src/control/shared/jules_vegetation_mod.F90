@@ -157,12 +157,19 @@ LOGICAL ::                                                                     &
   l_trif_fire = .FALSE.,                                                       &
       ! Switch used to control whether interactive fire is used
       !   T => if l_inferno is also true, g_burn is calculated in INFERNO
-!   and passed to TRIFFID to calculate emissions and vegetation
-       !   dynamics
-       !   T => if l_inferno is false, interactive fire is calculated via
-!   ancillary if provided, and is 0 if not provided
-       !   F => g_burn is calculated via ancillary if provided, and is 0 if
-!   not provided
+      !   and passed to TRIFFID to calculate emissions and vegetation
+      !   dynamics
+      !   T => if l_inferno is false, interactive fire is calculated via
+      !   ancillary if provided, and is 0 if not provided
+      !   F => g_burn is calculated via ancillary if provided, and is 0 if
+      !   not provided
+  l_inferno_wham = .FALSE.,                                                    &
+      ! Switch used to control whether INFERNO is run using inputs from the
+      ! WHAM! agent-based model of human fire use & mgmt. 
+      ! T => managed fire inputs, ignitions & suppression should come from 
+      ! WHAM!, and ignition_method should be set to 4 (int)
+      ! F => managed fire is not included, and ignitions are derived from 
+      !  population density & HDI
    l_use_pft_psi = .FALSE.,                                                    &
        ! Switch used to control what parameters are used in the calculation
        ! of the soil moisture stress factor
@@ -239,6 +246,13 @@ INTEGER ::                                                                     &
       ! IGNITION_METHOD=2:Constant (Human - 1.5 per km2 per s)
       !                   Varying  (Lightning - see Pechony and Shindell,2009)
       ! IGNITION_METHOD=3:Vary Human and Lightning (Pechony and Shindell,2009)
+      ! IGNITION_METHOD=4:Use WHAM! ignitions (Perkins et al., 2024, GMD)
+  fire_mortality_method = 1,                                                   &
+      ! Switch for the method of calculation for fire mortality
+      ! fire_mortality_method = 1: uniform mortality per PFT (per Burton 2019)
+      ! fire_mortality_method = 2: mortality per PFT adjusted for soil moisture
+      ! fire_mortality_method = 3: explicit fireline intensity-based mortality 
+      !                               (see Perkins et al., 2026)
   fsmc_shape = 0,                                                              &
       ! shape of the soil moisture stress function fsmc
       ! 0: piece-wise linear in vol. soil moisture.
@@ -259,6 +273,7 @@ INTEGER ::                                                                     &
 INTEGER, PARAMETER :: ignition_constant = 1
 INTEGER, PARAMETER :: ignition_vary_natural = 2
 INTEGER, PARAMETER :: ignition_vary_natural_human = 3
+INTEGER, PARAMETER :: ignition_wham = 4
 
 INTEGER ::                                                                     &
   phenol_period = imdi,                                                        &
@@ -344,7 +359,8 @@ NAMELIST  / jules_vegetation/                                                  &
     l_bvoc_emis, l_o3_damage, can_model, can_rad_mod, ilayers,                 &
     frac_min, frac_seed, pow, l_landuse, l_leaf_n_resp_fix, l_stem_resp_fix,   &
     l_nitrogen, l_vegcan_soilfx, l_trif_crop, l_trif_fire,                     &
-    l_inferno, ignition_method, l_vegdrag_pft, l_rsl_scalar,                   &
+    l_inferno, l_inferno_wham, ignition_method, fire_mortality_method,         &
+    l_vegdrag_pft, l_rsl_scalar,                                               &
     cd_leaf, c1_usuh, c2_usuh, c3_usuh, dsj_coef, dsv_coef, jv25_coef,         &
     act_j_coef, act_v_coef,                                                    &
     n_alloc_jmax, n_alloc_vcmax, n_day_photo_acclim,                           &
@@ -778,10 +794,11 @@ END IF
 ! Check a suitable ignition_method was given
 IF ( ignition_method /= ignition_constant .AND.                                &
      ignition_method /= ignition_vary_natural .AND.                            &
-     ignition_method /= ignition_vary_natural_human ) THEN
+     ignition_method /= ignition_vary_natural_human .AND.                      &
+     ignition_method /= ignition_wham ) THEN
   errcode = 101
   CALL ereport("check_jules_vegetation", errcode,                              &
-               'ignition_method must be 1, 2 or 3')
+               'ignition_method must be 1, 2, 3 or 4')
 END IF
 
 IF ( fsmc_shape == 1 .AND. .NOT. l_use_pft_psi ) THEN
@@ -1029,6 +1046,7 @@ TYPE :: my_namelist
   INTEGER :: can_rad_mod
   INTEGER :: ilayers
   INTEGER :: ignition_method
+  INTEGER :: fire_mortality_method
   INTEGER :: photo_acclim_model
   INTEGER :: photo_act_model
   INTEGER :: photo_jv_model
@@ -1074,6 +1092,7 @@ TYPE :: my_namelist
   LOGICAL :: l_scale_resp_pm
   LOGICAL :: l_vegcan_soilfx
   LOGICAL :: l_inferno
+  LOGICAL :: l_inferno_wham
   LOGICAL :: l_vegdrag_pft(npft_max)
   LOGICAL :: l_rsl_scalar
   LOGICAL :: l_spec_veg_z0
@@ -1103,6 +1122,7 @@ IF (mype == 0) THEN
   my_nml % can_rad_mod     = can_rad_mod
   my_nml % ilayers         = ilayers
   my_nml % ignition_method = ignition_method
+  my_nml % fire_mortality_method = fire_mortality_method
   my_nml % photo_acclim_model = photo_acclim_model
   my_nml % photo_act_model = photo_act_model
   my_nml % photo_jv_model     = photo_jv_model
@@ -1148,6 +1168,7 @@ IF (mype == 0) THEN
   my_nml % l_scale_resp_pm = l_scale_resp_pm
   my_nml % l_vegcan_soilfx = l_vegcan_soilfx
   my_nml % l_inferno       = l_inferno
+  my_nml % l_inferno_wham  = l_inferno_wham
   my_nml % l_vegdrag_pft   = l_vegdrag_pft
   my_nml % l_rsl_scalar    = l_rsl_scalar
   my_nml % l_spec_veg_z0   = l_spec_veg_z0
@@ -1166,6 +1187,7 @@ IF (mype /= 0) THEN
   can_rad_mod     = my_nml % can_rad_mod
   ilayers         = my_nml % ilayers
   ignition_method = my_nml % ignition_method
+  fire_mortality_method = my_nml % fire_mortality_method
   photo_acclim_model = my_nml % photo_acclim_model
   photo_act_model = my_nml % photo_act_model
   photo_jv_model     = my_nml % photo_jv_model
@@ -1211,6 +1233,7 @@ IF (mype /= 0) THEN
   l_scale_resp_pm = my_nml % l_scale_resp_pm
   l_vegcan_soilfx = my_nml % l_vegcan_soilfx
   l_inferno       = my_nml % l_inferno
+  l_inferno_wham  = my_nml % l_inferno_wham
   l_vegdrag_pft   = my_nml % l_vegdrag_pft
   l_rsl_scalar    = my_nml % l_rsl_scalar
   l_spec_veg_z0   = my_nml % l_spec_veg_z0

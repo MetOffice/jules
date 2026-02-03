@@ -405,6 +405,14 @@ REAL ::                                                                        &
   flash_rate_ancil(row_length,rows),                                           &
   pop_den_ancil(row_length,rows),                                              &
   wealth_index_ancil(row_length,rows),                                         &
+  wham_arable_ba_ancil(row_length,rows),                                       &
+  wham_pasture_ba_ancil(row_length,rows),                                      &
+  wham_other_man_ancil(row_length,rows),                                       &
+  wham_other_ag_ancil(row_length,rows),                                        &
+  wham_ignitions_ancil(row_length,rows),                                       &
+  wham_escaped_ancil(row_length,rows),                                         &
+  wham_suppression_ancil(row_length,rows),                                     &
+  road_density_ancil(row_length,rows),                                         &
   inlandout_atm_gb(land_pts),                                                  &
   delta_lambda,                                                                &
   delta_phi,                                                                   &
@@ -877,6 +885,9 @@ CALL surf_couple_extra(                                                        &
   stf_sub_surf_roff,                                                           &
   toppdm%fexp_soilt, toppdm%gamtot_soilt, toppdm%ti_mean_soilt,                &
   toppdm%ti_sig_soilt, flash_rate_ancil, pop_den_ancil, wealth_index_ancil,    &
+  wham_arable_ba_ancil, wham_pasture_ba_ancil, wham_other_man_ancil,           &
+  wham_other_ag_ancil, wham_ignitions_ancil, wham_suppression_ancil,           &
+  road_density_ancil, wham_escaped_ancil,                                      &
   toppdm%a_fsat_soilt, toppdm%c_fsat_soilt, toppdm%a_fwet_soilt,               &
   toppdm%c_fwet_soilt,ntype,                                                   &
   delta_lambda, delta_phi, xx_cos_theta_latitude,                              &

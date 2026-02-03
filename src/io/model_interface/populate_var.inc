@@ -2804,6 +2804,70 @@ CASE ( 'wealth_index' )
     fire_vars%wealth_index(:) = const_val
   END IF
 
+CASE ( 'wham_arable_ba' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%wham_arable_ba)
+  ELSE
+    fire_vars%wham_arable_ba(:) = const_val
+  END IF
+
+CASE ( 'wham_pasture_ba' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%wham_pasture_ba)
+  ELSE
+    fire_vars%wham_pasture_ba(:) = const_val
+  END IF
+
+CASE ( 'wham_other_man' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%wham_other_man)
+  ELSE
+    fire_vars%wham_other_man(:) = const_val
+  END IF
+
+CASE ( 'wham_other_ag' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%wham_other_ag)
+  ELSE
+    fire_vars%wham_other_ag(:) = const_val
+  END IF
+
+CASE ( 'wham_ignitions' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%wham_ignitions)
+  ELSE
+    fire_vars%wham_ignitions(:) = const_val
+  END IF
+
+CASE ( 'wham_escaped' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%wham_escaped)
+  ELSE
+    fire_vars%wham_escaped(:) = const_val
+  END IF
+
+CASE ( 'wham_suppression' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%wham_suppression)
+  ELSE
+    fire_vars%wham_suppression(:) = const_val
+  END IF
+
+CASE ( 'road_density' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, fire_vars%road_density)
+  ELSE
+    fire_vars%road_density(:) = const_val
+  END IF
+
   !-----------------------------------------------------------------------------
   ! Variables for thermal acclimation of photosynthesis.
   !-----------------------------------------------------------------------------

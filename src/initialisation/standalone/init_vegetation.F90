@@ -36,10 +36,12 @@ USE jules_vegetation_mod, ONLY: jules_vegetation, photo_acclim_model,          &
                                 photo_act_pft, photo_act_gb, photo_jv_model,   &
                                 jv_scale, jv_ntotal, stomata_model,            &
                                 stomata_jacobs, stomata_medlyn, stomata_sox,   &
-                                l_inferno, l_trif_eq, triffid_period,          &
-                                ignition_method, check_jules_vegetation,       &
+                                l_inferno, l_inferno_wham,                     & 
+                                l_trif_eq, triffid_period,                     &
+                                ignition_method, fire_mortality_method,        &
+                                check_jules_vegetation,                        &
                                 ignition_constant, ignition_vary_natural,      &
-                                ignition_vary_natural_human
+                                ignition_vary_natural_human, ignition_wham
 
 USE logging_mod, ONLY: log_info, log_error, log_fatal
 
@@ -188,6 +190,9 @@ IF ( l_inferno ) THEN
   ELSE IF (ignition_method == ignition_vary_natural_human ) THEN
     CALL log_info("init_vegetation",                                           &
                   "Fully prescribed ignitions (INFERNO)")
+  ELSE IF (ignition_method == ignition_wham) THEN
+    CALL log_info("init_vegetation",                                           &
+                  "Ignitions taken from WHAM agent based model")
   END IF
 END IF
 

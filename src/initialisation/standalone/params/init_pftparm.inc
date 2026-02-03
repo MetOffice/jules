@@ -46,9 +46,9 @@ USE pftparm, ONLY:                                                             &
   fef_co,       fef_co2,       fef_nox,                                        &
   fef_oc,       fef_so2,       fef_c2h4,                                       &
   fef_c2h6,     fef_c3h8,      fef_hcho,                                       &
-  fef_mecho,    fef_nh3,                                                       &
-  fef_dms,      fire_mort,     fl_o3_ct,                                       &
-  fsmc_of,      fsmc_p0,       sug_g0,                                         &
+  fef_mecho,    fef_nh3,       fef_dms,                                        &
+  fire_mort,    fl_o3_ct,      fsmc_of,                                        &
+  fsmc_p0,      fuel_type,     sug_g0,                                         &
   g1_stomata,   g_leaf_0,      glmin,                                          &
   gpp_st,       sug_grec,      gsoil_f,                                        &
   hw_sw,        ief,           infil_f,                                        &
@@ -75,7 +75,7 @@ USE jules_vegetation_mod, ONLY: can_rad_mod, l_crop, l_trait_phys,             &
                                  photo_farquhar, photo_model,                  &
                                  stomata_jacobs, stomata_medlyn, stomata_sox,  &
                                  stomata_model, l_spec_veg_z0, l_sugar,        &
-                                 l_scale_resp_pm
+                                 l_scale_resp_pm, l_inferno_wham
 
 USE jules_radiation_mod, ONLY: l_spec_albedo, l_albedo_obs, l_snow_albedo
 
@@ -627,6 +627,12 @@ IF ( l_trif_fire ) THEN
   IF ( ANY( ABS( fire_mort(:) - rmdi ) < EPSILON(1.0) ) ) THEN
     ERROR = 1
     CALL log_error(routinename, "No value for fire_mort")
+  END IF
+END IF
+IF ( l_trif_fire ) THEN
+  IF ( ANY( fuel_type(:) < 0 ) ) THEN
+    ERROR = 1
+    CALL log_error(routinename, "No value for fuel_type")
   END IF
 END IF
 
