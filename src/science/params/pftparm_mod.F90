@@ -300,6 +300,12 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
 !-----------------------------------------------------------------------------
 ! Parameters for INFERNO combustion
 !-----------------------------------------------------------------------------
+
+INTEGER, ALLOCATABLE ::                                                        &
+ fuel_type(:)           
+                 ! PFT fuel type for management decisions
+
+
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
  avg_ba(:)                                                                     &
                  ! Average PFT Burnt Area per fire
@@ -599,6 +605,7 @@ ALLOCATE( ccleaf_max(npft))
 ALLOCATE( ccwood_min(npft))
 ALLOCATE( ccwood_max(npft))
 ALLOCATE( fire_mort(npft))
+ALLOCATE( fuel_type(npft))
 
 avg_ba(:)     = 0.0
 ccleaf_min(:) = 0.0
@@ -606,6 +613,7 @@ ccleaf_max(:) = 0.0
 ccwood_min(:) = 0.0
 ccwood_max(:) = 0.0
 fire_mort(:)  = 0.0
+fuel_type(:)  = 0.0
 
 ! INFERNO emission parameters
 ALLOCATE( fef_bc(npft))

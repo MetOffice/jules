@@ -20,6 +20,8 @@ USE parkind1,                       ONLY: jpim
 
 USE um_types, ONLY: real_jlslsm
 
+USE conversions_mod, ONLY: s_in_day => rsec_per_day
+
 IMPLICIT NONE
 
 INTEGER(KIND=jpim), PARAMETER, PRIVATE :: zhook_in  = 0
@@ -29,16 +31,17 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName = "INFERNO_IO_MOD"
 CONTAINS
 
 SUBROUTINE inferno_io(                                                         &
-  t1p5m_tile, q1p5m_tile, pstar, sthu_soilt                                    &
-, sm_levels, frac, c_soil_dpm_gb, c_soil_rpm_gb, canht, ls_rain, con_rain      &
-, fire_vars                                                                    &
-, land_pts, ignition_method, nsurft, asteps_since_triffid                      &
+  t1p5m_tile, q1p5m_tile, pstar, sthu_soilt, fsat_soilt                        &
+, sm_levels, frac, c_soil_dpm_gb, c_soil_rpm_gb, canht                         & 
+, ls_rain, con_rain, u_1_gb, v_1_gb, fire_vars                                 &      
+, land_pts, ignition_method, fire_mortality_method                             &
+, nsurft, asteps_since_triffid                                                 &
 ! New Arguments to replace USE statements
 ! TRIF_VARS_MOD
 , g_burn_pft_acc                      )
 
 USE inferno_mod,  ONLY:                                                        &
-  calc_flam, calc_ignitions, calc_burnt_area,                                  &
+  calc_flam, calc_ignitions, calc_burnt_area, calc_intensity,                  &
   calc_emitted_carbon, calc_emitted_carbon_soil, calc_emission
 
 USE yomhook,      ONLY: lhook, dr_hook
@@ -50,15 +53,15 @@ USE pftparm,                  ONLY:                                            &
     ! PFT Emission factors from namelists
   ccleaf_min, ccleaf_max, ccwood_min, ccwood_max,                              &
     ! PFT Combustion completeness from namelists
-  avg_ba, fire_mort
-    ! Average Burned Area per PFT, and fire mortality rate
+  avg_ba, fire_mort, fuel_type
+    ! Average Burned Area per PFT, baseline fire mortality, fuel_type
 
 
 USE qsat_mod, ONLY: qsat_wat
 
 USE jules_surface_types_mod,        ONLY: npft
 USE parkind1,                       ONLY: jprb
-USE jules_vegetation_mod,           ONLY: l_trif_fire
+USE jules_vegetation_mod,           ONLY: l_trif_fire, l_inferno_wham
 USE timestep_mod,                   ONLY: timestep
 USE calc_c_comps_triffid_mod,       ONLY: calc_c_comps_triffid
 
@@ -83,13 +86,15 @@ IMPLICIT NONE
 !
 
 INTEGER, INTENT(IN) ::                                                         &
-  land_pts, sm_levels, ignition_method, asteps_since_triffid, nsurft
+  land_pts, sm_levels, ignition_method, fire_mortality_method,                 &
+  asteps_since_triffid, nsurft
 
 REAL(KIND=real_jlslsm),    INTENT(IN) ::                                       &
   t1p5m_tile(land_pts,nsurft),                                                 &
   q1p5m_tile(land_pts,nsurft),                                                 &
   pstar(land_pts),                                                             &
   sthu_soilt(land_pts,nsoilt,sm_levels),                                       &
+  fsat_soilt(land_pts, nsoilt, sm_levels),                                     &
   frac(land_pts,nsurft),                                                       &
   c_soil_dpm_gb(land_pts),                                                     &
          ! Gridbox soil C in the Decomposable Plant Material pool (kg m-2).
@@ -97,7 +102,11 @@ REAL(KIND=real_jlslsm),    INTENT(IN) ::                                       &
          ! Gridbox soil C in the Resistant Plant Material pool (kg m-2).
   canht(land_pts,npft),                                                        &
   ls_rain(land_pts),                                                           &
-  con_rain(land_pts)
+  con_rain(land_pts),                                                          &
+  u_1_gb(land_pts),                                                            &
+    ! Wind-speed southerly (m/s-1) 
+  v_1_gb(land_pts)                                                            
+    ! Wind-speed westerly (m/s-1)
 
 TYPE(fire_vars_type), INTENT(IN OUT) :: fire_vars
 
@@ -118,7 +127,9 @@ REAL(KIND=real_jlslsm)                        ::                               &
   inferno_rhum(land_pts),                                                      &
     ! The Relative Humidity (%)
   inferno_sm(land_pts),                                                        &
-    ! The Soil Moisture (Fraction of saturation)
+    ! The Soil Moisture (volumetric water content)
+  inferno_fsat(land_pts),                                                      &
+    ! The Soil Moisture (fractional saturation)
   inferno_rain(land_pts),                                                      &
     ! The total rainfall (kg/m2/s)
   inferno_fuel(land_pts),                                                      &
@@ -139,10 +150,20 @@ REAL(KIND=real_jlslsm)                        ::                               &
     ! The amount of RPM that is available to burn (kgC.m-2)
   ls_rain_filtered(land_pts),                                                  &
     ! Large scale rain from input after filtering negative values
-  con_rain_filtered(land_pts)
+  con_rain_filtered(land_pts),                                                 &
     ! Convective rain from input after filtering negative values
+  wind_speed(land_pts),                                                        & 
+    ! Wind speed (m s-1)                                                               
+  fuel_mort(land_pts),                                                         &
+    ! The combined grid-box impact of all PFTs on intensity
+  forest_wham(land_pts),                                                       &
+    ! does the tree cover cause WHAM AFTs to manage land as forest?  
+  other_ba(land_pts),                                                          &
+    ! The tree-cover adjusted managed fire in non-agricultural areas
+  human_ignitions(land_pts)
+    ! The summed human ignitions accounting for dynamic land cover change
 
-
+                                                                                                  
 REAL(KIND=real_jlslsm) ,   PARAMETER      ::                                   &
   fef_co2_dpm = 1637.0, fef_co_dpm  = 89.0,                                    &
   fef_ch4_dpm = 3.92, fef_nox_dpm = 2.51,                                      &
@@ -164,12 +185,20 @@ REAL(KIND=real_jlslsm) ,   PARAMETER      ::                                   &
     ! HARDCODED Emission factors for RPM in g kg-1
   pmtofuel    = 0.7,                                                           &
     ! Plant Material that is available as fuel (on the surface)
-  fuel_low    = 0.02,  fuel_high   = 0.2
+  fuel_low    = 0.02,  fuel_high   = 0.2,                                      &
     ! Fuel availability high/low threshold
+  mort_c = -1.18735,                                                           &
+    ! Intercept for calculating grid box fuel fire intensity
+  intensity_scaling = 0.20,                                                    &
+    ! linear relationship of fire intensity to veg mortality
+  is_forest = 0.50
+    ! point where pixel is considered (tropical) forest for WHAM mgmt
 
 REAL(KIND=real_jlslsm) ,   PARAMETER      ::                                   &
-  rain_tolerance = 1.0e-18 ! kg/m2/s
-  ! Tolerance number to filter non-physical rain values
+  s_in_month = 2.6280288e6,                                                    &
+  rain_tolerance = 1.0e-18
+    ! Tolerance number to filter non-physical rain values (kg/m2/s) 
+
 
 INTEGER :: i, l ! counters for loops
 
@@ -187,8 +216,13 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 inferno_temp(:) = 0.0
 inferno_rhum(:) = 0.0
 inferno_sm(:)   = 0.0
+inferno_fsat(:) = 0.0
 inferno_rain(:) = 0.0
 inferno_fuel(:) = 0.0
+forest_wham(:)  = 0.0
+other_ba(:)     = 0.0
+human_ignitions(:) = 0.0
+
 ! Work variables
 qsat(:)         = 0.0
 lai_bal_inf(:,:)= 0.0
@@ -200,6 +234,11 @@ ignitions(:)    = 0.0
 fire_vars%flammability_ft(:,:)  = 0.0
 fire_vars%burnt_area(:)         = 0.0
 fire_vars%burnt_area_ft(:,:)    = 0.0
+fire_vars%wham_ba(:)            = 0.0
+fire_vars%wham_ba_ft(:,:)       = 0.0
+fire_vars%intensity_ft(:, :)    = 0.0
+fire_vars%intensity_clim(:, :)  = 0.0
+fire_vars%intensity_wham(:, :)  = 0.0
 fire_vars%emitted_carbon(:)     = 0.0
 fire_vars%emitted_carbon_ft(:,:)= 0.0
 fire_vars%emitted_carbon_DPM(:) = 0.0
@@ -274,6 +313,9 @@ rpm_fuel(:) = pmtofuel * c_soil_rpm_gb(:)
 ! Soil Humidity (inferno_sm)
 inferno_sm(:)  = (sthu_soilt(:,1,1))
 
+! Soil Moisture saturation (inferno_fsat)
+inferno_fsat(:) = (fsat_soilt(:, 1, 1))
+
 ! Rainfall (inferno_rain)
 
 ! Rain fall values have a significant impact in the calculation
@@ -306,6 +348,46 @@ DO i = 1, npft
                               c_root, wood_inf(l,i), c_veg)
   END DO
 END DO
+
+!---------------------------------------------------------------
+! Calculate wind speed (using pythagoros theorem)
+!---------------------------------------------------------------
+
+wind_speed(:)   = SQRT(u_1_gb(:)**2.0 + v_1_gb(:)**2.0)
+
+
+!---------------------------------------------------------------
+! Feedback of tree cover on WHAM mgmt decisions
+!---------------------------------------------------------------
+
+other_ba(:)         = fire_vars%wham_other_man(:)
+human_ignitions(:)  = fire_vars%wham_escaped(:) 
+
+! calculate coverage of tropical tree PFTs
+DO i = 1, npft
+
+  !! remove prescribed fire in tropical forests
+  IF (fuel_type(i) == 1 .OR. fuel_type(i) == 2) THEN
+    
+    forest_wham(:) = forest_wham(:) + frac(:, i)
+    
+  END IF
+
+END DO
+
+! reduce prescribed fire in tropical forests
+WHERE (forest_wham > is_forest) 
+
+  other_ba(:)          = fire_vars%wham_other_man(:) -                         &
+                  (0.5 * forest_wham(:) * fire_vars%wham_other_man(:))
+  human_ignitions(:)   = fire_vars%wham_escaped(:) -                           &
+                  (0.5 * forest_wham(:) * fire_vars%wham_escaped(:))  
+
+END WHERE
+
+!sum other fire types & adjust ignitions with escaped managed fires
+other_ba(:)         = other_ba(:)  + fire_vars%wham_other_ag(:)
+human_ignitions(:)  = fire_vars%wham_ignitions(:) + human_ignitions(:)
 
 !---------------------------------------------------------------
 ! Fire calculations - per PFT
@@ -347,15 +429,17 @@ DO i = 1, npft
     CALL qsat_wat(qsat(l), inferno_temp(l), pstar(l))
 
     inferno_rhum(l)  = q1p5m_tile(l,i) / qsat(l) * 100.0
-
+    IF (inferno_rhum(l) < 0.0) inferno_rhum(l) = 0.0
+    
     ! Relative Humidity should be constrained to 0-100
-    IF ((inferno_rhum(l)>100.0) .OR. (inferno_rhum(l)<0.0   )) CYCLE
+    IF ((inferno_rhum(l)>100.0)) CYCLE
 
     ! If all these checks are passes, start fire calculations
     CALL calc_ignitions(                                                       &
       !Point intent(IN)
       fire_vars%pop_den(l), fire_vars%flash_rate(l),                           &
-      fire_vars%wealth_index(l), ignition_method,                              &
+      fire_vars%wealth_index(l), human_ignitions(l),                           &
+      fire_vars%wham_suppression(l), ignition_method,                          &
       !Point intent(OUT)
       ignitions(l))
 
@@ -369,8 +453,11 @@ DO i = 1, npft
     CALL calc_burnt_area(                                                      &
       !Point INTENT(IN)
       fire_vars%flammability_ft(l,i), ignitions(l), avg_ba(i),                 &
+      fire_vars%road_density(l), fire_vars%wham_arable_ba(l),                  &
+      fire_vars%wham_pasture_ba(l), other_ba(l), i,                            &
       !Point INTENT(OUT)
-      fire_vars%burnt_area_ft(l,i))
+      fire_vars%burnt_area_ft(l,i), fire_vars%wham_ba_ft(l, i))
+      
   END DO
 
   CALL calc_emitted_carbon(                                                    &
@@ -435,21 +522,124 @@ DO i = 1, npft
 
 END DO
 
-DO i = 1, npft
-  DO l = 1, land_pts
+!---------------------------------------------------------------
 
-    ! Convert burnt_area into disturbance rate and accumulate to TRIFFID timestep
-    ! Accumulate to TRIFFID timestep
-    IF (l_trif_fire) THEN
+! Fire mortality calculations - per pft
+
+!---------------------------------------------------------------
+
+IF (l_inferno_wham) THEN
+
+  fire_vars%wham_ba(:) = SUM(fire_vars%wham_ba_ft                              &
+                          * fire_vars%burnt_area_ft * frac(:, 1:npft), dim=2)
+
+ELSE
+  
+  fire_vars%wham_ba(:) = 0.0
+
+END IF
+
+!---------------------------------------------------------------
+! Calculate combined impact of fuels on intensity & mortality
+!---------------------------------------------------------------
+
+fuel_mort = MATMUL(frac(:, 1:npft), LOG(fire_mort) - mort_c)
+fuel_mort = EXP(fuel_mort + mort_c)
+
+
+!---------------------------------------------------------------
+! Loop over PFTs and allocate mortality
+! fire_mortality_method = 1: uniform mortality per PFT
+! fire_mortality_method = 2: mortality per PFT adjusted for soil moisture
+! fire_mortality_method = 3: explicit fire intensity-based mortality
+!---------------------------------------------------------------
+
+IF (l_trif_fire) THEN
+
+  DO i = 1, npft
+    DO l = 1, land_pts
+    
+      IF (fire_mortality_method == 1) THEN
+      
+        !! simple mortality as a mean per pft
+        fire_vars%intensity_ft(l, i) = fire_mort(i)
+    
+      ELSE IF (fire_mortality_method == 2) THEN
+      
+        !! adjust vegetation mort for moisture content
+        fire_vars%intensity_ft(l, i) = (1 - inferno_fsat(l)) * fire_mort(i)
+    
+      ELSE IF (fire_mortality_method == 3) THEN
+        
+        ! Relative Humidity should be constrained to 0-100
+        IF ((inferno_rhum(l)>100.0)) CYCLE
+        
+        ! No intensity if flammability == 0.0
+        ! IF (fire_vars%flammability_ft(l,i) == 0.0) CYCLE
+        
+        !! explicit fire line intensity
+        CALL calc_intensity(                                                    &
+        !Point INTENT(IN)
+        inferno_rhum(l), inferno_fsat(l), wind_speed(l), dpm_fuel(l)/pmtofuel,  &
+        fire_vars%wham_ba(l), fire_vars%road_density(l),                        &
+        fire_vars%pop_den(l), fuel_mort(l), fire_mort(i), fuel_type(i), i,      &
+        !Point INTENT(OUT)
+        fire_vars%intensity_ft(l, i), fire_vars%intensity_clim(l, i),           &
+        fire_vars%intensity_wham(l, i))
+        
+        
+      END IF
+      
+      ! Convert burnt_area into disturbance rate and accumulate to TRIFFID timestep
+      ! Accumulate to TRIFFID timestep
       ! Reset accumulation on first step after TRIFFID
       IF (asteps_since_triffid == 1) g_burn_pft_acc(l,i) = 0.0
-      g_burn_pft_acc(l,i) = g_burn_pft_acc(l,i)                                &
-                            + (fire_vars%burnt_area_ft(l,i) * timestep) * fire_mort(i)
-
-    END IF
-
+      
+      IF (fire_mortality_method == 3) THEN
+      
+        !Adjust intensity for targeted prescribed fire mortality
+      
+        IF (l_inferno_wham .AND. (fuel_type(i) == 3) ) THEN
+          g_burn_pft_acc(l,i) = g_burn_pft_acc(l,i)                            &
+            + ((fire_vars%intensity_ft(l, i))                                  &
+            * fire_vars%burnt_area_ft(l,i) * timestep) * intensity_scaling     
+            !+ 0.05 * frac(l, i) * other_ba(l)/s_in_month       
+                                       
+        ELSE IF (l_inferno_wham .AND. (fuel_type(i) == 4) ) THEN
+          g_burn_pft_acc(l,i) = g_burn_pft_acc(l,i)                            &
+            + ((fire_vars%intensity_ft(l, i))                                  &
+            * fire_vars%burnt_area_ft(l,i) * timestep) * intensity_scaling     &                  
+            + 0.1 * frac(l, i) * other_ba(l)/s_in_month
+        
+        ELSE IF (l_inferno_wham .AND. (fuel_type(i) == 7) ) THEN
+          g_burn_pft_acc(l,i) = g_burn_pft_acc(l,i)                            &
+            + ((fire_vars%intensity_ft(l, i))                                  &
+            * fire_vars%burnt_area_ft(l,i) * timestep) * intensity_scaling     &                  
+            + 0.1 * frac(l, i) * other_ba(l)/s_in_month
+                          
+        ELSE 
+          g_burn_pft_acc(l,i) = g_burn_pft_acc(l,i)                            &
+            + ((fire_vars%intensity_ft(l, i))                                  &
+            * fire_vars%burnt_area_ft(l,i) * timestep) * intensity_scaling
+                            
+        END IF  
+        
+      ELSE
+      
+        g_burn_pft_acc(l,i) = g_burn_pft_acc(l,i)                              &
+                            + ((fire_vars%intensity_ft(l, i))                  &
+                            * fire_vars%burnt_area_ft(l,i) * timestep)
+      
+      END IF
+      
+      ! Multiply intensity by burned area for meaningful reporting
+      fire_vars%intensity_ft(l, i) = fire_vars%intensity_ft(l, i)              &
+                                     * fire_vars%burnt_area_ft(l,i)
+      
+    END DO
   END DO
-END DO
+END IF
+
 
 !---------------------------------------------------------------
 ! In addition we diagnose the soil carbon (DPM and RPM only).

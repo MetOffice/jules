@@ -39,7 +39,7 @@ IMPLICIT NONE
 
 PRIVATE ! Default everything as being private, unlock as needed
 
-PUBLIC   ::  calc_ignitions, calc_flam, calc_burnt_area,                       &
+PUBLIC   ::  calc_ignitions, calc_flam, calc_burnt_area, calc_intensity,       &
              calc_emitted_carbon, calc_emitted_carbon_soil,                    &
              calc_emission, calc_soil_carbon_pools
 
@@ -63,7 +63,8 @@ CONTAINS
 
 SUBROUTINE calc_ignitions(                                                     &
   ! Point intent(IN)
-  pop_den_l, flash_rate_l, wealth_index_l, ignition_method,                    &
+  pop_den_l, flash_rate_l, wealth_index_l,                                     &
+  wham_ignitions_l, wham_suppression_l, ignition_method,                       &
   ! Point intent(OUT)
   ignitions_l)
 
@@ -82,7 +83,7 @@ SUBROUTINE calc_ignitions(                                                     &
 USE yomhook,      ONLY: lhook, dr_hook
 USE parkind1,     ONLY: jprb
 USE jules_vegetation_mod, ONLY: ignition_constant, ignition_vary_natural,      &
-                                ignition_vary_natural_human
+                                ignition_vary_natural_human, ignition_wham
 
 IMPLICIT NONE
 
@@ -91,15 +92,20 @@ INTEGER,    INTENT(IN)    ::                                                   &
     ! The integer defining the method used for ignitions:
     ! 1 = constant,
     ! 2 = constant (Anthropogenic) + Varying (lightning),
-    ! 3 = Varying  (Anthropogenic and lightning)
+    ! 3 = Varying  (Anthropogenic and lightning), 
+    ! 4 = WHAM! (Outputs of WHAM! agent-based model)
 
 REAL(KIND=real_jlslsm),       INTENT(IN)    ::                                 &
   flash_rate_l,                                                                &
     ! The Cloud to Ground lightning flash rate (flashes/km2)
   pop_den_l,                                                                   &
     ! The population density (ppl/km2)
-  wealth_index_l
-  ! The Human Development Index (1)
+  wealth_index_l,                                                              &
+    ! The Human Development Index (1)
+  wham_ignitions_l,                                                            &
+    ! unmanaged fires from the WHAM abm (fires/km2/month)
+  wham_suppression_l
+    ! fire suppression intensity from the WHAM abm (1)
 
 REAL(KIND=real_jlslsm),    INTENT(OUT)      ::                                 &
   ignitions_l
@@ -113,9 +119,15 @@ REAL(KIND=real_jlslsm)                      ::                                 &
   non_sup_frac_l
     ! Fraction of fire ignition non suppressed by humans
 
-REAL(KIND=real_jlslsm),    PARAMETER        ::                                 &
-  tune_MODIS = 7.7
+REAL(KIND=real_jlslsm),    PARAMETER        ::                                &
+  tune_MODIS = 7.7,                                                           &
     ! Parameter originally used by P&S (2009) to match MODIS
+  tune_lightning_GFED5 = 0.55,                                                &
+    ! Lightning parameter from calibration in Perkins et al., (2025)
+  scale_wham_GFED5 = 425.0,                                                   &                         
+    ! scale WHAM! unmanaged fires to GFED5, also from Perkins (2025)
+  wham_background_rate = 0.047
+    ! misc ignitions, also from Perkins (fires/km2/yr)
 
 REAL(KIND=jprb)               :: zhook_handle
 CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_IGNITIONS"
@@ -156,6 +168,22 @@ ELSE IF (ignition_method == ignition_vary_natural_human) THEN
 
   ! Tune ignitions to MODIS data (see Pechony and Shindell, 2009)
   ignitions_l =  ignitions_l * tune_MODIS
+  
+ELSE IF (ignition_method == ignition_wham) THEN
+
+  nat_ign_l   = (1 - wham_suppression_l * 0.9) * flash_rate_l / m2_in_km2 / s_in_day
+    ! lightning ignitions multiplied by WHAM! representation of fire suppression
+  
+  non_sup_frac_l = (wham_background_rate/12 * (1-wham_suppression_l * 0.9)) + wham_ignitions_l
+    ! wham_background_rate is an annual baseline of misc. ignitions; 
+    ! other ignitions are monthly
+  
+  man_ign_l   = non_sup_frac_l / m2_in_km2 / s_in_month
+    ! WHAM! ignitions as a prescribed forcing
+    
+  ignitions_l = (tune_lightning_GFED5 * nat_ign_l) + (man_ign_l * scale_WHAM_GFED5)
+    ! sum WHAM! ignitions
+
 END IF
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
@@ -268,8 +296,10 @@ END SUBROUTINE calc_flam
 SUBROUTINE calc_burnt_area(                                                    &
   ! Point INTENT(IN)
   flam_l, ignitions_l, avg_ba_i,                                               &
+  road_density_l, wham_arable_ba_l,                                            &  
+  wham_pasture_ba_l, wham_other_ba_l, ipft,                                    &
   ! Point INTENT(OUT)
-  burnt_area_i_l)
+  burnt_area_i_l, wham_frac_i_l)
 
 !
 ! Description:
@@ -286,30 +316,278 @@ SUBROUTINE calc_burnt_area(                                                    &
 USE yomhook,      ONLY: lhook, dr_hook
 USE parkind1,     ONLY: jprb
 
+USE jules_surface_types_mod,        ONLY: npft
+USE trif,                           ONLY: crop
+USE jules_vegetation_mod,           ONLY: l_inferno_wham
+
 IMPLICIT NONE
+
+INTEGER ,  INTENT(IN)     ::                                                   &
+  ipft
+    ! Index of current PFT
 
 REAL(KIND=real_jlslsm)  ,    INTENT(IN)     ::                                 &
   flam_l,                                                                      &
     ! Flammability (depends on weather and vegetation)
   ignitions_l,                                                                 &
     ! Fire ignitions (ignitions/m2/s)
-  avg_ba_i
+  avg_ba_i,                                                                    &
     ! The average burned area (m2) for this PFT
+  road_density_l,                                                              &
+    ! Road density function to contstrain fire size (Perkins 2025)
+  wham_arable_ba_l,                                                            &
+    ! Prescribed cropland burnt area (frac of gridbox per year) from WHAM
+  wham_pasture_ba_l,                                                           &
+    ! Prescribed pasture burnt area (frac of gridbox per year) from WHAM
+  wham_other_ba_l                                                             
+    ! Prescribed burnt area for other vegetation from WHAM
 
-REAL(KIND=real_jlslsm)  ,    INTENT(OUT)    ::                                 &
-  burnt_area_i_l
+REAL  ,    INTENT(OUT)    ::                                                   &
+  burnt_area_i_l,                                                              &
     ! The burnt area (fraction of PFT per s)
+  wham_frac_i_l
+    ! The proprtion of burnt area generated by small human fires (WHAM)
+
+! Parameter for impact of roads (fragmentation) on burned area
+REAL,    PARAMETER        ::                                                   &
+  road_par=7.5,                                                                &
+    ! sets impact of road density fragmentation on fire size
+  tune_GFED5=0.82
+    ! tune to GFED burned area
+
+REAL                                                                           &
+  wham_man_i_l,                                                                &                                                               
+    ! intermediate variable for calculting wham managed contribution to BA 
+  f_road_density_l,                                                            &
+    ! impact of road density on fire size
+  ba_per_fire
+    ! ba per pft adjusted for road density  
 
 REAL(KIND=jprb)               :: zhook_handle
 CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_BURNT_AREA"
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
-burnt_area_i_l = flam_l * ignitions_l * avg_ba_i
+IF (.NOT. l_inferno_wham) THEN
+
+  burnt_area_i_l = flam_l * ignitions_l * avg_ba_i
+  wham_man_i_l   = 0.
+
+ELSE 
+  
+  IF (crop(ipft) == 1) THEN
+  
+    wham_man_i_l     = wham_arable_ba_l / s_in_month
+  
+  ELSE IF (crop(ipft) == 2) THEN
+  
+    wham_man_i_l     = wham_pasture_ba_l / s_in_month
+    
+  ELSE
+  
+    wham_man_i_l     = wham_other_ba_l / s_in_month * 1.25
+  
+  END IF
+  
+  !! calculate burned area per unmanaged fire accounting for fragmentation (roads)
+  !! NB for crop pfts, avg_ba_i is usually set to 0.0 with WHAM integration
+  f_road_density_l =  MAX(0.1, MIN(1.0-(LOG(road_density_l)/road_par), 1.0))
+  ba_per_fire      =  avg_ba_i * f_road_density_l
+  
+  !! combine managed (WHAM) and unmanaged (INFERNO) BA fractions
+  burnt_area_i_l   = flam_l * ignitions_l * ba_per_fire + wham_man_i_l 
+  wham_frac_i_l    = MERGE(wham_man_i_l / burnt_area_i_l, 0.0, burnt_area_i_l > 0.0)
+  
+  ! temporary experiment with scaling factor
+  burnt_area_i_l   = burnt_area_i_l * tune_GFED5
+                                        
+END IF
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE calc_burnt_area
+
+
+SUBROUTINE calc_intensity(                                                    &
+  ! Point INTENT(IN)
+  rhum_l, sm_l, wind_speed_l, dpm_fuel_l,                                     &
+  wham_man_l, road_density_l, popd_l,                                         &
+  mort_l, avg_mort_i, fuel_type_i, ipft,                                      &
+  ! Point INTENT(OUT)
+  intensity_il, fi_clim_il, fi_wham_il)
+
+!
+! Description:
+!    Calculate the normalised fire line intensity
+!
+! Method:
+!    Combines fuel load & dryness with controls on 
+!    fire spread & human management to project fire line intensity - 
+!    FRP / sqrt(fire size) - normalised to 0-1. 
+!
+! Code Owner: Please refer to ModuleLeaders.txt
+!
+! Code Description:
+!   Language: Fortran 90
+
+USE yomhook,      ONLY: lhook, dr_hook
+USE parkind1,     ONLY: jprb
+
+USE jules_surface_types_mod,        ONLY: npft
+USE jules_vegetation_mod,           ONLY: l_inferno_wham
+
+IMPLICIT NONE
+
+INTEGER ,  INTENT(IN)     ::                                                  &
+  fuel_type_i,                                                                &
+    ! The fuel type of the current PFT
+  ipft
+    ! Index of current PFT
+
+REAL  ,    INTENT(IN)     ::                                                  &
+  rhum_l,                                                                     &     
+    ! The relative humidity
+  sm_l,                                                                       &
+    ! The INFERNO soil moisture fraction (fsat's 1st level)
+  wind_speed_l,                                                               &
+    ! Wind speed (m s-1)
+  dpm_fuel_l,                                                                 &
+    ! Decomposable soil carbon - a proxy for dead, combustible fuels
+  wham_man_l,                                                                 &
+    ! The managed burned area fraction of the pixel
+  road_density_l,                                                             &
+    ! The road density (m / m2 -1)
+  popd_l,                                                                     &
+    ! The population density / km2
+  mort_l,                                                                     &
+    ! The combined effect of avg PFT mortality
+  avg_mort_i                                                                 
+    ! The PFT-specific mortality parameter
+
+   
+REAL  ,    INTENT(OUT)    ::                                                  &
+  intensity_il,                                                               &                                                               
+    ! normalised fire line intensity (0-1)
+  fi_clim_il,                                                                 &
+    ! climate impact on fire intensity [diagnostic]
+  fi_wham_il
+    ! WHAM impact on fire intensity [diagnostic]
+
+REAL                                                                          &
+  fi_rhum_l,                                                                  &
+    ! dependence of intensity on relative humidity
+  fi_sm_l,                                                                    &
+    ! dependence of intensity on soil moisture
+  fi_pft_il,                                                                  &
+    ! Combined impact of PFTs & management 
+  fi_fuel_il,                                                                 & 
+    ! Impact of fuel & fragmentation on fi
+  frag_il 
+    ! Impact of roads in fragmenting fuels
+
+    
+REAL,    PARAMETER        ::                                                  &
+  rhum_ceiling  = 1.3127,                                                     &
+    ! sets the upper limit for the impact of rel. hum.
+  rhum_thresh_1 = 0.6,                                                        &
+    ! 1st threshold to the relative humidity
+  rhum_thresh_2 = 0.9,                                                        &
+    ! 2nd threshold to the relative humidity
+  rhum_slope_1 = 3,                                                           &
+    ! rate of decline due to relative humidity after threshold 
+  rhum_slope_2 = 0.174,                                                       &
+    !rate of decline of RH overall
+  sm_thresh = 0.015,                                                          &
+    ! soil moisture threshold
+  sm_slope  = 5,                                                              &
+    ! rate of soil moisture decay
+  wind_slope = 0.1,                                                           &
+    ! slope of wind impact on intensity
+  wham_slope  = -17.5,                                                        &
+    ! rate of decay of management on FI
+  wham_offset = 0.0,                                                          &
+    ! offset applied to wham decay function
+  fuel_slope = 1.66,                                                          &
+    ! impact of dead fuel accumulation on intensity
+  frag_slope = 0.05,                                                          &  
+    ! rate of impact of road density [or popd] on intensity
+  frag_thresh = 5,                                                            &
+    ! threshold for impact of road density [or popd]
+  frag_offset = 0.1                                                          
+    ! offset for impact of road density [or popd if not using WHAM!]
+
+  
+REAL(KIND=jprb)               :: zhook_handle
+CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_INTENSITY"
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
+
+!-------------------------------------------------------------------------
+! Climate factors
+!-------------------------------------------------------------------------
+
+! Linear decay of intensity after a threshold RH
+fi_rhum_l  = (rhum_l/100)
+fi_rhum_l  = rhum_ceiling - (rhum_slope_1 * (fi_rhum_l - rhum_thresh_1)) - (fi_rhum_l * rhum_slope_2)
+IF ((rhum_l/100) < rhum_thresh_1) fi_rhum_l = rhum_ceiling - rhum_slope_2 * (rhum_l/100)
+IF ((rhum_l/100) > rhum_thresh_2) fi_rhum_l = rhum_ceiling - rhum_ceiling * (rhum_l/100)
+
+! Exponential decay of intensity after a threshold moisture content
+fi_sm_l    = EXP(-sm_slope * (sm_l - sm_thresh))
+IF (sm_l < sm_thresh) fi_sm_l = 1.0
+
+! Combined impact of climatological factors
+fi_clim_il = MAX(0.0, fi_rhum_l) * fi_sm_l * (wind_slope * wind_speed_l)
+
+!-------------------------------------------------------------------------
+! PFTs & human mgmt
+!-------------------------------------------------------------------------
+
+IF (l_inferno_wham) THEN
+
+  fi_wham_il = EXP(wham_man_l * wham_slope * s_in_month * 12.0) + wham_offset
+  fi_pft_il  = ((mort_l + avg_mort_i) / 2) * fi_wham_il
+  
+ELSE
+  
+  fi_pft_il  = ((mort_l + avg_mort_i) / 2)
+
+END IF
+
+!-------------------------------------------------------------------------
+! Fuel fragmentation
+!-------------------------------------------------------------------------
+
+IF (l_inferno_wham) THEN
+
+  frag_il = SQRT(road_density_l)
+  frag_il = EXP(-frag_slope * (frag_il - frag_thresh)) + frag_offset
+  IF (SQRT(road_density_l) < frag_thresh) frag_il = 1.0 + frag_offset
+
+  fi_fuel_il = frag_il
+
+ELSE
+
+  frag_il = SQRT(popd_l)
+  frag_il = EXP(-frag_slope * (frag_il - frag_thresh)) + frag_offset
+  IF (SQRT(popd_l) < frag_thresh) frag_il = 1.0 + frag_offset
+
+  fi_fuel_il = frag_il
+
+END IF
+
+!-------------------------------------------------------------------------
+! Combined calculation
+!-------------------------------------------------------------------------
+
+intensity_il = SQRT(MAX(0.0, (fi_fuel_il * fi_pft_il * fi_clim_il)))
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
+RETURN
+END SUBROUTINE calc_intensity
+
+
+
 
 SUBROUTINE calc_emitted_carbon(                                                &
   ! Array INTENT(IN)

@@ -38,7 +38,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
 
 INTEGER ::                                                                     &
   c3_io(npft_max) = imdi,                                                      &
-  orient_io(npft_max) = imdi
+  orient_io(npft_max) = imdi,                                                  &
+  fuel_type_io(npft_max) = imdi
 
 REAL(KIND=real_jlslsm) ::                                                      &
   a_wl_io(npft_max) = rmdi,                                                    &
@@ -175,9 +176,9 @@ NAMELIST  / jules_pftparm/                                                     &
   fef_co2_io,      fef_nox_io,       fef_oc_io,                                &
   fef_c2h4_io,     fef_c2h6_io,      fef_c3h8_io,                              &
   fef_hcho_io,     fef_mecho_io,                                               &
-  fef_nh3_io,      fef_dms_io,                                                 &
-  fef_so2_io,      fd_io,            fire_mort_io,                             &
-  fl_o3_ct_io,     fsmc_of_io,       fsmc_p0_io,                               &
+  fef_nh3_io,      fef_dms_io,       fef_so2_io,                               &
+  fd_io,           fire_mort_io,     fl_o3_ct_io,                              &
+  fsmc_of_io,      fsmc_p0_io,       fuel_type_io,                             &
   sug_g0_io,       g1_stomata_io,    g_leaf_0_io,                              &
   glmin_io,        gpp_st_io,        sug_grec_io,                              &
   gsoil_f_io,      hw_sw_io,         ief_io,                                   &
@@ -332,6 +333,8 @@ WRITE(lineBuffer,*)' fsmc_of_io = ',fsmc_of_io
 CALL jules_print('pftparm_io',lineBuffer)
 WRITE(lineBuffer,*)' fsmc_p0_io = ',fsmc_p0_io
 CALL jules_print('pftparm_io',lineBuffer)
+WRITE(lineBuffer,*)' fuel_type_io = ',fuel_type_io
+CALL jules_print('pftparm_io',lineBuffer)
 WRITE(lineBuffer,*)' sug_g0_io = ',sug_g0_io
 CALL jules_print('pftparm_io',lineBuffer)
 WRITE(lineBuffer,*)' g1_stomata_io = ',g1_stomata_io
@@ -462,6 +465,7 @@ TYPE :: my_namelist
   SEQUENCE
   INTEGER :: c3_io(npft_max)
   INTEGER :: orient_io(npft_max)
+  INTEGER :: fuel_type_io(npft_max)
   REAL(KIND=real_jlslsm) :: a_wl_io(npft_max)
   REAL(KIND=real_jlslsm) :: a_ws_io(npft_max)
   REAL(KIND=real_jlslsm) :: act_jmax_io(npft_max)
@@ -649,6 +653,7 @@ IF (mype == 0) THEN
   my_nml % fl_o3_ct_io    = fl_o3_ct_io
   my_nml % fsmc_of_io     = fsmc_of_io
   my_nml % fsmc_p0_io     = fsmc_p0_io
+  my_nml % fuel_type_io   = fuel_type_io
   my_nml % sug_g0_io      = sug_g0_io
   my_nml % g1_stomata_io  = g1_stomata_io
   my_nml % g_leaf_0_io    = g_leaf_0_io
@@ -765,6 +770,7 @@ IF (mype /= 0) THEN
   fl_o3_ct_io     = my_nml % fl_o3_ct_io
   fsmc_of_io      = my_nml % fsmc_of_io
   fsmc_p0_io      = my_nml % fsmc_p0_io
+  fuel_type_io    = my_nml % fuel_type_io
   g1_stomata_io   = my_nml % g1_stomata_io
   sug_g0_io       = my_nml % sug_g0_io
   g_leaf_0_io     = my_nml % g_leaf_0_io
@@ -854,8 +860,8 @@ USE pftparm, ONLY:                                                             &
   fef_oc,          fef_so2,          fef_c2h4,                                 &
   fef_c2h6,        fef_c3h8,         fef_hcho,                                 &
   fef_mecho,       fef_nh3,                                                    &
-  fef_dms,         fire_mort,                                                  &
-  fl_o3_ct,        fsmc_of,          fsmc_p0,                                  &
+  fef_dms,         fire_mort,        fl_o3_ct,                                 &
+  fsmc_of,         fsmc_p0,          fuel_type,                                &
   sug_g0,          g1_stomata,       g_leaf_0,                                 &
   glmin,           gpp_st,           sug_grec,                                 &
   gsoil_f,         hw_sw,            ief,                                      &
@@ -1001,7 +1007,8 @@ ccleaf_max(:)   = ccleaf_max_io(1:npft)
 ccleaf_min(:)   = ccleaf_min_io(1:npft)
 ccwood_max(:)   = ccwood_max_io(1:npft)
 ccwood_min(:)   = ccwood_min_io(1:npft)
-fire_mort(:)  = fire_mort_io(1:npft)
+fire_mort(:)    = fire_mort_io(1:npft)
+fuel_type(:)    = fuel_type_io(1:npft)
 
 ! INFERNO emission parameters
 fef_bc(:)       = fef_bc_io(1:npft)

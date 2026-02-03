@@ -2840,6 +2840,28 @@ CASE ( 'burnt_area' )
   cube_land = cube_from_array(fire_vars%burnt_area_ft)
   cube = map_from_land(cube_land)
 
+  ! WHAM integration variables
+CASE ( 'wham_ba_gb' )
+  cube_land = cube_from_array(fire_vars%wham_ba)
+  cube = map_from_land(cube_land)
+
+CASE ( 'wham_ba_ft' )
+  cube_land = cube_from_array(fire_vars%wham_ba_ft)
+  cube = map_from_land(cube_land)
+  
+  ! Fire intensity variables
+CASE ( 'fire_intensity_ft' )
+  cube_land = cube_from_array(fire_vars%intensity_ft)
+  cube = map_from_land(cube_land)
+  
+CASE ( 'fire_intensity_clim' )
+  cube_land = cube_from_array(fire_vars%intensity_clim)
+  cube = map_from_land(cube_land)
+
+CASE ( 'fire_intensity_wham' )
+  cube_land = cube_from_array(fire_vars%intensity_wham)
+  cube = map_from_land(cube_land)
+
 CASE ( 'emitted_carbon_gb' )
   cube_land = cube_from_array(fire_vars%emitted_carbon)
   cube = map_from_land(cube_land)

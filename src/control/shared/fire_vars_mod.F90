@@ -44,12 +44,38 @@ TYPE :: fire_vars_data_type
       ! The population density (ppl/km2)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: wealth_index(:)
       ! The Human Develoment Index (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_arable_ba(:)
+      ! WHAM! crop residue burning (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_pasture_ba(:)
+      ! WHAM! pastoral burning (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_other_man(:)
+      ! WHAM! vegetation management burning (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_other_ag(:)
+      ! WHAM! other agricultural burning (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_ignitions(:)
+      ! WHAM! unmanaged fire counts (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_escaped(:)
+      ! Escaped prescribed fires (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_suppression(:)
+      ! WHAM! fire suppression intensity (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: road_density(:)
+      ! Road density (m / km-2)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: flammability_ft(:,:)
       ! PFT-specific flammability
   REAL(KIND=real_jlslsm), ALLOCATABLE :: burnt_area(:)
       ! Gridbox mean burnt area fraction (/s)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: burnt_area_ft(:,:)
       ! PFT burnt area fraction (/s)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_ba(:)
+      ! Gridbox mean BA from wham managed fires (/s) (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wham_ba_ft(:,:)
+      ! proportion of burnt area from managed fire (1)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: intensity_ft(:,:)
+      ! PFT-specific fireline intensity
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: intensity_clim(:,:)
+      ! PFT-specific impact of climate on fireline intensity
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: intensity_wham(:,:)
+      ! PFT-specific impact of management on fireline intensity
   REAL(KIND=real_jlslsm), ALLOCATABLE :: emitted_carbon(:)
       ! Gridbox mean emitted carbon (kgC/m2/s)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: emitted_carbon_ft(:,:)
@@ -176,9 +202,22 @@ TYPE :: fire_vars_type
   REAL(KIND=real_jlslsm), POINTER :: flash_rate(:)
   REAL(KIND=real_jlslsm), POINTER :: pop_den(:)
   REAL(KIND=real_jlslsm), POINTER :: wealth_index(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_arable_ba(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_pasture_ba(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_other_man(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_other_ag(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_ignitions(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_escaped(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_suppression(:)
+  REAL(KIND=real_jlslsm), POINTER :: road_density(:)
   REAL(KIND=real_jlslsm), POINTER :: flammability_ft(:,:)
   REAL(KIND=real_jlslsm), POINTER :: burnt_area(:)
   REAL(KIND=real_jlslsm), POINTER :: burnt_area_ft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_ba(:)
+  REAL(KIND=real_jlslsm), POINTER :: wham_ba_ft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: intensity_ft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: intensity_clim(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: intensity_wham(:,:)
   REAL(KIND=real_jlslsm), POINTER :: emitted_carbon(:)
   REAL(KIND=real_jlslsm), POINTER :: emitted_carbon_ft(:,:)
   REAL(KIND=real_jlslsm), POINTER :: emitted_carbon_DPM(:)
@@ -336,7 +375,20 @@ ALLOCATE(fire_vars_data%fire_em_DMS_RPM(land_pts))
 ALLOCATE(fire_vars_data%pop_den(land_pts))
 ALLOCATE(fire_vars_data%wealth_index(land_pts))
 ALLOCATE(fire_vars_data%flash_rate(land_pts))
+ALLOCATE(fire_vars_data%wham_arable_ba(land_pts))
+ALLOCATE(fire_vars_data%wham_pasture_ba(land_pts))
+ALLOCATE(fire_vars_data%wham_other_man(land_pts))
+ALLOCATE(fire_vars_data%wham_other_ag(land_pts))
+ALLOCATE(fire_vars_data%wham_ignitions(land_pts))
+ALLOCATE(fire_vars_data%wham_escaped(land_pts))
+ALLOCATE(fire_vars_data%wham_suppression(land_pts))
+ALLOCATE(fire_vars_data%road_density(land_pts))
 ALLOCATE(fire_vars_data%flammability_ft(land_pts,npft))
+ALLOCATE(fire_vars_data%wham_ba(land_pts))
+ALLOCATE(fire_vars_data%wham_ba_ft(land_pts,npft))
+ALLOCATE(fire_vars_data%intensity_ft(land_pts,npft))
+ALLOCATE(fire_vars_data%intensity_clim(land_pts,npft))
+ALLOCATE(fire_vars_data%intensity_wham(land_pts,npft))
 
 fire_vars_data%burnt_area(:)          = 0.0
 fire_vars_data%burnt_area_ft(:,:)     = 0.0
@@ -402,8 +454,21 @@ fire_vars_data%fire_em_DMS_DPM(:)     = 0.0
 fire_vars_data%fire_em_DMS_RPM(:)     = 0.0
 fire_vars_data%pop_den(:)             = 0.0
 fire_vars_data%wealth_index(:)        = 0.0
+fire_vars_data%wham_arable_ba(:)      = 0.0
+fire_vars_data%wham_pasture_ba(:)     = 0.0
+fire_vars_data%wham_other_man(:)      = 0.0
+fire_vars_data%wham_other_ag(:)       = 0.0
+fire_vars_data%wham_ignitions(:)      = 0.0
+fire_vars_data%wham_escaped(:)        = 0.0
+fire_vars_data%wham_suppression(:)    = 0.0
+fire_vars_data%road_density(:)        = 0.0
 fire_vars_data%flash_rate(:)          = 0.0
 fire_vars_data%flammability_ft(:,:)   = 0.0
+fire_vars_data%wham_ba(:)             = 0.0
+fire_vars_data%wham_ba_ft(:,:)        = 0.0
+fire_vars_data%intensity_ft(:,:)      = 0.0
+fire_vars_data%intensity_clim(:,:)    = 0.0
+fire_vars_data%intensity_wham(:,:)    = 0.0
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -499,8 +564,21 @@ DEALLOCATE(fire_vars_data%fire_em_DMS_DPM)
 DEALLOCATE(fire_vars_data%fire_em_DMS_RPM)
 DEALLOCATE(fire_vars_data%pop_den)
 DEALLOCATE(fire_vars_data%wealth_index)
+DEALLOCATE(fire_vars_data%wham_arable_ba)
+DEALLOCATE(fire_vars_data%wham_pasture_ba)
+DEALLOCATE(fire_vars_data%wham_other_man)
+DEALLOCATE(fire_vars_data%wham_other_ag)
+DEALLOCATE(fire_vars_data%wham_ignitions)
+DEALLOCATE(fire_vars_data%wham_escaped)
+DEALLOCATE(fire_vars_data%wham_suppression)
+DEALLOCATE(fire_vars_data%road_density)
 DEALLOCATE(fire_vars_data%flash_rate)
 DEALLOCATE(fire_vars_data%flammability_ft)
+DEALLOCATE(fire_vars_data%wham_ba)
+DEALLOCATE(fire_vars_data%wham_ba_ft)
+DEALLOCATE(fire_vars_data%intensity_ft)
+DEALLOCATE(fire_vars_data%intensity_clim)
+DEALLOCATE(fire_vars_data%intensity_wham)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -595,8 +673,21 @@ fire_vars%fire_em_DMS_DPM => fire_vars_data%fire_em_DMS_DPM
 fire_vars%fire_em_DMS_RPM => fire_vars_data%fire_em_DMS_RPM
 fire_vars%pop_den => fire_vars_data%pop_den
 fire_vars%wealth_index => fire_vars_data%wealth_index
+fire_vars%wham_arable_ba => fire_vars_data%wham_arable_ba
+fire_vars%wham_pasture_ba => fire_vars_data%wham_pasture_ba
+fire_vars%wham_other_man => fire_vars_data%wham_other_man
+fire_vars%wham_other_ag => fire_vars_data%wham_other_ag
+fire_vars%wham_ignitions => fire_vars_data%wham_ignitions
+fire_vars%wham_escaped => fire_vars_data%wham_escaped
+fire_vars%wham_suppression => fire_vars_data%wham_suppression
+fire_vars%road_density => fire_vars_data%road_density
 fire_vars%flash_rate => fire_vars_data%flash_rate
 fire_vars%flammability_ft => fire_vars_data%flammability_ft
+fire_vars%wham_ba => fire_vars_data%wham_ba
+fire_vars%wham_ba_ft => fire_vars_data%wham_ba_ft
+fire_vars%intensity_ft => fire_vars_data%intensity_ft
+fire_vars%intensity_clim => fire_vars_data%intensity_clim
+fire_vars%intensity_wham => fire_vars_data%intensity_wham
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -688,8 +779,21 @@ NULLIFY(fire_vars%fire_em_DMS_DPM)
 NULLIFY(fire_vars%fire_em_DMS_RPM)
 NULLIFY(fire_vars%pop_den)
 NULLIFY(fire_vars%wealth_index)
+NULLIFY(fire_vars%wham_arable_ba)
+NULLIFY(fire_vars%wham_pasture_ba)
+NULLIFY(fire_vars%wham_other_man)
+NULLIFY(fire_vars%wham_other_ag)
+NULLIFY(fire_vars%wham_ignitions)
+NULLIFY(fire_vars%wham_escaped)
+NULLIFY(fire_vars%wham_suppression)
+NULLIFY(fire_vars%road_density)
 NULLIFY(fire_vars%flash_rate)
 NULLIFY(fire_vars%flammability_ft)
+NULLIFY(fire_vars%wham_ba)
+NULLIFY(fire_vars%wham_ba_ft)
+NULLIFY(fire_vars%intensity_ft)
+NULLIFY(fire_vars%intensity_clim)
+NULLIFY(fire_vars%intensity_wham)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
