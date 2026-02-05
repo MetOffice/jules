@@ -12,6 +12,8 @@ projects (e.g., [CMIP6](https://wcrp-cmip.org/cmip-phases/cmip6/)) and is placed
 firmly at the cutting edge of international land surface modelling because of
 continual science development and improved accessibility.
 
+Further details about how JULES works can be found [here] (https://jules.jchmr.org/about)
+
 ## Contributing Guidelines
 
 Welcome!
