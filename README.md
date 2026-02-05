@@ -48,3 +48,20 @@ Questions are encouraged in the Simulation Systems
 
 Please be aware of and follow the Simulation Systems
 [AI Policy.](https://metoffice.github.io/simulation-systems/FurtherDetails/ai.html)
+
+
+### Mailing Lists & Github Discussions
+
+[JULES-USERS@MAILLISTS.READING.AC.UK](JULES-USERS@MAILLISTS.READING.AC.UK) is a list for all users of JULES. Please use this list to ask a science questions to the community.
+
+[JULES@MAILLISTS.READING.AC.UK](JULES@MAILLISTS.READING.AC.UK) is a list of all people with an interest in JULES. Please use this list to share information relevant to the whole community. For example, new papers, conferences, code release versions etc.
+
+To subscribe, first follow this link and register yourself at:
+https://maillists.reading.ac.uk/scripts/wa-READING.exe?GETPW1=&X=&Y=
+[[br]] After that, wait at least 10 minutes for the email for confirming the registration, and then follow these links to subscribe to the jules and jules-users lists: [[br]]
+https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES [[br]]
+https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES-USERS [[br]]
+
+If you need to unsubscribe from either list, you can go to the same subscription link.
+
+You can also join [GitHub Discussions](https://github.com/MetOffice/simulation-systems/discussions/categories/jules) about JULES.
