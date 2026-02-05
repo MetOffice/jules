@@ -14,6 +14,10 @@ continual science development and improved accessibility.
 
 Further details about how JULES works can be found [here] (https://jules.jchmr.org/about)
 
+## Documentation
+
+For current and previous releases of the JULES documentation please see [here](https://jules-lsm.github.io/)
+
 ## Contributing Guidelines
 
 Welcome!
