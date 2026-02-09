@@ -377,6 +377,8 @@ CONTAINS
 
 SUBROUTINE pftparm_alloc(npft)
 
+USE missing_data_mod, ONLY: imdi, rmdi
+
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
 USE yomhook,     ONLY: lhook, dr_hook
@@ -421,27 +423,27 @@ ALLOCATE( omnirl(npft))
 ALLOCATE( omniru(npft))
 ALLOCATE( orient(npft))
 
-albsnc_max(:)   = 0.0
-albsnc_min(:)   = 0.0
-albsnf_max(:)   = 0.0
-albsnf_maxl(:)  = 0.0
-albsnf_maxu(:)  = 0.0
-alnir(:)        = 0.0
-alnirl(:)       = 0.0
-alniru(:)       = 0.0
-alpar(:)        = 0.0
-alparl(:)       = 0.0
-alparu(:)       = 0.0
-kext(:)         = 0.0
-kpar(:)         = 0.0
-lai_alb_lim(:)  = 0.0
-omega(:)        = 0.0
-omegal(:)       = 0.0
-omegau(:)       = 0.0
-omnir(:)        = 0.0
-omnirl(:)       = 0.0
-omniru(:)       = 0.0
-orient(:)       = 0.0
+orient(:)       = imdi
+albsnc_max(:)   = rmdi
+albsnc_min(:)   = rmdi
+albsnf_max(:)   = rmdi
+albsnf_maxl(:)  = rmdi
+albsnf_maxu(:)  = rmdi
+alnir(:)        = rmdi
+alnirl(:)       = rmdi
+alniru(:)       = rmdi
+alpar(:)        = rmdi
+alparl(:)       = rmdi
+alparu(:)       = rmdi
+kext(:)         = rmdi
+kpar(:)         = rmdi
+lai_alb_lim(:)  = rmdi
+omega(:)        = rmdi
+omegal(:)       = rmdi
+omegau(:)       = rmdi
+omnir(:)        = rmdi
+omnirl(:)       = rmdi
+omniru(:)       = rmdi
 
 ! Photosynthesis and respiration parameters
 ALLOCATE( act_jmax(npft))
@@ -469,30 +471,30 @@ ALLOCATE( r_grow(npft))
 ALLOCATE( tlow(npft))
 ALLOCATE( tupp(npft))
 
-act_jmax(:)     = 0.0
-act_vcmax(:)    = 0.0
-alpha(:)        = 0.0
-alpha_elec(:)   = 0.0
-c3(:)           = 0.0
-can_struct_a(:) = 0.0
-deact_jmax(:)   = 0.0
-deact_vcmax(:)  = 0.0
-dqcrit(:)       = 0.0
-ds_jmax(:)      = 0.0
-ds_vcmax(:)     = 0.0
-f0(:)           = 0.0
-fd(:)           = 0.0
-g1_stomata(:)   = 0.0
-jv25_ratio(:)   = 0.0
-kn(:)           = 0.0
-knl(:)          = 0.0
-neff(:)         = 0.0
-nl0(:)          = 0.0
-nr_nl(:)        = 0.0
-ns_nl(:)        = 0.0
-r_grow(:)       = 0.0
-tlow(:)         = 0.0
-tupp(:)         = 0.0
+c3(:)           = imdi
+act_jmax(:)     = rmdi
+act_vcmax(:)    = rmdi
+alpha(:)        = rmdi
+alpha_elec(:)   = rmdi
+can_struct_a(:) = rmdi
+deact_jmax(:)   = rmdi
+deact_vcmax(:)  = rmdi
+dqcrit(:)       = rmdi
+ds_jmax(:)      = rmdi
+ds_vcmax(:)     = rmdi
+f0(:)           = rmdi
+fd(:)           = rmdi
+g1_stomata(:)   = rmdi
+jv25_ratio(:)   = rmdi
+kn(:)           = rmdi
+knl(:)          = rmdi
+neff(:)         = rmdi
+nl0(:)          = rmdi
+nr_nl(:)        = rmdi
+ns_nl(:)        = rmdi
+r_grow(:)       = rmdi
+tlow(:)         = rmdi
+tupp(:)         = rmdi
 
 ! Traint physiology parameters
 ALLOCATE( hw_sw(npft))
@@ -504,14 +506,14 @@ ALLOCATE( q10_leaf(npft))
 ALLOCATE( vint(npft))
 ALLOCATE( vsl(npft))
 
-hw_sw(:)        = 0.0
-lma(:)          = 0.0
-nmass(:)        = 0.0
-nr(:)           = 0.0
-nsw(:)          = 0.0
-q10_leaf(:)     = 0.0
-vint(:)         = 0.0
-vsl(:)          = 0.0
+hw_sw(:)        = rmdi
+lma(:)          = rmdi
+nmass(:)        = rmdi
+nr(:)           = rmdi
+nsw(:)          = rmdi
+q10_leaf(:)     = rmdi
+vint(:)         = rmdi
+vsl(:)          = rmdi
 
 ! Allometric parameters
 ALLOCATE( a_wl(npft))
@@ -520,11 +522,11 @@ ALLOCATE( b_wl(npft))
 ALLOCATE( eta_sl(npft))
 ALLOCATE( sigl(npft))
 
-a_wl(:)         = 0.0
-a_ws(:)         = 0.0
-b_wl(:)         = 0.0
-eta_sl(:)       = 0.0
-sigl(:)         = 0.0
+a_wl(:)         = rmdi
+a_ws(:)         = rmdi
+b_wl(:)         = rmdi
+eta_sl(:)       = rmdi
+sigl(:)         = rmdi
 
 ! Phenology parameters
 ALLOCATE( dgl_dm(npft))
@@ -533,11 +535,11 @@ ALLOCATE( fsmc_of(npft))
 ALLOCATE( g_leaf_0(npft))
 ALLOCATE( tleaf_of(npft))
 
-dgl_dm(:)       = 0.0
-dgl_dt(:)       = 0.0
-fsmc_of(:)      = 0.0
-g_leaf_0(:)     = 0.0
-tleaf_of(:)     = 0.0
+dgl_dm(:)       = rmdi
+dgl_dt(:)       = rmdi
+fsmc_of(:)      = rmdi
+g_leaf_0(:)     = rmdi
+tleaf_of(:)     = rmdi
 
 ! Hydrological parameters
 ALLOCATE( catch0(npft))
@@ -555,27 +557,27 @@ ALLOCATE( psi_open(npft))
 ALLOCATE( rootd_ft(npft))
 ALLOCATE( z0v(npft))
 
-catch0(:)       = 0.0
-dcatch_dlai(:)  = 0.0
-dust_veg_scj(:) = 0.0
-dz0v_dh(:)      = 0.0
-emis_pft(:)     = 0.0
-fsmc_mod(:)     = 0.0
-fsmc_p0(:)      = 0.0
-glmin(:)        = 0.0
-gsoil_f(:)      = 0.0
-infil_f(:)      = 0.0
-psi_close(:)    = 0.0
-psi_open(:)     = 0.0
-rootd_ft(:)     = 0.0
-z0v(:)          = 0.0
+fsmc_mod(:)     = imdi
+catch0(:)       = rmdi
+dcatch_dlai(:)  = rmdi
+dust_veg_scj(:) = rmdi
+dz0v_dh(:)      = rmdi
+emis_pft(:)     = rmdi
+fsmc_p0(:)      = rmdi
+glmin(:)        = rmdi
+gsoil_f(:)      = rmdi
+infil_f(:)      = rmdi
+psi_close(:)    = rmdi
+psi_open(:)     = rmdi
+rootd_ft(:)     = rmdi
+z0v(:)          = rmdi
 
 ! Ozone damage parameters
 ALLOCATE( dfp_dcuo(npft))
 ALLOCATE( fl_o3_ct(npft))
 
-dfp_dcuo(:) = 0.0
-fl_o3_ct(:) = 0.0
+dfp_dcuo(:) = rmdi
+fl_o3_ct(:) = rmdi
 
 ! BVOC emission parameters
 ALLOCATE( aef(npft))
@@ -585,12 +587,12 @@ ALLOCATE( ief(npft))
 ALLOCATE( mef(npft))
 ALLOCATE( tef(npft))
 
-aef(:)    = 0.0
-ci_st(:)  = 0.0
-gpp_st(:) = 0.0
-ief(:)    = 0.0
-mef(:)    = 0.0
-tef(:)    = 0.0
+aef(:)    = rmdi
+ci_st(:)  = rmdi
+gpp_st(:) = rmdi
+ief(:)    = rmdi
+mef(:)    = rmdi
+tef(:)    = rmdi
 
 ! INFERNO combustion parameters
 ALLOCATE( avg_ba(npft))
@@ -600,12 +602,12 @@ ALLOCATE( ccwood_min(npft))
 ALLOCATE( ccwood_max(npft))
 ALLOCATE( fire_mort(npft))
 
-avg_ba(:)     = 0.0
-ccleaf_min(:) = 0.0
-ccleaf_max(:) = 0.0
-ccwood_min(:) = 0.0
-ccwood_max(:) = 0.0
-fire_mort(:)  = 0.0
+avg_ba(:)     = rmdi
+ccleaf_min(:) = rmdi
+ccleaf_max(:) = rmdi
+ccwood_min(:) = rmdi
+ccwood_max(:) = rmdi
+fire_mort(:)  = rmdi
 
 ! INFERNO emission parameters
 ALLOCATE( fef_bc(npft))
@@ -623,38 +625,38 @@ ALLOCATE( fef_hcho(npft))
 ALLOCATE( fef_nh3(npft))
 ALLOCATE( fef_dms(npft))
 
-fef_bc(:)   = 0.0
-fef_ch4(:)  = 0.0
-fef_co(:)   = 0.0
-fef_co2(:)  = 0.0
-fef_nox(:)  = 0.0
-fef_oc(:)   = 0.0
-fef_so2(:)  = 0.0
-fef_c2h4(:) = 0.0
-fef_c2h6(:) = 0.0
-fef_c3h8(:) = 0.0
-fef_mecho(:)= 0.0
-fef_hcho(:) = 0.0
-fef_nh3(:)  = 0.0
-fef_dms(:)  = 0.0
+fef_bc(:)   = rmdi
+fef_ch4(:)  = rmdi
+fef_co(:)   = rmdi
+fef_co2(:)  = rmdi
+fef_nox(:)  = rmdi
+fef_oc(:)   = rmdi
+fef_so2(:)  = rmdi
+fef_c2h4(:) = rmdi
+fef_c2h6(:) = rmdi
+fef_c3h8(:) = rmdi
+fef_mecho(:)= rmdi
+fef_hcho(:) = rmdi
+fef_nh3(:)  = rmdi
+fef_dms(:)  = rmdi
 
 ! SUGAR parameters
 ALLOCATE( sug_grec(npft))
 ALLOCATE( sug_g0(npft))
 ALLOCATE( sug_yg(npft))
 
-sug_grec(:) = 0.0
-sug_g0(:)   = 0.0
-sug_yg(:)   = 0.0
+sug_grec(:) = rmdi
+sug_g0(:)   = rmdi
+sug_yg(:)   = rmdi
 
 ! SOX parameters
 ALLOCATE( sox_a(npft))
 ALLOCATE( sox_p50(npft))
 ALLOCATE( sox_rp_min(npft))
 
-sox_a(:)      = 0.0
-sox_p50(:)    = 0.0
-sox_rp_min(:) = 0.0
+sox_a(:)      = rmdi
+sox_p50(:)    = rmdi
+sox_rp_min(:) = rmdi
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
