@@ -21,6 +21,9 @@ contributing to this project. By working together under a shared understanding,
 we can continuously improve the project while creating a friendly, inclusive
 space for all contributors.
 
+The JULES release schedule and deadlines can be viewed in the 
+[milestones](https://metoffice.github.io/jules/milestones).
+
 ### Contributors Licence Agreement
 
 Please see the
