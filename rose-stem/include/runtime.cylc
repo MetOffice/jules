@@ -124,8 +124,8 @@ rsync -avz --exclude=".*" $SOURCE_DIRECTORY/* $hostname:$RELATIVE_SOURCE_DIRECTO
 %include 'include/meto/runtime.cylc'
 {% elif SITE == 'vm' %}
 %include 'include/vm/runtime.cylc'
-{% elif SITE == 'niwa' %}
-%include 'include/niwa/runtime.cylc'
+{% elif SITE == 'esnz' %}
+%include 'include/esnz/runtime.cylc'
 {% elif SITE == 'cehwl1' %}
 %include 'include/cehwl1/runtime.cylc'
 {% elif SITE == 'nci' %}
