@@ -64,9 +64,10 @@ class vn80_t31(MacroUpgrade):
 
     def upgrade(self,config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
-
+        
         """
-        Add switches to indicate whether a JULES surface tile is irrigated (pft and nvg)
+        1. Add switches to indicate whether a JULES surface tile is irrigated (pft and nvg)
+        2. Add the surface types, c3_irrig and c4_irrig with a value of zero
         """
 
         # Add the pft size
@@ -92,5 +93,8 @@ class vn80_t31(MacroUpgrade):
             ",".join(["0"] * nnvg),
             False,
         )
-         
+
+        self.add_setting(config, ["namelist:jules_surface_types", "c3_irrig"], "0")
+        self.add_setting(config, ["namelist:jules_surface_types", "c4_irrig"], "0") 
+
         return config, self.reports
