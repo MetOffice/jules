@@ -75,12 +75,11 @@ jobs:
           if [ -f zipped_artifact ]; then
             unzip artifact.zip
             echo "Using Artifact"
-            python3 /.github/scripts/create_jules_version_docs.py -j jules -a artifact -o jules_docs -l DEBUG
+            python3 /.github/scripts/create_jules_version_docs.py -j jules -a artifact -o jules_docs -l INFO
           else
             echo "Not Using Artifact"
-            python3 jules/.github/scripts/create_jules_version_docs.py -j jules -o jules_docs  -l DEBUG
+            python3 jules/.github/scripts/create_jules_version_docs.py -j jules -o jules_docs  -l INFO
           fi
-          ls jules_docs
 
       - name: Minimize uv cache
         run: uv cache prune --ci
