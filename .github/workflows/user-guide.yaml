@@ -70,6 +70,12 @@ jobs:
           name: github-pages
           path: artifact
 
+      - name: Setup conda
+        run: |
+          conda update conda
+          conda env create -f env.JULES_PATH/doc/environment.yml
+          echo ":heavy_check_mark: Set up conda environment" >> $GITHUB_STEP_SUMMARY
+
       - name: Build HTML docs
         env:
           GH_TOKEN: ${{ github.token }}
@@ -77,10 +83,10 @@ jobs:
           if [ -f zipped_artifact ]; then
             unzip artifact.zip
             echo "Using Artifact"
-            uv run /.github/scripts/create_jules_version_docs.py -j env.JULES_PATH -a artifact -o env.OUTPUT_PATH -l DEBUG
+            python3 /.github/scripts/create_jules_version_docs.py -j env.JULES_PATH -a artifact -o env.OUTPUT_PATH -l DEBUG
           else
             echo "Not Using Artifact"
-            uv run env.JULES_PATH/.github/scripts/create_jules_version_docs.py -j env.JULES_PATH -o env.OUTPUT_PATH  -l DEBUG
+            python3 env.JULES_PATH/.github/scripts/create_jules_version_docs.py -j env.JULES_PATH -o env.OUTPUT_PATH  -l DEBUG
           fi
 
       - name: Minimize uv cache
