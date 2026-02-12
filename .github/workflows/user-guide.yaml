@@ -72,7 +72,7 @@ jobs:
           pwd
           ls
           conda update conda
-          conda env create -f jules/doc/environment.yml
+          conda env create -f jules/doc/environment.yaml
           echo ":heavy_check_mark: Set up conda environment" >> $GITHUB_STEP_SUMMARY
 
       - name: Build HTML docs
