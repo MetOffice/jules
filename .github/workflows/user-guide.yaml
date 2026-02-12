@@ -71,6 +71,8 @@ jobs:
           path: artifact
 
       - name: Build HTML docs
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ -f zipped_artifact ]; then
             unzip artifact.zip
