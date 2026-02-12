@@ -79,6 +79,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          sphinx-build --version
           if [ -f zipped_artifact ]; then
             unzip artifact.zip
             echo "Using Artifact"
