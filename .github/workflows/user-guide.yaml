@@ -72,9 +72,14 @@ jobs:
 
       - name: Build HTML docs
         run: |
-          ls
-          zip -r artifact uz_artifact
-          python3 $JULES_PATH/.github/scripts/create_jules_version_docs.py -j $JULES_PATH -o $OUTPUT_PATH -l DEBUG
+          if [ -f zipped_artifact ]; then
+            unzip artifact.zip
+            echo "Using Artifact"
+            python3 $JULES_PATH/.github/scripts/create_jules_version_docs.py -j $JULES_PATH -a artifact -o $OUTPUT_PATH -l DEBUG
+          else
+            echo "Not Using Artifact"
+            python3 $JULES_PATH/.github/scripts/create_jules_version_docs.py -j $JULES_PATH -o $OUTPUT_PATH -l DEBUG
+          fi
 
       - name: Minimize uv cache
         run: uv cache prune --ci
