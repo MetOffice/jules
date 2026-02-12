@@ -67,19 +67,19 @@ jobs:
           name: github-pages
           path: artifact
 
-      - name: Setup conda
-        run: |
-          pwd
-          ls
-          conda update conda
-          conda env create -f jules/doc/environment.yaml
-          echo ":heavy_check_mark: Set up conda environment" >> $GITHUB_STEP_SUMMARY
+    #   - name: Setup conda
+    #     run: |
+    #       pwd
+    #       ls
+    #       conda update conda
+    #       conda env create -f jules/doc/environment.yaml
+    #       echo ":heavy_check_mark: Set up conda environment" >> $GITHUB_STEP_SUMMARY
 
       - name: Build HTML docs
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          sphinx-build --version
+          source jules/doc/.venv/bin/activate
           if [ -f zipped_artifact ]; then
             unzip artifact.zip
             echo "Using Artifact"
