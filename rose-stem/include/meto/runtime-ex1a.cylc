@@ -18,7 +18,7 @@
         script = true
         execution time limit = PT2M
         [[[directives]]]
-            -q shared
+            -q = shared
             -l ncpus=1
 
     [[extract_source_ex1a]]
