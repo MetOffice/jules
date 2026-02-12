@@ -225,7 +225,7 @@ CALL fire_vars_alloc(land_pts,npft, fire_vars_data)
 
 CALL c_z0h_z0m_alloc(ntype)
 
-CALL c_irrigation_alloc(ntype)
+CALL c_irrigation_alloc(npft)
 
 CALL jules_vars_alloc(land_pts,ntype,nsurft,rad_nband,nsoilt,sm_levels,        &
                 t_i_length, t_j_length, npft, bl_levels, pdims_s, pdims,       &

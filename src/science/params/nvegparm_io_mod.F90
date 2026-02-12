@@ -15,7 +15,7 @@
 MODULE nvegparm_io
 
 USE max_dimensions, ONLY: nnvg_max
-USE missing_data_mod, ONLY: imdi, rmdi
+USE missing_data_mod, ONLY: rmdi
 USE um_types, ONLY: real_jlslsm
 
 IMPLICIT NONE
@@ -24,9 +24,6 @@ IMPLICIT NONE
 ! Set up variables to use in IO (a fixed size version of each array
 ! in nvegparm that we want to initialise).
 !-----------------------------------------------------------------------
-INTEGER ::                                                                     &
-  irrig_nvg_io(nnvg_max) = imdi
-
 REAL(KIND=real_jlslsm) ::                                                      &
   albsnc_nvg_io(nnvg_max) = rmdi,                                              &
   albsnf_nvg_io(nnvg_max) = rmdi,                                              &
@@ -49,9 +46,8 @@ NAMELIST  / jules_nvegparm/                                                    &
                           albsnc_nvg_io, albsnf_nvg_io,                        &
                           albsnf_nvgl_io, albsnf_nvgu_io,                      &
                           catch_nvg_io, ch_nvg_io, emis_nvg_io,                &
-                          gs_nvg_io, infil_nvg_io, irrig_nvg_io,               &
-                          vf_nvg_io, z0_nvg_io, z0hm_nvg_io,                   &
-                          z0hm_classic_nvg_io
+                          gs_nvg_io, infil_nvg_io, vf_nvg_io,                  &
+                          z0_nvg_io, z0hm_nvg_io, z0hm_classic_nvg_io
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='NVEGPARM_IO'
 
@@ -82,8 +78,6 @@ CALL jules_print('nvegparm_io',lineBuffer)
 WRITE(lineBuffer,*)' gs_nvg_io = ',gs_nvg_io
 CALL jules_print('nvegparm_io',lineBuffer)
 WRITE(lineBuffer,*)' infil_nvg_io = ',infil_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' irrig_nvg_io = ',irrig_nvg_io
 CALL jules_print('nvegparm_io',lineBuffer)
 WRITE(lineBuffer,*)' vf_nvg_io = ',vf_nvg_io
 CALL jules_print('nvegparm_io',lineBuffer)
@@ -131,13 +125,11 @@ INTEGER(KIND=jpim), PARAMETER          :: zhook_out = 1
 CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
-INTEGER, PARAMETER :: no_of_types = 2
-INTEGER, PARAMETER :: n_int = 1 * nnvg_max
+INTEGER, PARAMETER :: no_of_types = 1
 INTEGER, PARAMETER :: n_real = 13 * nnvg_max
 
 TYPE :: my_namelist
   SEQUENCE
-  INTEGER :: irrig_nvg_io(nnvg_max)
   REAL(KIND=real_jlslsm) :: albsnc_nvg_io(nnvg_max)
   REAL(KIND=real_jlslsm) :: albsnf_nvg_io(nnvg_max)
   REAL(KIND=real_jlslsm) :: albsnf_nvgl_io(nnvg_max)
@@ -159,7 +151,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 CALL gc_get_communicator(my_comm, icode)
 
-CALL setup_nml_type(no_of_types, mpl_nml_type, n_int_in = n_int, n_real_in = n_real)
+CALL setup_nml_type(no_of_types, mpl_nml_type, n_real_in = n_real)
 
 IF (mype == 0) THEN
 
@@ -176,7 +168,6 @@ IF (mype == 0) THEN
   my_nml % emis_nvg_io         = emis_nvg_io
   my_nml % gs_nvg_io           = gs_nvg_io
   my_nml % infil_nvg_io        = infil_nvg_io
-  my_nml % irrig_nvg_io        = irrig_nvg_io
   my_nml % vf_nvg_io           = vf_nvg_io
   my_nml % z0_nvg_io           = z0_nvg_io
   my_nml % z0hm_classic_nvg_io = z0hm_classic_nvg_io
@@ -196,7 +187,6 @@ IF (mype /= 0) THEN
   emis_nvg_io         = my_nml % emis_nvg_io
   gs_nvg_io           = my_nml % gs_nvg_io
   infil_nvg_io        = my_nml % infil_nvg_io
-  irrig_nvg_io        = my_nml % irrig_nvg_io
   vf_nvg_io           = my_nml % vf_nvg_io
   z0_nvg_io           = my_nml % z0_nvg_io
   z0hm_classic_nvg_io = my_nml % z0hm_classic_nvg_io
@@ -223,8 +213,6 @@ USE nvegparm, ONLY:                                                            &
   emis_nvg,     gs_nvg,       infil_nvg,                                       &
   vf_nvg,       z0_nvg,       l_z0_nvg
 
-
-USE c_irrigation, ONLY: irrig_tile
 USE c_z0h_z0m,    ONLY: z0h_z0m,  z0h_z0m_classic
 
 USE jules_surface_types_mod, ONLY: npft, nnvg, urban_canyon, urban_roof, soil
@@ -252,7 +240,6 @@ ch_nvg(:)                           = ch_nvg_io(1:nnvg)
 emis_nvg(:)                         = emis_nvg_io(1:nnvg)
 gs_nvg(:)                           = gs_nvg_io(1:nnvg)
 infil_nvg(:)                        = infil_nvg_io(1:nnvg)
-irrig_tile(npft+1:npft + nnvg)      = irrig_nvg_io(1:nnvg)
 vf_nvg(:)                           = vf_nvg_io(1:nnvg)
 z0_nvg(:)                           = z0_nvg_io(1:nnvg)
 z0h_z0m_classic(npft+1:npft + nnvg) = z0hm_classic_nvg_io(1:nnvg)

@@ -55,12 +55,12 @@ class vnYY_txxxx(MacroUpgrade):
         # Add settings
         return config, self.reports
     
-class vn80_t31(MacroUpgrade):
+class vn80_t23(MacroUpgrade):
 
     """ Upgrade macro from JULES by Heather Rumbold """
 
     BEFORE_TAG = "vn8.0"
-    AFTER_TAG = "vn8.0_t31"
+    AFTER_TAG = "vn8.0_t23"
 
     def upgrade(self,config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
@@ -74,23 +74,12 @@ class vn80_t31(MacroUpgrade):
         npft = int(
             self.get_setting_value(config, ["namelist:jules_surface_types", "npft"])
         )
-
-        # Add the nnvg size
-        nnvg = int(
-            self.get_setting_value(config, ["namelist:jules_surface_types", "nnvg"])
-        )
         
         # Add settings 
         self.add_setting(
             config,
             ["namelist:jules_pftparm", "irrig_pft_io"],
             ",".join(["0"] * npft),
-            False,
-        )
-        self.add_setting(
-            config,
-            ["namelist:jules_nvegparm", "irrig_nvg_io"],
-            ",".join(["0"] * nnvg),
             False,
         )
 
