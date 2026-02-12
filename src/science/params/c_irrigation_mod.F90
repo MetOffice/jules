@@ -27,7 +27,7 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='C_IRRIGATION'
 
 CONTAINS
 
-SUBROUTINE c_irrigation_alloc(npft)
+SUBROUTINE c_irrigation_alloc(ntype)
 
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
@@ -36,7 +36,7 @@ USE yomhook,     ONLY: lhook, dr_hook
 IMPLICIT NONE
 
 !Arguments
-INTEGER, INTENT(IN) :: npft
+INTEGER, INTENT(IN) :: ntype
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
