@@ -72,6 +72,8 @@ jobs:
 
       - name: Setup conda
         run: |
+          pwd
+          ls
           conda update conda
           conda env create -f jules/doc/environment.yml
           echo ":heavy_check_mark: Set up conda environment" >> $GITHUB_STEP_SUMMARY
