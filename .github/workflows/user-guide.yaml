@@ -29,8 +29,8 @@ jobs:
     timeout-minutes: 5
     env:
       PYTHON_VRSN: '3.13'
-      JULES_PATH: $GITHUB_WORKSPACE/jules
-      OUTPUT_PATH: $GITHUB_WORKSPACE/jules_docs
+      JULES_PATH: ${{ GITHUB_WORKSPACE }}/jules
+      OUTPUT_PATH: ${{ GITHUB_WORKSPACE }}/jules_docs
 
 
     steps:
