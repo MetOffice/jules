@@ -49,18 +49,18 @@ jobs:
       - name: Cache uv venv
         uses: actions/cache@v4
         with:
-          path: $JULES_PATH/doc/.venv
+          path: ${{ JULES_PATH }}/doc/.venv
           key: ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-${{ hashFiles('doc/pyproject.toml', 'doc/uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-
             ${{ runner.os }}-uv-
 
       - name: Install dependencies
-        working-directory: $JULES_PATH/doc
+        working-directory: ${{ JULES_PATH }}/doc
         run: uv sync
 
       - name: Lint Sphinx docs
-        working-directory: $JULES_PATH/doc
+        working-directory: ${{ JULES_PATH }}/doc
         run: uv run sphinx-lint source
 
       - name: Download Artifact
@@ -75,10 +75,10 @@ jobs:
           if [ -f zipped_artifact ]; then
             unzip artifact.zip
             echo "Using Artifact"
-            python3 $JULES_PATH/.github/scripts/create_jules_version_docs.py -j $JULES_PATH -a artifact -o $OUTPUT_PATH -l DEBUG
+            python3 /.github/scripts/create_jules_version_docs.py -j $JULES_PATH -a artifact -o $OUTPUT_PATH -l DEBUG
           else
             echo "Not Using Artifact"
-            python3 $JULES_PATH/.github/scripts/create_jules_version_docs.py -j $JULES_PATH -o $OUTPUT_PATH -l DEBUG
+            python3 ${{ JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ JULES_PATH }} -o ${{ OUTPUT_PATH }} -l DEBUG
           fi
 
       - name: Minimize uv cache
@@ -94,7 +94,7 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           name: github-pages
-          path: $OUTPUT_PATH
+          path: ${{ OUTPUT_PATH }}
           # Use maximum retention days to avoid rebuilding all versions if possible
           retention-days: 90
 
