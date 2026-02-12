@@ -67,14 +67,6 @@ jobs:
           name: github-pages
           path: artifact
 
-    #   - name: Setup conda
-    #     run: |
-    #       pwd
-    #       ls
-    #       conda update conda
-    #       conda env create -f jules/doc/environment.yaml
-    #       echo ":heavy_check_mark: Set up conda environment" >> $GITHUB_STEP_SUMMARY
-
       - name: Build HTML docs
         env:
           GH_TOKEN: ${{ github.token }}
@@ -88,6 +80,7 @@ jobs:
             echo "Not Using Artifact"
             python3 jules/.github/scripts/create_jules_version_docs.py -j jules -o jules_docs  -l DEBUG
           fi
+          ls output
 
       - name: Minimize uv cache
         run: uv cache prune --ci
