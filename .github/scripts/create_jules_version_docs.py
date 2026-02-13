@@ -15,6 +15,7 @@ import json
 import logging
 import subprocess
 import shutil
+import time
 from pathlib import Path
 from shlex import split
 
@@ -57,11 +58,18 @@ def get_releases() -> list[str]:
     Use gh to get a list of releases in Jules
     remove git_migration release and sort by version number
     """
-    result = run_command("gh release list -R MetOffice/jules --json tagName")
+    result = run_command("gh release list -R MetOffice/jules --json tagName,createdAt")
     releases = json.loads(result.stdout)
+    time_format = "%Y-%m-%dT%H:%M:%SZ"
+    releases = sorted(
+        releases,
+        reverse=True,
+        key=lambda x: time.mktime(time.strptime(x["createdAt"], time_format)),
+    )
     releases = [x["tagName"] for x in releases]
+    # Remove git_migration release as docs didn't exist at that point
     releases.remove("git_migration")
-    releases = sorted(releases, reverse=True, key=lambda x: float(x.removeprefix("vn")))
+    logger.info(f"Releases: {releases}")
     return releases
 
 
@@ -175,7 +183,6 @@ def main():
 
     # Get a list of releases
     releases = get_releases()
-    logger.info(f"Releases: {releases}")
 
     # Build Docs for latest using main branch
     build_jules_docs("main", "latest", args.jules, args.artifact, args.output, True)
