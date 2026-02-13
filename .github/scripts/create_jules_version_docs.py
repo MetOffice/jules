@@ -124,7 +124,7 @@ def edit_index(index_file_path: Path, releases: list[str]) -> None:
             f.write(f"{line}\n")
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse Command line arguments
     """
@@ -163,7 +163,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     """
     Main Function
     """
