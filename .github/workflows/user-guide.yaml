@@ -31,7 +31,7 @@ jobs:
       PYTHON_VRSN: '3.13'
       JULES_PATH: jules
       OUTPUT_PATH: jules_docs
-      VENV_PATH: ${{ env.JULES_PATH }}/doc/.venv
+      VENV_PATH: jules/doc/.venv
 
     steps:
       - name: Checkout repository
