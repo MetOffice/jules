@@ -1126,7 +1126,7 @@ IF (soil_pts /= 0) THEN
       sathh_soilt(:,m,:), smcl_soilt(:,m,:), snowdepth_surft,                  &
       surf_ht_flux_ld, smvcst_soilt(:,m,:), w_flux_soilt(:,m,:),               &
       sthf_soilt(:,m,:), sthu_soilt(:,m,:), sthu_irr_soilt(:,m,:),             &
-      t_soil_soilt(:,m,:), tsoil_deep_gb )
+      t_soil_soilt(:,m,:), tsoil_deep_gb, dim_cs1, resp_s_soilt(:,m,:,:) )
   ELSE
     ! Surface and soil tiles map directly on to each other.
     DO m = 1, nsoilt
@@ -1139,7 +1139,7 @@ IF (soil_pts /= 0) THEN
         sathh_soilt(:,m,:), smcl_soilt(:,m,:), snowdepth_surft,                &
         snow_soil_htf(:,n), smvcst_soilt(:,m,:), w_flux_soilt(:,m,:),          &
         sthf_soilt(:,m,:), sthu_soilt(:,m,:),  sthu_irr_soilt(:,m,:),          &
-        t_soil_soilt(:,m,:), tsoil_deep_gb )
+        t_soil_soilt(:,m,:), tsoil_deep_gb, dim_cs1, resp_s_soilt(:,m,:,:) )
     END DO
   END IF
 

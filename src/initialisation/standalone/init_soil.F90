@@ -29,7 +29,7 @@ USE string_utils_mod, ONLY: to_string
 USE jules_soil_mod, ONLY: jules_soil, sm_levels, dzsoil, dzsoil_elev,          &
                           l_vg_soil, l_soil_sat_down, soilhc_method,           &
                           l_bedrock, l_tile_soil, l_broadcast_ancils,          &
-                          check_jules_soil
+                          check_jules_soil, l_bgc_heat
 
 USE jules_surface_mod, ONLY: l_elev_land_ice
 
@@ -91,6 +91,12 @@ CALL log_info("init_soil",                                                     &
 
 IF ( l_vg_soil )                                                               &
   CALL log_info("init_soil", "van Genuchten model will be used")
+
+IF ( l_bgc_heat ) THEN
+  CALL log_info("init soil", "l_bgc_heat = T - Enabled biogeochemical heating")
+ELSE
+  CALL log_info("init soil", "l_bgc_heat = F - Disabled biogeochemical heating")
+END IF
 
 IF ( l_soil_sat_down ) THEN
   CALL log_info("init_soil",                                                   &

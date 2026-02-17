@@ -32,7 +32,7 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
    kaps_4pool
 
 USE jules_soil_mod, ONLY:                                                      &
- dzsoil,sm_levels
+ dzsoil,sm_levels, l_bgc_heat
 
 USE sf_diags_mod, ONLY: strnewsfdiag
 
@@ -189,7 +189,14 @@ IF (l_q10) THEN
   DO j = 1,sm_levels
 !$OMP DO SCHEDULE(STATIC)
     DO l = 1,land_pts
-      ftemp(l,j) = q10 ** (0.1 * (tsoil(l,j) - 282.4))
+      IF (l_bgc_heat) THEN
+        ! If compost bombs need a 'peak' in the respiration function
+ 	      ! this form is from Cat Luke's PhD thesis (REF)
+        ftemp(l,j) = (q10 ** (0.1 * (tsoil(l,j) - 282.4))) /                   &
+                       (1 + q10 ** (tsoil(l,j) - 343.15))
+      ELSE
+        ftemp(l,j) = q10 ** (0.1 * (tsoil(l,j) - 282.4))
+      END IF
     END DO
 !$OMP END DO NOWAIT
   END DO
