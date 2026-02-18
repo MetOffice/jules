@@ -6,8 +6,6 @@
 
 {# Basic groups
  # The 'dr_{prgenv}_{type}' groups get filled in later based on the apps list
- # We don't currently have gswp files on Sentinel so exclude that from the
- # default list
  #}
 {% set groups = {
     'all': ['dr'],
@@ -50,29 +48,6 @@
         {'name': 'eraint_trip_2ddata',
          'ranks': 8,
          'dump_file': '$ERAINT_INSTALL_DIR/brahma_eraint_small.dump.19951031.0.nc'},
-    ],
-    'gswp2': [
-        {'name': 'gswp2_closures',},
-        {'name': 'gswp2_es_1p1',},
-        {'name': 'gswp2_euro4',},
-        {'name': 'gswp2_gl4',},
-        {'name': 'gswp2_gl7',},
-        {'name': 'gswp2_irrig_limit_high_river_storage',},
-        {'name': 'gswp2_irrig_limit_low_river_storage',},
-        {'name': 'gswp2_rivers',},
-        {'name': 'gswp2_rivers_restart',},
-        {'name': 'gswp2_rivers_spinup',},
-        {'name': 'gswp2_trip',},
-        {'name': 'gswp2_trip_restart',},
-        {'name': 'gswp2_trip_spinup',},
-        {'name': 'gswp2_ukv',},
-    ],
-    'imogen': [
-        {'name': 'imogen_layeredc',
-         'ranks': 8,
-         'spinup': 'imogen_layeredc_spinup',
-         'spinup_date': '18650101.0'},
-        {'name': 'imogen_layeredc_spinup', 'ranks': 8,},
     ],
     'loobos': [
         {'name': 'loobos_crm1_traitF',},

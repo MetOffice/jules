@@ -19,6 +19,11 @@
             IMOGEN_INSTALL_DIR = /g/sc/bureau_b/research/data/ukmo/jules/datasets/imogen
 
 {% macro prgenv(name, module, compiler) %}
+    {# Environment setup for a compiler
+     #   name: Compiler name to use in Cylc
+     #   module: Load module PrgEnv-{{module}}
+     #   compiler: Compiler file to use etc/fcm-make/compiler/{{compiler}}.cfg
+     #}
     [[PRGENV_{{name|upper}}]]
         init-script = """
             module unload PrgEnv-cray PrgEnv-gnu PrgEnv-intel
@@ -67,6 +72,7 @@
         platform = localhost
 
 {% for prgenv in ['oneapi', 'cray', 'gnu'] %}
+    {# Compile with this prgenv #}
     [[fcm_make_bom_dr_{{prgenv}}]]
         inherit = EXTRACT_AND_BUILD, PRGENV_{{prgenv|upper}}
         [[[environment]]]
@@ -75,8 +81,9 @@
     
     {% for type, tests in apps.items() %}
         {% for t in tests %}
-            {% set g = 'dr_'~prgenv~'_'~t['name'] %}
-    [[{{g}}]]
+            {% set task = 'dr_'~prgenv~'_'~t['name'] %}
+    {# Run the test #}
+    [[{{task}}]]
         inherit = {{type|upper}}, COMPUTE
         [[[directives]]]
             -l select={{t.get('ranks',1)}}:mem=2gb
@@ -85,22 +92,23 @@
             ROSE_APP_OPT_CONF_KEYS = {{t.get('opt', '')}}
             NPROC = {{t.get('ranks',1)}}
             BUILD_NAME = fcm_make_bom_dr_{{prgenv}}
-            {% if 'dump_file' in t %}
+        {% if 'dump_file' in t %}
             DUMP_FILE = {{t['dump_file']}}
-            {% elif 'spinup' in t %}
+        {% elif 'spinup' in t %}
+            {# Construct DUMP_FILE from the spinup info #}
             {% set spinup_task = 'dr_'~prgenv~'_'~t['spinup'] %}
             DUMP_FILE = ../{{spinup_task}}/output/{{spinup_task}}.dump.{{t['spinup_date']}}.nc
-            {% endif %}
+        {% endif %}
 
-    [[nccmp_{{g}}]]
+    [[nccmp_{{task}}]]
         inherit = KGO_CHECK, NETCDF_COMPARISON
         [[[environment]]]
-            OUTPUT_DIR = ../{{g}}/output
+            OUTPUT_DIR = ../{{task}}/output
 
-    [[housekeep_{{g}}]]
+    [[housekeep_{{task}}]]
         inherit = HOUSEKEEPING
         [[[environment]]]
-            DIR1 = ../{{g}}
+            DIR1 = ../{{task}}
         {% endfor %}
     {% endfor %}
 {% endfor %}
