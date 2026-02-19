@@ -109,9 +109,6 @@ SUBROUTINE check_jules_nvegparm(nnvg,npft)
 USE ereport_mod,      ONLY: ereport
 USE check_jules_nml_values_mod, ONLY: check_jules_nml_values
 
-! May want to move this to remove dependency
-USE c_z0h_z0m, ONLY: z0h_z0m,  z0h_z0m_classic
-
 IMPLICIT NONE
 
 !Arguments
@@ -155,17 +152,50 @@ IF ( SIZE( ch_nvg(:) ) > 0 )                                                   &
 IF ( SIZE( vf_nvg(:) ) > 0 )                                                   &
    CALL check_jules_nml_values ( vf_nvg(:), 'vf_nvg', nnvg,                    &
    0.0, 1.0, RoutineName, errorstatus )
-IF ( SIZE( z0h_z0m(npft+1:) ) > 0 )                                            &
-   CALL check_jules_nml_values ( z0h_z0m(npft+1:), 'z0hm_nvg', nnvg,           &
-   0.0, HUGE(1.0), RoutineName, errorstatus )
-IF ( SIZE( z0h_z0m_classic(npft+1:) ) > 0 )                                    &
-   CALL check_jules_nml_values ( z0h_z0m_classic(npft+1:),                     &
-   'z0hm_classic_nvg', nnvg, 0.0, HUGE(1.0), RoutineName, errorstatus )
 
 IF ( errorstatus > 0 )                                                         &
    CALL ereport(RoutineName, errorstatus,                                      &
    ' Error(s) were found in jules_nvegparm - see job.out for details')
 
 END SUBROUTINE check_jules_nvegparm
+
+SUBROUTINE print_nlist_jules_nvegparm()
+
+USE jules_print_mgr, ONLY: jules_print
+USE jules_surface_types_mod, ONLY: npft, ntype
+
+IMPLICIT NONE
+CHARACTER(LEN=50000) :: lineBuffer
+
+CALL jules_print('nvegparm',                                                &
+    'Contents of namelist jules_nvegparm')
+
+WRITE(lineBuffer,*)' albsnc_nvg = ',albsnc_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' albsnf_nvg = ',albsnf_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' albsnf_nvgl = ',albsnf_nvgl
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' albsnf_nvgu = ',albsnf_nvgu
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' catch_nvg = ',catch_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' ch_nvg = ',ch_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' emis_nvg = ',emis_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' gs_nvg = ',gs_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' infil_nvg = ',infil_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' vf_nvg = ',vf_nvg
+CALL jules_print('nvegparm',lineBuffer)
+WRITE(lineBuffer,*)' z0_nvg = ',z0_nvg
+CALL jules_print('nvegparm',lineBuffer)
+
+CALL jules_print('nvegparm',                                                &
+    '- - - - - - end of namelist - - - - - -')
+
+END SUBROUTINE print_nlist_jules_nvegparm
 
 END MODULE nvegparm

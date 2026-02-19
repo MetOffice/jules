@@ -53,46 +53,6 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='NVEGPARM_IO'
 
 CONTAINS
 
-SUBROUTINE print_nlist_jules_nvegparm()
-USE jules_print_mgr, ONLY: jules_print
-IMPLICIT NONE
-CHARACTER(LEN=50000) :: lineBuffer
-
-CALL jules_print('nvegparm_io',                                                &
-    'Contents of namelist jules_nvegparm')
-
-WRITE(lineBuffer,*)' albsnc_nvg_io = ',albsnc_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' albsnf_nvg_io = ',albsnf_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' albsnf_nvgl_io = ',albsnf_nvgl_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' albsnf_nvgu_io = ',albsnf_nvgu_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' catch_nvg_io = ',catch_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' ch_nvg_io = ',ch_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' emis_nvg_io = ',emis_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' gs_nvg_io = ',gs_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' infil_nvg_io = ',infil_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' vf_nvg_io = ',vf_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' z0_nvg_io = ',z0_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' z0hm_classic_nvg_io = ',z0hm_classic_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-WRITE(lineBuffer,*)' z0hm_nvg_io = ',z0hm_nvg_io
-CALL jules_print('nvegparm_io',lineBuffer)
-
-CALL jules_print('nvegparm_io',                                                &
-    '- - - - - - end of namelist - - - - - -')
-
-END SUBROUTINE print_nlist_jules_nvegparm
-
 #if defined(UM_JULES)
 SUBROUTINE read_nml_jules_nvegparm (unitnumber)
 

@@ -17,7 +17,7 @@ USE jules_surface_types_mod, ONLY: nnvg, npft
 
 USE nvegparm_io, ONLY: jules_nvegparm, init_nvegparm_allocated
 
-USE nvegparm, ONLY: check_jules_nvegparm
+USE nvegparm, ONLY: print_nlist_jules_nvegparm, check_jules_nvegparm
 
 USE errormessagelength_mod, ONLY: errormessagelength
 
@@ -79,6 +79,7 @@ IF ( ERROR /= 0 )                                                              &
 !-----------------------------------------------------------------------------
 ! Copy values from fixed length arrays used in namelist into allocated arrays
 CALL init_nvegparm_allocated()
+CALL print_nlist_jules_nvegparm()
 CALL check_jules_nvegparm(nnvg,npft)
 
 RETURN

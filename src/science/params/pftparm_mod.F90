@@ -662,4 +662,226 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE pftparm_alloc
 
+
+SUBROUTINE print_nlist_jules_pftparm()
+
+USE jules_print_mgr, ONLY: jules_print
+IMPLICIT NONE
+CHARACTER(LEN=50000) :: lineBuffer
+
+CALL jules_print('pftparm',                                                 &
+    'Contents of namelist jules_pftparm')
+
+#if !defined(UM_JULES)
+WRITE(lineBuffer,*)' fsmc_mod = ',fsmc_mod
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' psi_close = ',psi_close
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' psi_open = ',psi_open
+CALL jules_print('pftparm',lineBuffer)
+#endif
+
+
+WRITE(lineBuffer,*)' a_wl = ',a_wl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' a_ws = ',a_ws
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' act_jmax = ',act_jmax
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' act_vcmax = ',act_vcmax
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' aef = ',aef
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' albsnc_max = ',albsnc_max
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' albsnc_min = ',albsnc_min
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' albsnf_max = ',albsnf_max
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' alpha = ',alpha
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' alpha_elec = ',alpha_elec
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' alnir = ',alnir
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' alpar = ',alpar
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' avg_ba = ',avg_ba
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' b_wl = ',b_wl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' c3 = ',c3
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' can_struct_a = ',can_struct_a
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' catch0 = ',catch0
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ccleaf_max = ',ccleaf_max
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ccleaf_min = ',ccleaf_min
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ccwood_max = ',ccwood_max
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ccwood_min = ',ccwood_min
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ci_st = ',ci_st
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' dcatch_dlai = ',dcatch_dlai
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' deact_vcmax = ',deact_jmax
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' deact_vcmax = ',deact_vcmax
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' dfp_dcuo = ',dfp_dcuo
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' dgl_dm = ',dgl_dm
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' dgl_dt = ',dgl_dt
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' dqcrit = ',dqcrit
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ds_jmax = ',ds_jmax
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ds_vcmax = ',ds_vcmax
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' dust_veg_scj = ',dust_veg_scj
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' dz0v_dh = ',dz0v_dh
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' emis_pft = ',emis_pft
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' eta_sl = ',eta_sl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' f0 = ',f0
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fd = ',fd
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_bc = ',fef_bc
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_ch4 = ',fef_ch4
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_co = ',fef_co
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_co2 = ',fef_co2
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_nox = ',fef_nox
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_oc = ',fef_oc
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_so2 = ',fef_so2
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_c2h4 = ',fef_c2h4
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_c2h6 = ',fef_c2h6
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_c3h8 = ',fef_c3h8
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_hcho = ',fef_hcho
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_mecho = ',fef_mecho
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_nh3 = ',fef_nh3
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fef_dms = ',fef_dms
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fire_mort = ',fire_mort
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fl_o3_ct = ',fl_o3_ct
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fsmc_of = ',fsmc_of
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fsmc_p0 = ',fsmc_p0
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' sug_g0 = ',sug_g0
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' g1_stomata = ',g1_stomata
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' g_leaf_0 = ',g_leaf_0
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' glmin = ',glmin
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' gpp_st = ',gpp_st
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' sug_grec = ',sug_grec
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' gsoil_f = ',gsoil_f
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' hw_sw = ',hw_sw
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ief = ',ief
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' infil_f = ',infil_f
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' jv25_ratio = ',jv25_ratio
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' kext = ',kext
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' kn = ',kn
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' knl = ',knl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' kpar = ',kpar
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' lai_alb_lim = ',lai_alb_lim
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' lma = ',lma
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' mef = ',mef
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' neff = ',neff
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' nl0 = ',nl0
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' nmass = ',nmass
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' nr_nl = ',nr_nl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' ns_nl = ',ns_nl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' nsw = ',nsw
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' nr = ',nr
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' omega = ',omega
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' omnir = ',omnir
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' orient = ',orient
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' q10_leaf = ',q10_leaf
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' r_grow = ',r_grow
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' rootd_ft = ',rootd_ft
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' sigl = ',sigl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' tef = ',tef
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' tleaf_of = ',tleaf_of
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' tlow = ',tlow
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' tupp = ',tupp
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' vint = ',vint
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' vsl = ',vsl
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' sug_yg = ',sug_yg
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' z0v = ',z0v
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' sox_a = ',sox_a
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' sox_p50 = ',sox_p50
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' sox_rp_min = ',sox_rp_min
+CALL jules_print('pftparm',lineBuffer)
+
+CALL jules_print('pftparm',                                                 &
+    '- - - - - - end of namelist - - - - - -')
+
+END SUBROUTINE print_nlist_jules_pftparm
+
 END MODULE pftparm

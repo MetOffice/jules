@@ -26,7 +26,7 @@ USE ancil_info, ONLY: land_pts
 USE pftparm_io, ONLY: jules_pftparm, init_pftparm_allocated,                   &
                       canht_ft_io, lai_io
 
-USE pftparm, ONLY:                                                             &
+USE pftparm, ONLY: print_nlist_jules_pftparm,                                  &
   fsmc_mod,     psi_close,     psi_open,                                       &
   a_wl,         a_ws,          aef,                                            &
   act_jmax,     act_vcmax,     albsnc_max,                                     &
@@ -80,6 +80,8 @@ USE jules_vegetation_mod, ONLY: can_rad_mod, l_crop, l_trait_phys,             &
 USE jules_radiation_mod, ONLY: l_spec_albedo, l_albedo_obs, l_snow_albedo
 
 USE errormessagelength_mod, ONLY: errormessagelength
+
+USE jules_print_mgr, ONLY: jules_print
 
 !TYPE definitions
 USE prognostics, ONLY: progs_type
@@ -145,6 +147,16 @@ IF ( ERROR /= 0 )                                                              &
 ! Process the namelist values
 !-----------------------------------------------------------------------------
 CALL init_pftparm_allocated()
+CALL print_nlist_jules_pftparm()
+! Print members of pftparm_io not copied to pftparm_mod.
+CALL jules_print('pftparm',                                                 &
+    'Contents of namelist jules_pftparm (standalone only)')
+WRITE(iomessage,*)' canht_ft = ',canht_ft_io(1:npft)
+CALL jules_print('pftparm',iomessage)
+WRITE(iomessage,*)' lai = ',lai_io(1:npft)
+CALL jules_print('pftparm',iomessage)
+CALL jules_print('pftparm',                                                 &
+    '- - - - - - end of namelist - - - - - -')
 progs%canht_pft(:,:)   = SPREAD(canht_ft_io(1:npft), 1, land_pts)
 progs%lai_pft(:,:)     = SPREAD(lai_io(1:npft), 1, land_pts)
 
