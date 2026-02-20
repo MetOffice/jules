@@ -80,7 +80,6 @@ jobs:
         run: |
           # Get workflow id of last run to upload an artifact
           run_id=$(gh run list -R MetOffice/jules -b main -w user-guide.yaml --limit 2 --json databaseId | jq -r '.[1].databaseId')
-          echo "run_id: $run_id"
 
           # Download tarred artifact
           gh run download -R MetOffice/jules $run_id -n github-pages
