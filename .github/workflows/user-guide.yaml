@@ -71,6 +71,7 @@ jobs:
         with:
           name: github-pages
           path: artifact
+          github-token: ${{ github.token }}
 
       - name: Build HTML docs
         env:
