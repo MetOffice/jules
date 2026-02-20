@@ -88,7 +88,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
-          ls ${{ env.ARTIFACT_PATH }}
           if [ -d ${{ env.ARTIFACT_PATH }} ]; then
             echo "Using Artifact"
             python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ env.JULES_PATH }} -a ${{ env.ARTIFACT_PATH }} -o ${{ env.OUTPUT_PATH }} -l INFO
@@ -96,7 +95,6 @@ jobs:
             echo "Not Using Artifact"
             python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j jules -o ${{ env.OUTPUT_PATH }} -l INFO
           fi
-          ls ${{ env.OUTPUT_PATH }}
 
       - name: Minimize uv cache
         run: uv cache prune --ci
