@@ -96,6 +96,7 @@ jobs:
             echo "Not Using Artifact"
             python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j jules -o ${{ env.OUTPUT_PATH }} -l INFO
           fi
+          ls ${{ env.OUTPUT_PATH }}
 
       - name: Minimize uv cache
         run: uv cache prune --ci
