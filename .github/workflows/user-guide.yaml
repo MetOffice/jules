@@ -89,7 +89,7 @@ jobs:
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
           ls ${{ env.ARTIFACT_PATH }}
-          if [ -f ${{ env.ARTIFACT_PATH }} ]; then
+          if [ -d ${{ env.ARTIFACT_PATH }} ]; then
             echo "Using Artifact"
             python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ env.JULES_PATH }} -a ${{ env.ARTIFACT_PATH }} -o ${{ env.OUTPUT_PATH }} -l INFO
           else
