@@ -79,8 +79,8 @@ jobs:
           gh run download -R MetOffice/jules $run_id -n github-pages
 
           # Create output directory and untar
-          mkdir -p ${{ ARTIFACT_PATH }}
-          tar -xf artifact.tar -C ${{ ARTIFACT_PATH }}
+          mkdir -p ${{ env.ARTIFACT_PATH }}
+          tar -xf artifact.tar -C ${{ env.ARTIFACT_PATH }}
 
 
       - name: Build HTML docs
@@ -90,7 +90,7 @@ jobs:
           source ${{ env.VENV_PATH }}/bin/activate
           if [ -f artifact ]; then
             echo "Using Artifact"
-            python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ env.JULES_PATH }} -a ${{ ARTIFACT_PATH }} -o ${{ env.OUTPUT_PATH }} -l INFO
+            python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ env.JULES_PATH }} -a ${{ env.ARTIFACT_PATH }} -o ${{ env.OUTPUT_PATH }} -l INFO
           else
             echo "Not Using Artifact"
             python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j jules -o ${{ env.OUTPUT_PATH }} -l INFO
