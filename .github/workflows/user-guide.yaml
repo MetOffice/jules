@@ -73,7 +73,7 @@ jobs:
         run: uv run make clean html
 
       - name: Download Artifact
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
+        # if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
@@ -90,7 +90,7 @@ jobs:
 
 
       - name: Build HTML docs for deployment
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
+        # if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
