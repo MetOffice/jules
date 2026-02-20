@@ -22,7 +22,7 @@ on:
 
 permissions:
   contents: read
-  pull_request: read
+  pull-request: read
   pages: write
   id-token: write
 
