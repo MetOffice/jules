@@ -68,12 +68,12 @@ jobs:
         run: uv run sphinx-lint source
 
       - name: Build HTML docs for testing
-        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'pull_request'
         working-directory: ${{ env.JULES_PATH }}/doc
         run: uv run make clean html
 
       - name: Download Artifact
-        # if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
+        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
@@ -90,7 +90,7 @@ jobs:
 
 
       - name: Build HTML docs for deployment
-        # if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
+        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -108,20 +108,19 @@ jobs:
 
       # -- Deploy to GitHub Pages only on push to upstream main
       - name: Setup GitHub Pages
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
+        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
         uses: actions/configure-pages@v5
 
       - name: Upload artifact to GitHub Pages
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
+        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
         uses: actions/upload-pages-artifact@v4
         with:
           name: github-pages
           path: ${{ env.OUTPUT_PATH }}
           # Use maximum retention days to avoid rebuilding all versions if possible
           retention-days: 90
-          overwrite: True
 
       - name: Deploy to GitHub Pages
         id: deployment
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release') }}
+        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
         uses: actions/deploy-pages@v4
