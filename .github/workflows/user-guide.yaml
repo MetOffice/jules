@@ -33,6 +33,7 @@ jobs:
     env:
       PYTHON_VRSN: '3.13'
       JULES_PATH: jules
+      ARTIFACT_PATH: artifact
       OUTPUT_PATH: jules_docs
       VENV_PATH: jules/doc/.venv
 
@@ -68,11 +69,17 @@ jobs:
 
       - name: Download Artifact
         continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: artifact
-          github-token: ${{ github.token }}
+        run: |
+          # Get workflow id of last run to upload an artifact
+          run_id=$(gh run list -R MetOffice/jules -b main -w user-guide.yaml --limit 1 --json databaseId | jq -r '.[0].databaseId')
+
+          # Download tarred artifact
+          gh run download -R MetOffice/jules $run_id -n github-pages
+
+          # Create output directory and untar
+          mkdir -p ${{ ARTIFACT_PATH }}
+          tar -xf artifact.tar -C ${{ ARTIFACT_PATH }}
+
 
       - name: Build HTML docs
         env:
@@ -81,7 +88,7 @@ jobs:
           source ${{ env.VENV_PATH }}/bin/activate
           if [ -f artifact ]; then
             echo "Using Artifact"
-            python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ env.JULES_PATH }} -a artifact -o ${{ env.OUTPUT_PATH }} -l INFO
+            python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ env.JULES_PATH }} -a ${{ ARTIFACT_PATH }} -o ${{ env.OUTPUT_PATH }} -l INFO
           else
             echo "Not Using Artifact"
             python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j jules -o ${{ env.OUTPUT_PATH }} -l INFO
