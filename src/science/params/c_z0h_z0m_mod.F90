@@ -102,9 +102,9 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='C_Z0H_Z0M_PRINT'
 CALL jules_print(RoutineName, 'Contents of c_z0h_z0m')
 
 WRITE(lineBuffer,*)' z0h_z0m_classic = ',z0h_z0m_classic(:)
-CALL jules_print('nvegparm',lineBuffer)
+CALL jules_print(RoutineName,lineBuffer)
 WRITE(lineBuffer,*)' z0h_z0m = ',z0h_z0m(:)
-CALL jules_print('nvegparm',lineBuffer)
+CALL jules_print(RoutineName,lineBuffer)
 
 CALL jules_print(RoutineName,                                                 &
     '- - - - - - end of c_z0h_z0m - - - - - -')

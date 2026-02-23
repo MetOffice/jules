@@ -666,7 +666,9 @@ END SUBROUTINE pftparm_alloc
 SUBROUTINE print_nlist_jules_pftparm()
 
 USE jules_print_mgr, ONLY: jules_print
+
 IMPLICIT NONE
+
 CHARACTER(LEN=50000) :: lineBuffer
 
 CALL jules_print('pftparm',                                                 &
@@ -883,5 +885,644 @@ CALL jules_print('pftparm',                                                 &
     '- - - - - - end of namelist - - - - - -')
 
 END SUBROUTINE print_nlist_jules_pftparm
+
+
+SUBROUTINE check_jules_pftparm(npft,nnpft)
+
+USE jules_soil_biogeochem_mod, ONLY: l_layeredC, soil_bgc_model,               &
+                                      soil_model_4pool
+
+USE jules_vegetation_mod, ONLY: can_rad_mod, l_crop, l_trait_phys,             &
+                                 l_use_pft_psi, l_bvoc_emis, l_inferno,        &
+                                 l_o3_damage, l_trif_fire, photo_acclim_model, &
+                                 photo_act_model, photo_act_pft,               &
+                                 photo_farquhar, photo_model,                  &
+                                 stomata_jacobs, stomata_medlyn, stomata_sox,  &
+                                 stomata_model, l_spec_veg_z0, l_sugar,        &
+                                 l_scale_resp_pm
+
+USE jules_radiation_mod, ONLY: l_spec_albedo, l_albedo_obs, l_snow_albedo
+
+USE missing_data_mod, ONLY: rmdi
+
+USE ereport_mod,     ONLY: ereport
+USE jules_print_mgr, ONLY: jules_print
+
+IMPLICIT NONE
+
+!Arguments
+INTEGER, INTENT(IN) :: npft, nnpft
+
+! Work variables
+INTEGER :: ERROR  ! Error indicator
+
+CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_PFTPARM'
+
+!-----------------------------------------------------------------------------
+! Check that all required variables were present in the namelist.
+! The namelist variables were initialised to rmdi.
+! Some configurations don't need all parameters but in some cases these are
+! still tested below.
+!-----------------------------------------------------------------------------
+ERROR = 0
+!#if !defined(UM_JULES)
+! Trigger ignored in the UM for now use ifdef, but may be better regarding LFRic
+! and other triggered off option to check the value if any > rmdi and then
+! check if they should have a value in check_available_options or based on
+! science options.
+!IF ( ANY( fsmc_mod(:) < 0 ) ) THEN  ! fsmc_mod was initialised to < 0
+  ERROR = 1
+  CALL jules_print(routinename, "No value for fsmc_mod")
+!END IF
+!#endif
+IF ( ANY( orient(:) < 0 ) ) THEN  ! orient was initialised to < 0
+  ERROR = 1
+  CALL jules_print(routinename, "No value for orient")
+END IF
+IF ( ANY( ABS( kext(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for kext")
+END IF
+IF ( ANY( ABS( kpar(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for kpar")
+END IF
+IF ( ANY( ABS( lai_alb_lim(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for lai_alb_lim")
+END IF
+IF ( ANY( ABS( can_struct_a(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for can_struct_a")
+END IF
+IF ( ANY( ABS( gsoil_f(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for gsoil_f")
+END IF
+IF ( ANY( c3(:) < 0 ) ) THEN  ! c3 was initialised to < 0
+  ERROR = 1
+  CALL jules_print(routinename, "No value for c3")
+END IF
+IF ( ANY( ABS( alpha(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for alpha")
+END IF
+IF ( ANY( ABS( fd(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for fd")
+END IF
+IF ( ANY( ABS( nr_nl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for nr_nl")
+END IF
+IF ( ANY( ABS( ns_nl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for ns_nl")
+END IF
+IF ( ANY( ABS( r_grow(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for r_grow")
+END IF
+! Note that tlow and tupp are always required, for some PFTs at least.
+! If using the Farquhar model for C3 plants, we still need tlow and
+! tupp for C4 plants.
+IF ( ANY( ABS( tlow(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for tlow")
+END IF
+IF ( ANY( ABS( tupp(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for tupp")
+END IF
+
+SELECT CASE ( photo_model )
+CASE ( photo_farquhar )
+  !---------------------------------------------------------------------------
+  ! First check parameters that are always required with this model.
+  !---------------------------------------------------------------------------
+  ! Note that these parameter values are not used for C4 plants, but
+  ! here we're still checking that they have been provided.
+  IF ( ANY( ABS( alpha_elec(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for alpha_elec")
+  END IF
+  IF ( ANY( ABS( deact_jmax(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for deact_jmax")
+  END IF
+  IF ( ANY( ABS( deact_vcmax(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for deact_vcmax")
+  END IF
+  !---------------------------------------------------------------------------
+  ! Check parameters that depend on any chosen acclimation model.
+  !---------------------------------------------------------------------------
+  IF ( photo_acclim_model == 0 ) THEN
+    ! No acclimation.
+    IF ( ANY( ABS( ds_jmax(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, "No value for ds_jmax")
+    END IF
+    IF ( ANY( ABS( ds_vcmax(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, "No value for ds_vcmax")
+    END IF
+    IF ( ANY( ABS( jv25_ratio(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, "No value for jv25_ratio")
+    END IF
+  END IF  !  photo_acclim_model == 0
+
+  IF ( photo_acclim_model == 0 .OR.                                            &
+      (photo_acclim_model /= 0 .AND. photo_act_model == photo_act_pft) ) THEN
+    IF ( ANY( ABS( act_jmax(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, "No value for act_jmax")
+    END IF
+    IF ( ANY( ABS( act_vcmax(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, "No value for act_vcmax")
+    END IF
+  END IF  !  photo_acclim_model
+
+END SELECT  !  photo_model
+
+SELECT CASE ( stomata_model )
+CASE ( stomata_jacobs )
+  IF ( ANY( ABS( dqcrit(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for dqcrit")
+  END IF
+  IF ( ANY( ABS( f0(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for f0")
+  END IF
+CASE ( stomata_medlyn )
+  IF ( ANY( ABS( g1_stomata(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for g1_stomata")
+  END IF
+CASE ( stomata_sox )
+  IF ( ANY( ABS( sox_p50(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for sox_p50")
+  END IF
+  IF ( ANY( ABS( sox_rp_min(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for sox_rp_min")
+  END IF
+  IF ( ANY( ABS( sox_a(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for sox_a")
+  END IF
+END SELECT
+
+IF ( .NOT. l_spec_albedo .AND. can_rad_mod == 1 ) THEN
+  ! These don't need to be set
+ELSE
+  IF ( ANY( ABS( alnir(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for alnir")
+  END IF
+  IF ( ANY( ABS( alpar(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for alpar")
+  END IF
+  IF ( ANY( ABS( omega(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for omega")
+  END IF
+  IF ( ANY( ABS( omnir(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for omnir")
+  END IF
+END IF
+
+IF ( l_albedo_obs ) THEN
+  IF ( ANY( ABS( alnirl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for alnirl")
+  END IF
+  IF ( ANY( ABS( alniru(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for alniru")
+  END IF
+  IF ( ANY( ABS( alparl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for alparl")
+  END IF
+  IF ( ANY( ABS( alparu(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for alparu")
+  END IF
+  IF ( ANY( ABS( omegal(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for omegal")
+  END IF
+  IF ( ANY( ABS( omegau(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for omegau")
+  END IF
+  IF ( ANY( ABS( omnirl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for omnirl")
+  END IF
+  IF ( ANY( ABS( omniru(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for omniru")
+  END IF
+END IF
+
+IF ( .NOT. l_spec_albedo ) THEN
+  IF ( ANY( ABS( albsnf_max(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for albsnf_max")
+  END IF
+  IF ( l_albedo_obs ) THEN
+    IF ( ANY( ABS( albsnf_maxl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, "No value for albsnf_maxl")
+    END IF
+    IF ( ANY( ABS( albsnf_maxu(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, "No value for albsnf_maxu")
+    END IF
+  END IF
+END IF
+
+IF ( .NOT. l_snow_albedo ) THEN
+  IF ( ANY( ABS( albsnc_max(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for albsnc_max")
+  END IF
+  IF ( ANY( ABS( albsnc_min(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for albsnc_min")
+  END IF
+END IF
+
+IF (l_trait_phys) THEN
+  IF ( ANY( ABS( lma(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for lma")
+  END IF
+  IF ( ANY( ABS( nmass(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for nmass")
+  END IF
+  IF ( ANY( ABS( vsl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for vsl")
+  END IF
+  IF ( ANY( ABS( vint(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for vint")
+  END IF
+  IF ( ANY( ABS( nr(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for nr")
+  END IF
+  IF ( ANY( ABS( nsw(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for nsw")
+  END IF
+  IF ( ANY( ABS( hw_sw(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for hw_sw")
+  END IF
+ELSE
+  IF ( ANY( ABS( neff(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for neff")
+  END IF
+  IF ( ANY( ABS( nl0(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for nl0")
+  END IF
+  IF ( ANY( ABS( sigl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for sigl")
+  END IF
+END IF !l_trait_phys
+
+IF ( ANY( ABS( kn(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for kn")
+END IF
+IF ( can_rad_mod == 6 .AND. ANY( ABS( knl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for knl")
+END IF
+IF ( ANY( ABS( q10_leaf(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for q10_leaf")
+END IF
+IF ( ANY( ABS( a_wl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for a_wl")
+END IF
+IF ( ANY( ABS( a_ws(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for a_ws")
+END IF
+IF ( ANY( ABS( b_wl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for b_wl")
+END IF
+IF ( ANY( ABS( eta_sl(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for eta_sl")
+END IF
+IF ( ANY( ABS( g_leaf_0(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for g_leaf_0")
+END IF
+IF ( ANY( ABS( dgl_dm(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for dgl_dm")
+END IF
+IF ( ANY( ABS( fsmc_of(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for fsmc_of")
+END IF
+IF ( ANY( ABS( dgl_dt(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for dgl_dt")
+END IF
+IF ( ANY( ABS( tleaf_of(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for tleaf_of")
+END IF
+IF ( ANY( ABS( catch0(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for catch0")
+END IF
+IF ( ANY( ABS( dcatch_dlai(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for dcatch_dlai")
+END IF
+IF ( ANY( ABS( infil_f(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for infil_f")
+END IF
+IF ( ANY( ABS( glmin(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for glmin")
+END IF
+IF ( .NOT. l_spec_veg_z0) THEN
+  IF ( ANY( ABS( dz0v_dh(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for dz0v_dh")
+  END IF
+ELSE
+  IF ( ANY( ABS( z0v(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for z0v")
+  END IF
+END IF
+IF ( ANY( ABS( rootd_ft(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for rootd_ft")
+END IF
+
+IF ( l_use_pft_psi ) THEN
+  IF ( ANY( ABS( psi_close(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for psi_close")
+  END IF
+  IF ( ANY( ABS( psi_open(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for psi_open")
+  END IF
+ELSE
+  IF ( ANY( ABS( fsmc_p0(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fsmc_p0")
+  END IF
+END IF !l_use_pft_psi
+
+IF ( l_bvoc_emis ) THEN
+  IF ( ANY( ABS( ci_st(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for ci_st")
+  END IF
+  IF ( ANY( ABS( gpp_st(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for gpp_st")
+  END IF
+  IF ( ANY( ABS( ief(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for ief")
+  END IF
+  IF ( ANY( ABS( tef(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for tef")
+  END IF
+  IF ( ANY( ABS( mef(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for mef")
+  END IF
+  IF ( ANY( ABS( aef(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for aef")
+  END IF
+END IF
+
+IF ( l_inferno ) THEN
+  IF ( ANY( ABS( fef_co2(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_co2")
+  END IF
+  IF ( ANY( ABS( fef_co(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_co")
+  END IF
+  IF ( ANY( ABS( fef_ch4(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_ch4")
+  END IF
+  IF ( ANY( ABS( fef_nox(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_nox")
+  END IF
+  IF ( ANY( ABS( fef_so2(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_so2")
+  END IF
+  IF ( ANY( ABS( fef_c2h4(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_c2h4")
+  END IF
+  IF ( ANY( ABS( fef_c2h6(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_c2h6")
+  END IF
+  IF ( ANY( ABS( fef_c3h8(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_c3h8")
+  END IF
+  IF ( ANY( ABS( fef_hcho(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_hcho")
+  END IF
+  IF ( ANY( ABS( fef_mecho(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_mecho")
+  END IF
+  IF ( ANY( ABS( fef_nh3(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_nh3")
+  END IF
+  IF ( ANY( ABS( fef_dms(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_dms")
+  END IF
+  IF ( ANY( ABS( ccleaf_min(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for ccleaf_min")
+  END IF
+  IF ( ANY( ABS( ccleaf_max(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for ccleaf_max")
+  END IF
+  IF ( ANY( ABS( ccwood_min(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for ccwood_min")
+  END IF
+  IF ( ANY( ABS( ccwood_max(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for ccwood_max")
+  END IF
+  IF ( ANY( ABS( avg_ba(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for avg_ba")
+  END IF
+END IF
+
+IF ( l_trif_fire ) THEN
+  IF ( ANY( ABS( fire_mort(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fire_mort")
+  END IF
+END IF
+
+IF ( l_o3_damage ) THEN
+  IF ( ANY( ABS( fl_o3_ct(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fl_o3_ct")
+  END IF
+  IF ( ANY( ABS( dfp_dcuo(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for dfp_dcuo")
+  END IF
+END IF
+
+IF ( l_sugar ) THEN
+  IF ( ANY( ABS( sug_g0(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for sug_g0")
+  END IF
+  IF ( ANY( ABS( sug_grec(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for sug_grec")
+  END IF
+  IF ( ANY( ABS( sug_yg(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for sug_yg")
+  END IF
+END IF
+
+IF ( ANY( ABS( emis_pft(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for emis_pft")
+END IF
+
+IF ( ERROR /= 0 ) THEN
+  CALL ereport(routinename, ERROR,                                             &
+                 "Variable(s) missing from namelist - see earlier " //         &
+                 "error message(s)")
+END IF
+
+!******************************************************************************
+! Do we want this in the UM & LFRic???
+!-----------------------------------------------------------------------------
+! Check that glmin is >0.
+! This ensures that wt_ext in subroutine soil_evap cannot become a NaN (which
+! it would if gs=glmin and gsoil=0), or blow up, and might well be required
+! elsewhere too.
+!-----------------------------------------------------------------------------
+ERROR = 0
+IF ( ANY(glmin < 1.0e-10) )                                                    &
+   ERROR = -1
+   CALL ereport(routinename, ERROR,                                            &
+                "Increasing one or more values of glmin - very small " //      &
+                "values can cause model to blow up or NaNs")
+
+WHERE ( glmin < 1.0e-10 )
+  glmin = 1.0e-10
+END WHERE
+
+IF ( l_crop ) THEN
+  IF ( ANY( ABS( a_ws(nnpft+1: npft) - 1.0 ) > EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL ereport(routinename, ERROR, "crop tiles should have a_ws=1.0")
+  END IF
+END IF
+
+IF ( l_use_pft_psi ) THEN
+  IF ( ANY( psi_close(1: npft) > EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL ereport(routinename, ERROR, "psi_close should be negative")
+  END IF
+  IF ( ANY( psi_open(1: npft) > EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL ereport(routinename, ERROR, "psi_open should be negative")
+  END IF
+END IF
+
+!-----------------------------------------------------------------------------
+! fsmc_mod=1 should not be allowed with a layered 4-pool C model until this has
+! been properly evaluated. (With fsmc_mod=1, subroutine root_frac does not
+! return the exponential root profile that users might expect.)
+!-----------------------------------------------------------------------------
+IF ( l_layeredC .AND. ( soil_bgc_model == soil_model_4pool ) .AND.             &
+     ANY( fsmc_mod(:) == 1 ) ) THEN
+  ERROR = 1
+  CALL ereport(routinename, ERROR,                                             &
+               "fsmc_mod=1 is not allowed with l_layeredC and 4-pool C model")
+END IF
+
+!-----------------------------------------------------------------------------
+! stomata_model = stomata_sox must be used with fsmc_mod = 1
+! Cannot be run with l_scale_resp_pm
+! Must be run with can_rad_mod = 1 (implementation for can_rad_mod = 6 ongoing)
+!-----------------------------------------------------------------------------
+IF ( stomata_model == stomata_sox ) THEN ! SOX
+  IF ( l_scale_resp_pm ) THEN
+    ERROR = 1
+    CALL ereport(routinename, ERROR,                                           &
+    'l_scale_resp_pm=T is incompatible with SOX (stomata_model=3)')
+  END IF
+
+  IF ( .NOT. ANY ( fsmc_mod(:) == 1 ) ) THEN
+    ERROR = 1
+    CALL ereport(routinename, ERROR,                                           &
+    'SOX (stomata_model=3) must be used with fsmc_mod = 1')
+  END IF
+
+  IF ( .NOT. ( can_rad_mod == 1 ) ) THEN
+    ERROR = 1
+    CALL ereport(routinename, ERROR,                                           &
+    'SOX (stomata_model=3) must be used with can_rad_mod = 1')
+  END IF
+
+  IF ( .NOT. ( photo_model == 3 ) ) THEN
+    ERROR = 1
+    CALL ereport(routinename, ERROR,                                           &
+    'SOX (stomata_model=3) uses the SOX derivation of Collatz (photo_model=3)')
+  END IF
+END IF
+
+END SUBROUTINE check_jules_pftparm
 
 END MODULE pftparm

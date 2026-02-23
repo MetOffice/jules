@@ -50,7 +50,7 @@ USE jules_vegetation_mod, ONLY: l_triffid, l_phenol, can_rad_mod
 USE jules_soil_biogeochem_mod,ONLY: l_layeredc
 
 USE pftparm_io,  ONLY: init_pftparm_allocated
-USE pftparm,     ONLY: print_nlist_jules_pftparm
+USE pftparm,     ONLY: print_nlist_jules_pftparm, check_jules_pftparm
 
 USE nvegparm_io, ONLY: init_nvegparm_allocated
 USE nvegparm,    ONLY: print_nlist_jules_nvegparm, check_jules_nvegparm,       &
@@ -421,6 +421,7 @@ END IF
 z0_soil = z0_nvg(soil - npft)
 
 ! Now that the arrays have been allocated and filled we can check them
+CALL check_jules_pftparm(npft,nnpft)
 CALL check_jules_nvegparm(nnvg,npft)
 CALL check_jules_red_parms()
 CALL c_z0h_z0m_check(ntype)
