@@ -58,10 +58,7 @@ LOGICAL ::                                                                     &
       ! handled in the implicit calculation. FALSE: excess/required moisture
       ! is pushed out/in from the base of the soil. TRUE: water is added/
       ! taken from an adjacent layer.
-  l_bgc_heat = .FALSE.
-      ! Switch to control biogeochemical heating. If True the heat of
-      ! respiration is added to the soils.
-#if !defined(UM_JULES)
+ #if !defined(UM_JULES)
 LOGICAL ::                                                                     &
 ! Switches that are only present in standalone JULES.
   l_broadcast_ancils = .FALSE.
@@ -171,12 +168,10 @@ NAMELIST  / jules_soil/                                                        &
     sm_levels,                                                                 &
 ! Switches
     l_vg_soil, l_dpsids_dsdz, l_soil_sat_down, soilhc_method, l_bedrock,       &
-    l_holdwater, l_tile_soil, l_bgc_heat,                                      &
+    l_holdwater, l_tile_soil,                                                  &
 ! Parameters
     cs_min, zsmc, zst, confrac, ns_deep, hcapdeep, hcondeep,                   &
     dzdeep, dzsoil_io, dzsoil_elev
-
-
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_SOIL_MOD'
 
@@ -344,9 +339,6 @@ CALL jules_print('jules_soil', lineBuffer)
 WRITE(lineBuffer, *) '  l_bedrock = ', l_bedrock
 CALL jules_print('jules_soil', lineBuffer)
 
-WRITE(lineBuffer, *) '  l_bgc_heat = ', l_bgc_heat
-CALL jules_print('jules_soil', lineBuffer)
-
 WRITE(lineBuffer, *) '  l_tile_soil = ', l_tile_soil
 CALL jules_print('jules_soil', lineBuffer)
 
@@ -446,7 +438,6 @@ TYPE :: my_namelist
   LOGICAL :: l_holdwater
   LOGICAL :: l_bedrock
   LOGICAL :: l_tile_soil
-  LOGICAL :: l_bgc_heat
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -481,7 +472,6 @@ IF (mype == 0) THEN
   my_nml % l_soil_sat_down = l_soil_sat_down
   my_nml % l_holdwater     = l_holdwater
   my_nml % l_bedrock       = l_bedrock
-  my_nml % l_bgc_heat      = l_bgc_heat
   my_nml % l_tile_soil     = l_tile_soil
 
 END IF
@@ -507,7 +497,6 @@ IF (mype /= 0) THEN
   l_soil_sat_down = my_nml % l_soil_sat_down
   l_holdwater     = my_nml % l_holdwater
   l_bedrock       = my_nml % l_bedrock
-  l_bgc_heat      = my_nml % l_bgc_heat
   l_tile_soil     = my_nml % l_tile_soil
 END IF
 

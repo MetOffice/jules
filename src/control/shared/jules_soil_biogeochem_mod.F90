@@ -113,10 +113,13 @@ LOGICAL ::                                                                     &
         ! instead of top 1m average.
     l_ch4_microbe = .FALSE.,                                                   &
         ! Switch to use microbial methane production scheme
-    l_label_frac_cs = .FALSE.
+    l_label_frac_cs = .FALSE.,                                                 &
         ! Need l_layeredc=TRUE
         ! Switch to determine whether a subset of the soil carbon is labelled
         ! and traced throughout the simulation
+  l_bgc_heat = .FALSE.
+      ! Switch to control biogeochemical heating. If True the heat of
+      ! respiration is added to the soils.
 
 INTEGER ::                                                                     &
   ch4_substrate = ch4_substrate_soil,                                          &
@@ -240,7 +243,7 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
-    l_label_frac_cs, z_burn_max
+    l_label_frac_cs, l_bgc_heat, z_burn_max
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
   ModuleName = 'JULES_SOIL_BIOGEOCHEM_MOD'
@@ -647,6 +650,9 @@ CALL jules_print('jules_soil_biogeochem_mod',                                  &
 WRITE(lineBuffer,*) ' soil_bgc_model = ', soil_bgc_model
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
+WRITE(lineBuffer, *) '  l_bgc_heat = ', l_bgc_heat
+CALL jules_print('jules_soil', lineBuffer)
+
 WRITE(lineBuffer, *) ' l_layeredC = ', l_layeredC
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
@@ -803,7 +809,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 2
 INTEGER, PARAMETER :: n_real = 28 + 4
-INTEGER, PARAMETER :: n_log = 7
+INTEGER, PARAMETER :: n_log = 8
 
 TYPE :: my_namelist
   SEQUENCE
@@ -845,6 +851,8 @@ TYPE :: my_namelist
   LOGICAL :: l_ch4_interactive
   LOGICAL :: l_ch4_tlayered
   LOGICAL :: l_ch4_microbe
+  LOGICAL :: l_bgc_heat
+
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -884,24 +892,25 @@ IF (mype == 0) THEN
   my_nml % l_ch4_interactive = l_ch4_interactive
   my_nml % l_ch4_tlayered    = l_ch4_tlayered
   my_nml % l_ch4_microbe     = l_ch4_microbe
-  my_nml % t0_ch4           = t0_ch4
-  my_nml % const_ch4_cs     = const_ch4_cs
-  my_nml % const_ch4_npp    = const_ch4_npp
-  my_nml % const_ch4_resps  = const_ch4_resps
-  my_nml % q10_ch4_cs       = q10_ch4_cs
-  my_nml % q10_ch4_npp      = q10_ch4_npp
-  my_nml % q10_ch4_resps    = q10_ch4_resps
-  my_nml % k2_ch4           = k2_ch4
-  my_nml % kd_ch4           = kd_ch4
-  my_nml % rho_ch4          = rho_ch4
-  my_nml % q10_mic_ch4      = q10_mic_ch4
-  my_nml % cue_ch4          = cue_ch4
-  my_nml % mu_ch4           = mu_ch4
-  my_nml % frz_ch4          = frz_ch4
-  my_nml % alpha_ch4        = alpha_ch4
-  my_nml % ev_ch4           = ev_ch4
-  my_nml % q10_ev_ch4       = q10_ev_ch4
-  my_nml % z_burn_max       = z_burn_max
+  my_nml % l_bgc_heat        = l_bgc_heat
+  my_nml % t0_ch4            = t0_ch4
+  my_nml % const_ch4_cs      = const_ch4_cs
+  my_nml % const_ch4_npp     = const_ch4_npp
+  my_nml % const_ch4_resps   = const_ch4_resps
+  my_nml % q10_ch4_cs        = q10_ch4_cs
+  my_nml % q10_ch4_npp       = q10_ch4_npp
+  my_nml % q10_ch4_resps     = q10_ch4_resps
+  my_nml % k2_ch4            = k2_ch4
+  my_nml % kd_ch4            = kd_ch4
+  my_nml % rho_ch4           = rho_ch4
+  my_nml % q10_mic_ch4       = q10_mic_ch4
+  my_nml % cue_ch4           = cue_ch4
+  my_nml % mu_ch4            = mu_ch4
+  my_nml % frz_ch4           = frz_ch4
+  my_nml % alpha_ch4         = alpha_ch4
+  my_nml % ev_ch4            = ev_ch4
+  my_nml % q10_ev_ch4        = q10_ev_ch4
+  my_nml % z_burn_max        = z_burn_max
 
 END IF
 
@@ -928,6 +937,7 @@ IF (mype /= 0) THEN
   l_ch4_interactive = my_nml % l_ch4_interactive
   l_ch4_tlayered    = my_nml % l_ch4_tlayered
   l_ch4_microbe     = my_nml % l_ch4_microbe
+  l_bedrock         = my_nml % l_bedrock
   t0_ch4           = my_nml % t0_ch4
   const_ch4_cs     = my_nml % const_ch4_cs
   const_ch4_npp    = my_nml % const_ch4_npp
