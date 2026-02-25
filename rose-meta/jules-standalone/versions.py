@@ -42,19 +42,6 @@ from .version77_78 import *
 from .version78_79 import *
 from .version79_80 import *
 
-class vnYY_txxxx(MacroUpgrade):
-
-    """Upgrade macro from JULES by Author"""
-
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
-
-    def upgrade(self, config, meta_config=None):
-        """Upgrade a JULES runtime app configuration."""
-
-        # Add settings
-        return config, self.reports
-    
 class vn80_t23(MacroUpgrade):
 
     """ Upgrade macro from JULES by Heather Rumbold """
@@ -69,21 +56,27 @@ class vn80_t23(MacroUpgrade):
         1. Add switches to indicate whether a JULES surface tile is irrigated (pft and nvg)
         2. Add the surface types, c3_irrig and c4_irrig with a value of zero
         """
-
-        # Add the pft size
-        npft = int(
-            self.get_setting_value(config, ["namelist:jules_surface_types", "npft"])
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
         )
-        
-        # Add settings 
-        self.add_setting(
-            config,
-            ["namelist:jules_pftparm", "irrig_pft_io"],
-            ",".join(["0"] * npft),
-            False,
-        )
+        if lsm_id != 3:
 
-        self.add_setting(config, ["namelist:jules_surface_types", "c3_irrig"], "0")
-        self.add_setting(config, ["namelist:jules_surface_types", "c4_irrig"], "0") 
+            # Add the pft size
+            npft = int(
+                self.get_setting_value(config, ["namelist:jules_surface_types", "npft"])
+            )
+            
+            # Add new setting
+            self.add_setting(
+                config,
+                ["namelist:jules_pftparm", "irrig_pft_io"],
+                ",".join(["0"] * npft),
+                False,
+            )
+
+            self.add_setting(config, ["namelist:jules_surface_types", "c3_irrig"], "0")
+            self.add_setting(config, ["namelist:jules_surface_types", "c4_irrig"], "0") 
 
         return config, self.reports
