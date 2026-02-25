@@ -114,6 +114,14 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Moisture content in deep layer at saturation (kg/m2).
 
 !-----------------------------------------------------------------------------
+! Local parameters:
+!-----------------------------------------------------------------------------
+! If l_darcy_lsh_all = .TRUE. allow fully connectivity between layers
+! nhsyd and nhsyd+1 when L_TOP=TRUE
+! LOGICAL, PARAMETER :: l_darcy_lsh_all = .TRUE.
+LOGICAL, PARAMETER :: l_darcy_lsh_all = .FALSE.
+
+!-----------------------------------------------------------------------------
 ! Local scalars:
 !-----------------------------------------------------------------------------
 INTEGER ::                                                                     &
@@ -124,7 +132,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
   gamcon,                                                                      &
     ! Constant (s/mm).
   dw,                                                                          &
-  dwzw
+  dwzw,                                                                        &
+  dz_lsh
 
 LOGICAL ::                                                                     &
   use_lims
@@ -154,8 +163,10 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! The rate of change of the explicit flux with STHU1 (kg/m2/s).
   dwflux_dsthu2(npnts,nshyd),                                                  &
     ! The rate of change of the explicit flux with STHU2 (kg/m2/s).
-  smclu(npnts,nshyd)
+  smclu(npnts,nshyd),                                                          &
     ! Unfrozen soil moisture contents of each layer (kg/m2).
+  dwflux_dsthu2_tmp(npnts,nshyd+1)
+    ! The rate of change of the explicit flux with STHU2 (kg/m2/s).
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
@@ -215,9 +226,18 @@ END DO
 ! If L_VG_SOIL is T then Van Genuchten formulation is used, otherwise
 ! Brooks & Corey using Cosby parameters is used.
 
-CALL hyd_con_ic (npnts, soil_pts, soil_index, bexp(:,nshyd),                   &
-                ksz(:,nshyd), sthu(:,nshyd),                                   &
-                w_flux(:,nshyd), dwflux_dsthu1(:,nshyd))
+IF (l_darcy_lsh_all) THEN
+  dz_lsh = zw_max-zdepth(nshyd)
+  CALL darcy_ic (npnts, soil_pts, dz(nshyd), dz_lsh, soil_index,               &
+                 bexp(:,nshyd-1:nshyd),                                        &
+                 ksz(:,nshyd), sathh(:,nshyd-1:nshyd),                         &
+                 sthu(:,nshyd), sthzw(:), w_flux(:,nshyd),                     &
+                 dwflux_dsthu1(:,nshyd), dwflux_dsthu2_tmp(:,nshyd))
+ELSE
+  CALL hyd_con_ic (npnts, soil_pts, soil_index, bexp(:,nshyd),                 &
+                  ksz(:,nshyd), sthu(:,nshyd),                                 &
+                  w_flux(:,nshyd), dwflux_dsthu1(:,nshyd))
+END IF
 
 DO n = 2,nshyd
   CALL darcy_ic (npnts, soil_pts, dz(n-1), dz(n), soil_index, bexp(:,n-1:n),   &
