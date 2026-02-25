@@ -77,7 +77,7 @@ USE jules_water_tracers_mod,  ONLY: n_wtrac_jls, n_evap_srce
 USE crop_vars_mod,            ONLY: crop_vars_alloc
 USE cropparm,                 ONLY: cropparm_alloc
 USE c_z0h_z0m,                ONLY: c_z0h_z0m_alloc
-USE c_irrigation,             ONLY: c_irrigation_alloc
+USE c_irrigation_mod,         ONLY: c_irrigation_alloc
 USE fire_vars_mod,            ONLY: fire_vars_alloc
 USE fluxes_mod,               ONLY: fluxes_alloc
 USE jules_vars_mod,           ONLY: jules_vars_alloc

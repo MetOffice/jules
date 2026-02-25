@@ -86,7 +86,7 @@ USE water_constants_mod, ONLY: rho_water
 
 USE ancil_info, ONLY: dim_cslayer, nsoilt, rad_nband
 
-USE c_irrigation, ONLY: irrig_tile
+USE c_irrigation_mod, ONLY: irrig_tile
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
 ! imported scalar parameters

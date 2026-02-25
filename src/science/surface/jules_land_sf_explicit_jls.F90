@@ -160,7 +160,7 @@ USE urbanz0_mod,                ONLY: urbanz0
 USE veg_param,                  ONLY: secs_per_360days
 USE veg3_field_mod,             ONLY: veg_state_type
 USE water_constants_mod,        ONLY: lc, rho_ice, tm
-USE c_irrigation,               ONLY: irrig_tile
+USE c_irrigation_mod,           ONLY: irrig_tile
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
 ! imported scalar parameters

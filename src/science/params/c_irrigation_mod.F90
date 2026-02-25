@@ -11,7 +11,7 @@
 !   Language: FORTRAN 90
 !   This code is written to UMDP3 v8.2 programming standards.
 
-MODULE c_irrigation
+MODULE c_irrigation_mod
 
 USE um_types, ONLY: real_jlslsm
 
@@ -55,4 +55,4 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE c_irrigation_alloc
 
-END MODULE c_irrigation
+END MODULE c_irrigation_mod

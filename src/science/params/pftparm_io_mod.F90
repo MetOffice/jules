@@ -879,7 +879,7 @@ USE pftparm, ONLY:                                                             &
   sug_yg,          z0v,              sox_a,                                    &
   sox_p50,         sox_rp_min
 
-USE c_irrigation, ONLY: irrig_tile
+USE c_irrigation_mod, ONLY: irrig_tile
 USE c_z0h_z0m,    ONLY: z0h_z0m,  z0h_z0m_classic
 
 USE jules_surface_types_mod, ONLY: npft
