@@ -6,4 +6,4 @@
 | ppharris | Phil Harris | UKCEH | 2025-12-18 |
 | maggiehendry    | Maggie Hendry | Met Office | 2026-01-26 |
 | andrewcoughtrie | Andrew Coughtrie | Met Office | 2026-02-10 |
-| scottwales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
+| ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
