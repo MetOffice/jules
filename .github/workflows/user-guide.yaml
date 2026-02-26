@@ -30,6 +30,8 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      should-deploy: ${{ steps.check-deploy.outputs.should-deploy }}
     env:
       PYTHON_VRSN: '3.13'
       JULES_PATH: jules
@@ -38,6 +40,15 @@ jobs:
       VENV_PATH: jules/doc/.venv
 
     steps:
+      - name: Check deployment conditions
+        id: check-deploy
+        run: |
+          if [[ "${{ github.repository }}" == "MetOffice/jules" && "${{ github.ref_name }}" == "main" && ("${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "release" || "${{ github.event_name }}" == "workflow_dispatch") ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
@@ -68,12 +79,12 @@ jobs:
         run: uv run sphinx-lint source
 
       - name: Build HTML docs for testing
-        if: github.event_name == 'pull_request'
+        if: steps.check-deploy.outputs.should-deploy == 'false'
         working-directory: ${{ env.JULES_PATH }}/doc
         run: uv run make clean html
 
       - name: Download Artifact
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
@@ -89,7 +100,7 @@ jobs:
 
 
       - name: Build HTML docs for deployment
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -107,11 +118,11 @@ jobs:
 
       # -- Deploy to GitHub Pages only on push to upstream main
       - name: Setup GitHub Pages
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         uses: actions/configure-pages@v5
 
       - name: Upload artifact to GitHub Pages
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           name: github-pages
@@ -121,5 +132,5 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        if: ${{ github.repository == 'MetOffice/jules' && github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group' || github.event_name == 'release' || github.event_name == 'workflow_dispatch') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         uses: actions/deploy-pages@v4
