@@ -9,3 +9,4 @@
 | yaswant         | Yaswant Pradhan  | Met Office  | 2026-02-11 |
 | caroduro | Carolina Duran Rojas | University of Exeter | 2026-02-25 |
 
+| ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
