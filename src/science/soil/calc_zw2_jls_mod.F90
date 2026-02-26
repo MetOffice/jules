@@ -8,14 +8,14 @@
 
 !   Purpose: To calculate the mean water table depth from the soil
 !            moisture deficit. This is based on Koster et al., 2000.,
-!            using the Newton-Raphson method. Howver it estimates a 
+!            using the Newton-Raphson method. However it estimates a
 !            water table for each soil layer by considering the soil
 !            moisture deficit up to that soil layer. These separate
 !            estimates are merged. This results in a generally higher
 !            water table and limits the impact of root zone abstraction
 !            limiting the assumption in Koster et al., 2000,
-!            i.e. the assumption that soil moisture profile above 
-!            the water table is determined from the balance between 
+!            i.e. the assumption that soil moisture profile above
+!            the water table is determined from the balance between
 !            pressure head gradient and gravity.
 
 ! Documentation: UNIFIED MODEL DOCUMENTATION PAPER NO 25
