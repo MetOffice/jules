@@ -41,17 +41,35 @@ from .version76_77 import *
 from .version77_78 import *
 from .version78_79 import *
 from .version79_80 import *
-from .version80_81 import *
 
-class vnYY_txxxx(MacroUpgrade):
+class vn80_t26(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Maggie Hendry"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.0"
+    AFTER_TAG = "vn8.0_t26"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
+        # compulsory changed to true
+        self.add_setting(config, ["namelist:jules_surface", "beta1"], "0.83")
+        self.add_setting(config, ["namelist:jules_surface", "beta2"], "0.93")
+        self.add_setting(config, ["namelist:jules_surface", "fwe_c3"], "0.5")
+        self.add_setting(
+            config, ["namelist:jules_surface", "fwe_c4"], "20000.0"
+        )
+        self.add_setting(config, ["namelist:jules_surface", "hleaf"], "5.7e4")
+        self.add_setting(config, ["namelist:jules_surface", "hwood"], "1.1e4")
+        return config, self.reports
+
+
+class vn80_vn81(MacroUpgrade):
+    """Version bump macro"""
+
+    BEFORE_TAG = "vn8.0_t26"
+    AFTER_TAG = "vn8.1"
+
+    def upgrade(self, config, meta_config=None):
+        # Nothing to do
         return config, self.reports
