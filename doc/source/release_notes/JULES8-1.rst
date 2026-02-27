@@ -15,7 +15,6 @@ General/Technical changes
  *  Updated URLs in metadata. (#55)
  *  Various improvements to GitHub workflow. (#27, 48, 52, 56, 57, 58)
 
-    
 Changes to testing
 ------------------
 
