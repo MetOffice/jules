@@ -8,3 +8,4 @@
 | andrewcoughtrie | Andrew Coughtrie | Met Office  | 2026-02-10 |
 | yaswant         | Yaswant Pradhan  | Met Office  | 2026-02-11 |
 | ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
+| t00sa           | Sam Clarke-Green | Met Office  | 2026-02-27 |
