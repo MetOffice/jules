@@ -38,7 +38,7 @@ IMPLICIT NONE
 
 !------------------------------------------------------------------------------
 ! Description:
-!    Reads ancillary fields related to  water resource modelling.
+!    Reads ancillary fields related to water resource modelling.
 !
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in TECHNICAL

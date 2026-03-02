@@ -162,10 +162,9 @@ END SUBROUTINE calc_avail_groundwater
 !##############################################################################
 !##############################################################################
 
-SUBROUTINE calc_avail_surface_water( global_land_index,                        &
-                                     map_river_to_land_points,                 &
-                                     rivers_index_rp, rfm_surfstore_rp,        &
-                                     rivers_sto_rp, sw_avail_global )
+SUBROUTINE calc_avail_surface_water( minor_res_storage_global,                 &
+                                     river_storage_global,                     &
+                                     sw_avail_global )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -175,28 +174,21 @@ SUBROUTINE calc_avail_surface_water( global_land_index,                        &
 
 USE model_grid_mod, ONLY: global_land_pts
 
-USE jules_rivers_mod, ONLY: l_rivers, np_rivers
+USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_rivers
 
-USE jules_water_resources_mod, ONLY:  n_sw_source, sw_river_source
+USE jules_water_resources_mod, ONLY:  n_sw_source, sw_minor_res_source,        &
+                                      sw_river_source
 
 IMPLICIT NONE
 
 !------------------------------------------------------------------------------
 ! Array arguments with INTENT(IN).
 !------------------------------------------------------------------------------
-INTEGER, INTENT(IN) ::                                                         &
-  global_land_index(global_land_pts),                                          &
-    ! List of indices for the land model grid.
-  map_river_to_land_points(np_rivers),                                         &
-    ! List of coincident land point numbers, on river points.
-  rivers_index_rp(np_rivers)
-    ! Index of points where routing is calculated.
-
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-  rfm_surfstore_rp(np_rivers),                                                 &
-    ! River surface storage (m3).
-  rivers_sto_rp(np_rivers)
-    ! River water storage (kg).
+  minor_res_storage_global(global_land_pts),                                   &
+    ! Water stored in minor reservoirs, on land points (kg).
+  river_storage_global(global_land_pts)
+    ! Water in rivers, on land points (kg).
 
 !------------------------------------------------------------------------------
 ! Array arguments with INTENT(OUT).
@@ -220,19 +212,20 @@ REAL(KIND=jprb)               :: zhook_handle
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 !------------------------------------------------------------------------------
-! Initialise values.
+! Initialise output values.
 !------------------------------------------------------------------------------
 sw_avail_global(:,:) = 0.0
 
-!------------------------------------------------------------------------------
-! Calculate the available water in rivers.
-! At present this is the only possible source of surface water.
-!------------------------------------------------------------------------------
 IF ( l_rivers ) THEN
-  CALL calc_avail_river_water( global_land_index, map_river_to_land_points,    &
-                               rivers_index_rp, rfm_surfstore_rp,              &
-                               rivers_sto_rp,                                  &
-                               sw_avail_global(:,sw_river_source) )
+
+  ! Include water available from rivers.
+  sw_avail_global(:,sw_river_source) = river_storage_global(:)
+
+  IF ( l_minor_reservoirs ) THEN
+    ! Include water stored in minor reservoirs.
+    sw_avail_global(:,sw_minor_res_source) = minor_res_storage_global(:)
+  END IF
+
 END IF
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)

@@ -46,13 +46,14 @@ USE jules_urban_mod,          ONLY: l_moruses
 USE jules_surface_mod,        ONLY: l_flake_model
 USE jules_soil_mod,           ONLY: l_bedrock, ns_deep
 USE jules_radiation_mod,      ONLY: l_albedo_obs
+USE jules_rivers_mod,         ONLY: l_minor_reservoirs
 USE jules_soil_biogeochem_mod,ONLY: soil_model_ecosse, soil_bgc_model,         &
                                     l_label_frac_cs, l_layeredc, dim_ch4layer
 USE jules_water_resources_mod,ONLY: l_have_groundwater, l_have_surface_water,  &
                                     l_water_domestic, l_water_industry,        &
                                     l_water_irrigation,l_water_livestock,      &
                                     l_water_resources, l_water_transfers,      &
-                                    n_sw_source, nwater_use
+                                    n_sw_source, nwater_use, sw_river_source
 USE jules_deposition_mod,     ONLY: l_deposition, ndry_dep_species
 USE jules_water_tracers_mod,  ONLY: l_wtrac_jls
 
@@ -265,7 +266,8 @@ CALL ancil_info_alloc(land_pts,t_i_length,t_j_length,                          &
                       nice,nsoilt,ntype,                                       &
                       ainfo_data)
 
-CALL jules_rivers_alloc(land_pts, t_i_length, t_j_length, rivers_data)
+CALL jules_rivers_alloc(land_pts, t_i_length, t_j_length,                      &
+                        sw_river_source, l_water_resources, rivers_data)
 
 CALL forcing_alloc(t_i_length,t_j_length, u_i_length, u_j_length,              &
                    v_i_length, v_j_length, forcing_data)
@@ -290,9 +292,10 @@ CALL coastal_alloc(land_pts,t_i_length,t_j_length,                             &
 
 CALL deposition_species_alloc(ntype, ndry_dep_species, l_deposition)
 
-CALL water_resources_alloc( land_pts, n_sw_source, nwater_use,                 &
+CALL water_resources_alloc( land_pts, n_sw_source, nwater_use, sw_river_source,&
                             l_have_groundwater, l_have_surface_water,          &
-                            l_water_domestic, l_water_industry,                &
+                            l_minor_reservoirs, l_water_domestic,              &
+                            l_water_industry,                                  &
                             l_water_irrigation, l_water_livestock,             &
                             l_water_resources, l_water_transfers,              &
                             water_resources_data )

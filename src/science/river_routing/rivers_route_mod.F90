@@ -28,7 +28,8 @@ CONTAINS
 
 !##############################################################################
 
-SUBROUTINE rivers_route_rp(rivers)
+SUBROUTINE rivers_route_rp( abstracted_minor_res_rp, net_abstracted_river_rp,  &
+                            rivers )
 
 !------------------------------------------------------------------------------
 !
@@ -42,8 +43,11 @@ SUBROUTINE rivers_route_rp(rivers)
 
 USE jules_rivers_mod, ONLY:                                                    &
 !  imported scalars with intent(in)
-     i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip, np_rivers,         &
-     rivers_type
+     i_river_vn, l_minor_reservoirs, np_rivers, nstep_rivers,                  &
+     rivers_camaflood, rivers_rfm, rivers_trip, rivers_type
+
+USE jules_water_resources_mod, ONLY:                                           &
+     l_water_resources, sw_river_source
 
 USE rivers_route_camaflood_mod, ONLY:                                          &
 !  imported procedures
@@ -57,11 +61,28 @@ USE rivers_route_trip_mod, ONLY:                                               &
 !  imported procedures
      rivers_route_trip
 
+USE route_minor_reservoirs_mod, ONLY:                                          &
+     route_minor_reservoirs
+
+USE timestep_mod, ONLY:                                                        &
+    timestep
+
 USE jules_print_mgr, ONLY:                                                     &
   jules_message,                                                               &
   jules_print
 
 IMPLICIT NONE
+
+!------------------------------------------------------------------------------
+! Arguments with INTENT(IN)
+!------------------------------------------------------------------------------
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  abstracted_minor_res_rp(np_rivers),                                          &
+    ! Water abstracted from minor reservoirs over river timestep, on river
+    ! points (kg).
+  net_abstracted_river_rp(np_rivers)
+    ! Water abstracted from rivers over river timestep, on river points
+    ! (kg m-2).
 
 !------------------------------------------------------------------------------
 ! Arguments with INTENT(IN OUT)
@@ -73,6 +94,9 @@ TYPE(rivers_type), INTENT(IN OUT) :: rivers
 !------------------------------------------------------------------------------
 INTEGER :: ip                !  loop counter
 
+REAL(KIND=real_jlslsm) :: recip_timestep
+  ! Reciprocal of river timestep length (s-1).
+
 !------------------------------------------------------------------------------
 ! Local array variables
 !------------------------------------------------------------------------------
@@ -81,6 +105,34 @@ REAL(KIND=real_jlslsm) :: baseflow(np_rivers)
                              !  gridbox (kg m-2 s-1)
 
 !end of header
+
+!------------------------------------------------------------------------------
+! Route surface runoff through minor reservoirs.
+!------------------------------------------------------------------------------
+IF ( l_minor_reservoirs ) THEN
+  CALL route_minor_reservoirs( abstracted_minor_res_rp,                        &
+                               rivers%minor_res_capacity,                      &
+                               rivers%minor_res_frac,                          &
+                               rivers%rivers_boxareas_rp,                      &
+                               rivers%minor_res_storage,                       &
+                               rivers%rrun_surf_rp )
+END IF
+
+!------------------------------------------------------------------------------
+! Remove net abstraction from rivers from surface runoff - in effect the
+! surface runoff variable becomes a more generic source/sink term for rivers.
+! The resulting term can be negative.
+!------------------------------------------------------------------------------
+!cxyz Do we need to test both? That IS clearer.
+IF ( l_water_resources .AND. sw_river_source > 0 ) THEN
+  ! Calculate reciprocal of timestep length.
+  recip_timestep = 1.0 / ( REAL(nstep_rivers) * timestep )
+  DO ip = 1, np_rivers
+    rivers%rrun_surf_rp(ip) = rivers%rrun_surf_rp(ip)                          &
+      ! Convert abstraction from kg m-2 to kg m-2 s-1.
+      - net_abstracted_river_rp(ip) * recip_timestep
+  END DO
+END IF
 
 !------------------------------------------------------------------------------
 ! Calculate total runoff diagnostic.

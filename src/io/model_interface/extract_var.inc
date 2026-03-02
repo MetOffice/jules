@@ -2665,7 +2665,7 @@ CASE ( 'rivers_sto_rp' )
   cube = cube_from_array(rivers%rivers_sto_rp)
 
 CASE ( 'rfm_bflowin_rp' )
-  ! Internal units are m3/timestep, convert to m3/s
+  ! Internal units are m<3/timestep, convert to m3/s
   workspace_rivers = rivers%rfm_bflowin_rp * nstep_rivers * timestep
   cube = cube_from_array(workspace_rivers)
 
@@ -2726,6 +2726,15 @@ CASE ( 'frac_fplain_rp' )
 CASE ( 'frac_fplain_lp' )
   cube_land = cube_from_array(frac_fplain_lp)
   cube = map_from_land(cube_land)
+
+CASE ( 'minor_res_capacity' )
+  cube = cube_from_array(rivers%minor_res_capacity)
+
+CASE ( 'minor_res_frac' )
+  cube = cube_from_array(rivers%minor_res_frac)
+
+CASE ( 'minor_res_storage' )
+  cube = cube_from_array(rivers%minor_res_storage)
 
 CASE ( 'lake_depth' )
   cube_land = cube_from_array(lake_vars%lake_depth_gb)
@@ -3415,6 +3424,11 @@ CASE ( 'gw_avail' )
 CASE ( 'gw_nr_abstracted' )
   ! Convert kg to kg s-1.
   cube_land = cube_from_array( water_resources%gw_nr_abstracted / timestep )
+  cube = map_from_land(cube_land)
+
+CASE ( 'minor_res_abstracted' )
+  ! Convert kg to kg s-1.
+  cube_land = cube_from_array( water_resources%abstracted_minor_res / timestep )
   cube = map_from_land(cube_land)
 
 CASE ( 'sfc_water_frac' )
