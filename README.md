@@ -72,4 +72,4 @@ Then:
 
 If you need to unsubscribe from either list, you can go to the same subscription link.
 
-You can also join [GitHub Discussions](https://github.com/MetOffice/simulation-systems/discussions/categories/jules) about JULES.
+You can also join [Simulation Systems Jules discussion board](https://github.com/MetOffice/simulation-systems/discussions/categories/jules) on github.
