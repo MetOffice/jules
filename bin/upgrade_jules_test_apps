@@ -73,6 +73,7 @@ for app in "${APPS[@]}"; do
        [[ $app == *umdp3_checker* ]] || \
        [[ $app == *export_simsys_scripts* ]] || \
        [[ $app == *fab_jules* ]] || \
+       [[ $app == *extract_source* ]] || \
        [[ $app == *metadata_checker* ]]  ; then
         echo "[INFO] IGNORING app in $app"
         TRY_UPGRADE_MACRO=false
