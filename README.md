@@ -63,11 +63,12 @@ Please be aware of and follow the Simulation Systems
 
 [JULES@MAILLISTS.READING.AC.UK](JULES@MAILLISTS.READING.AC.UK) is a list of all people with an interest in JULES. Please use this list to share information relevant to the whole community. For example, new papers, conferences, code release versions etc.
 
-To subscribe, first follow this link and register yourself at:
-[https://maillists.reading.ac.uk/scripts/wa-READING.exe?GETPW1=&X=&Y=](https://maillists.reading.ac.uk/scripts/wa-READING.exe?GETPW1=&X=&Y=)
-[[br]] After that, wait at least 10 minutes for the email for confirming the registration, and then follow these links to subscribe to the jules and jules-users lists: [[br]]
-[https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES](https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES) [[br]]
-[https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES-USERS](https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES-USERS) [[br]]
+To join, use the [mailing list registration page](https://maillists.reading.ac.uk/scripts/wa-READING.exe?GETPW1=&X=&Y=) to enter your details and wait at least 10 minutes for the email for confirming the registration.
+
+Then:
+
+* register with the [Jules users mailing list](https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES-USERS) to join the user community mailing list
+* register with the [Jules community mailing list](https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES) to join the wider community
 
 If you need to unsubscribe from either list, you can go to the same subscription link.
 
