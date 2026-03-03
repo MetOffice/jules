@@ -16,7 +16,7 @@ Further details about how JULES works can be found [here] (https://jules.jchmr.o
 
 ## Documentation
 
-For current and previous releases of the JULES documentation please see [here](https://jules-lsm.github.io/)
+For releases since version 8.0, please see the [current Jules documentation](https://metoffice.github.io/jules/).  For version 7.9 and earlier, please see the [legacy Jules documentation](https://jules-lsm.github.io/)
 
 ## Contributing Guidelines
 
