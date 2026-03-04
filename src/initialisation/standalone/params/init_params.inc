@@ -55,6 +55,7 @@ SELECT CASE(lsm_id)
 CASE (jules)
   CALL init_pftparm_jules(nml_dir,progs)
   CALL init_nvegparm_jules(nml_dir)
+  CALL check_irrigation()
 
 CASE (cable)
   CALL init_vegin_cbl(nml_dir,progs)

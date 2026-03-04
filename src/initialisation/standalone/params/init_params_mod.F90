@@ -14,6 +14,8 @@ USE init_deposition_species_mod, ONLY: init_deposition_species
 
 USE init_red_mod, ONLY: init_red
 
+USE c_irrigation_mod, ONLY: check_irrigation
+
 IMPLICIT NONE
 
 PRIVATE
