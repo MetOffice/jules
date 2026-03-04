@@ -85,16 +85,16 @@ heat_of_respiration = rmdi                                                     &
   ! The heat released during respiration (J/kgC)
 
 LOGICAL ::                                                                     &
-l_layeredC = .FALSE.,                                                          &
-  ! Switch to select layered soil carbon model.
-  ! Note this is not used with the ECOSSE model.
-  ! .TRUE.  = use layered model
-  ! .FALSE. = no layers (bulk pool)
-l_q10 = .TRUE.,                                                                &
-  ! Switch for temperature function for soil respiration.
-  ! .TRUE.  = use Q10 formulation
-  ! .FALSE. = use 4-pool specific formulation
-! Switch for bug fix.
+  l_layeredC = .FALSE.,                                                        &
+    ! Switch to select layered soil carbon model.
+    ! Note this is not used with the ECOSSE model.
+    ! .TRUE.  = use layered model
+    ! .FALSE. = no layers (bulk pool)
+  l_q10 = .TRUE.,                                                              &
+    ! Switch for temperature function for soil respiration.
+    ! .TRUE.  = use Q10 formulation
+    ! .FALSE. = use 4-pool specific formulation
+    ! Switch for bug fix.
   l_soil_resp_lev2 = .FALSE.,                                                  &
     ! Switch used to control the soil tempoerature and moisture used
     ! un the soil respiration calculation.
@@ -744,28 +744,28 @@ CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 WRITE(lineBuffer, *) ' ch4_substrate = ', ch4_substrate
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
-WRITE(lineBuffer, *) '  t0_ch4 = ', t0_ch4
+WRITE(lineBuffer, *) ' t0_ch4 = ', t0_ch4
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) '  const_ch4_cs = ', const_ch4_cs
+WRITE(lineBuffer, *) ' const_ch4_cs = ', const_ch4_cs
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) '  const_ch4_npp = ', const_ch4_npp
+WRITE(lineBuffer, *) ' const_ch4_npp = ', const_ch4_npp
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) '  const_ch4_resps = ', const_ch4_resps
+WRITE(lineBuffer, *) ' const_ch4_resps = ', const_ch4_resps
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) '  q10_ch4_cs = ', q10_ch4_cs
+WRITE(lineBuffer, *) ' q10_ch4_cs = ', q10_ch4_cs
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) '  q10_ch4_npp = ', q10_ch4_npp
+WRITE(lineBuffer, *) ' q10_ch4_npp = ', q10_ch4_npp
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) 'q10_ch4_resps = ', q10_ch4_resps
+WRITE(lineBuffer, *) ' q10_ch4_resps = ', q10_ch4_resps
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) 'heat_of_respiration = ', heat_of_respiration
+WRITE(lineBuffer, *) ' heat_of_respiration = ', heat_of_respiration
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
 CALL jules_print('jules_soil_biogeochem_mod',                                  &
@@ -877,42 +877,42 @@ IF (mype == 0) THEN
   CALL check_iostat(errorstatus, "namelist jules_soil_biogeochem",             &
                     iomessage)
 
-  my_nml % soil_bgc_model    = soil_bgc_model
-  my_nml % ch4_substrate     = ch4_substrate
-  my_nml % q10_soil          = q10_soil
-  my_nml % kaps              = kaps
-  my_nml % kaps_4pool         = kaps_4pool
-  my_nml % sorp              = sorp
-  my_nml % bio_hum_cn        = bio_hum_cn
-  my_nml % n_inorg_turnover  = n_inorg_turnover
-  my_nml % tau_resp          = tau_resp
-  my_nml % tau_lit           = tau_lit
-  my_nml % tau_ch4           = tau_ch4
-  my_nml % ch4_cpow          = ch4_cpow
-  my_nml % diff_n_pft        = diff_n_pft
-  my_nml % l_layeredC        = l_layeredC
-  my_nml % l_label_frac_cs   = l_label_frac_cs
-  my_nml % l_q10             = l_q10
-  my_nml % l_soil_resp_lev2  = l_soil_resp_lev2
-  my_nml % l_ch4_interactive = l_ch4_interactive
-  my_nml % l_ch4_tlayered    = l_ch4_tlayered
-  my_nml % l_ch4_microbe     = l_ch4_microbe
-  my_nml % l_bgc_heat        = l_bgc_heat
-  my_nml % t0_ch4            = t0_ch4
-  my_nml % const_ch4_cs      = const_ch4_cs
-  my_nml % const_ch4_npp     = const_ch4_npp
-  my_nml % const_ch4_resps   = const_ch4_resps
-  my_nml % q10_ch4_cs        = q10_ch4_cs
-  my_nml % q10_ch4_npp       = q10_ch4_npp
-  my_nml % q10_ch4_resps     = q10_ch4_resps
-  my_nml % k2_ch4            = k2_ch4
-  my_nml % kd_ch4            = kd_ch4
-  my_nml % rho_ch4           = rho_ch4
-  my_nml % q10_mic_ch4       = q10_mic_ch4
-  my_nml % cue_ch4           = cue_ch4
-  my_nml % mu_ch4            = mu_ch4
-  my_nml % frz_ch4           = frz_ch4
-  my_nml % alpha_ch4         = alpha_ch4
+  my_nml % soil_bgc_model      = soil_bgc_model
+  my_nml % ch4_substrate       = ch4_substrate
+  my_nml % q10_soil            = q10_soil
+  my_nml % kaps                = kaps
+  my_nml % kaps_4pool          = kaps_4pool
+  my_nml % sorp                = sorp
+  my_nml % bio_hum_cn          = bio_hum_cn
+  my_nml % n_inorg_turnover    = n_inorg_turnover
+  my_nml % tau_resp            = tau_resp
+  my_nml % tau_lit             = tau_lit
+  my_nml % tau_ch4             = tau_ch4
+  my_nml % ch4_cpow            = ch4_cpow
+  my_nml % diff_n_pft          = diff_n_pft
+  my_nml % l_layeredC          = l_layeredC
+  my_nml % l_label_frac_cs     = l_label_frac_cs
+  my_nml % l_q10               = l_q10
+  my_nml % l_soil_resp_lev2    = l_soil_resp_lev2
+  my_nml % l_ch4_interactive   = l_ch4_interactive
+  my_nml % l_ch4_tlayered      = l_ch4_tlayered
+  my_nml % l_ch4_microbe       = l_ch4_microbe
+  my_nml % l_bgc_heat          = l_bgc_heat
+  my_nml % t0_ch4              = t0_ch4
+  my_nml % const_ch4_cs        = const_ch4_cs
+  my_nml % const_ch4_npp       = const_ch4_npp
+  my_nml % const_ch4_resps     = const_ch4_resps
+  my_nml % q10_ch4_cs          = q10_ch4_cs
+  my_nml % q10_ch4_npp         = q10_ch4_npp
+  my_nml % q10_ch4_resps       = q10_ch4_resps
+  my_nml % k2_ch4              = k2_ch4
+  my_nml % kd_ch4              = kd_ch4
+  my_nml % rho_ch4             = rho_ch4
+  my_nml % q10_mic_ch4         = q10_mic_ch4
+  my_nml % cue_ch4             = cue_ch4
+  my_nml % mu_ch4              = mu_ch4
+  my_nml % frz_ch4             = frz_ch4
+  my_nml % alpha_ch4           = alpha_ch4
   my_nml % ev_ch4              = ev_ch4
   my_nml % q10_ev_ch4          = q10_ev_ch4
   my_nml % heat_of_respiration = heat_of_respiration
@@ -923,46 +923,47 @@ END IF
 CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
 
 IF (mype /= 0) THEN
-  soil_bgc_model    = my_nml % soil_bgc_model
-  ch4_substrate     = my_nml % ch4_substrate
-  q10_soil          = my_nml % q10_soil
-  kaps              = my_nml % kaps
-  kaps_4pool         = my_nml % kaps_4pool
-  sorp              = my_nml % sorp
-  bio_hum_CN        = my_nml % bio_hum_CN
-  n_inorg_turnover  = my_nml % n_inorg_turnover
-  tau_resp          = my_nml % tau_resp
-  tau_lit           = my_nml % tau_lit
-  tau_ch4           = my_nml % tau_ch4
-  ch4_cpow          = my_nml % ch4_cpow
-  diff_n_pft        = my_nml % diff_n_pft
-  l_layeredC        = my_nml % l_layeredC
-  l_label_frac_cs   = my_nml % l_label_frac_cs
-  l_q10             = my_nml % l_q10
-  l_soil_resp_lev2  = my_nml % l_soil_resp_lev2
-  l_ch4_interactive = my_nml % l_ch4_interactive
-  l_ch4_tlayered    = my_nml % l_ch4_tlayered
-  l_ch4_microbe     = my_nml % l_ch4_microbe
-  l_bedrock         = my_nml % l_bedrock
-  t0_ch4           = my_nml % t0_ch4
-  const_ch4_cs     = my_nml % const_ch4_cs
-  const_ch4_npp    = my_nml % const_ch4_npp
-  const_ch4_resps  = my_nml % const_ch4_resps
-  q10_ch4_cs       = my_nml % q10_ch4_cs
-  q10_ch4_npp      = my_nml % q10_ch4_npp
-  q10_ch4_resps    = my_nml % q10_ch4_resps
-  k2_ch4           = my_nml % k2_ch4
-  kd_ch4           = my_nml % kd_ch4
-  rho_ch4          = my_nml % rho_ch4
-  q10_mic_ch4      = my_nml % q10_mic_ch4
-  cue_ch4          = my_nml % cue_ch4
-  mu_ch4           = my_nml % mu_ch4
-  frz_ch4          = my_nml % frz_ch4
-  alpha_ch4        = my_nml % alpha_ch4
-  ev_ch4           = my_nml % ev_ch4
-  q10_ev_ch4       = my_nml % q10_ev_ch4
+  soil_bgc_model      = my_nml % soil_bgc_model
+  ch4_substrate       = my_nml % ch4_substrate
+  q10_soil            = my_nml % q10_soil
+  kaps                = my_nml % kaps
+  kaps_4pool          = my_nml % kaps_4pool
+  sorp                = my_nml % sorp
+  bio_hum_CN          = my_nml % bio_hum_CN
+  n_inorg_turnover    = my_nml % n_inorg_turnover
+  tau_resp            = my_nml % tau_resp
+  tau_lit             = my_nml % tau_lit
+  tau_ch4             = my_nml % tau_ch4
+  ch4_cpow            = my_nml % ch4_cpow
+  diff_n_pft          = my_nml % diff_n_pft
+  l_layeredC          = my_nml % l_layeredC
+  l_label_frac_cs     = my_nml % l_label_frac_cs
+  l_q10               = my_nml % l_q10
+  l_soil_resp_lev2    = my_nml % l_soil_resp_lev2
+  l_ch4_interactive   = my_nml % l_ch4_interactive
+  l_ch4_tlayered      = my_nml % l_ch4_tlayered
+  l_ch4_microbe       = my_nml % l_ch4_microbe
+  l_bgc_heat          = my_nml % l_bgc_heat
+  l_bedrock           = my_nml % l_bedrock
+  t0_ch4              = my_nml % t0_ch4
+  const_ch4_cs        = my_nml % const_ch4_cs
+  const_ch4_npp       = my_nml % const_ch4_npp
+  const_ch4_resps     = my_nml % const_ch4_resps
+  q10_ch4_cs          = my_nml % q10_ch4_cs
+  q10_ch4_npp         = my_nml % q10_ch4_npp
+  q10_ch4_resps       = my_nml % q10_ch4_resps
+  k2_ch4              = my_nml % k2_ch4
+  kd_ch4              = my_nml % kd_ch4
+  rho_ch4             = my_nml % rho_ch4
+  q10_mic_ch4         = my_nml % q10_mic_ch4
+  cue_ch4             = my_nml % cue_ch4
+  mu_ch4              = my_nml % mu_ch4
+  frz_ch4             = my_nml % frz_ch4
+  alpha_ch4           = my_nml % alpha_ch4
+  ev_ch4              = my_nml % ev_ch4
+  q10_ev_ch4          = my_nml % q10_ev_ch4
   heat_of_respiration = my_nml % heat_of_respiration
-  z_burn_max       = my_nml % z_burn_max
+  z_burn_max          = my_nml % z_burn_max
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)
