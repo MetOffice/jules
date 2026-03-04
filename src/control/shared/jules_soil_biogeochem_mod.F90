@@ -81,19 +81,19 @@ INTEGER ::                                                                     &
 REAL(KIND=real_jlslsm) ::                                                      &
   q10_soil = rmdi,
     ! Q10 factor for soil respiration.
-  heat_of_respiration = rmdi                                                   &
-    ! The heat released during respiration (J/kgC) 
+heat_of_respiration = rmdi                                                     &
+  ! The heat released during respiration (J/kgC)
 
 LOGICAL ::                                                                     &
-  l_layeredC = .FALSE.,                                                        &
-    ! Switch to select layered soil carbon model.
-    ! Note this is not used with the ECOSSE model.
-    ! .TRUE.  = use layered model
-    ! .FALSE. = no layers (bulk pool)
-  l_q10 = .TRUE.,                                                              &
-    ! Switch for temperature function for soil respiration.
-    ! .TRUE.  = use Q10 formulation
-    ! .FALSE. = use 4-pool specific formulation
+l_layeredC = .FALSE.,                                                          &
+  ! Switch to select layered soil carbon model.
+  ! Note this is not used with the ECOSSE model.
+  ! .TRUE.  = use layered model
+  ! .FALSE. = no layers (bulk pool)
+l_q10 = .TRUE.,                                                                &
+  ! Switch for temperature function for soil respiration.
+  ! .TRUE.  = use Q10 formulation
+  ! .FALSE. = use 4-pool specific formulation
 ! Switch for bug fix.
   l_soil_resp_lev2 = .FALSE.,                                                  &
     ! Switch used to control the soil tempoerature and moisture used
