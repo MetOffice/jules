@@ -37,7 +37,7 @@ IMPLICIT NONE
 !-----------------------------------------------------------------------------
 ! Parameters identifying alternative soil biogeochemistry models.
 ! (The "bgc" is for biogeochemistry!)
-! These should be >0 and unique.
+! These should be > 0 and unique.
 INTEGER, PARAMETER ::                                                          &
   soil_model_1pool = 1,                                                        &
     ! A 1-pool model of soil carbon turnover in which the pool is not
@@ -79,8 +79,10 @@ INTEGER ::                                                                     &
 ! Namelist variables used by both 1-pool and 4-pool models.
 !-----------------------------------------------------------------------------
 REAL(KIND=real_jlslsm) ::                                                      &
-  q10_soil = rmdi
+  q10_soil = rmdi,
     ! Q10 factor for soil respiration.
+  heat_of_respiration = rmdi                                                   &
+    ! The heat released during respiration (J/kgC) 
 
 LOGICAL ::                                                                     &
   l_layeredC = .FALSE.,                                                        &
@@ -93,33 +95,33 @@ LOGICAL ::                                                                     &
     ! .TRUE.  = use Q10 formulation
     ! .FALSE. = use 4-pool specific formulation
 ! Switch for bug fix.
-    l_soil_resp_lev2 = .FALSE.,                                                &
-      ! Switch used to control the soil tempoerature and moisture used
-      ! un the soil respiration calculation.
-      ! .TRUE.  means use total (frozen+unfrozen) soil moisture.
-      ! .FALSE. means use unfrozen soil moisture.
-      ! Depending on l_layeredC, l_soil_resp_lev2 can affect the layer from
-      ! which the temperature and moisture are taken for respiration.
-      ! If l_layeredC=.TRUE.: use T and moisture for each layer.
-      ! If l_layeredC=.FALSE.:
-      !   l_soil_resp_lev2=T means uses T and moisture from layer 2
-      !   l_soil_resp_lev2=F means uses T and moisture from layer 1
-    l_ch4_interactive = .FALSE.,                                               &
-        ! Switch to couple methane release into the carbon cycle
-        ! CH4 flux will be removed from soil carbon pools.
-        ! Must have l_ch4_tlayered = .TRUE.
-    l_ch4_tlayered = .FALSE.,                                                  &
-        ! Switch to calculate CH4 according to layered soil temperature
-        ! instead of top 1m average.
-    l_ch4_microbe = .FALSE.,                                                   &
-        ! Switch to use microbial methane production scheme
-    l_label_frac_cs = .FALSE.,                                                 &
-        ! Need l_layeredc=TRUE
-        ! Switch to determine whether a subset of the soil carbon is labelled
-        ! and traced throughout the simulation
+  l_soil_resp_lev2 = .FALSE.,                                                  &
+    ! Switch used to control the soil tempoerature and moisture used
+    ! un the soil respiration calculation.
+    ! .TRUE.  means use total (frozen+unfrozen) soil moisture.
+    ! .FALSE. means use unfrozen soil moisture.
+    ! Depending on l_layeredC, l_soil_resp_lev2 can affect the layer from
+    ! which the temperature and moisture are taken for respiration.
+    ! If l_layeredC=.TRUE.: use T and moisture for each layer.
+    ! If l_layeredC=.FALSE.:
+    !   l_soil_resp_lev2=T means uses T and moisture from layer 2
+    !   l_soil_resp_lev2=F means uses T and moisture from layer 1
+  l_ch4_interactive = .FALSE.,                                                 &
+    ! Switch to couple methane release into the carbon cycle
+    ! CH4 flux will be removed from soil carbon pools.
+    ! Must have l_ch4_tlayered = .TRUE.
+  l_ch4_tlayered = .FALSE.,                                                    &
+    ! Switch to calculate CH4 according to layered soil temperature
+    ! instead of top 1m average.
+  l_ch4_microbe = .FALSE.,                                                     &
+    ! Switch to use microbial methane production scheme
+  l_label_frac_cs = .FALSE.,                                                   &
+    ! Need l_layeredc=TRUE
+    ! Switch to determine whether a subset of the soil carbon is labelled
+    ! and traced throughout the simulation
   l_bgc_heat = .FALSE.
-      ! Switch to control biogeochemical heating. If True the heat of
-      ! respiration is added to the soils.
+    ! Switch to control biogeochemical heating. If True the heat of
+    ! respiration is added to the soils.
 
 INTEGER ::                                                                     &
   ch4_substrate = ch4_substrate_soil,                                          &
@@ -243,7 +245,7 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
-    l_label_frac_cs, l_bgc_heat, z_burn_max
+    l_label_frac_cs, l_bgc_heat, heat_of_respiration, z_burn_max
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
   ModuleName = 'JULES_SOIL_BIOGEOCHEM_MOD'
@@ -621,7 +623,6 @@ IF ( l_ch4_microbe ) THEN
   END IF
 END IF ! end if l_ch4_microbe
 
-
 #if defined(UM_JULES)
 ! UM-only code.
 ! Currently ECOSSE is not allowed in the UM.
@@ -764,6 +765,9 @@ CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 WRITE(lineBuffer, *) 'q10_ch4_resps = ', q10_ch4_resps
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
+WRITE(lineBuffer, *) 'heat_of_respiration = ', heat_of_respiration
+CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
+
 CALL jules_print('jules_soil_biogeochem_mod',                                  &
     '- - - - - - end of namelist - - - - - -')
 
@@ -843,6 +847,7 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: alpha_ch4
   REAL(KIND=real_jlslsm) :: ev_ch4
   REAL(KIND=real_jlslsm) :: q10_ev_ch4
+  REAL(KIND=real_jlslsm) :: heat_of_respiration
   REAL(KIND=real_jlslsm) :: z_burn_max
   LOGICAL :: l_layeredC
   LOGICAL :: l_label_frac_cs
@@ -908,9 +913,10 @@ IF (mype == 0) THEN
   my_nml % mu_ch4            = mu_ch4
   my_nml % frz_ch4           = frz_ch4
   my_nml % alpha_ch4         = alpha_ch4
-  my_nml % ev_ch4            = ev_ch4
-  my_nml % q10_ev_ch4        = q10_ev_ch4
-  my_nml % z_burn_max        = z_burn_max
+  my_nml % ev_ch4              = ev_ch4
+  my_nml % q10_ev_ch4          = q10_ev_ch4
+  my_nml % heat_of_respiration = heat_of_respiration
+  my_nml % z_burn_max          = z_burn_max
 
 END IF
 
@@ -955,6 +961,7 @@ IF (mype /= 0) THEN
   alpha_ch4        = my_nml % alpha_ch4
   ev_ch4           = my_nml % ev_ch4
   q10_ev_ch4       = my_nml % q10_ev_ch4
+  heat_of_respiration = my_nml % heat_of_respiration
   z_burn_max       = my_nml % z_burn_max
 END IF
 

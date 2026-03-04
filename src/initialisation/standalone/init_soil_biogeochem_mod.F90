@@ -41,7 +41,8 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
  ! imported scalar variables
    l_q10, soil_bgc_model, dim_ch4layer, l_ch4_tlayered,                        &
  ! imported namelists
-   jules_soil_biogeochem
+   jules_soil_biogeochemi,                                                     &
+   l_bgc_heat
 
 USE jules_soil_mod, ONLY: sm_levels
 
@@ -141,6 +142,12 @@ CASE ( soil_model_1pool, soil_model_4pool )
              "4-pool equation used for soil respiration temp dependence" )
   END IF
 END SELECT
+
+IF ( l_bgc_heat ) THEN
+  CALL log_info("init soil", "l_bgc_heat = T - Enabled biogeochemical heating")
+ELSE
+  CALL log_info("init soil", "l_bgc_heat = F - Disabled biogeochemical heating")
+END IF
 
 !Initialise soil layer dimension for methane production
 IF (l_ch4_tlayered) THEN
