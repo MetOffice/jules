@@ -64,7 +64,7 @@ IMPLICIT NONE
 
 !-----------------------------------------------------------------------------
 ! Description:
-!   Checks to irrig_tile variables
+!   Checks to irrig_tile variable
 !-----------------------------------------------------------------------------
 
 ! Work variables
@@ -73,18 +73,34 @@ INTEGER :: i      ! Loop counter.
 
 CHARACTER(LEN=*), PARAMETER :: routinename='CHECK_IRRIGATION'
 
-! Check that the values are the allowed values i.e. either currently 1 or 0.
-! c3_irrig and c4_irrg tiles are the only ones to have irrig_tile == 1
+! ----------------------------------------------------------------------------
+! Check to ensure that the values are the allowed values i.e. either 1 or 0
+! ----------------------------------------------------------------------------
+ERROR = 0
+DO i = 1, ntype
+    IF ((irrig_tile(i) == 0) .or. (irrig_tile(i) == 1)) THEN
+        ! Do nothing, the values of irrig_tile are 0 or 1
+    ELSE
+        ERROR = 1
+        CALL log_fatal(routinename, "Incorrect values entered for " // &
+                        "irrig_pft, allowed values either 1 or 0")
+    END IF
+END DO
+! ----------------------------------------------------------------------------
+! Check to ensure that c3_irrig and c4_irrg tiles are the only ones to have 
+! irrig_tile == 1
+! ----------------------------------------------------------------------------
 ERROR = 0
 
 DO i = 1, ntype
   IF (irrig_tile(i) == 1 .AND. (i /= c3_irrig .AND. i /= c4_irrig)) THEN
-      ! Generate error if any other tile is selected apart from c3_irrig and c4_irrig
+      ! Can only irrigate c3_irrig and c4_irrig tiles
+      ! Generate error if any other tile is selected
       ERROR = 1
-      CALL log_fatal(routinename, "Selected surface type cannot be irrigated, " // &
+      CALL log_fatal(routinename, "Selected tiles cannot be irrigated," // &
                      "you can only select c3_irrig and c4_irrig")
   ELSE IF (irrig_tile(i) == 1) THEN
-      CALL log_info(routinename, "Using irrigated tiles c3_irrig and/or c4_irrig")
+      CALL log_info(routinename, "Using tiles c3_irrig and/or c4_irrig")
   END IF
 END DO
 
