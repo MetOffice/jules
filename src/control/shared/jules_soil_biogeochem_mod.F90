@@ -369,11 +369,11 @@ IF (l_lessdecomp_sat ) THEN
     IF ( ABS( fsth_lessdecomp_sat - rmdi ) < EPSILON(1.0) ) THEN
       CALL ereport(RoutineName, errorstatus, "fsth_lessdecomp_sat not found")
     ELSE IF ( fsth_lessdecomp_sat < 0.0 .OR. fsth_lessdecomp_sat > 1.0 ) THEN
-      CALL ereport(RoutineName, errorstatus,                                     &
+      CALL ereport(RoutineName, errorstatus,                                   &
                "fsth_lessdecomp_sat must lie in the range 0.0 to 1.0")
     END IF
   CASE DEFAULT
-    CALL ereport(TRIM(RoutineName), errorstatus,                                 &
+    CALL ereport(TRIM(RoutineName), errorstatus,                               &
                'l_lessdecomp_sat should be FALSE with this soil model.')
   END SELECT
 END IF

@@ -24,7 +24,7 @@ SUBROUTINE microbe (land_pts,dim_cs1,l_q10,cs,                                 &
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
 ! imported scalar parameters
-   soil_model_1pool, soil_model_4pool, fsth_lessdecomp_sat,                     &
+   soil_model_1pool, soil_model_4pool, fsth_lessdecomp_sat,                    &
 ! imported scalar variables (IN)
    kaps, l_layeredC, l_soil_resp_lev2, q10 => q10_soil, soil_bgc_model,        &
    tau_resp, l_lessdecomp_sat,                                                 &
