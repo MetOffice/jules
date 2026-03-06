@@ -496,3 +496,13 @@ class vn79_vn80(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         # Nothing to do
         return config, self.reports
+
+class vn80_vn81(MacroUpgrade):
+    """Version bump macro"""
+
+    BEFORE_TAG = "vn8.0"
+    AFTER_TAG = "vn8.1"
+
+    def upgrade(self, config, meta_config=None):
+        # Nothing to do
+        return config, self.reports

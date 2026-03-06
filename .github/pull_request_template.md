@@ -1,6 +1,6 @@
 # PR Summary
 
-Sci/Tech Reviewer: <!-- SR id, filled when known -->
+Sci/Tech Reviewer: <!-- SR id, filled by author when ready for review (e.g. @octocat) -->
 Code Reviewer: <!-- CR id, filled by SSD -->
 
 <!-- To be completed by the developer -->
