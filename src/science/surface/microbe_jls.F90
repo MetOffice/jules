@@ -24,7 +24,7 @@ SUBROUTINE microbe (land_pts,dim_cs1,l_q10,cs,                                 &
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
 ! imported scalar parameters
-   soil_model_1pool, soil_model_4pool, fsth_essdecomp_sat,                     &
+   soil_model_1pool, soil_model_4pool, fsth_lessdecomp_sat,                     &
 ! imported scalar variables (IN)
    kaps, l_layeredC, l_soil_resp_lev2, q10 => q10_soil, soil_bgc_model,        &
    tau_resp, l_lessdecomp_sat,                                                 &
@@ -179,9 +179,9 @@ DO j = 1,sm_levels
       sth_optl      = MIN( v_crit(l,j) / v_sat(l,j), sth_opt )
       sth_resp_min  = sth_wilt * min_factor
 
-    IF ( l_lessdecomp_sat ) THEN   
-      ! new function and fsth is set to fsth_lessdecomp_sat when saturated
-      ! better for peat formation
+      IF ( l_lessdecomp_sat ) THEN
+        ! new function and fsth is set to fsth_lessdecomp_sat when saturated
+        ! better for peat formation
         IF (sth_soil(l,j) <= sth_optl) THEN
           fsth(l,j) = ((1 - fsth_dry) / sth_optl) * sth_soil(l,j) + fsth_dry
         ELSE IF (sth_soil(l,j) > sth_opt) THEN
