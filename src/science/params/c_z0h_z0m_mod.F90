@@ -62,7 +62,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE c_z0h_z0m_alloc
 
-
+#if !defined(RIVERS_ONLY)
 SUBROUTINE c_z0h_z0m_check(ntype)
 
 USE ereport_mod, ONLY: ereport
@@ -106,9 +106,10 @@ CALL jules_print(RoutineName,lineBuffer)
 WRITE(lineBuffer,*)' z0h_z0m = ',z0h_z0m(:)
 CALL jules_print(RoutineName,lineBuffer)
 
-CALL jules_print(RoutineName,                                                 &
+CALL jules_print(RoutineName,                                                  &
     '- - - - - - end of c_z0h_z0m - - - - - -')
 
 END SUBROUTINE c_z0h_z0m_print
+#endif
 
 END MODULE c_z0h_z0m

@@ -96,13 +96,13 @@ CALL init_pftparm_allocated()
 CALL print_nlist_jules_pftparm()
 
 ! Print members of pftparm_io not copied to pftparm_mod.
-CALL jules_print('pftparm',                                                 &
+CALL jules_print('pftparm',                                                    &
     'Contents of namelist jules_pftparm (standalone only)')
 WRITE(iomessage,*)' canht_ft = ',canht_ft_io(1:npft)
 CALL jules_print('pftparm',iomessage)
 WRITE(iomessage,*)' lai = ',lai_io(1:npft)
 CALL jules_print('pftparm',iomessage)
-CALL jules_print('pftparm',                                                 &
+CALL jules_print('pftparm',                                                    &
     '- - - - - - end of namelist - - - - - -')
 
 CALL check_jules_pftparm(npft,nnpft)

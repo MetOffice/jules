@@ -358,7 +358,7 @@ IF ( lsm_id == cable ) THEN
 END IF
 
 ! Initialise model parameters
-CALL init_params(nml_dir,progs,land_pts,nsurft,nnpft,npft,nmasst)
+CALL init_params(nml_dir,progs,land_pts,nsurft,nnpft,npft,nmasst,ntype)
 
 ! Initialise fire module
 CALL init_fire(nml_dir,ainfo%land_index)

@@ -167,7 +167,7 @@ USE jules_surface_types_mod, ONLY: npft, ntype
 IMPLICIT NONE
 CHARACTER(LEN=50000) :: lineBuffer
 
-CALL jules_print('nvegparm',                                                &
+CALL jules_print('nvegparm',                                                   &
     'Contents of namelist jules_nvegparm')
 
 WRITE(lineBuffer,*)' albsnc_nvg = ',albsnc_nvg
@@ -193,7 +193,7 @@ CALL jules_print('nvegparm',lineBuffer)
 WRITE(lineBuffer,*)' z0_nvg = ',z0_nvg
 CALL jules_print('nvegparm',lineBuffer)
 
-CALL jules_print('nvegparm',                                                &
+CALL jules_print('nvegparm',                                                   &
     '- - - - - - end of namelist - - - - - -')
 
 END SUBROUTINE print_nlist_jules_nvegparm

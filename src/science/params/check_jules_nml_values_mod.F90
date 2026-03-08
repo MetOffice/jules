@@ -3,10 +3,6 @@
 ! For further details please refer to the file COPYRIGHT.txt
 ! which you should have received as part of this distribution.
 ! ***************************COPYRIGHT*****************************
-!
-! An example routine depicting how one should construct
-! new code to meet the UMDP3 coding standards.
-!
 MODULE check_jules_nml_values_mod
 
 IMPLICIT NONE
@@ -15,12 +11,10 @@ IMPLICIT NONE
 !   Routine for checking JULES namelist inputs
 !
 ! Method:
-!   In this routine we apply many of the UMDP3 features
-!   to construct a simple routine. The references on the RHS take the reader
-!   to the appropriate section of the UMDP3 guide with further details.
+!   Checks the namelist value is in the correct range taking account of
+!   special cases.
 !
-! Code Owner: Please refer to the UM file CodeOwners.txt
-! This file belongs in section: Control
+! Code Owner: Please refer to the JULES file CodeOwners.txt
 !
 ! Code description:
 !  Language: Fortran 2003.

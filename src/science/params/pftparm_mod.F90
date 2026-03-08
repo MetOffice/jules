@@ -671,7 +671,7 @@ IMPLICIT NONE
 
 CHARACTER(LEN=50000) :: lineBuffer
 
-CALL jules_print('pftparm',                                                 &
+CALL jules_print('pftparm',                                                    &
     'Contents of namelist jules_pftparm')
 
 #if !defined(UM_JULES)
@@ -881,7 +881,7 @@ CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' sox_rp_min = ',sox_rp_min
 CALL jules_print('pftparm',lineBuffer)
 
-CALL jules_print('pftparm',                                                 &
+CALL jules_print('pftparm',                                                    &
     '- - - - - - end of namelist - - - - - -')
 
 END SUBROUTINE print_nlist_jules_pftparm
@@ -925,16 +925,16 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_PFTPARM'
 ! still tested below.
 !-----------------------------------------------------------------------------
 ERROR = 0
-!#if !defined(UM_JULES)
+#if !defined(UM_JULES)
 ! Trigger ignored in the UM for now use ifdef, but may be better regarding LFRic
 ! and other triggered off option to check the value if any > rmdi and then
 ! check if they should have a value in check_available_options or based on
 ! science options.
-!IF ( ANY( fsmc_mod(:) < 0 ) ) THEN  ! fsmc_mod was initialised to < 0
+IF ( ANY( fsmc_mod(:) < 0 ) ) THEN  ! fsmc_mod was initialised to < 0
   ERROR = 1
   CALL jules_print(routinename, "No value for fsmc_mod")
-!END IF
-!#endif
+END IF
+#endif
 IF ( ANY( orient(:) < 0 ) ) THEN  ! orient was initialised to < 0
   ERROR = 1
   CALL jules_print(routinename, "No value for orient")
@@ -1439,8 +1439,8 @@ END IF
 
 IF ( ERROR /= 0 ) THEN
   CALL ereport(routinename, ERROR,                                             &
-                 "Variable(s) missing from namelist - see earlier " //         &
-                 "error message(s)")
+                 ": Variable(s) missing from namelist - see earlier " //       &
+                 "message(s)")
 END IF
 
 !******************************************************************************
@@ -1452,15 +1452,15 @@ END IF
 ! elsewhere too.
 !-----------------------------------------------------------------------------
 ERROR = 0
-IF ( ANY(glmin < 1.0e-10) )                                                    &
-   ERROR = -1
-   CALL ereport(routinename, ERROR,                                            &
-                "Increasing one or more values of glmin - very small " //      &
-                "values can cause model to blow up or NaNs")
-
-WHERE ( glmin < 1.0e-10 )
-  glmin = 1.0e-10
-END WHERE
+IF ( ANY(glmin < 1.0e-10) ) THEN
+  ERROR = -1
+  CALL ereport(routinename, ERROR,                                             &
+               "Increasing one or more values of glmin - very small " //       &
+               "values can cause model to blow up or NaNs")
+  WHERE ( glmin < 1.0e-10 )
+    glmin = 1.0e-10
+  END WHERE
+END IF
 
 IF ( l_crop ) THEN
   IF ( ANY( ABS( a_ws(nnpft+1: npft) - 1.0 ) > EPSILON(1.0) ) ) THEN
