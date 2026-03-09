@@ -326,7 +326,7 @@ END IF
 IF ( .NOT. l_q10 .AND. l_bgc_heat ) THEN
   CALL ereport( TRIM(RoutineName), warningstatus,                              &
       'To use the biogenic heating of soil carbon decomposition' //            &
-      'you must use l_q10=.true. and l_bgc_heat=.true.' ) 
+      'you must use l_q10=.true. and l_bgc_heat=.true.' )
 END IF
 
 ! Check that certain soil models are only used with a vegetation model.

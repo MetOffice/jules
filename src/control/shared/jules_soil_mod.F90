@@ -58,7 +58,7 @@ LOGICAL ::                                                                     &
       ! handled in the implicit calculation. FALSE: excess/required moisture
       ! is pushed out/in from the base of the soil. TRUE: water is added/
       ! taken from an adjacent layer.
- #if !defined(UM_JULES)
+#if !defined(UM_JULES)
 LOGICAL ::                                                                     &
 ! Switches that are only present in standalone JULES.
   l_broadcast_ancils = .FALSE.
