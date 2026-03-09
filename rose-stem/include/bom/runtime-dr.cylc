@@ -1,0 +1,115 @@
+{% from 'include/bom/graph-dr.cylc' import apps %}
+
+[scheduler]
+    [[events]]
+        # Load python to run handlers
+        shutdown handlers = "module load cray-python; suite_report_git.py -S $CYLC_WORKFLOW_RUN_DIR"
+        stall handlers = "module load cray-python; suite_report_git.py -S $CYLC_WORKFLOW_RUN_DIR"
+
+
+[runtime]
+    [[root]]
+        platform = ppn
+        [[[directives]]]
+            -l select=1:mem=2gb
+        [[[environment]]]
+            LOOBOS_INSTALL_DIR = /g/sc/bureau_b/research/data/ukmo/jules/datasets/loobos
+            GSWP2_INSTALL_DIR =  /g/sc/bureau_b/research/data/ukmo/jules/datasets/gswp2
+            ERAINT_INSTALL_DIR = /g/sc/bureau_b/research/data/ukmo/jules/datasets/eraint
+            IMOGEN_INSTALL_DIR = /g/sc/bureau_b/research/data/ukmo/jules/datasets/imogen
+
+{% macro prgenv(name, module, compiler) %}
+    {# Environment setup for a compiler
+     #   name: Compiler name to use in Cylc
+     #   module: Load module PrgEnv-{{module}}
+     #   compiler: Compiler file to use etc/fcm-make/compiler/{{compiler}}.cfg
+     #}
+    [[PRGENV_{{name|upper}}]]
+        init-script = """
+            module unload PrgEnv-cray PrgEnv-gnu PrgEnv-intel
+            module unload craype-x86-rome
+
+            module load PrgEnv-{{module}}/8.6.0
+            module load cray-pals/1.6.1
+            module load cray-netcdf-hdf5parallel/4.9.0.17
+            module load craype-x86-spr
+        """
+        [[[environment]]]
+            JULES_COMPILER = {{compiler}}
+{% endmacro %}
+
+{{ prgenv('oneapi', 'intel', 'intel_15_plus-cray') }}
+{{ prgenv('cray', 'cray', 'cray_12_plus') }}
+{{ prgenv('gnu', 'gnu', 'gfortran_10_plus-cray') }}
+
+    [[EXTRACT_AND_BUILD]]
+        platform = bn
+        execution time limit = PT10M
+        [[[directives]]]
+            -l select = 8:mem=2gb
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 8
+            JULES_PLATFORM = bom-dr
+
+    [[SCRIPTS]]
+        execution time limit = PT10M
+
+    [[COMPUTE]]
+        execution time limit = PT20M
+        init-script = """
+            module load cray-pals/1.6.1
+        """
+
+    [[KGO_CHECK]]
+        init-script = """
+            module use /g/sc/bureau_b/research/modules
+            module load bom-analysis
+        """
+        [[[environment]]]
+            KGO_DIR = /g/sc/bureau_b/research/data/ukmo/jules/rose-stem-kgo/{{KGO_VERSION}}
+
+    [[extract_source]]
+        inherit = SOURCE_EXTRACTION
+        platform = localhost
+
+{% for prgenv in ['oneapi', 'cray', 'gnu'] %}
+    {# Compile with this prgenv #}
+    [[fcm_make_bom_dr_{{prgenv}}]]
+        inherit = EXTRACT_AND_BUILD, PRGENV_{{prgenv|upper}}
+        [[[environment]]]
+            JULES_BUILD = normal
+            JULES_OMP = omp
+    
+    {% for type, tests in apps.items() %}
+        {% for t in tests %}
+            {% set task = 'dr_'~prgenv~'_'~t['name'] %}
+    {# Run the test #}
+    [[{{task}}]]
+        inherit = {{type|upper}}, PRGENV_{{prgenv|upper}}, COMPUTE
+        [[[directives]]]
+            -l select={{t.get('ranks',1)}}:mem=2gb
+        [[[environment]]]
+            ROSE_TASK_APP = {{t.get('app', t['name'])}}
+            ROSE_APP_OPT_CONF_KEYS = {{t.get('opt', '')}}
+            NPROC = {{t.get('ranks',1)}}
+            BUILD_NAME = fcm_make_bom_dr_{{prgenv}}
+        {% if 'dump_file' in t %}
+            DUMP_FILE = {{t['dump_file']}}
+        {% elif 'spinup' in t %}
+            {# Construct DUMP_FILE from the spinup info #}
+            {% set spinup_task = 'dr_'~prgenv~'_'~t['spinup'] %}
+            DUMP_FILE = ../{{spinup_task}}/output/{{spinup_task}}.dump.{{t['spinup_date']}}.nc
+        {% endif %}
+
+    [[nccmp_{{task}}]]
+        inherit = KGO_CHECK, NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../{{task}}/output
+
+    [[housekeep_{{task}}]]
+        inherit = HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../{{task}}
+        {% endfor %}
+    {% endfor %}
+{% endfor %}

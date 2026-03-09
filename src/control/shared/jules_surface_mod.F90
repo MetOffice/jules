@@ -111,21 +111,23 @@ INTEGER ::                                                                     &
   anthrop_heat_option = imdi,                                                  &
       ! Switch for diurnal/seasonal cycle in anthropogenic heat.
   i_modiscopt = 0,                                                             &
-      ! Method of discretization in the surface layer
-  all_tiles = 0,                                                               &
+      ! Method of discretization in the surface layer; initialisation to imdi
+      ! would require code changes in fcdch as triggered off in standalone.
+  all_tiles = imdi,                                                            &
       ! Switch for doing calculations of tile properties on all tiles for
       ! all gridpoints even when the tile fraction is zero
       !(except for land ice)
-  cor_mo_iter = 1,                                                             &
+  cor_mo_iter = imdi,                                                          &
       ! Switch for MO iteration correction
-  iscrntdiag = 0,                                                              &
+  iscrntdiag = imdi,                                                           &
       ! Method of diagnosing the screen temperature
-  i_aggregate_opt = 0,                                                         &
+  i_aggregate_opt = imdi,                                                      &
       ! Method of aggregating tiled properties
       !   0 : Original option
       !   1 : Separate aggregation of z0h
   formdrag = no_drag,                                                          &
-      ! Switch for orographic form drag
+      ! Switch for orographic form drag; initialisation to imdi would require
+      ! changes in check_jules_surface as triggered off in standalone.
   fd_stability_dep = imdi,                                                     &
       ! Switch to implement stability dependence of orographic form drag
   fd_hill_option = imdi,                                                       &
@@ -139,6 +141,8 @@ INTEGER ::                                                                     &
       !   => The impact of gustiness due to boundary layer eddies is reduced
       !      relative to the above, but eddies driven by convective
       !      downdraughts are included
+      ! Initialisation to imdi would require changes in fcdch as triggered off
+      ! in standalone.
 
 !-----------------------------------------------------------------------------
 ! Fixed parameters
@@ -270,18 +274,18 @@ REAL(KIND=real_jlslsm) ::                                                      &
       ! Baseline mean anthropogenic heat flux in Flanner scheme (W/m2)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  Parameters for heat capacity of vegetation.
-    hleaf = 5.7e4,                                                             &
+    hleaf = rmdi,                                                              &
         ! Specific heat capacity of leaves (J / K / kg Carbon)
-    hwood = 1.1e4,                                                             &
+    hwood = rmdi,                                                              &
         ! Specific heat capacity of wood (J / K / kg Carbon)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  Parameters for leaf photosynthesis.
-    beta1 = 0.83,                                                              &
-    beta2 = 0.93,                                                              &
+    beta1 = rmdi,                                                              &
+    beta2 = rmdi,                                                              &
         ! Coupling coefficients for co-limitation of photosynthesis, in
         ! the Collatz model.
-    fwe_c3 = 0.5,                                                              &
-    fwe_c4 = 20000.0
+    fwe_c3 = rmdi,                                                             &
+    fwe_c4 = rmdi
         ! Factors in expressions for limitation of photosynthesis by transport
         ! of products, for C3 and C4 respectively, in the Collatz model.
 
@@ -292,10 +296,10 @@ REAL(KIND=real_jlslsm) ::                                                      &
 NAMELIST  / jules_surface/                                                     &
 ! Switches
     l_flake_model, l_epot_corr, l_point_data, l_aggregate, l_land_ice_imp,     &
-    l_anthrop_heat_src, anthrop_heat_option, i_modiscopt, all_tiles, cor_mo_iter, &
-    iscrntdiag,i_aggregate_opt, formdrag, fd_stability_dep, fd_hill_option,    &
-    srf_ex_cnv_gust, l_vary_z0m_soil, l_elev_lw_down, l_elev_land_ice,         &
-    l_urban2t, l_mo_buoyancy_calc,                                             &
+    l_anthrop_heat_src, anthrop_heat_option, i_modiscopt, all_tiles,           &
+    cor_mo_iter, iscrntdiag, i_aggregate_opt, formdrag, fd_stability_dep,      &
+    fd_hill_option, srf_ex_cnv_gust, l_vary_z0m_soil, l_elev_lw_down,          &
+    l_elev_land_ice, l_urban2t, l_mo_buoyancy_calc,                            &
 ! Parameters
     orog_drag_param, beta_cnv_bl, anthrop_heat_mean, hleaf, hwood, beta1,      &
     beta2, fwe_c3, fwe_c4
@@ -333,70 +337,72 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_SURFACE'
 ! Verify that the integer switches have suitable values
 IF ( i_modiscopt < 0 .OR. i_modiscopt > 1 ) THEN
   errcode = 101
-  CALL ereport("check_jules_surface", errcode,                                 &
-               "i_modiscopt should be 0 or 1")
+  CALL ereport(RoutineName, errcode,                                           &
+               ": i_modiscopt should be 0 or 1")
 END IF
 
 IF (l_anthrop_heat_src) THEN
   IF ( anthrop_heat_option < dukes .OR. anthrop_heat_option > flanner ) THEN
     errcode = 101
-    CALL ereport("check_jules_surface", errcode,                               &
-                 "anthrop_heat_option should be 0 or 1")
+    CALL ereport(RoutineName, errcode,                                         &
+                 ": anthrop_heat_option should be 0 or 1")
   ELSE IF ( anthrop_heat_option == flanner .AND. anthrop_heat_mean <= 0 ) THEN
     errcode = 101
-    CALL ereport("check_jules_surface", errcode,                               &
-                 "anthrop_heat_mean should be positive non-zero")
+    CALL ereport(RoutineName, errcode,                                         &
+                 ": anthrop_heat_mean should be positive non-zero")
   END IF
 
   IF ( anthrop_heat_option /= flanner .AND. anthrop_heat_mean /= rmdi ) THEN
     errcode = 101
-    CALL ereport("check_jules_surface", errcode,                               &
-                 "anthrop_heat_mean not used and should not be set if " //     &
+    CALL ereport(RoutineName, errcode,                                         &
+                 ": anthrop_heat_mean not used and should not be set if " //   &
                  "anthrop_heat_option /= 1 (flanner)")
   END IF
 ELSE
   IF ( anthrop_heat_option /= imdi ) THEN
     errcode = 101
-    CALL ereport("check_jules_surface", errcode,                               &
-                 "anthrop_heat_option not used and should not be set if " //   &
+    CALL ereport(RoutineName, errcode,                                         &
+                 ": anthrop_heat_option not used and should not be set if " // &
                  "l_anthrop_heat_src /= .true.")
   END IF
 
   IF ( anthrop_heat_mean /= rmdi ) THEN
     errcode = 101
-    CALL ereport("check_jules_surface", errcode,                               &
-                 "anthrop_heat_mean not used and should not be set if " //     &
+    CALL ereport(RoutineName, errcode,                                         &
+                 ": anthrop_heat_mean not used and should not be set if " //   &
                  "l_anthrop_heat_src /= .true.")
   END IF
 END IF
 
 IF ( all_tiles < 0 .OR. all_tiles > 1 ) THEN
   errcode = 101
-  CALL ereport("check_jules_surface", errcode, "all_tiles should be 0 or 1")
+  CALL ereport(RoutineName, errcode, ": all_tiles should be 0 or 1")
 END IF
 
 IF ( cor_mo_iter < 1 .OR. cor_mo_iter > Improve_Initial_Guess ) THEN
   errcode = 101
-  CALL ereport("check_jules_surface", errcode,                                 &
-               "cor_mo_iter should be 1, 2, 3 or 4")
+  CALL ereport(RoutineName, errcode,                                           &
+               ": cor_mo_iter should be 1, 2, 3 or 4")
 END IF
 
 IF ( iscrntdiag < 0 .OR. iscrntdiag > ip_scrndecpl3 ) THEN
   errcode = 101
-  CALL ereport("check_jules_surface", errcode,                                 &
-               "iscrntdiag should be 0, 1, 2 or 3")
+  CALL ereport(RoutineName, errcode,                                           &
+               ": iscrntdiag should be 0, 1, 2 or 3")
 END IF
 
-IF ( i_aggregate_opt < 0 .OR. i_aggregate_opt > 1 ) THEN
-  errcode = 101
-  CALL ereport("check_jules_surface", errcode,                                 &
-               "i_aggregate_opt should be 0 or 1")
+IF ( l_aggregate ) THEN
+  IF ( i_aggregate_opt < 0 .OR. i_aggregate_opt > 1 ) THEN
+    errcode = 101
+    CALL ereport(RoutineName, errcode,                                         &
+               ": i_aggregate_opt should be 0 or 1")
+  END IF
 END IF
 
 IF ( formdrag < no_drag .OR. formdrag > explicit_stress ) THEN
   errcode = 101
-  CALL ereport("check_jules_surface", errcode,                                 &
-               "formdrag should be 0, 1, or 2")
+  CALL ereport(RoutineName, errcode,                                           &
+               ": formdrag should be 0, 1, or 2")
 END IF
 
 IF ( formdrag > no_drag ) THEN
@@ -404,55 +410,55 @@ IF ( formdrag > no_drag ) THEN
        ( fd_stability_dep < 0 .OR. fd_stability_dep > 1 ) ) THEN
     errcode = 101
     WRITE(jules_message,'(A,I0)')                                              &
-      "fd_stability_dep should be 0 or 1 with effective_z0. " //               &
+      ": fd_stability_dep should be 0 or 1 with effective_z0. " //             &
       "fd_stability_dep = ", fd_stability_dep
-    CALL ereport("check_jules_surface", errcode, jules_message )
+    CALL ereport(RoutineName, errcode, jules_message )
   END IF
   IF ( formdrag == explicit_stress .AND.                                       &
        ( fd_stability_dep < 0 .OR. fd_stability_dep > use_bulk_ri ) ) THEN
     errcode = 101
     WRITE(jules_message,'(A,I0)')                                              &
-      "fd_stability_dep should be 0, 1 or 2 with explicit_stress. " //         &
+      ": fd_stability_dep should be 0, 1 or 2 with explicit_stress. " //       &
       "fd_stability_dep = ", fd_stability_dep
-    CALL ereport("check_jules_surface", errcode, jules_message )
+    CALL ereport(RoutineName, errcode, jules_message )
   END IF
   IF ( formdrag == explicit_stress .AND.                                       &
        ( fd_hill_option < steep_hill .OR.                                      &
          fd_hill_option > capped_lowhill ) ) THEN
     errcode = 101
     WRITE(jules_message,'(A,I0)')                                              &
-      "fd_hill_option should be 0, 1 or 2. fd_hill_option = ",fd_hill_option
-    CALL ereport("check_jules_surface", errcode, jules_message )
+      ": fd_hill_option should be 0, 1 or 2. fd_hill_option = ",fd_hill_option
+    CALL ereport(RoutineName, errcode, jules_message )
   END IF
 
   IF ( orog_drag_param < 0.01 .OR. orog_drag_param > 10.0 ) THEN
     errcode = 101
     WRITE(jules_message,'(A,F0.2)')                                            &
-       "orog_drag_param should be in the range 0.01-10.0. " //                 &
+       ": orog_drag_param should be in the range 0.01-10.0. " //               &
        "orog_drag_param = ", orog_drag_param
-    CALL ereport("check_jules_surface", errcode, jules_message )
+    CALL ereport(RoutineName, errcode, jules_message )
   END IF
 END IF
 
 IF ( cor_mo_iter == Improve_Initial_Guess .AND. beta_cnv_bl < 0.0 ) THEN
   errcode = 101
-  CALL ereport("check_jules_surface", errcode,                                 &
-               "beta_cnv_bl can not be negative when "                         &
+  CALL ereport(RoutineName, errcode,                                           &
+               ": beta_cnv_bl can not be negative when "                       &
                //"cor_mo_iter=Improve_Initial_Guess")
 END IF
 
 IF ( srf_ex_cnv_gust < 0 .OR. srf_ex_cnv_gust > IP_SrfExWithCnv ) THEN
   errcode = 101
-  CALL ereport("check_jules_surface", errcode,                                 &
-               "srf_ex_cnv_gust should be 0 or 1")
+  CALL ereport(RoutineName, errcode,                                           &
+               ": srf_ex_cnv_gust should be 0 or 1")
 END IF
 
 ! Warn about cor_mo_iter changing under influence of l_flake_model
 IF ( ( l_flake_model ) .AND. (cor_mo_iter < Limit_ObukhovL) ) THEN
   cor_mo_iter = Limit_ObukhovL
   errcode = -100
-  CALL ereport("check_jules_surface", errcode,                                 &
-               'cor_mo_iter set to Limit_ObukhovL since l_flake_model on')
+  CALL ereport(RoutineName, errcode,                                           &
+               ': cor_mo_iter set to Limit_ObukhovL since l_flake_model on')
 END IF
 
 ! Check the Glacier/Icesheet model for consistency with the required surface
@@ -461,15 +467,15 @@ IF ( l_elev_land_ice ) THEN
   ! Glacier/Icesheet model requires either elev_ice, elev_rock or both
   IF ( ALL( elev_ice <= 0 ) .AND. ALL( elev_rock <= 0 ) ) THEN
     errcode = 101
-    CALL ereport("check_jules_surface", errcode,                               &
-    "l_elev_land_ice = T. At least one of elev_ice or elev_rock"               &
+    CALL ereport(RoutineName, errcode,                                         &
+    ": l_elev_land_ice = T. At least one of elev_ice or elev_rock"             &
     //" needs to be used (> 0).")
   END IF
 ELSE
   IF ( ANY( elev_ice > 0 ) .OR. ANY( elev_rock > 0 ) ) THEN
     errcode = 101
-    CALL ereport("check_jules_surface", errcode,                               &
-    "l_elev_land_ice = F and at least one of elev_ice or elev_rock"            &
+    CALL ereport(RoutineName, errcode,                                         &
+    ": l_elev_land_ice = F and at least one of elev_ice or elev_rock"          &
     //" is active (> 0).")
   END IF
 END IF
@@ -481,8 +487,8 @@ IF ( l_urban2t ) THEN
   ! The urban surface type cannot be used
   IF ( urban > 0 ) THEN
     errcode = 102
-    CALL ereport("check_jules_surface", errcode,                               &
-                 "The 'urban' surface type cannot be used with the " //        &
+    CALL ereport(RoutineName, errcode,                                         &
+                 ": The 'urban' surface type cannot be used with the " //      &
                  "two-tile urban schemes")
   END IF
 
@@ -490,8 +496,8 @@ IF ( l_urban2t ) THEN
   ! urban schemes.
   IF ( ANY ( [ urban_roof, urban_canyon ] <= 0 ) ) THEN
     errcode = 103
-    CALL ereport("check_jules_surface", errcode,                               &
-                 "The two-tile urban schemes must have both the " //           &
+    CALL ereport(RoutineName, errcode,                                         &
+                 ": The two-tile urban schemes must have both the " //         &
                  "'urban_canyon' & 'urban_roof' surface types specified")
   END IF
 

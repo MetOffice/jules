@@ -168,7 +168,7 @@ LOGICAL ::                                                                     &
 REAL(KIND=real_jlslsm) ::                                                      &
  b_qdr,c_qdr                                                                   &
                             ! Work variables for ozone flux calculations.
-,beta1p2m4, beta2p2m4                                                          &
+, beta2p2m4                                                                    &
                             ! beta[12] ** 2 * 4.
 ,wcarb(land_field)                                                             &
                             ! WORK Carboxylation, ...
