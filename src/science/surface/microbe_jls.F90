@@ -178,6 +178,7 @@ DO j = 1,sm_levels
       sth_opt       = 0.5 * (1 + sth_wilt)
       sth_optl      = MIN( v_crit(l,j) / v_sat(l,j), sth_opt )
       sth_resp_min  = sth_wilt * min_factor
+      fsth(l,j)     = 0.2
 
       IF ( l_lessdecomp_sat ) THEN
         ! new function and fsth is set to fsth_lessdecomp_sat when saturated
