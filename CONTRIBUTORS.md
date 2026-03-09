@@ -9,3 +9,4 @@
 | ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
 | t00sa           | Sam Clarke-Green | Met Office  | 2026-02-27 |
 | Pierre-siddall  | Pierre Siddall| Met Office | 2026-02-06 |
+| caroduro | Carolina Duran Rojas | Univ. of Exeter | 2026-03-09|
