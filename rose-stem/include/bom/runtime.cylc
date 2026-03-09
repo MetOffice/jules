@@ -1,2 +1,6 @@
+{% if environ['HOSTNAME'].startswith('dr-') %}
+{% include 'include/bom/runtime-dr.cylc' %}
+{% else %}
 # Include XC40 definitions
 %include 'include/bom/runtime-xc40-intel.cylc'
+{% endif %}
