@@ -279,13 +279,15 @@ USE ereport_mod, ONLY: ereport
 IMPLICIT NONE
 
 ! Local scalar parameters.
-INTEGER :: errorstatus
+INTEGER :: errorstatus, warningstatus
 
 CHARACTER(LEN=*), PARAMETER ::                                                 &
    RoutineName = 'CHECK_JULES_SOIL_BIOGEOCHEM'   ! Name of this procedure.
 
 ! Set error status to show a fatal error for all checks.
 errorstatus = 101
+! Set warning status to show a warning for all checks.
+warningstatus = -101
 
 ! Check that a valid soil model is selected.
 SELECT CASE ( soil_bgc_model )
@@ -319,6 +321,12 @@ IF ( l_ch4_interactive .AND. .NOT. l_ch4_tlayered ) THEN
   CALL ereport( TRIM(RoutineName), errorstatus,                                &
       'To couple CH4 to soil carbon (l_ch4_interactive) you must use' //       &
       'the layered soil temperature calculation (l_ch4_tlayered)' )
+END IF
+
+IF ( .NOT. l_q10 .AND. l_bgc_heat ) THEN
+  CALL ereport( TRIM(RoutineName), warningstatus,                              &
+      'To use the biogenic heating of soil carbon decomposition' //            &
+      'you must use l_q10=.true. and l_bgc_heat=.true.' ) 
 END IF
 
 ! Check that certain soil models are only used with a vegetation model.
