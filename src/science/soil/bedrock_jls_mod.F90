@@ -9,7 +9,7 @@ CONTAINS
 SUBROUTINE bedrock (npnts,soil_pts,dzsoil,timestep,soil_index,                 &
                     tsoil,hcsoil,tsoil_deep_gb,hflux_in)
 
-USE jules_soil_mod,   ONLY: ns_deep, hcapdeep, hcondeep, dzdeep
+USE jules_soil_mod,   ONLY: ns_deep, hcapdeep, hcondeep, dzdeep, hflux_geo
 USE conversions_mod,  ONLY: zerodegc
 
 USE parkind1,       ONLY: jprb, jpim
@@ -24,28 +24,28 @@ IMPLICIT NONE
 !-----------------------------------------------------------------------------
 INTEGER, INTENT(IN)  ::                                                        &
   npnts,                                                                       &
-    ! number of land points
+    ! Number of land points
   soil_pts
-    ! number of soil points
+    ! Number of soil points
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   dzsoil,                                                                      &
-    ! thickness of base soil layer (m).
+    ! Thickness of base soil layer (m).
   timestep
-    ! model timestep (s).
+    ! Model timestep (s).
 
 !-----------------------------------------------------------------------------
 ! Array arguments with INTENT(IN):
 !-----------------------------------------------------------------------------
 INTEGER, INTENT(IN)  ::                                                        &
   soil_index(npnts)
-    ! index of soil points
+    ! Index of soil points
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   tsoil(npnts),                                                                &
-    ! soil temp at base of column (Celsius)
+    ! Soil temp at base of column (Celsius)
   hcsoil(npnts)
-    ! heat conductivity of base soil layer
+    ! Heat conductivity of base soil layer
 
 !-----------------------------------------------------------------------------
 ! Arguments with INTENT(IN OUT):
@@ -112,8 +112,9 @@ DO j = 1,soil_pts
   !---------------------------------------------------------------------------
   IF (ns_deep > 1) THEN
     ! bottom:
-    dtsd(i,ns_deep) = hcondeep * timestep * (tsoil_deep_gb(i,ns_deep-1) -      &
-                      tsoil_deep_gb(i,ns_deep)) / (hcapdeep * dzdeep**2)
+    dtsd(i,ns_deep) = timestep * ( hcondeep * (tsoil_deep_gb(i,ns_deep-1) -    &
+            tsoil_deep_gb(i,ns_deep)) / dzdeep + hflux_geo ) /                 &
+            (hcapdeep * dzdeep)
     ! top:
     dtsd(i,1) = timestep * ( hcondeep * (tsoil_deep_gb(i,2) -                  &
                 tsoil_deep_gb(i,1)) / dzdeep + hflux_in(i) ) /                 &
