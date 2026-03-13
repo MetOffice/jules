@@ -20,6 +20,7 @@ SUBROUTINE soilcarb_mix(land_pts, trif_pts, trif_index, soil_bgc,              &
 USE ancil_info, ONLY: dim_cslayer, nsoilt
 USE conversions_mod, ONLY: zerodegc
 USE jules_soil_mod, ONLY: dzsoil, sm_levels
+USE jules_soil_biogeochem_mod, ONLY: cryoturb_method, cryoturb_mix, bioturb_mix
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -66,16 +67,19 @@ REAL(KIND=real_jlslsm), PARAMETER :: botuniform   = 1.0
     ! Bottom of the uniform part of mixing in the soil (m).
 REAL(KIND=real_jlslsm), PARAMETER :: botlinear    = 3.0
     ! Bottom of the linearly reducing part of mixing in the soil (m).
-REAL(KIND=real_jlslsm), PARAMETER :: bioturb_mix  = 0.0001
-    ! BIOTURBATION mixing in (m^2/360days).
-REAL(KIND=real_jlslsm), PARAMETER :: cryoturb_mix  = 0.0005
-    ! CRYOTURBATION mixing (m^2/360days).
 
 !-----------------------------------------------------------------------------
 ! Local variables.
 !-----------------------------------------------------------------------------
 INTEGER ::                                                                     &
   i, l, t, n  ! Loop counters
+
+INTEGER ::                                                                     &
+  i_frozen,                                                                    &
+  	! Indice of first frozen layer
+  depth_frozen
+    ! Depth of the top of the first frozen layer
+
 
 REAL(KIND=real_jlslsm) ::                                                      &
   zsoil,                                                                       &
@@ -103,38 +107,105 @@ mix_term(:,:,:)   = 0.0
 acc_rates         = [1.0,1.0,1.0,1.0 ]
 
 !Calculate the mixing parameters
-DO t = 1,trif_pts
-  l = trif_index(t)
-  IF (t_soil_soilt_acc(l,1,dim_cslayer) < zerodegc) THEN
-    mixparam = cryoturb_mix
-  ELSE
-    mixparam = bioturb_mix
-  END IF
-  zsoil = 0.0
-  DO n = 1,dim_cslayer-1
-    zsoil = zsoil + dzsoil(n)
-    IF (zsoil < botuniform) THEN
-      mix_s(l,n,1) = mixparam * acc_rates(1)
-      mix_s(l,n,2) = mixparam * acc_rates(2)
-      mix_s(l,n,3) = mixparam * acc_rates(3)
-      mix_s(l,n,4) = mixparam * acc_rates(4)
-    ELSE IF (zsoil < botlinear) THEN
-      mix_s(l,n,1) = mixparam  * acc_rates(1) *                                &
-                     (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
-      mix_s(l,n,2) = mixparam * acc_rates(2) *                                 &
-                     (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
-      mix_s(l,n,3) = mixparam * acc_rates(3) *                                 &
-                     (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
-      mix_s(l,n,4) = mixparam * acc_rates(4) *                                 &
-                     (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+SELECT CASE(cryoturb_method)
+	
+CASE(1) ! Linear decrease of the diffusion coefficient between 1m and 3m
+  DO t = 1,trif_pts
+    l = trif_index(t)
+    IF (t_soil_soilt_acc(l,1,dim_cslayer) < zerodegc) THEN
+      mixparam = cryoturb_mix
     ELSE
-      mix_s(l,n,1) = 0.00000000001
-      mix_s(l,n,2) = 0.00000000001
-      mix_s(l,n,3) = 0.00000000001
-      mix_s(l,n,4) = 0.00000000001
+      mixparam = bioturb_mix
+    END IF
+    zsoil = 0.0
+    DO n = 1,dim_cslayer-1
+      zsoil = zsoil + dzsoil(n)
+      IF (zsoil < botuniform) THEN
+        mix_s(l,n,1) = mixparam * acc_rates(1)
+        mix_s(l,n,2) = mixparam * acc_rates(2)
+        mix_s(l,n,3) = mixparam * acc_rates(3)
+        mix_s(l,n,4) = mixparam * acc_rates(4)
+      ELSE IF (zsoil < botlinear) THEN
+        mix_s(l,n,1) = mixparam  * acc_rates(1) *                              &
+                      (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+        mix_s(l,n,2) = mixparam * acc_rates(2) *                               &
+                   (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+        mix_s(l,n,3) = mixparam * acc_rates(3) *                               &
+                   (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+        mix_s(l,n,4) = mixparam * acc_rates(4) *                               &
+                   (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+      ELSE
+        mix_s(l,n,1) = 0.00000000001
+        mix_s(l,n,2) = 0.00000000001
+        mix_s(l,n,3) = 0.00000000001
+        mix_s(l,n,4) = 0.00000000001
+      END IF
+    END DO
+  END DO
+
+CASE(2) ! Cryoturbation only in unfrozen soil layers.
+  DO t = 1,trif_pts
+    l = trif_index(t)
+    ! Calculate indice of first frozen layer to determine the
+    ! region where cryoturbation occurs
+    i_frozen = dim_cslayer
+    DO n = 1, dim_cslayer
+      IF ( t_soil_soilt_acc(l,1,n) < zerodegc ) THEN
+        i_frozen = n
+        EXIT 
+      END IF
+    END DO
+
+    IF (i_frozen == 1) THEN
+      depth_frozen = 0.0
+    ELSE
+      depth_frozen = SUM(dzsoil(:i_frozen-1)) 
+    END IF
+
+    IF ( depth_frozen <= 3.0 ) THEN
+      ! If the top of the first frozen layer is lower than 3m, 
+      ! we consider that there is permafrost in the grid box
+      DO n = 1, dim_cslayer - 1
+        IF (t_soil_soilt_acc(l,1,n) < zerodegc) THEN
+          mixparam = cryoturb_mix
+        ELSE
+          mixparam = 0.00000000001
+        END IF
+        mix_s(l,n,1) = mixparam * acc_rates(1)
+        mix_s(l,n,2) = mixparam * acc_rates(2)
+        mix_s(l,n,3) = mixparam * acc_rates(3)
+        mix_s(l,n,4) = mixparam * acc_rates(4)
+      END DO
+    ELSE
+      ! Keep default bioturbation in non-permafrost regions
+      mixparam = bioturb_mix
+      zsoil = 0.0
+      DO n = 1,dim_cslayer-1
+        zsoil = zsoil + dzsoil(n)
+        IF (zsoil < botuniform) THEN
+          mix_s(l,n,1) = mixparam * acc_rates(1)
+          mix_s(l,n,2) = mixparam * acc_rates(2)
+          mix_s(l,n,3) = mixparam * acc_rates(3)
+          mix_s(l,n,4) = mixparam * acc_rates(4)
+        ELSE IF (zsoil < botlinear) THEN
+          mix_s(l,n,1) = mixparam  * acc_rates(1) *                            &
+                     (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+          mix_s(l,n,2) = mixparam * acc_rates(2) *                             &
+                   (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+          mix_s(l,n,3) = mixparam * acc_rates(3) *                             &
+                     (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+          mix_s(l,n,4) = mixparam * acc_rates(4) *                             &
+                     (1.0 - (zsoil - botuniform) / (botlinear - botuniform))
+        ELSE
+          mix_s(l,n,1) = 0.00000000001
+          mix_s(l,n,2) = 0.00000000001
+          mix_s(l,n,3) = 0.00000000001
+          mix_s(l,n,4) = 0.00000000001
+        END IF
+      END DO
     END IF
   END DO
-END DO
+END SELECT
 
 ! Calculate the mixing terms applied to either the soil carbon, or the
 ! soil c:n ratios depending on the call (generic name used here is soil_bgc).
