@@ -113,10 +113,12 @@ LOGICAL ::                                                                     &
         ! instead of top 1m average.
     l_ch4_microbe = .FALSE.,                                                   &
         ! Switch to use microbial methane production scheme
-    l_label_frac_cs = .FALSE.
+    l_label_frac_cs = .FALSE.,                                                 &
         ! Need l_layeredc=TRUE
         ! Switch to determine whether a subset of the soil carbon is labelled
         ! and traced throughout the simulation
+    l_lessdecomp_sat = .FALSE.
+      ! Less decomposition in saturated soils
 
 INTEGER ::                                                                     &
   ch4_substrate = ch4_substrate_soil,                                          &
@@ -149,8 +151,10 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! roots after the roots uptake from the soil around them)
     ! per 360 days. Should be quicker than the turnover rate of inorganic
     ! N hence choice of value (100 vs 1).
-  tau_resp = rmdi
+  tau_resp = rmdi,                                                             &
     ! Parameter controlling decay of respiration with depth (m-1)
+  fsth_lessdecomp_sat = rmdi
+    ! decomposition at saturatation for l_lessdecomp_sat
 
 REAL(KIND=real_jlslsm) ::                                                      &
   kaps_4pool(4) = rmdi
@@ -252,10 +256,12 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     soil_bgc_model, ch4_substrate, kaps, kaps_4pool, q10_soil, sorp,           &
     n_inorg_turnover, diff_n_pft, tau_resp, tau_lit, bio_hum_CN, l_layeredC,   &
     l_q10, l_soil_resp_lev2, l_ch4_interactive, l_ch4_tlayered, l_ch4_microbe, &
+    l_lessdecomp_sat,                                                          &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
-    l_label_frac_cs, z_burn_max, cryoturb_method, cryoturb_mix, bioturb_mix
+    l_label_frac_cs, z_burn_max, cryoturb_method, cryoturb_mix, bioturb_mix,   &
+    fsth_lessdecomp_sat
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
   ModuleName = 'JULES_SOIL_BIOGEOCHEM_MOD'
@@ -368,6 +374,23 @@ IF ( l_layeredc ) THEN
   CASE DEFAULT
     CALL ereport(TRIM(RoutineName), errorstatus,                               &
                  'l_layeredc should be FALSE with this soil model.')
+  END SELECT
+END IF
+
+! Check that l_lessdecomp_sat is only used with 1-pool and 4-pool models.
+! if l_lessdecomp_sat, fsth_lessdecomp_sat is set and between 0 and 1
+IF (l_lessdecomp_sat ) THEN
+  SELECT CASE ( soil_bgc_model )
+  CASE ( soil_model_1pool, soil_model_4pool )
+    IF ( ABS( fsth_lessdecomp_sat - rmdi ) < EPSILON(1.0) ) THEN
+      CALL ereport(RoutineName, errorstatus, "fsth_lessdecomp_sat not found")
+    ELSE IF ( fsth_lessdecomp_sat < 0.0 .OR. fsth_lessdecomp_sat > 1.0 ) THEN
+      CALL ereport(RoutineName, errorstatus,                                   &
+               "fsth_lessdecomp_sat must lie in the range 0.0 to 1.0")
+    END IF
+  CASE DEFAULT
+    CALL ereport(TRIM(RoutineName), errorstatus,                               &
+               'l_lessdecomp_sat should be FALSE with this soil model.')
   END SELECT
 END IF
 
@@ -709,6 +732,9 @@ CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 WRITE(lineBuffer, *) ' kaps_4pool = ', kaps_4pool
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
+WRITE(lineBuffer, *) ' fsth_lessdecomp_sat = ', fsth_lessdecomp_sat
+CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
+
 WRITE(lineBuffer, *) ' sorp = ', sorp
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
@@ -743,6 +769,9 @@ WRITE(lineBuffer, *) ' l_ch4_interactive = ', l_ch4_interactive
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
 WRITE(lineBuffer, *) ' l_ch4_tlayered = ', l_ch4_tlayered
+CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
+
+WRITE(lineBuffer, *) ' l_lessdecomp_sat = ', l_lessdecomp_sat
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
 WRITE(lineBuffer, *) ' tau_ch4 = ', tau_ch4
@@ -852,8 +881,8 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
-INTEGER, PARAMETER :: n_real = 30 + 4
-INTEGER, PARAMETER :: n_log = 7
+INTEGER, PARAMETER :: n_real = 31 + 4
+INTEGER, PARAMETER :: n_log = 8
 
 TYPE :: my_namelist
   SEQUENCE
@@ -863,6 +892,7 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: q10_soil
   REAL(KIND=real_jlslsm) :: kaps
   REAL(KIND=real_jlslsm) :: kaps_4pool(4)
+  REAL(KIND=real_jlslsm) :: fsth_lessdecomp_sat
   REAL(KIND=real_jlslsm) :: sorp
   REAL(KIND=real_jlslsm) :: bio_hum_cn
   REAL(KIND=real_jlslsm) :: n_inorg_turnover
@@ -898,6 +928,7 @@ TYPE :: my_namelist
   LOGICAL :: l_ch4_interactive
   LOGICAL :: l_ch4_tlayered
   LOGICAL :: l_ch4_microbe
+  LOGICAL :: l_lessdecomp_sat
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -922,6 +953,7 @@ IF (mype == 0) THEN
   my_nml % q10_soil          = q10_soil
   my_nml % kaps              = kaps
   my_nml % kaps_4pool         = kaps_4pool
+  my_nml % fsth_lessdecomp_sat = fsth_lessdecomp_sat
   my_nml % sorp              = sorp
   my_nml % bio_hum_cn        = bio_hum_cn
   my_nml % n_inorg_turnover  = n_inorg_turnover
@@ -937,6 +969,7 @@ IF (mype == 0) THEN
   my_nml % l_ch4_interactive = l_ch4_interactive
   my_nml % l_ch4_tlayered    = l_ch4_tlayered
   my_nml % l_ch4_microbe     = l_ch4_microbe
+  my_nml % l_lessdecomp_sat  = l_lessdecomp_sat
   my_nml % t0_ch4           = t0_ch4
   my_nml % const_ch4_cs     = const_ch4_cs
   my_nml % const_ch4_npp    = const_ch4_npp
@@ -969,6 +1002,7 @@ IF (mype /= 0) THEN
   q10_soil          = my_nml % q10_soil
   kaps              = my_nml % kaps
   kaps_4pool         = my_nml % kaps_4pool
+  fsth_lessdecomp_sat = my_nml % fsth_lessdecomp_sat
   sorp              = my_nml % sorp
   bio_hum_CN        = my_nml % bio_hum_CN
   n_inorg_turnover  = my_nml % n_inorg_turnover
@@ -984,6 +1018,7 @@ IF (mype /= 0) THEN
   l_ch4_interactive = my_nml % l_ch4_interactive
   l_ch4_tlayered    = my_nml % l_ch4_tlayered
   l_ch4_microbe     = my_nml % l_ch4_microbe
+  l_lessdecomp_sat  = my_nml % l_lessdecomp_sat
   t0_ch4           = my_nml % t0_ch4
   const_ch4_cs     = my_nml % const_ch4_cs
   const_ch4_npp    = my_nml % const_ch4_npp
