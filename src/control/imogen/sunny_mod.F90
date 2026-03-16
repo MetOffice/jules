@@ -8,6 +8,8 @@
 !
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise
 
 MODULE sunny_mod
 
@@ -43,7 +45,7 @@ IMPLICIT NONE
 !
 !-----------------------------------------------------------------------------
 
-INTEGER ::                                                                     &
+INTEGER, INTENT(IN) ::                                                         &
   daynumber,                                                                   &
             ! IN Day of the year.
   jday,                                                                        &
@@ -52,15 +54,20 @@ INTEGER ::                                                                     &
             ! IN Number of spatial points.
   year      ! IN Calender year.
 
-REAL ::                                                                        &
+REAL, INTENT(IN) ::                                                            &
   lat(points),                                                                 &
             ! IN Latitude (degrees).
-  lon(points),                                                                 &
+  lon(points)
             ! IN Longitude (degrees).
+
+
+REAL, INTENT(OUT) ::                                                           &
   sun(points,jday),                                                            &
             ! OUT Normalised solar radiation at each time.
-  time_max(points),                                                            &
+  time_max(points)
             ! OUT Time (UTC) at which temperature is maximum (hrs).
+
+REAL ::                                                                        &
   cosdec,                                                                      &
             ! WORK COS (solar declination).
   coslat,                                                                      &
@@ -97,8 +104,12 @@ REAL ::                                                                        &
 
 INTEGER :: i,j    ! WORK Loop counter.
 
+REAL, PARAMETER :: frac_day_to_tmax = 0.15
+REAL, PARAMETER :: tmax_offset_perpetual = 2.5
+REAL, PARAMETER :: tmax_cap_hours = 3.0
+REAL, PARAMETER :: deg_per_hour = 15.0  ! 360 degrees / 24 hours
 
-CALL solpos (daynumber, year, sindec, scs)
+CALL solpos (daynumber, year, sindec, scs) ! scs is calculated but unused
 
 DO i = 1,points
   latrad     = pi_over_180 * lat(i)
@@ -107,13 +118,20 @@ DO i = 1,points
   coszm(i)   = 0.0
 END DO
 
-cosdec   = SQRT(1 - sindec**2)
-tandec   = sindec / cosdec
+cosdec   = SQRT(MAX(0.0, 1 - sindec**2))
+IF (cosdec < EPSILON(1.0)) THEN
+  tandec = SIGN(HUGE(1.0), sindec)
+ELSE
+  tandec   = sindec / cosdec
+END IF
 timestep = REAL(secs_in_day) / REAL(jday)
 
 !----------------------------------------------------------------------
 ! Calculate the COSZ at each time
 !----------------------------------------------------------------------
+cosz(:)  = 0.0
+lit(:)   = 0.0
+
 DO j = 1,jday
 
   timeday = (j-1) * timestep
@@ -149,8 +167,13 @@ END DO
 !----------------------------------------------------------------------
 DO i = 1,points
 
-  coslat = SQRT(1 - sinlat(i)**2)
-  tanlat = sinlat(i) / coslat
+  coslat = SQRT(MAX(0.0, 1 - sinlat(i)**2))
+  IF (coslat < EPSILON(1.0)) THEN
+    tanlat = SIGN(HUGE(1.0), sinlat(i))  ! Large value with correct sign
+  ELSE
+    tanlat = sinlat(i) / coslat
+  END IF
+
   tantan = tanlat * tandec
 
   IF (ABS(tantan) <= 1.0) THEN      ! Sun sets and rises
@@ -162,13 +185,31 @@ DO i = 1,points
     time_down  = 0.5 * rhour_per_day                                           &
                * ((omega_down - lonrad(i)) / pi + 1.0)
 
-  ELSE                             ! Perpertual day or night
-    time_up   = 0.0
-    time_down = 0.0
+    ! Cap offset at tmax_cap_hours (3 hours) 
+    ! Prevent unrealistic values for long days
+    time_max(i) = 0.5 * (time_up + time_down)                                  &
+                + MIN(frac_day_to_tmax * (time_down - time_up), tmax_cap_hours)
+
+  ELSE IF (tantan < -1.0) THEN      ! Perpetual day (sun never sets)
+    ! Local noon in UTC: 12 - (longitude in hours)
+    ! Max temp ~2-3 hours after local noon
+    time_max(i) = rhour_per_day / 2.0 - (lon(i) / deg_per_hour) +              &
+                  tmax_offset_perpetual
+
+  ELSE                               ! Perpetual night (sun never rises)
+    ! No solar heating; set to local noon as placeholder
+    time_max(i) = rhour_per_day / 2.0 - (lon(i) / deg_per_hour)
+
   END IF
 
-  time_max(i) = 0.5 * (time_up + time_down)                                    &
-              + 0.15 * (time_down - time_up)
+  ! Wrap time_max to 0-24 range
+  DO WHILE (time_max(i) < 0.0)
+    time_max(i) = time_max(i) + rhour_per_day
+  END DO
+
+  DO WHILE (time_max(i) >= rhour_per_day)
+    time_max(i) = time_max(i) - rhour_per_day
+  END DO
 
 END DO
 
