@@ -185,7 +185,7 @@ DO i = 1,points
     time_down  = 0.5 * rhour_per_day                                           &
                * ((omega_down - lonrad(i)) / pi + 1.0)
 
-    ! Cap offset at tmax_cap_hours (3 hours) 
+    ! Cap offset at tmax_cap_hours (3 hours)
     ! Prevent unrealistic values for long days
     time_max(i) = 0.5 * (time_up + time_down)                                  &
                 + MIN(frac_day_to_tmax * (time_down - time_up), tmax_cap_hours)
