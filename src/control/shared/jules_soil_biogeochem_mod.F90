@@ -173,6 +173,21 @@ REAL(KIND=real_jlslsm) ::                                                      &
   z_burn_max = rmdi
     ! Parameter setting maximum depth of burn
 
+INTEGER ::                                                                     &
+  cryoturb_method = 1
+  ! Method for carbon and nitrogen cryoturbation
+  ! 1: Linear decrease of the diffusion coefficient between 1m and 3m
+  ! 2: Cryoturbation only in unfrozen soil layers. Cryoturbation set to zero in
+  ! frozen layers.
+
+REAL(KIND=real_jlslsm) ::                                                      &
+  cryoturb_mix = rmdi
+    ! Parameter setting the rate of cryoturbation mixing (m^2/360days)
+
+REAL(KIND=real_jlslsm) ::                                                      &
+  bioturb_mix = rmdi
+    ! Parameter setting the rate of bioturbation mixing (m^2/360days)  
+
 !-----------------------------------------------------------------------------
 ! Namelist variables used in the CH4 Emission Scheme
 !-----------------------------------------------------------------------------
@@ -245,7 +260,8 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
-    l_label_frac_cs, z_burn_max, fsth_lessdecomp_sat
+    l_label_frac_cs, z_burn_max, cryoturb_method, cryoturb_mix, bioturb_mix,   &
+    fsth_lessdecomp_sat
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
   ModuleName = 'JULES_SOIL_BIOGEOCHEM_MOD'
@@ -495,6 +511,32 @@ IF ( l_layeredc ) THEN
   END IF
 END IF
 
+! Check that a valid cryoturbation method is selected.
+IF (cryoturb_method < 1 .OR. cryoturb_method > 2) THEN
+  CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "cryoturb_method must be 1 or 2" )
+END IF
+
+! check value of cryoturb_mix with l_layeredc
+IF ( l_layeredc ) THEN
+  IF ( ABS( cryoturb_mix - rmdi ) > EPSILON(1.0) ) THEN
+    IF ( cryoturb_mix <= 0.0 ) THEN
+      CALL ereport(RoutineName, errorstatus,                                   &
+                   "cryoturb_mix must be strictly positive")
+    END IF
+  END IF
+END IF
+
+! check value of bioturb_mix with l_layeredc
+IF ( l_layeredc ) THEN
+  IF ( ABS( bioturb_mix - rmdi ) > EPSILON(1.0) ) THEN
+    IF ( bioturb_mix <= 0.0 ) THEN
+      CALL ereport(RoutineName, errorstatus,                                   &
+                   "bioturb_mix must be strictly positive")
+    END IF
+  END IF
+END IF
+
 ! methane q10's - these are always set
 IF ( ABS( q10_ch4_cs - rmdi ) < EPSILON(1.0) ) THEN
   CALL ereport(RoutineName, errorstatus, "q10_ch4_cs not found")
@@ -711,6 +753,15 @@ CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 WRITE(lineBuffer, *) ' z_burn_max = ', z_burn_max
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
+WRITE(lineBuffer,*) 'cryoturb_method = ', cryoturb_method
+CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
+
+WRITE(lineBuffer, *) ' cryoturb_mix = ', cryoturb_mix
+CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
+
+WRITE(lineBuffer, *) ' bioturb_mix = ', bioturb_mix
+CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
+
 WRITE(lineBuffer, *) ' diff_n_pft = ', diff_n_pft
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
@@ -829,14 +880,15 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
-INTEGER, PARAMETER :: n_int = 2
-INTEGER, PARAMETER :: n_real = 29 + 4
+INTEGER, PARAMETER :: n_int = 3
+INTEGER, PARAMETER :: n_real = 31 + 4
 INTEGER, PARAMETER :: n_log = 8
 
 TYPE :: my_namelist
   SEQUENCE
   INTEGER :: soil_bgc_model
   INTEGER :: ch4_substrate
+  INTEGER :: cryoturb_method
   REAL(KIND=real_jlslsm) :: q10_soil
   REAL(KIND=real_jlslsm) :: kaps
   REAL(KIND=real_jlslsm) :: kaps_4pool(4)
@@ -867,6 +919,8 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: ev_ch4
   REAL(KIND=real_jlslsm) :: q10_ev_ch4
   REAL(KIND=real_jlslsm) :: z_burn_max
+  REAL(KIND=real_jlslsm) :: cryoturb_mix
+  REAL(KIND=real_jlslsm) :: bioturb_mix 
   LOGICAL :: l_layeredC
   LOGICAL :: l_label_frac_cs
   LOGICAL :: l_q10
@@ -934,6 +988,9 @@ IF (mype == 0) THEN
   my_nml % ev_ch4           = ev_ch4
   my_nml % q10_ev_ch4       = q10_ev_ch4
   my_nml % z_burn_max       = z_burn_max
+  my_nml % cryoturb_mix     = cryoturb_mix
+  my_nml % cryoturb_method  = cryoturb_method
+  my_nml % bioturb_mix      = bioturb_mix
 
 END IF
 
@@ -980,6 +1037,9 @@ IF (mype /= 0) THEN
   ev_ch4           = my_nml % ev_ch4
   q10_ev_ch4       = my_nml % q10_ev_ch4
   z_burn_max       = my_nml % z_burn_max
+  cryoturb_mix     = my_nml % cryoturb_mix
+  cryoturb_method  = my_nml % cryoturb_method
+  bioturb_mix      = my_nml % bioturb_mix
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)
