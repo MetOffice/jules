@@ -851,8 +851,8 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
-INTEGER, PARAMETER :: n_int = 2
-INTEGER, PARAMETER :: n_real = 28 + 4
+INTEGER, PARAMETER :: n_int = 3
+INTEGER, PARAMETER :: n_real = 30 + 4
 INTEGER, PARAMETER :: n_log = 7
 
 TYPE :: my_namelist
@@ -890,7 +890,7 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: q10_ev_ch4
   REAL(KIND=real_jlslsm) :: z_burn_max
   REAL(KIND=real_jlslsm) :: cryoturb_mix
- 	REAL(KIND=real_jlslsm) :: bioturb_mix 
+  REAL(KIND=real_jlslsm) :: bioturb_mix 
   LOGICAL :: l_layeredC
   LOGICAL :: l_label_frac_cs
   LOGICAL :: l_q10
@@ -956,8 +956,8 @@ IF (mype == 0) THEN
   my_nml % q10_ev_ch4       = q10_ev_ch4
   my_nml % z_burn_max       = z_burn_max
   my_nml % cryoturb_mix     = cryoturb_mix
- 	my_nml % cryoturb_method  = cryoturb_method
- 	my_nml % bioturb_mix      = bioturb_mix
+  my_nml % cryoturb_method  = cryoturb_method
+  my_nml % bioturb_mix      = bioturb_mix
 
 END IF
 
@@ -1003,8 +1003,8 @@ IF (mype /= 0) THEN
   q10_ev_ch4       = my_nml % q10_ev_ch4
   z_burn_max       = my_nml % z_burn_max
   cryoturb_mix     = my_nml % cryoturb_mix
- 	cryoturb_method  = my_nml % cryoturb_method
- 	bioturb_mix      = my_nml % bioturb_mix
+  cryoturb_method  = my_nml % cryoturb_method
+  bioturb_mix      = my_nml % bioturb_mix
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)
