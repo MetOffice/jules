@@ -313,7 +313,7 @@ IF ( l_bedrock ) THEN
 
   ! As 0.0 default value, not compulsory  to set.
   ! For continents, areal average 0.067 (F.LUCAZEAU, 2019)
-  IF (hflux_geo < -0.052 .OR. hflux_geo > 15.6 ) THEN:
+  IF (hflux_geo < -0.052 .OR. hflux_geo > 15.6 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
                    'hflux_geo must lie in the range -0.052 to 15.6 W/m2')
   END IF
