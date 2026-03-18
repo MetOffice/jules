@@ -7,7 +7,7 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='BEDROCK_MOD'
 CONTAINS
 
 SUBROUTINE bedrock (npnts,soil_pts,dzsoil,timestep,soil_index,                 &
-                    tsoil,hcsoil,tsoil_deep_gb,hflux_in)
+                    tsoil,hcsoil,tsoil_deep_gb,hflux_in,dtsd_acc)
 
 USE jules_soil_mod,   ONLY: ns_deep, hcapdeep, hcondeep, dzdeep, hflux_geo
 USE conversions_mod,  ONLY: zerodegc
@@ -50,8 +50,11 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !-----------------------------------------------------------------------------
 ! Arguments with INTENT(IN OUT):
 !-----------------------------------------------------------------------------
-REAL(KIND=real_jlslsm), INTENT(IN OUT) :: tsoil_deep_gb(npnts,ns_deep)
+REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
+  tsoil_deep_gb(npnts,ns_deep),                                                &
     ! Deep soil temperature (K).
+  dtsd_acc(npnts,ns_deep)
+    ! Accumulated correction in deep soil (bedrock) temperature (K).
 
 !-----------------------------------------------------------------------------
 ! Arguments with INTENT(OUT):
@@ -71,9 +74,12 @@ REAL(KIND=real_jlslsm) ::                                                      &
   dztop,                                                                       &
     ! interpolated layer thickness for heat transfer between base of soil
     ! and top of bedrock.
-  tsoil_k
+  tsoil_k,                                                                     &
     ! temperature of base soil layer in Kelvin
-
+  tsoil_deep_0,                                                                &
+    ! Previous value of deep soil temperature (K).
+  dtsh_applied
+    ! Change in value of deep soil temperature in this timestep (K).
 !-----------------------------------------------------------------------------
 ! Local array variables.
 !-----------------------------------------------------------------------------
@@ -135,8 +141,12 @@ DO j = 1,soil_pts
   ! Update the layer temperatures
   !---------------------------------------------------------------------------
   DO n = 1,ns_deep
-    tsoil_deep_gb(i,n) = MAX(tsoil_deep_gb(i,n) + dtsd(i,n),0.0)
+    tsoil_deep_0 = tsoil_deep_gb(i,n)
+    tsoil_deep_gb(i,n) = MAX(tsoil_deep_gb(i,n)+dtsd(i,n)+dtsd_acc(i,n), 0.0)
     tsoil_deep_gb(i,n) = MIN(tsoil_deep_gb(i,n),10000.0)
+    ! Calculate cumulative numerical correction (avoids rounding error)
+    dtsh_applied = tsoil_deep_gb(i,n) - tsoil_deep_0
+    dtsd_acc(i,n) = dtsd(i,n) + dtsd_acc(i,n) - dtsh_applied
   END DO
 
 END DO

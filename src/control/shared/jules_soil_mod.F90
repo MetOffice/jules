@@ -6,7 +6,8 @@
 
 MODULE jules_soil_mod
 
-USE max_dimensions, ONLY: sm_levels_max
+USE max_dimensions,   ONLY: sm_levels_max
+USE ancil_info,       ONLY: nsoilt
 
 USE missing_data_mod, ONLY: rmdi, imdi
 
@@ -288,6 +289,9 @@ IF ( l_bedrock ) THEN
   ELSE IF ( ns_deep < 1 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
                  'Bedrock must have at least one layer')
+  ELSE IF ( nsoilt > 1 ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+              'Bedrock not yet compatible with soil tiling')
   END IF
 
   IF ( ABS( dzdeep - rmdi ) < EPSILON(1.0) ) THEN

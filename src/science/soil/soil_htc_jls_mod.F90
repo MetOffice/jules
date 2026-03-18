@@ -21,7 +21,7 @@ SUBROUTINE soil_htc ( npnts, nshyd, nsurft, soil_pts, timestep, soil_index,    &
                       non_lake_frac, hcap, hcon,                               &
                       sathh, smcl, snowdepth,                                  &
                       surf_ht_flux, v_sat, w_flux,                             &
-                      sthf, sthu, sthu_irr, tsoil, tsoil_deep_gb )
+                      sthf, sthu, sthu_irr, tsoil, tsoil_deep_gb, dtsd_acc )
 
 !Use in relevant subroutines
 USE bedrock_mod,  ONLY: bedrock
@@ -113,8 +113,10 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Unfrozen soil wetness over irrigation
   tsoil(npnts,nshyd),                                                          &
     ! Sub-surface temperatures (K).
-  tsoil_deep_gb(npnts,ns_deep)
+  tsoil_deep_gb(npnts,ns_deep),                                                &
     ! Deep soil temperature (K).
+  dtsd_acc(npnts,ns_deep)
+    ! Accumulated correction in deep soil (bedrock) temperature (K).
 
 !-----------------------------------------------------------------------------
 ! Local parameters.
@@ -366,7 +368,7 @@ IF (l_bedrock) THEN
                  v_sat(:,nshyd), hc(:,nshyd))
 
   CALL bedrock (npnts, soil_pts, dz(nshyd), timestep, soil_index,              &
-                tsl(:,nshyd), hc(:,nshyd), tsoil_deep_gb, hflux_base)
+                tsl(:,nshyd), hc(:,nshyd), tsoil_deep_gb, hflux_base, dtsd_acc)
 ELSE
   hflux_base(:) = 0.0
 END IF

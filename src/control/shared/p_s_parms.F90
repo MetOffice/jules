@@ -96,6 +96,9 @@ TYPE :: psparms_data_type
     ! thaw depth calculation based on unfrozen water content fraction.
   REAL(KIND=real_jlslsm), ALLOCATABLE :: soil_ph_soilt(:,:,:)
     ! Soil pH, defined on soil layers.
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: dtsd_acc_soilt(:,:,:)
+    ! Accumulated correction in deep soil (bedrock) temperature (K).
+
 END TYPE
 
 !================================
@@ -127,6 +130,7 @@ TYPE :: psparms_type
   REAL(KIND=real_jlslsm), POINTER :: sthf_soilt(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: sthu_min_soilt(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: soil_ph_soilt(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: dtsd_acc_soilt(:,:,:)
 END TYPE
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='P_S_PARMS'
@@ -136,7 +140,7 @@ CONTAINS
 SUBROUTINE psparms_alloc(land_pts,t_i_length,t_j_length,                       &
                      nsoilt,sm_levels,dim_cslayer,nsurft,npft,                 &
                      soil_bgc_model,soil_model_ecosse,l_use_pft_psi,           &
-                     psparms_data)
+                     psparms_data,l_bedrock,ns_deep)
 
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
@@ -146,11 +150,11 @@ IMPLICIT NONE
 
 !Arguments
 INTEGER, INTENT(IN) :: land_pts,t_i_length,t_j_length,                         &
-                       nsoilt,sm_levels,dim_cslayer,nsurft,npft
+                       nsoilt,sm_levels,dim_cslayer,nsurft,npft,ns_deep
 
 INTEGER, INTENT(IN) :: soil_bgc_model,soil_model_ecosse
 
-LOGICAL, INTENT(IN) :: l_use_pft_psi
+LOGICAL, INTENT(IN) :: l_use_pft_psi, l_bedrock
 
 TYPE(psparms_data_type), INTENT(IN OUT) :: psparms_data
 
@@ -234,6 +238,13 @@ ELSE
   ALLOCATE(psparms_data%v_open_pft(1,1,1))
 END IF
 
+IF ( l_bedrock ) THEN
+  ALLOCATE(psparms_data%dtsd_acc_soilt(land_pts,nsoilt,ns_deep))
+  psparms_data%dtsd_acc_soilt(:,:,:)   = 0.0
+ELSE
+  ALLOCATE(psparms_data%dtsd_acc_soilt(1,1,1))
+END IF
+
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE psparms_alloc
@@ -286,6 +297,7 @@ DEALLOCATE(psparms_data%sthu_min_soilt)
 DEALLOCATE(psparms_data%soil_ph_soilt)
 DEALLOCATE(psparms_data%v_close_pft)
 DEALLOCATE(psparms_data%v_open_pft)
+DEALLOCATE(psparms_data%dtsd_acc_soilt)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -345,6 +357,7 @@ psparms%sthu_min_soilt => psparms_data%sthu_min_soilt
 psparms%soil_ph_soilt => psparms_data%soil_ph_soilt
 psparms%v_close_pft => psparms_data%v_close_pft
 psparms%v_open_pft => psparms_data%v_open_pft
+psparms%dtsd_acc_soilt => psparms_data%dtsd_acc_soilt
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -400,6 +413,7 @@ NULLIFY(psparms%sthu_min_soilt)
 NULLIFY(psparms%soil_ph_soilt)
 NULLIFY(psparms%v_close_pft)
 NULLIFY(psparms%v_open_pft)
+NULLIFY(psparms%dtsd_acc_soilt)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
