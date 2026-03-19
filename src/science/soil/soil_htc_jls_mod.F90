@@ -34,7 +34,8 @@ USE conversions_mod,        ONLY: zerodegc
 USE water_constants_mod,    ONLY: dpsidt, hcapi, hcapw, lf, rho_water
 USE jules_snow_mod,         ONLY: snow_hcon
 USE jules_soil_mod,         ONLY: facur, gamma_t, mmax, tacur, l_bedrock,      &
-                                  ns_deep, l_bgc_heat
+                                  ns_deep
+USE jules_soil_biogeochem_mod, ONLY: heat_of_respiration, l_bgc_heat
 USE jules_surface_mod,      ONLY: l_flake_model
 USE jules_surface_types_mod, ONLY: lake
 USE jules_irrig_mod,   ONLY: l_irrig_dmd
@@ -132,9 +133,6 @@ INTEGER, PARAMETER :: j_block = 4 ! this specifies the block length
 
 LOGICAL, PARAMETER :: use_lims_gauss = .TRUE.
     ! Whether to apply the dsthumin and dsthumax limits in the Gauss solver.
-
-REAL, PARAMETER :: heat_of_respiration = 3.9e7
-    ! The heat released during respiration (J/kgC)
 
 !-----------------------------------------------------------------------------
 ! Local scalar variables:
@@ -385,7 +383,8 @@ END IF
 !$OMP        dhflux_dtsl2, hflux_base, surf_ht_flux, sifact, hadv,             &
 !$OMP        w_flux, dhadv_dtsl0, dhadv_dtsl1, dhadv_dtsl2, v_sat,             &
 !$OMP        tiny_0, smcl, small_value, work1, smclsat, bexp, tmax, sathh,     &
-!$OMP        dhsl0, timestep, dhsl, resp_s_soilt, l_bgc_heat, dim_cs1)
+!$OMP        dhsl0, timestep, dhsl, resp_s_soilt, l_bgc_heat, dim_cs1,         &
+!$OMP        heat_of_respiration)
 
 ! Blocking is needed as the nshyd dimension has a spatial
 ! dependence (n +/-1). Blocking enables parallelising over the

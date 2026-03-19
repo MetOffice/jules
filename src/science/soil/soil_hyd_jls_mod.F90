@@ -118,8 +118,8 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
 !-----------------------------------------------------------------------------
 ! If l_darcy_lsh_all = .TRUE. allow fully connectivity between layers
 ! nhsyd and nhsyd+1 when L_TOP=TRUE
-! LOGICAL, PARAMETER :: l_darcy_lsh_all = .TRUE.
-LOGICAL, PARAMETER :: l_darcy_lsh_all = .FALSE.
+LOGICAL, PARAMETER :: l_darcy_lsh_all = .TRUE.
+! ejb changed LOGICAL, PARAMETER :: l_darcy_lsh_all = .FALSE.
 
 !-----------------------------------------------------------------------------
 ! Local scalars:

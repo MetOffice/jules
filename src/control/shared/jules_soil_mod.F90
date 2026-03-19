@@ -54,11 +54,12 @@ LOGICAL ::                                                                     &
   soil_props_const_z = .FALSE.,                                                &
       ! Switch for whether soil ancils has the same values on each layer.
       ! Set in the JULES_SOIL_PROPS namelist.
-  l_holdwater = .FALSE.,                                                       &
+  l_holdwater = .FALSE.
       ! Switch to control how supersaturated and negative soil moisture is
       ! handled in the implicit calculation. FALSE: excess/required moisture
       ! is pushed out/in from the base of the soil. TRUE: water is added/
       ! taken from an adjacent layer.
+
 #if !defined(UM_JULES)
 LOGICAL ::                                                                     &
 ! Switches that are only present in standalone JULES.
@@ -134,7 +135,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
       ! Thermal conductivity of bedrock (W/m/K)
   dzdeep = rmdi,                                                               &
       ! Thickness of bedrock layers (m)
-  hflux_geo = 0.0
+  hflux_geo = rmdi
       ! Geothermal heat flux (W/m2)
       ! 0.067 +- 0.031 is areal average for continents (F.Lucazeau, 2019)
 
@@ -175,6 +176,8 @@ NAMELIST  / jules_soil/                                                        &
 ! Parameters
     cs_min, zsmc, zst, confrac, ns_deep, hcapdeep, hcondeep,                   &
     dzdeep, dzsoil_io, dzsoil_elev, hflux_geo
+
+
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_SOIL_MOD'
 
@@ -312,7 +315,6 @@ IF ( l_bedrock ) THEN
                    'hcapdeep must lie in the range 100000 to 8000000 J/K/m3')
   END IF
 
-  ! As 0.0 default value, not compulsory  to set.
   ! For continents, areal average 0.067 (F.LUCAZEAU, 2019)
   IF (hflux_geo < -0.052 .OR. hflux_geo > 15.6 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
@@ -431,8 +433,8 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
-INTEGER, PARAMETER :: n_real = 8 + sm_levels_max
-INTEGER, PARAMETER :: n_log = 7
+INTEGER, PARAMETER :: n_real = 9 + sm_levels_max
+INTEGER, PARAMETER :: n_log = 6
 
 TYPE :: my_namelist
   SEQUENCE

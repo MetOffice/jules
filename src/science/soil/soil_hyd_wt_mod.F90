@@ -144,8 +144,8 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
 !-----------------------------------------------------------------------------
 ! Local parameters:
 !-----------------------------------------------------------------------------
-! LOGICAL, PARAMETER :: l_calc_zw2 = .TRUE.
-LOGICAL, PARAMETER :: l_calc_zw2 = .FALSE.
+LOGICAL, PARAMETER :: l_calc_zw2 = .TRUE.
+! ejb changed LOGICAL, PARAMETER :: l_calc_zw2 = .FALSE.
 ! Whether to call calc_zw or calc_zw2
 
 !-----------------------------------------------------------------------------

@@ -39,10 +39,9 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
  ! imported procedures
    check_jules_soil_biogeochem,                                                &
  ! imported scalar variables
-   l_q10, soil_bgc_model, dim_ch4layer, l_ch4_tlayered,                        &
+   l_q10, soil_bgc_model, dim_ch4layer, l_ch4_tlayered,l_bgc_heat,             &
  ! imported namelists
-   jules_soil_biogeochemi,                                                     &
-   l_bgc_heat
+   jules_soil_biogeochem
 
 USE jules_soil_mod, ONLY: sm_levels
 

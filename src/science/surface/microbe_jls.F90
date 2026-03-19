@@ -27,12 +27,12 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
    soil_model_1pool, soil_model_4pool, fsth_lessdecomp_sat,                    &
 ! imported scalar variables (IN)
    kaps, l_layeredC, l_soil_resp_lev2, q10 => q10_soil, soil_bgc_model,        &
-   tau_resp, l_lessdecomp_sat,                                                 &
+   tau_resp, l_lessdecomp_sat, l_bgc_heat,                                     &
 ! imported array variables (IN)
    kaps_4pool
 
 USE jules_soil_mod, ONLY:                                                      &
- dzsoil,sm_levels, l_bgc_heat
+ dzsoil,sm_levels
 
 USE sf_diags_mod, ONLY: strnewsfdiag
 

@@ -98,7 +98,6 @@ TYPE :: psparms_data_type
     ! Soil pH, defined on soil layers.
   REAL(KIND=real_jlslsm), ALLOCATABLE :: dtsd_acc_soilt(:,:,:)
     ! Accumulated correction in deep soil (bedrock) temperature (K).
-
 END TYPE
 
 !================================
