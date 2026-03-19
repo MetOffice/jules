@@ -54,12 +54,11 @@ LOGICAL ::                                                                     &
   soil_props_const_z = .FALSE.,                                                &
       ! Switch for whether soil ancils has the same values on each layer.
       ! Set in the JULES_SOIL_PROPS namelist.
-  l_holdwater = .FALSE.
+  l_holdwater = .FALSE.,                                                       &
       ! Switch to control how supersaturated and negative soil moisture is
       ! handled in the implicit calculation. FALSE: excess/required moisture
       ! is pushed out/in from the base of the soil. TRUE: water is added/
       ! taken from an adjacent layer.
-
 #if !defined(UM_JULES)
 LOGICAL ::                                                                     &
 ! Switches that are only present in standalone JULES.
@@ -176,8 +175,6 @@ NAMELIST  / jules_soil/                                                        &
 ! Parameters
     cs_min, zsmc, zst, confrac, ns_deep, hcapdeep, hcondeep,                   &
     dzdeep, dzsoil_io, dzsoil_elev, hflux_geo
-
-
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_SOIL_MOD'
 
@@ -435,7 +432,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
 INTEGER, PARAMETER :: n_real = 8 + sm_levels_max
-INTEGER, PARAMETER :: n_log = 6
+INTEGER, PARAMETER :: n_log = 7
 
 TYPE :: my_namelist
   SEQUENCE

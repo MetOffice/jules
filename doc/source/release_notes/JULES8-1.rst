@@ -29,4 +29,4 @@ Documentation updates
  *  Updates associated with many of the above changes, and release notes.
 
 
-Documentation can be viewed on the github page `<http://jules-lsm.github.io/>`_.
+Documentation can be viewed on the github page `<https://metoffice.github.io/jules/>`_.

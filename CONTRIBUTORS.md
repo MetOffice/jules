@@ -8,7 +8,6 @@
 | andrewcoughtrie | Andrew Coughtrie | Met Office  | 2026-02-10 |
 | yaswant         | Yaswant Pradhan  | Met Office  | 2026-02-11 |
 | caroduro | Carolina Duran Rojas | University of Exeter | 2026-02-25 |
-
 | ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
 | t00sa           | Sam Clarke-Green | Met Office  | 2026-02-27 |
-| eleanorgb       | Eleanor Burke    | Met Office  | 2026-03-06 |
+| Pierre-siddall  | Pierre Siddall| Met Office | 2026-02-06 |
