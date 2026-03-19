@@ -108,8 +108,8 @@ acc_rates         = [1.0,1.0,1.0,1.0 ]
 
 !Calculate the mixing parameters
 SELECT CASE(cryoturb_method)
-	
-CASE(1) ! Linear decrease of the diffusion coefficient between 1m and 3m
+
+CASE (1) ! Linear decrease of the diffusion coefficient between 1m and 3m
   DO t = 1,trif_pts
     l = trif_index(t)
     IF (t_soil_soilt_acc(l,1,dim_cslayer) < zerodegc) THEN
@@ -143,7 +143,7 @@ CASE(1) ! Linear decrease of the diffusion coefficient between 1m and 3m
     END DO
   END DO
 
-CASE(2) ! Cryoturbation only in unfrozen soil layers.
+CASE (2) ! Cryoturbation only in unfrozen soil layers.
   DO t = 1,trif_pts
     l = trif_index(t)
     ! Calculate indice of first frozen layer to determine the
@@ -152,18 +152,18 @@ CASE(2) ! Cryoturbation only in unfrozen soil layers.
     DO n = 1, dim_cslayer
       IF ( t_soil_soilt_acc(l,1,n) < zerodegc ) THEN
         i_frozen = n
-        EXIT 
+        EXIT
       END IF
     END DO
 
     IF (i_frozen == 1) THEN
       depth_frozen = 0.0
     ELSE
-      depth_frozen = SUM(dzsoil(:i_frozen-1)) 
+      depth_frozen = SUM(dzsoil(:i_frozen-1))
     END IF
 
     IF ( depth_frozen <= 3.0 ) THEN
-      ! If the top of the first frozen layer is lower than 3m, 
+      ! If the top of the first frozen layer is lower than 3m,
       ! we consider that there is permafrost in the grid box
       DO n = 1, dim_cslayer - 1
         IF (t_soil_soilt_acc(l,1,n) < zerodegc) THEN

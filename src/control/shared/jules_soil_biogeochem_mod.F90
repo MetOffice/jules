@@ -190,7 +190,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 
 REAL(KIND=real_jlslsm) ::                                                      &
   bioturb_mix = rmdi
-    ! Parameter setting the rate of bioturbation mixing (m^2/360days)  
+    ! Parameter setting the rate of bioturbation mixing (m^2/360days)
 
 !-----------------------------------------------------------------------------
 ! Namelist variables used in the CH4 Emission Scheme
@@ -938,7 +938,7 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: heat_of_respiration
   REAL(KIND=real_jlslsm) :: z_burn_max
   REAL(KIND=real_jlslsm) :: cryoturb_mix
-  REAL(KIND=real_jlslsm) :: bioturb_mix 
+  REAL(KIND=real_jlslsm) :: bioturb_mix
   LOGICAL :: l_layeredC
   LOGICAL :: l_label_frac_cs
   LOGICAL :: l_q10
