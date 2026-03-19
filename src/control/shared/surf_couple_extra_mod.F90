@@ -792,7 +792,7 @@ CASE ( jules )
       toppdm%qbase_soilt, qbase_l_soilt, toppdm%qbase_zw_soilt,                &
       toppdm%fch4_wetl_soilt, toppdm%fch4_wetl_cs_soilt,                       &
       toppdm%fch4_wetl_npp_soilt, toppdm%fch4_wetl_resps_soilt,                &
-      trif_vars%n_leach_soilt)
+      trif_vars%n_leach_soilt, psparms%dtsd_acc_soilt)
 
 
     DEALLOCATE(ls_graup_wtrac)

@@ -31,7 +31,8 @@ USE jules_radiation_mod,           ONLY: l_albedo_obs, l_snow_albedo,          &
                                          l_albedo_obs
 USE jules_rivers_mod,              ONLY: i_river_vn, l_rivers, l_riv_overbank, &
                                          rivers_camaflood, rivers_rfm
-USE jules_soil_biogeochem_mod,     ONLY: l_layeredc, z_burn_max
+USE jules_soil_biogeochem_mod,     ONLY: l_layeredc, z_burn_max, cryoturb_mix, &
+                                         bioturb_mix, cryoturb_method
 USE jules_soil_mod,                ONLY: l_tile_soil, l_holdwater
 USE jules_surface_mod,             ONLY: l_flake_model, l_aggregate
 USE jules_surface_types_mod,       ONLY: urban_roof, npft, nnvg, ntype
@@ -270,6 +271,33 @@ IF ( l_layeredc .AND. ( l_trif_fire .OR. l_inferno ) ) THEN
     CALL jules_print(routinename,                                              &
                    "z_burn_max must be set when using l_layeredc with " //     &
                    "l_trif_fire / l_inferno")
+  END IF
+END IF
+
+! l_layeredc requires cryoturb_method to be set
+IF ( l_layeredc ) THEN
+  IF ( ABS( cryoturb_method - rmdi ) < EPSILON(1.0) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename,                                              &
+                   "cryoturb_method must be set when using l_layeredc")
+  END IF
+END IF
+
+! l_layeredc requires cryoturb_mix to be set
+IF ( l_layeredc ) THEN
+  IF ( ABS( cryoturb_mix - rmdi ) < EPSILON(1.0) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename,                                              &
+                   "cryoturb_mix must be set when using l_layeredc")
+  END IF
+END IF
+
+! l_layeredc requires bioturb_mix to be set
+IF ( l_layeredc ) THEN
+  IF ( ABS( bioturb_mix - rmdi ) < EPSILON(1.0) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename,                                              &
+                   "bioturb_mix must be set when using l_layeredc")
   END IF
 END IF
 
