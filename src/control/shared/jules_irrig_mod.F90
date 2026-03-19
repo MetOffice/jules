@@ -59,6 +59,9 @@ INTEGER :: irr_crop = irr_crop_all_year
 INTEGER :: nstep_irrig = imdi
     ! Timestep for irrigation (number of model timesteps)
 
+INTEGER :: irrig_option = imdi
+    ! Options for applying irrigation
+
 ! Non-namelist variable but arrays used elsewhere after namelists are
 ! read in - moved out of crop_vars_mod (Hopefully this is the best place
 ! to put these).
@@ -70,7 +73,7 @@ INTEGER, ALLOCATABLE :: irrtiles(:)
 !-----------------------------------------------------------------------------
 NAMELIST  / jules_irrig/  l_irrig_dmd, l_irrig_limit, irr_crop,                &
                           frac_irrig_all_tiles, nirrtile, irrigtiles,          &
-                          set_irrfrac_on_irrtiles, nstep_irrig
+                          set_irrfrac_on_irrtiles, nstep_irrig, irrig_option
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_IRRIG_MOD'
 
@@ -282,6 +285,9 @@ CALL jules_print('jules_irrig',lineBuffer)
 WRITE(lineBuffer,*)' nstep_irrig = ',nstep_irrig
 CALL jules_print('jules_irrig',lineBuffer)
 
+WRITE(lineBuffer,*)' irrig_option = ',irrig_option
+CALL jules_print('jules_irrig',lineBuffer)
+
 CALL jules_print('jules_irrig',                                                &
     '- - - - - - end of namelist - - - - - -')
 
@@ -323,7 +329,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 2
 INTEGER, PARAMETER :: n_log = 4
-INTEGER, PARAMETER :: n_int = 3 + npft_max
+INTEGER, PARAMETER :: n_int = 4 + npft_max
 
 TYPE :: my_namelist
   SEQUENCE
@@ -335,6 +341,7 @@ TYPE :: my_namelist
   INTEGER :: nirrtile
   INTEGER :: irrigtiles(npft_max)
   INTEGER :: nstep_irrig
+  INTEGER :: irrig_option
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -359,6 +366,7 @@ IF (mype == 0) THEN
   my_nml % nirrtile                = nirrtile
   my_nml % irrigtiles              = irrigtiles
   my_nml % nstep_irrig             = nstep_irrig
+  my_nml % irrig_option            = irrig_option
 END IF
 
 CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
@@ -373,6 +381,7 @@ IF (mype /= 0) THEN
   nirrtile                = my_nml % nirrtile
   irrigtiles              = my_nml % irrigtiles
   nstep_irrig             = my_nml % nstep_irrig
+  irrig_option            = my_nml % irrig_option
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)

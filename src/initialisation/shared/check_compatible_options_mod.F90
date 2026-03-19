@@ -25,7 +25,7 @@ SUBROUTINE check_compatible_options(call_type)
 
 USE jules_deposition_mod,          ONLY: l_deposition
 USE jules_irrig_mod,               ONLY: l_irrig_dmd, l_irrig_limit,           &
-                                         nstep_irrig
+                                         nstep_irrig, irrig_option
 USE jules_model_environment_mod,   ONLY: lsm_id, cable
 USE jules_radiation_mod,           ONLY: l_albedo_obs, l_snow_albedo,          &
                                          l_albedo_obs
@@ -43,6 +43,7 @@ USE jules_water_resources_mod,     ONLY: l_water_environment,                  &
 USE land_tile_ids_mod,             ONLY: surface_type_ids, ml_snow_type_ids
 USE nvegparm,                      ONLY: vf_nvg, albsnc_nvg, albsnf_nvgl,      &
                                          albsnf_nvgu
+USE pftparm,                       ONLY: irrig_pft
 USE overbank_inundation_mod,       ONLY: overbank_hypsometric, overbank_model, &
                                          overbank_quantiles, overbank_simple,  &
                                          overbank_simple_rosgen
@@ -161,6 +162,16 @@ IF ( l_irrig_dmd .AND. .NOT. l_water_irrigation ) THEN
     CALL jules_print(routinename, 'nstep_irrig must be > 0')
   END IF
 END IF
+
+! Check to make sure that if l_irrig_dmd is TRUE then irrig_option 
+! triggers are not set
+IF (l_irrig_dmd) THEN
+  IF ( ANY( irrig_pft(1:ntype) > 0.0 ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, 'irrig_pft cannot be set if irrig_pft > 0')
+  END IF
+END IF
+  
 
 ! Namelists based on tiles are not read by the UM RECON so any checks based on
 ! these namelists cannot be made.
