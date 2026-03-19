@@ -29,6 +29,7 @@ SUBROUTINE soil_hyd_wt (npnts, nshyd, soil_pts, curr_soilt, nsoilt,            &
 
 ! Use relevant subroutines
 USE calc_zw_mod,  ONLY: calc_zw
+USE calc_zw2_mod,  ONLY: calc_zw2
 
 USE jules_water_tracers_mod, ONLY: l_wtrac_jls
 
@@ -141,6 +142,13 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Increment to surface water tracer runoff (kg m-2 s-1).
 
 !-----------------------------------------------------------------------------
+! Local parameters:
+!-----------------------------------------------------------------------------
+! LOGICAL, PARAMETER :: l_calc_zw2 = .TRUE.
+LOGICAL, PARAMETER :: l_calc_zw2 = .FALSE.
+! Whether to call calc_zw or calc_zw2
+
+!-----------------------------------------------------------------------------
 ! Local scalars:
 !-----------------------------------------------------------------------------
 INTEGER ::                                                                     &
@@ -174,8 +182,13 @@ IF (l_top) THEN
     sthzw(i) = smclzw(i) / smclsatzw(i)
   END DO
 
-  CALL calc_zw(npnts, nshyd, soil_pts, soil_index,                             &
+  IF (l_calc_zw2) THEN
+    CALL calc_zw2(npnts, nshyd, soil_pts, soil_index,                          &
                bexp, sathh, smcl, smclzw, smclsat, smclsatzw, v_sat, zw)
+  ELSE
+    CALL calc_zw(npnts, nshyd, soil_pts, soil_index,                           &
+               bexp, sathh, smcl, smclzw, smclsat, smclsatzw, v_sat, zw)
+  END IF
 
   IF (l_wtrac_jls) THEN
     ! Update water tracer deep layer soil moisture fraction
