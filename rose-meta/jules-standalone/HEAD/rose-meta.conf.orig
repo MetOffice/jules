@@ -2742,7 +2742,7 @@ description=Use land fractions and pass these to river routing
 fail-if=this == '.true.' and ( namelist:jules_rivers=i_river_vn != 3 or namelist:jules_model_environment=lsm_id != 3 ) # Land fractions are only used by TRIP in Rivers-standalone to determine coastal endorheic basins.
 sort-key=3
 type=logical
-url=http://jules-lsm.github.io/latest/namelists/model_grid.nml.html#JULES_LAND_FRAC::l_use_land_fraction
+url=https://metoffice.github.io/jules/latest/namelists/model_grid.nml.html#JULES_LAND_FRAC::l_use_land_fraction
 
 [namelist:jules_land_frac=land_frac_name]
 description=Name of the variable containing the land fraction data
