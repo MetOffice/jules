@@ -1,0 +1,151 @@
+{% set name_graphs = {
+    'umdp3_check' : 'extract_source => umdp3_checker',
+    'metadata_check' : 'extract_source => metadata_checker',
+    'site_validator': 'extract_source => site_validator',
+} %}
+
+{# Basic groups
+ # The 'dr_{prgenv}_{type}' groups get filled in later based on the apps list
+ #}
+{% set groups = {
+    'all': ['dr'],
+    'dr': ['dr_eraint', 'dr_loobos',],
+
+    'dr_loobos': ['dr_oneapi_loobos'],
+    'dr_oneapi_loobos': [],
+    'dr_cray_loobos': [],
+    'dr_gnu_loobos': [],
+
+    'dr_eraint': ['dr_oneapi_eraint'],
+    'dr_oneapi_eraint': [],
+    'dr_cray_eraint': [],
+    'dr_gnu_eraint': [],
+
+    'dr_gswp2': ['dr_oneapi_gswp2'],
+    'dr_oneapi_gswp2': [],
+    'dr_cray_gswp2': [],
+    'dr_gnu_gswp2': [],
+
+    'dr_imogen': ['dr_oneapi_imogen'],
+    'dr_oneapi_imogen': [],
+    'dr_cray_imogen': [],
+    'dr_gnu_imogen': [],
+} %}
+
+{# App listing
+ # Attributes
+ #   name: Task name
+ #   app: App to run (defaults to name)
+ #   opt: Opt files to use
+ #   ranks: MPI ranks
+ #   dump_file: Used to set $DUMP_FILE
+ #   spinup: Task name used to spin up
+ #   spinup_date: Date from the spinup to use as $DUMP_FILE 
+ #}
+{% set apps = {
+    'eraint': [
+        {'name': 'eraint_rfm_2ddata', 'ranks': 8},
+        {'name': 'eraint_trip_2ddata',
+         'ranks': 8,
+         'dump_file': '$ERAINT_INSTALL_DIR/brahma_eraint_small.dump.19951031.0.nc'},
+    ],
+    'loobos': [
+        {'name': 'loobos_crm1_traitF',},
+        {'name': 'loobos_crm4_traitF',},
+        {'name': 'loobos_crm5_traitF',},
+        {'name': 'loobos_crm6_traitF',},
+        {'name': 'loobos_crm6_traitF_srfT',},
+        {'name': 'loobos_crm6_traitT',},
+        {'name': 'loobos_crops',},
+        {'name': 'loobos_daily_disagg',},
+        {'name': 'loobos_euro4',},
+        {'name': 'loobos_fire',
+         'spinup': 'loobos_fire_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_fire_spinup',},
+        {'name': 'loobos_forecast',},
+        {'name': 'loobos_gl4',},
+        {'name': 'loobos_gl7',},
+        {'name': 'loobos_gl8',},
+        {'name': 'loobos_gl8_medlyn',},
+        {'name': 'loobos_irrig',},
+        {'name': 'loobos_irrig_nirrtile',},
+        {'name': 'loobos_julesc',
+         'spinup': 'loobos_julesc_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_c1p1',
+         'spinup': 'loobos_jules_cn_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_c1p1_fire',
+         'spinup': 'loobos_jules_cn_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_cn',
+         'spinup': 'loobos_jules_cn_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_cn_spinup',},
+        {'name': 'loobos_julesc_spinup',},
+        {'name': 'loobos_jules_es_1p0',
+         'spinup': 'loobos_jules_es_1p0_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_es_1p0_biocrop',
+         'spinup': 'loobos_jules_es_1p0_biocrop_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_es_1p0_biocrop_agexpand',
+         'spinup': 'loobos_jules_es_1p0_biocrop_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_es_1p0_biocrop_spinup',},
+        {'name': 'loobos_jules_es_1p0_deposition',
+         'spinup': 'loobos_jules_es_1p0_deposition_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_es_1p0_deposition_spinup',},
+        {'name': 'loobos_jules_es_1p0_spinup',},
+        {'name': 'loobos_jules_layeredcn',
+         'spinup': 'loobos_jules_layeredcn_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_jules_layeredcn_spinup',},
+        {'name': 'loobos_prescribe_sthuf',},
+        {'name': 'loobos_trif',
+         'spinup': 'loobos_trif_spinup',
+         'spinup_date': '19971231.82800'},
+        {'name': 'loobos_trif_spinup',},
+        {'name': 'loobos_ukv',},
+        {'name': 'loobos_vegdrag',},
+    ],
+} %}
+
+{# Create groups 'dr_{{prgenv}}', 'dr_{{prgenv}}_loobos' etc. for each
+ # prgenv type based on the list in 'apps'
+ #}
+{% for prgenv in ['oneapi', 'cray', 'gnu'] %}
+    {% do groups['dr'].append('dr_'~prgenv) %}
+    {% do name_graphs.update({'dr_'~prgenv: 
+        'extract_source
+         => fcm_make_bom_dr_'~prgenv
+    }) %}
+
+    {% for type, tests in apps.items() %}
+        {% for t in tests %}
+            {% set g = 'dr_'~prgenv~'_'~t['name'] %}
+            {% do groups['dr_'~prgenv~'_'~type].append(g) %}
+            {% if 'spinup' in t %}
+                {% do name_graphs.update({g: 
+                    'extract_source
+                     => fcm_make_bom_dr_'~prgenv~'
+                     => dr_'~prgenv~'_'~t['spinup']~'
+                     => '~g~'
+                     => nccmp_'~g~'
+                     => housekeep_'~g
+                }) %}
+            {% else %}
+                {% do name_graphs.update({g: 
+                    'extract_source
+                     => fcm_make_bom_dr_'~prgenv~'
+                     => '~g~'
+                     => nccmp_'~g~'
+                     => housekeep_'~g
+                }) %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endfor %}
+
