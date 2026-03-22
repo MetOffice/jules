@@ -195,6 +195,7 @@ if __name__ == '__main__':
     dirs = find_dirs("../rose-meta/jules-shared")
     dirs.append("../rose-meta/jules-fcm-make")
     dirs.append("../rose-meta/jules-standalone")
+    dirs.append("../rose-meta/jules-um")
 
     # Check that new_version directories do not already exist
     print("\nChecking for existing vn%s directories"%(new_version))
