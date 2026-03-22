@@ -34,6 +34,8 @@ CONTAINS
 
 SUBROUTINE c_z0h_z0m_alloc(ntype)
 
+USE missing_data_mod, ONLY: rmdi
+
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
 USE yomhook,     ONLY: lhook, dr_hook
@@ -55,8 +57,8 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 ALLOCATE( z0h_z0m(ntype))
 ALLOCATE( z0h_z0m_classic(ntype))
-z0h_z0m(:)         = 0.0
-z0h_z0m_classic(:) = 0.0
+z0h_z0m(:)         = rmdi
+z0h_z0m_classic(:) = rmdi
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
