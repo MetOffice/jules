@@ -170,7 +170,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
       The value of the soil respiration in anaerobic conditions as a fraction of the maximum rate. Values should be between 0 and 1. Only used if :nml:mem:`l_lessdecomp_sat` = TRUE.
 
-       .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
+      .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
 
 
 .. nml:group:: Parameters for the 4-pool model (only used if :nml:mem:`soil_bgc_model` = 2)
