@@ -113,16 +113,11 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
           .. note:: If layered soil C is used (:nml:mem:`l_layeredc` = TRUE) the temperature and moisture of each soil layer is used to calculation respiration from that layer.
 
-<<<<<<< HEAD
    .. nml:member:: l_bgc_heat
-=======
-   .. nml:member:: l_lessdecomp_sat
->>>>>>> 4147b81512d847b633b8a2b0e7d47f6f08fac967
 
       :type: logical
       :default: F
 
-<<<<<<< HEAD
       Switch to include biogenic heating of soil carbon decomposition.
 
       TRUE
@@ -132,7 +127,19 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
           Not releasing the heat associated with soil carbon decomposition on soil temperature.
 
       .. note:: If (:nml:mem:`l_q10` = TRUE) the a peak in the dependence of respiration on soil temperature (Equation 4.4 and Figure 4.1, Catherine Luke PhD thesis) will be included eliminating the problem of unrealistic high soil temperature. Representing the reduction in microbial respiration when the temperatures are very high.
-=======
+
+      .. seealso::
+         References:
+
+         * Catherine Luke PhD thesis: Modelling Aspects of Land-Atmosphere Interaction: Thermal Instability in Peatland Soils and Land Parameter Estimation Through Data Assimilation. Available from `University of Exeter library <https://ore.exeter.ac.uk/articles/thesis/Modelling_Aspects_of_Land-Atmosphere_Interaction_Thermal_Instability_in_Peatland_Soils_and_Land_Parameter_Estimation_Through_Data_Assimilation/29696525>`_.
+
+         * Luke, C.M. and Cox, P.M. (2011), Soil carbon and climate change: from the Jenkinson effect to the compost-bomb instability. European Journal of Soil Science, 62: 5-12. https://doi.org/10.1111/j.1365-2389.2010.01312.x
+
+   .. nml:member:: l_lessdecomp_sat
+
+      :type: logical
+      :default: F
+
       Switch affecting the moisture function used for soil respiration calculation.
 
       TRUE
@@ -140,15 +147,13 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
       FALSE
          The response of the soil carbon decomposition to soil moisture is calculated using Equation 67 in Clark et al. (2011).
->>>>>>> 4147b81512d847b633b8a2b0e7d47f6f08fac967
 
       .. seealso::
          References:
 
-<<<<<<< HEAD
-         * Catherine Luke PhD thesis: Modelling Aspects of Land-Atmosphere Interaction: Thermal Instability in Peatland Soils and Land Parameter Estimation Through Data Assimilation. Available from `University of Exeter library <https://ore.exeter.ac.uk/articles/thesis/Modelling_Aspects_of_Land-Atmosphere_Interaction_Thermal_Instability_in_Peatland_Soils_and_Land_Parameter_Estimation_Through_Data_Assimilation/29696525>`_.
+         * Chadburn, Sarah E., et al. "A new approach to simulate peat accumulation, degradation and stability in a global land surface scheme (JULES vn5. 8_accumulate_soil) for northern and temperate peatlands." Geoscientific Model Development 15.4 (2022): 1633-1657 (https://gmd.copernicus.org/articles/15/1633/2022/).
 
-         * Luke, C.M. and Cox, P.M. (2011), Soil carbon and climate change: from the Jenkinson effect to the compost-bomb instability. European Journal of Soil Science, 62: 5-12. https://doi.org/10.1111/j.1365-2389.2010.01312.x
+         * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description – Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701–722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
 
    .. nml:member:: heat_of_respiration
 
@@ -156,10 +161,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       :default: 3.9e07
 
       Specifuc heat of the respiration reaction J (kgC)\ :sup:`-1`.
-=======
-         * Chadburn, Sarah E., et al. "A new approach to simulate peat accumulation, degradation and stability in a global land surface scheme (JULES vn5. 8_accumulate_soil) for northern and temperate peatlands." Geoscientific Model Development 15.4 (2022): 1633-1657 (https://gmd.copernicus.org/articles/15/1633/2022/).
 
-         * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description – Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701–722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
 
    .. nml:member:: fsth_lessdecomp_sat
 
@@ -169,7 +171,6 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       The value of the soil respiration in anaerobic conditions as a fraction of the maximum rate. Values should be between 0 and 1. Only used if :nml:mem:`l_lessdecomp_sat` = TRUE.
 
        .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
->>>>>>> 4147b81512d847b633b8a2b0e7d47f6f08fac967
 
 
 .. nml:group:: Parameters for the 4-pool model (only used if :nml:mem:`soil_bgc_model` = 2)
