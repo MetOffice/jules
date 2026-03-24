@@ -78,6 +78,6 @@ class vn80_t23(MacroUpgrade):
 
             self.add_setting(config, ["namelist:jules_surface_types", "c3_irrig"], "0")
             self.add_setting(config, ["namelist:jules_surface_types", "c4_irrig"], "0") 
-            self.add_setting(config, ["namelist:jules_irrig", "irrig_options"], "0")
+            self.add_setting(config, ["namelist:jules_irrig", "irrig_option"], "0")
 
         return config, self.reports
