@@ -43,7 +43,7 @@ USE jules_water_resources_mod,     ONLY: l_water_environment,                  &
 USE land_tile_ids_mod,             ONLY: surface_type_ids, ml_snow_type_ids
 USE nvegparm,                      ONLY: vf_nvg, albsnc_nvg, albsnf_nvgl,      &
                                          albsnf_nvgu
-USE pftparm,                       ONLY: irrig_pft
+USE c_irrigation_mod,              ONLY: irrig_tile
 USE overbank_inundation_mod,       ONLY: overbank_hypsometric, overbank_model, &
                                          overbank_quantiles, overbank_simple,  &
                                          overbank_simple_rosgen
@@ -163,15 +163,15 @@ IF ( l_irrig_dmd .AND. .NOT. l_water_irrigation ) THEN
   END IF
 END IF
 
-! Check to make sure that if l_irrig_dmd is TRUE then irrig_option 
+! Check to make sure that if l_irrig_dmd is TRUE then irrig_option
 ! triggers are not set
 IF (l_irrig_dmd) THEN
-  IF ( ANY( irrig_pft(1:ntype) > 0.0 ) ) THEN
+  IF ( ANY( irrig_tile(1:ntype) > 0.0 ) ) THEN
     ERROR = 1
     CALL jules_print(routinename, 'irrig_pft cannot be set if irrig_pft > 0')
   END IF
 END IF
-  
+
 
 ! Namelists based on tiles are not read by the UM RECON so any checks based on
 ! these namelists cannot be made.
