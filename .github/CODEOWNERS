@@ -28,11 +28,10 @@ CABLE Science                    Ian Harman and Claire Carouge
 IMOGEN                           Chris Huntingford and Eleanor Burke
 
 ############################## Code Owners #####################################
-JULES Code Owner                            Giorgia Line (deputy Simulation System and Deployment Team)
-Technical                                   Simulation System and Deployment Team
-OpenMP                                      HPC Optimisation Team
-Rose Test Suite (rose-stem)                 James Bruten and Roddy Sharp
-Rose Metadata and Namelist Infrastructure   Maggie Hendry
-    (module leaders are responsible for metadata content)
-Upgrade Macros                              Erica Neininger and James Bruten
-River Routing Infrastructure                Maggie Hendry
+**/                                         @GiorgiaLine
+**/etc                                      @MetOffice/ssdteam
+**/rose-stem                                @MetOffice/ssdteam
+**/rose-meta                                @maggiehendry
+/rose-meta/**/versions.py                   @MetOffice/ssdteam
+**/science/river_routing                    @maggiehendry
+**/initialisation/rivers_standalone         @maggiehendry
