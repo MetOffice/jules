@@ -47,8 +47,8 @@ from .version80_81 import *
 class vn80_t34(MacroUpgrade):
     """Upgrade macro from JULES #34 by Dan Copsey"""
 
-    BEFORE_TAG = "vn8.0"
-    AFTER_TAG = "vn8.0_t34"
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_t34"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
