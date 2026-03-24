@@ -166,7 +166,7 @@ CASE(2) ! Cryoturbation only in unfrozen soil layers.
       ! If the top of the first frozen layer is lower than 3m, 
       ! we consider that there is permafrost in the grid box
       DO n = 1, dim_cslayer - 1
-        IF (t_soil_soilt_acc(l,1,n) < zerodegc) THEN
+        IF (t_soil_soilt_acc(l,1,n) >= zerodegc) THEN
           mixparam = cryoturb_mix
         ELSE
           mixparam = 0.00000000001
