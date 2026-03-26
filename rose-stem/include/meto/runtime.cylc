@@ -1,0 +1,6 @@
+%include 'include/meto/runtime-azspice-fcm-make.cylc'
+%include 'include/meto/runtime-azspice-fcm-make-gnu.cylc'
+%include 'include/meto/runtime-ex1a.cylc'
+%include 'include/meto/runtime-ex1a-cce.cylc'
+%include 'include/meto/runtime-ex1a-gfortran.cylc'
+
