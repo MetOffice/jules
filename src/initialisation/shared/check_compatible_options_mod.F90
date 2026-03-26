@@ -172,6 +172,12 @@ IF (l_irrig_dmd) THEN
   END IF
 END IF
 
+! Add check to make sure if irrig_options is set to 2 then correct options 
+! are set up
+IF (irrig_option == 2) THEN
+ ! check that irrig_tile is 0 or 1 
+ ! and C3_irrig and c4_irrig tiles are available
+END IF
 
 ! Namelists based on tiles are not read by the UM RECON so any checks based on
 ! these namelists cannot be made.
