@@ -80,7 +80,7 @@ IF ( ERROR /= 0 )                                                              &
 ! Copy values from fixed length arrays used in namelist into allocated arrays
 CALL init_nvegparm_allocated()
 CALL print_nlist_jules_nvegparm()
-CALL check_jules_nvegparm(nnvg,npft)
+CALL check_jules_nvegparm(nnvg)
 
 RETURN
 

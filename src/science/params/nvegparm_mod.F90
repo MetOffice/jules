@@ -104,7 +104,7 @@ RETURN
 END SUBROUTINE nvegparm_alloc
 
 
-SUBROUTINE check_jules_nvegparm(nnvg,npft)
+SUBROUTINE check_jules_nvegparm(nnvg)
 
 USE ereport_mod,      ONLY: ereport
 USE check_jules_nml_values_mod, ONLY: check_jules_nml_values
@@ -112,7 +112,7 @@ USE check_jules_nml_values_mod, ONLY: check_jules_nml_values
 IMPLICIT NONE
 
 !Arguments
-INTEGER, INTENT(IN) :: nnvg, npft
+INTEGER, INTENT(IN) :: nnvg
 
 ! Work variables
 INTEGER :: errorstatus = 0
@@ -162,7 +162,7 @@ END SUBROUTINE check_jules_nvegparm
 SUBROUTINE print_nlist_jules_nvegparm()
 
 USE jules_print_mgr, ONLY: jules_print
-USE jules_surface_types_mod, ONLY: npft, ntype
+USE jules_surface_types_mod, ONLY: ntype
 
 IMPLICIT NONE
 CHARACTER(LEN=50000) :: lineBuffer

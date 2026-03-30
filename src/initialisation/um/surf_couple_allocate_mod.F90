@@ -422,7 +422,7 @@ z0_soil = z0_nvg(soil - npft)
 
 ! Now that the arrays have been allocated and filled we can check them
 CALL check_jules_pftparm(npft,nnpft)
-CALL check_jules_nvegparm(nnvg,npft)
+CALL check_jules_nvegparm(nnvg)
 CALL check_jules_red_parms()
 CALL c_z0h_z0m_check(ntype)
 CALL check_compatible_options()

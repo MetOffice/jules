@@ -43,15 +43,30 @@ from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
 
-class vnYY_txxxx(MacroUpgrade):
+class vn81_t41(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Maggie Hendry"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_t41"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            npft = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_surface_types", "npft"]
+                )
+            )
+            self.add_setting(
+                config,
+                ["namelist:jules_pftparm", "pft_name_io"],
+                ",".join(["''"] * npft),
+            )
 
-        # Add settings
         return config, self.reports
