@@ -40,6 +40,19 @@
 **/rose-meta                        @maggiehendry
 **/rose-stem                        @MetOffice/ssdteam
 **/etc                              @MetOffice/ssdteam
-**/science/river_routing             @maggiehendry
+**/science/river_routing            @maggiehendry
 **/initialisation/rivers_standalone @maggiehendry
+**/control/rivers-standalone/       @maggiehendry
+**/control/shared/jules_rivers_mod.F90      @maggiehendry
+**/io/rivers-standalone
+**/control/shared/surf_couple_rivers_mod.F90
+**/initialisation/standalone/ancillaries/init_ancillaries_coupling_mod.F90      @maggiehendry
+**/initialisation/standalone/ancillaries/init_rivers_process_data_mod.F90       @maggiehendry
+**/initialisation/standalone/ancillaries/init_rivers_props_mod.F90      @maggiehendry
+**/initialisation/standalone/ancillaries/jules_rivers_props_mod.F90     @maggiehendry
+**/initialisation/standalone/grid/init_river_out_grid_mod.F90           @maggiehendry
+**/initialisation/standalone/init_rivers.F90        @maggiehendry
+**/control/shared/jules_water_resources_mod.F90     @maggiehendry
+**/control/shared/overbank_inundation_mod.F90       @maggiehendry
+**/io/dump/get_dim_info_mod.F90     @maggiehendry
 **/                                 @GiorgiaLine
