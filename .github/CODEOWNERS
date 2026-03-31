@@ -39,7 +39,7 @@
 rose-meta/**/version*.py            @james-bruten-mo
 rose-meta/**/HEAD/rose-meta.conf    @maggiehendry
 **/rose-stem                        @MetOffice/ssdteam
-**/etc                              @MetOffice/ssdteam
+etc/                              @MetOffice/ssdteam
 **/science/river_routing            @maggiehendry
 **/initialisation/rivers_standalone @maggiehendry
 **/control/rivers-standalone/       @maggiehendry
