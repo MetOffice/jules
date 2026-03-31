@@ -36,8 +36,8 @@
 # Code Owners
 ###############################################################################
 
-/rose-meta/**/versions.py           @MetOffice/ssdteam
-**/rose-meta                        @maggiehendry
+rose-meta/**/version*.py            @james-bruten-mo
+rose-meta/**/HEAD/rose-meta.conf    @maggiehendry
 **/rose-stem                        @MetOffice/ssdteam
 **/etc                              @MetOffice/ssdteam
 **/science/river_routing            @maggiehendry
