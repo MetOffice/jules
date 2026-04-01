@@ -10,19 +10,30 @@ For first time users, please create a virtual environment to build the docs.
 
 From the `jules/doc` folder of the repository run:
 
-```sh
-# Create a virtual conda environment:
-conda env create -f environment.yml
+```bash
+# Create a virtual environment and install dependencies (in ./doc):
+cd doc
+python3.12 -m venv .venv
+.venv/bin/pip install .
 
 # Activate the environment:
-conda activate jules-user-guide
+source .venv/bin/activate
 
-# Build the documentation:
+# Build HTML documentation (in ./build/html/):
 make clean html
 ```
 
-View the documentation in a browser (e.g., Firefox):
+At the Met Office you can also run the following to deploy the
+html documents directly into `~/public_html/jules/<branch>/`:
 
-```sh
-firefox build/html/index.html
+```bash
+make clean deploy
+```
+
+To generate PDF documentation, ensure you have a LaTeX distribution
+installed and run the following command. The pdf will be generated as
+`./build/latex/JULES_User_Guide.pdf`:
+
+```bash
+make latexpdf
 ```
