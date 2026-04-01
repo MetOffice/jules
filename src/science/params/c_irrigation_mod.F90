@@ -52,7 +52,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 ALLOCATE( irrig_tile(ntype))
 ! Set irrig_tile to missing data so that it is only set to a value when the
 ! irrigation tile scheme is switched on (irrig_option = 2)
-irrig_tile(:) = imdi
+irrig_tile(:) = 0
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -83,7 +83,7 @@ CHARACTER(LEN=*), PARAMETER :: routinename='CHECK_IRRIGATION'
 ! irrig_tile == 1
 ! ----------------------------------------------------------------------------
 ERROR = 0
-IF (ANY(irrig_tile(:) /= imdi)) THEN
+IF (ANY(irrig_tile(1:npft) /= imdi)) THEN
   IF (ALL((irrig_tile(1:npft) == 0) .OR. (irrig_tile(1:npft) == 1))) THEN
     CALL log_info(routinename, "irrig_pft has allowed values i.e. 1 and 0")
   ELSE
