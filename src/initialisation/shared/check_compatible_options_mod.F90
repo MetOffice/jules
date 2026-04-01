@@ -34,7 +34,8 @@ USE jules_rivers_mod,              ONLY: i_river_vn, l_rivers, l_riv_overbank, &
 USE jules_soil_biogeochem_mod,     ONLY: l_layeredc, z_burn_max
 USE jules_soil_mod,                ONLY: l_tile_soil, l_holdwater
 USE jules_surface_mod,             ONLY: l_flake_model, l_aggregate
-USE jules_surface_types_mod,       ONLY: urban_roof, npft, nnvg, ntype
+USE jules_surface_types_mod,       ONLY: urban_roof, npft, nnvg, ntype,        &
+                                         c3_irrig, c4_irrig
 USE jules_urban_mod,               ONLY: l_moruses_storage
 USE jules_vegetation_mod,          ONLY: l_triffid, l_inferno, l_trif_fire
 USE jules_water_resources_mod,     ONLY: l_water_environment,                  &
@@ -172,11 +173,25 @@ IF (l_irrig_dmd) THEN
   END IF
 END IF
 
-! Add check to make sure if irrig_options is set to 2 then correct options 
+! Add check to make sure if irrig_option is set to 2 then correct options 
 ! are set up
 IF (irrig_option == 2) THEN
- ! check that irrig_tile is 0 or 1 
- ! and C3_irrig and c4_irrig tiles are available
+  ! check that irrig_tile is 0 or 1 
+  IF (ALL((irrig_tile(1:npft) /= 0) .AND. (irrig_tile(1:npft) /= 1))) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "Incorrect values entered for " //             &
+                    "irrig_pft, allowed values either 1 or 0")
+  END IF 
+  ! Check C3_irrig and c4_irrig tiles are available
+  DO i = 1, ntype
+    IF (irrig_tile(i) == 1 .AND. (i /= c3_irrig .AND. i /= c4_irrig)) THEN
+        ! Can only irrigate c3_irrig and c4_irrig tiles
+        ! Generate error if any other tile is selected
+      ERROR = 1
+      CALL jules_print(routinename, "Selected tiles cannot be irrigated, " //       &
+                    "can only select c3_irrig and c4_irrig")
+    END IF
+  END DO
 END IF
 
 ! Namelists based on tiles are not read by the UM RECON so any checks based on

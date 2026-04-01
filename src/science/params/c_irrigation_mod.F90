@@ -32,6 +32,7 @@ SUBROUTINE c_irrigation_alloc(ntype)
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
 USE yomhook,     ONLY: lhook, dr_hook
+USE missing_data_mod, ONLY: imdi
 
 IMPLICIT NONE
 
@@ -49,7 +50,9 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='C_IRRIGATION_ALLOC'
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 ALLOCATE( irrig_tile(ntype))
-irrig_tile(:) = 0
+! Set irrig_tile to missing data so that it is only set to a value when the
+! irrigation tile scheme is switched on (irrig_option = 2)
+irrig_tile(:) = imdi
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -57,8 +60,9 @@ END SUBROUTINE c_irrigation_alloc
 
 SUBROUTINE check_irrigation()
 
-USE jules_surface_types_mod, ONLY: c3_irrig, c4_irrig, ntype
+USE jules_surface_types_mod, ONLY: c3_irrig, c4_irrig, ntype, npft
 USE logging_mod, ONLY: log_info, log_warn, log_error, log_fatal
+USE missing_data_mod, ONLY: imdi
 
 IMPLICIT NONE
 
@@ -80,7 +84,9 @@ CHARACTER(LEN=*), PARAMETER :: routinename='CHECK_IRRIGATION'
 ! ----------------------------------------------------------------------------
 ERROR = 0
 IF (ANY(irrig_tile(:) /= imdi)) THEN
-  IF (ANY(irrig_tile(:) /= 0) .OR. ANY(irrig_tile(:) /= 1)) THEN
+  IF (ALL((irrig_tile(1:npft) == 0) .OR. (irrig_tile(1:npft) == 1))) THEN
+    CALL log_info(routinename, "irrig_pft has allowed values i.e. 1 and 0")
+  ELSE
     ERROR = 1
     CALL log_fatal(routinename, "Incorrect values entered for " //             &
                     "irrig_pft, allowed values either 1 or 0")
@@ -91,14 +97,15 @@ IF (ANY(irrig_tile(:) /= imdi)) THEN
         ! Can only irrigate c3_irrig and c4_irrig tiles
         ! Generate error if any other tile is selected
       ERROR = 1
-      CALL log_fatal(routinename, "Selected tiles cannot be irrigated," //       &
-                    "you can only select c3_irrig and c4_irrig")
+      CALL log_fatal(routinename, "Selected tiles cannot be irrigated, " //       &
+                    "can only select c3_irrig and c4_irrig")
     ELSE IF (irrig_tile(i) == 1) THEN
       CALL log_info(routinename, "Using tiles c3_irrig and/or c4_irrig")
     END IF
   END DO
 ELSE
-
+  CALL log_info(routinename, "Irrigation is not being applied to surface types")
+END IF
 
 RETURN
 END SUBROUTINE check_irrigation
