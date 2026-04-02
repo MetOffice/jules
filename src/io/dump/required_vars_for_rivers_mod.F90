@@ -19,6 +19,8 @@ USE jules_rivers_mod, ONLY: l_outflow_per_river, i_river_vn, rivers_camaflood, &
                             rivers_rfm, rivers_trip, l_init_storage,           &
                             l_inland_outflow
 
+USE jules_model_environment_mod,    ONLY: l_oasis_rivers
+
 USE logging_mod, ONLY: log_warn
 
 USE add_to_list_mod, ONLY: add_to_list
@@ -81,20 +83,24 @@ IF ( PRESENT(read_or_write_dump) )                                             &
   read_or_write_dump_local = read_or_write_dump
 
 IF ( l_outflow_per_river ) THEN
-  IF ( read_or_write_dump_local ) THEN
+  IF ( read_or_write_dump_local .OR. l_oasis_rivers ) THEN
+    ! For coupled models rivers_outflow_rp will need to be initialised so
+    ! that valid data is passed to oasis before the first timestep.
     CALL add_to_list( 'rivers_outflow_rp', nvars, identifiers )
   ELSE
     CALL log_warn( RoutineName,                                                &
-                  "rivers_outflow_rp will be initialised to zero.")
+                  "rivers_outflow_rp will be initialised to rmdi.")
   END IF
 END IF
 
 IF ( l_inland_outflow ) THEN
-  IF ( read_or_write_dump_local ) THEN
+  IF ( read_or_write_dump_local .OR. l_oasis_rivers ) THEN
+    ! For coupled models inland_outflow_rp will need to be initialised so
+    ! that valid data is passed to oasis before the first timestep.
     CALL add_to_list( 'inland_outflow_rp', nvars, identifiers )
   ELSE
     CALL log_warn( RoutineName,                                                &
-       "inland_outflow_rp will be initialised to zero.")
+                  "inland_outflow_rp will be initialised to rmdi.")
   END IF
 END IF
 
