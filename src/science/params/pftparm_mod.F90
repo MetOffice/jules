@@ -1528,194 +1528,194 @@ END SUBROUTINE check_jules_pftparm
 #if defined(LFRIC)
 SUBROUTINE jules_pftparm_init(config)
 
-    use c_z0h_z0m,                only: z0h_z0m
-    use config_mod,               only: config_type
-    use constants_mod,            only: r_um, i_def
-    use jules_pftparm_config_mod, only:                                        &
-                                  c3_io_no, c3_io_yes,                         &
-                                  fsmc_mod_io_weight, fsmc_mod_io_average,     &
-                                  orient_io_spherical, orient_io_horizontal
-    use jules_pftparm_nml_iterator_mod, only: jules_pftparm_nml_iterator_type
-    use jules_pftparm_nml_mod,    only: jules_pftparm_nml_type
-    use jules_surface_types_mod,  only: npft, brd_leaf, ndl_leaf, c3_grass,    &
-                                        c4_grass, shrub
+USE c_z0h_z0m,                ONLY: z0h_z0m
+USE config_mod,               ONLY: config_type
+USE constants_mod,            ONLY: r_um, i_def
+USE jules_pftparm_config_mod, ONLY:                                            &
+                              c3_io_no, c3_io_yes,                             &
+                              fsmc_mod_io_weight, fsmc_mod_io_average,         &
+                              orient_io_spherical, orient_io_horizontal
+USE jules_pftparm_nml_iterator_mod, ONLY: jules_pftparm_nml_iterator_type
+USE jules_pftparm_nml_mod,    ONLY: jules_pftparm_nml_type
+USE jules_surface_types_mod,  ONLY: npft, brd_leaf, ndl_leaf, c3_grass,        &
+                                    c4_grass, shrub
 
-    use log_mod, only : log_event, log_scratch_space, LOG_LEVEL_ERROR
+USE log_mod, ONLY: log_event, log_scratch_space, log_level_error
 
-    IMPLICIT NONE
+IMPLICIT NONE
 
-    ! Model run working data set
-    type(config_type) :: config
+! Model run working data set
+TYPE(config_type) :: config
 
-    type(jules_pftparm_nml_iterator_type) :: iter
-    type(jules_pftparm_nml_type), pointer :: jules_pftparm
+TYPE(jules_pftparm_nml_iterator_type) :: iter
+TYPE(jules_pftparm_nml_type), POINTER :: jules_pftparm
 
-    integer(kind=i_def) :: i, n
+INTEGER(KIND=i_def) :: i, n
 
-    ! Check that the size of the input array is correct. Has to be done
-    ! before copying to allocated array otherwise errors arise, which cannot
-    ! be caught by check_jules_pftarm.
-    ! NEED TO CHECK THAT THIS TEST IS STILL REQUIRED. REMOVE FOR NOW.
+! Check that the size of the input array is correct. Has to be done
+! before copying to allocated array otherwise errors arise, which cannot
+! be caught by check_jules_pftarm.
+! NEED TO CHECK THAT THIS TEST IS STILL REQUIRED. REMOVE FOR NOW.
 
-    n = 0
-    call iter%initialise( config%jules_pftparm )
-    do while ( iter%has_next() )
-      n = n + 1
-      jules_pftparm => iter%next()
-      ! For now add mapping from instance to jules_surface_types
-      select case ( trim( jules_pftparm%pft_name_io() ) )
-      case ( 'brd_leaf' )
-        i = brd_leaf
-      case ( 'ndl_leaf' )
-        i = ndl_leaf
-      case ( 'c3_grass' )
-        i = c3_grass
-      case ( 'c4_grass' )
-        i = c4_grass
-      case ( 'shrub' )
-        i = shrub
-      case default
-        write(log_scratch_space,'(A)')                                         &
-           'PFT name not recognised: ' // jules_pftparm%pft_name_io()
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR)
-      end select
+n = 0
+CALL iter%initialise( config%jules_pftparm )
+DO WHILE ( iter%has_next() )
+  n = n + 1
+  jules_pftparm => iter%next()
+  ! For now add mapping from instance to jules_surface_types
+  SELECT CASE ( TRIM( jules_pftparm%pft_name_io() ) )
+  CASE ( 'brd_leaf' )
+    i = brd_leaf
+  CASE ( 'ndl_leaf' )
+    i = ndl_leaf
+  CASE ( 'c3_grass' )
+    i = c3_grass
+  CASE ( 'c4_grass' )
+    i = c4_grass
+  CASE ( 'shrub' )
+    i = shrub
+  CASE DEFAULT
+    WRITE(log_scratch_space,'(A)')                                             &
+       'PFT name not recognised: ' // jules_pftparm%pft_name_io()
+    CALL log_event( log_scratch_space, log_level_error)
+  END SELECT
 
-      ! c3_io would make more sense as a logical
-      select case ( jules_pftparm%c3_io() )
-      case ( c3_io_no )
-        c3(i) = 0
-      case ( c3_io_yes )
-        c3(i) = 1
-      end select
-      select case ( jules_pftparm%fsmc_mod_io() )
-      case ( fsmc_mod_io_weight )
-        fsmc_mod(i) = 0
-      case ( fsmc_mod_io_average )
-        fsmc_mod(i) = 1
-      end select
-      select case ( jules_pftparm%orient_io() )
-      case ( orient_io_spherical )
-        orient(i) = 0
-      case ( orient_io_horizontal )
-        orient(i) = 1
-      end select
+  ! c3_io would make more sense as a logical
+  SELECT CASE ( jules_pftparm%c3_io() )
+  CASE ( c3_io_no )
+    c3(i) = 0
+  CASE ( c3_io_yes )
+    c3(i) = 1
+  END SELECT
+  SELECT CASE ( jules_pftparm%fsmc_mod_io() )
+  CASE ( fsmc_mod_io_weight )
+    fsmc_mod(i) = 0
+  CASE ( fsmc_mod_io_average )
+    fsmc_mod(i) = 1
+  END SELECT
+  SELECT CASE ( jules_pftparm%orient_io() )
+  CASE ( orient_io_spherical )
+    orient(i) = 0
+  CASE ( orient_io_horizontal )
+    orient(i) = 1
+  END SELECT
 
-      a_wl(i) = real(jules_pftparm%a_wl_io(), r_um)
-      a_ws(i) = real(jules_pftparm%a_ws_io(), r_um)
-      act_jmax(i) = real(jules_pftparm%act_jmax_io(), r_um)
-      act_vcmax(i) = real(jules_pftparm%act_vcmax_io(), r_um)
-      aef(i) = real(jules_pftparm%aef_io(), r_um)
-      albsnc_max(i) = real(jules_pftparm%albsnc_max_io(), r_um)
-      albsnc_min(i) = real(jules_pftparm%albsnc_min_io(), r_um)
-      albsnf_max(i) = real(jules_pftparm%albsnf_max_io(), r_um)
-      albsnf_maxl(i) = real(jules_pftparm%albsnf_maxl_io(), r_um)
-      albsnf_maxu(i) = real(jules_pftparm%albsnf_maxu_io(), r_um)
-      alnir(i) = real(jules_pftparm%alnir_io(), r_um)
-      alnirl(i) = real(jules_pftparm%alnirl_io(), r_um)
-      alniru(i) = real(jules_pftparm%alniru_io(), r_um)
-      alpar(i) = real(jules_pftparm%alpar_io(), r_um)
-      alparl(i) = real(jules_pftparm%alparl_io(), r_um)
-      alparu(i) = real(jules_pftparm%alparu_io(), r_um)
-      alpha(i) = real(jules_pftparm%alpha_io(), r_um)
-      alpha_elec(i) = real(jules_pftparm%alpha_elec_io(), r_um)
-      avg_ba(i) = real(jules_pftparm%avg_ba_io(), r_um)
-      b_wl(i) = real(jules_pftparm%b_wl_io(), r_um)
-      can_struct_a(i) = real(jules_pftparm%can_struct_a_io(), r_um)
-      catch0(i) = real(jules_pftparm%catch0_io(), r_um)
-      ccleaf_max(i) = real(jules_pftparm%ccleaf_max_io(), r_um)
-      ccleaf_min(i) = real(jules_pftparm%ccleaf_min_io(), r_um)
-      ccwood_max(i) = real(jules_pftparm%ccwood_max_io(), r_um)
-      ccwood_min(i) = real(jules_pftparm%ccwood_min_io(), r_um)
-      ci_st(i) = real(jules_pftparm%ci_st_io(), r_um)
-      dcatch_dlai(i) = real(jules_pftparm%dcatch_dlai_io(), r_um)
-      deact_jmax(i) = real(jules_pftparm%deact_jmax_io(), r_um)
-      deact_vcmax(i) = real(jules_pftparm%deact_vcmax_io(), r_um)
-      dfp_dcuo(i) = real(jules_pftparm%dfp_dcuo_io(), r_um)
-      dgl_dm(i) = real(jules_pftparm%dgl_dm_io(), r_um)
-      dgl_dt(i) = real(jules_pftparm%dgl_dt_io(), r_um)
-      dqcrit(i) = real(jules_pftparm%dqcrit_io(), r_um)
-      ds_jmax(i) = real(jules_pftparm%ds_jmax_io(), r_um)
-      ds_vcmax(i) = real(jules_pftparm%ds_vcmax_io(), r_um)
-      dust_veg_scj(i) = real(jules_pftparm%dust_veg_scj_io(), r_um)
-      dz0v_dh(i) = real(jules_pftparm%dz0v_dh_io(), r_um)
-      emis_pft(i) = real(jules_pftparm%emis_pft_io(), r_um)
-      eta_sl(i) = real(jules_pftparm%eta_sl_io(), r_um)
-      f0(i) = real(jules_pftparm%f0_io(), r_um)
-      fd(i) = real(jules_pftparm%fd_io(), r_um)
-      fef_bc(i) = real(jules_pftparm%fef_bc_io(), r_um)
-      fef_c2h4(i) = real(jules_pftparm%fef_c2h4_io(), r_um)
-      fef_c2h6(i) = real(jules_pftparm%fef_c2h6_io(), r_um)
-      fef_c3h8(i) = real(jules_pftparm%fef_c3h8_io(), r_um)
-      fef_ch4(i) = real(jules_pftparm%fef_ch4_io(), r_um)
-      fef_co(i) = real(jules_pftparm%fef_co_io(), r_um)
-      fef_co2(i) = real(jules_pftparm%fef_co2_io(), r_um)
-      fef_dms(i) = real(jules_pftparm%fef_dms_io(), r_um)
-      fef_hcho(i) = real(jules_pftparm%fef_hcho_io(), r_um)
-      fef_mecho(i) = real(jules_pftparm%fef_mecho_io(), r_um)
-      fef_nh3(i) = real(jules_pftparm%fef_nh3_io(), r_um)
-      fef_nox(i) = real(jules_pftparm%fef_nox_io(), r_um)
-      fef_oc(i) = real(jules_pftparm%fef_oc_io(), r_um)
-      fef_so2(i) = real(jules_pftparm%fef_so2_io(), r_um)
-      fire_mort(i) = real(jules_pftparm%fire_mort_io(), r_um)
-      fl_o3_ct(i) = real(jules_pftparm%fl_o3_ct_io(), r_um)
-      fsmc_of(i) = real(jules_pftparm%fsmc_of_io(), r_um)
-      fsmc_p0(i) = real(jules_pftparm%fsmc_p0_io(), r_um)
-      g1_stomata(i) = real(jules_pftparm%g1_stomata_io(), r_um)
-      g_leaf_0(i) = real(jules_pftparm%g_leaf_0_io(), r_um)
-      glmin(i) = real(jules_pftparm%glmin_io(), r_um)
-      gpp_st(i) = real(jules_pftparm%gpp_st_io(), r_um)
-      gsoil_f(i) = real(jules_pftparm%gsoil_f_io(), r_um)
-      hw_sw(i) = real(jules_pftparm%hw_sw_io(), r_um)
-      ief(i) = real(jules_pftparm%ief_io(), r_um)
-      infil_f(i) = real(jules_pftparm%infil_f_io(), r_um)
-      jv25_ratio(i) = real(jules_pftparm%jv25_ratio_io(), r_um)
-      kext(i) = real(jules_pftparm%kext_io(), r_um)
-      kn(i) = real(jules_pftparm%kn_io(), r_um)
-      knl(i) = real(jules_pftparm%knl_io(), r_um)
-      kpar(i) = real(jules_pftparm%kpar_io(), r_um)
-      lai_alb_lim(i) = real(jules_pftparm%lai_alb_lim_io(), r_um)
-      lma(i) = real(jules_pftparm%lma_io(), r_um)
-      mef(i) = real(jules_pftparm%mef_io(), r_um)
-      neff(i) = real(jules_pftparm%neff_io(), r_um)
-      nl0(i) = real(jules_pftparm%nl0_io(), r_um)
-      nmass(i) = real(jules_pftparm%nmass_io(), r_um)
-      nr(i) = real(jules_pftparm%nr_io(), r_um)
-      nr_nl(i) = real(jules_pftparm%nr_nl_io(), r_um)
-      ns_nl(i) = real(jules_pftparm%ns_nl_io(), r_um)
-      nsw(i) = real(jules_pftparm%nsw_io(), r_um)
-      omega(i) = real(jules_pftparm%omega_io(), r_um)
-      omegal(i) = real(jules_pftparm%omegal_io(), r_um)
-      omegau(i) = real(jules_pftparm%omegau_io(), r_um)
-      omnir(i) = real(jules_pftparm%omnir_io(), r_um)
-      omnirl(i) = real(jules_pftparm%omnirl_io(), r_um)
-      omniru(i) = real(jules_pftparm%omniru_io(), r_um)
-      psi_close(i) = real(jules_pftparm%psi_close_io(), r_um)
-      psi_open(i) = real(jules_pftparm%psi_open_io(), r_um)
-      q10_leaf(i) = real(jules_pftparm%q10_leaf_io(), r_um)
-      r_grow(i) = real(jules_pftparm%r_grow_io(), r_um)
-      rootd_ft(i) = real(jules_pftparm%rootd_ft_io(), r_um)
-      sigl(i) = real(jules_pftparm%sigl_io(), r_um)
-      sox_a(i) = real(jules_pftparm%sox_a_io(), r_um)
-      sox_p50(i) = real(jules_pftparm%sox_p50_io(), r_um)
-      sox_rp_min(i) = real(jules_pftparm%sox_rp_min_io(), r_um)
-      sug_g0(i) = real(jules_pftparm%sug_g0_io(), r_um)
-      sug_grec(i) = real(jules_pftparm%sug_grec_io(), r_um)
-      sug_yg(i) = real(jules_pftparm%sug_yg_io(), r_um)
-      tef(i) = real(jules_pftparm%tef_io(), r_um)
-      tleaf_of(i) = real(jules_pftparm%tleaf_of_io(), r_um)
-      tlow(i) = real(jules_pftparm%tlow_io(), r_um)
-      tupp(i) = real(jules_pftparm%tupp_io(), r_um)
-      vint(i) = real(jules_pftparm%vint_io(), r_um)
-      vsl(i) = real(jules_pftparm%vsl_io(), r_um)
-      z0v(i) = real(jules_pftparm%z0v_io(), r_um)
-      z0h_z0m(i) = real(jules_pftparm%z0hm_pft_io(), r_um)
-    end do
+  a_wl(i) = REAL(jules_pftparm%a_wl_io(), r_um)
+  a_ws(i) = REAL(jules_pftparm%a_ws_io(), r_um)
+  act_jmax(i) = REAL(jules_pftparm%act_jmax_io(), r_um)
+  act_vcmax(i) = REAL(jules_pftparm%act_vcmax_io(), r_um)
+  aef(i) = REAL(jules_pftparm%aef_io(), r_um)
+  albsnc_max(i) = REAL(jules_pftparm%albsnc_max_io(), r_um)
+  albsnc_min(i) = REAL(jules_pftparm%albsnc_min_io(), r_um)
+  albsnf_max(i) = REAL(jules_pftparm%albsnf_max_io(), r_um)
+  albsnf_maxl(i) = REAL(jules_pftparm%albsnf_maxl_io(), r_um)
+  albsnf_maxu(i) = REAL(jules_pftparm%albsnf_maxu_io(), r_um)
+  alnir(i) = REAL(jules_pftparm%alnir_io(), r_um)
+  alnirl(i) = REAL(jules_pftparm%alnirl_io(), r_um)
+  alniru(i) = REAL(jules_pftparm%alniru_io(), r_um)
+  alpar(i) = REAL(jules_pftparm%alpar_io(), r_um)
+  alparl(i) = REAL(jules_pftparm%alparl_io(), r_um)
+  alparu(i) = REAL(jules_pftparm%alparu_io(), r_um)
+  alpha(i) = REAL(jules_pftparm%alpha_io(), r_um)
+  alpha_elec(i) = REAL(jules_pftparm%alpha_elec_io(), r_um)
+  avg_ba(i) = REAL(jules_pftparm%avg_ba_io(), r_um)
+  b_wl(i) = REAL(jules_pftparm%b_wl_io(), r_um)
+  can_struct_a(i) = REAL(jules_pftparm%can_struct_a_io(), r_um)
+  catch0(i) = REAL(jules_pftparm%catch0_io(), r_um)
+  ccleaf_max(i) = REAL(jules_pftparm%ccleaf_max_io(), r_um)
+  ccleaf_min(i) = REAL(jules_pftparm%ccleaf_min_io(), r_um)
+  ccwood_max(i) = REAL(jules_pftparm%ccwood_max_io(), r_um)
+  ccwood_min(i) = REAL(jules_pftparm%ccwood_min_io(), r_um)
+  ci_st(i) = REAL(jules_pftparm%ci_st_io(), r_um)
+  dcatch_dlai(i) = REAL(jules_pftparm%dcatch_dlai_io(), r_um)
+  deact_jmax(i) = REAL(jules_pftparm%deact_jmax_io(), r_um)
+  deact_vcmax(i) = REAL(jules_pftparm%deact_vcmax_io(), r_um)
+  dfp_dcuo(i) = REAL(jules_pftparm%dfp_dcuo_io(), r_um)
+  dgl_dm(i) = REAL(jules_pftparm%dgl_dm_io(), r_um)
+  dgl_dt(i) = REAL(jules_pftparm%dgl_dt_io(), r_um)
+  dqcrit(i) = REAL(jules_pftparm%dqcrit_io(), r_um)
+  ds_jmax(i) = REAL(jules_pftparm%ds_jmax_io(), r_um)
+  ds_vcmax(i) = REAL(jules_pftparm%ds_vcmax_io(), r_um)
+  dust_veg_scj(i) = REAL(jules_pftparm%dust_veg_scj_io(), r_um)
+  dz0v_dh(i) = REAL(jules_pftparm%dz0v_dh_io(), r_um)
+  emis_pft(i) = REAL(jules_pftparm%emis_pft_io(), r_um)
+  eta_sl(i) = REAL(jules_pftparm%eta_sl_io(), r_um)
+  f0(i) = REAL(jules_pftparm%f0_io(), r_um)
+  fd(i) = REAL(jules_pftparm%fd_io(), r_um)
+  fef_bc(i) = REAL(jules_pftparm%fef_bc_io(), r_um)
+  fef_c2h4(i) = REAL(jules_pftparm%fef_c2h4_io(), r_um)
+  fef_c2h6(i) = REAL(jules_pftparm%fef_c2h6_io(), r_um)
+  fef_c3h8(i) = REAL(jules_pftparm%fef_c3h8_io(), r_um)
+  fef_ch4(i) = REAL(jules_pftparm%fef_ch4_io(), r_um)
+  fef_co(i) = REAL(jules_pftparm%fef_co_io(), r_um)
+  fef_co2(i) = REAL(jules_pftparm%fef_co2_io(), r_um)
+  fef_dms(i) = REAL(jules_pftparm%fef_dms_io(), r_um)
+  fef_hcho(i) = REAL(jules_pftparm%fef_hcho_io(), r_um)
+  fef_mecho(i) = REAL(jules_pftparm%fef_mecho_io(), r_um)
+  fef_nh3(i) = REAL(jules_pftparm%fef_nh3_io(), r_um)
+  fef_nox(i) = REAL(jules_pftparm%fef_nox_io(), r_um)
+  fef_oc(i) = REAL(jules_pftparm%fef_oc_io(), r_um)
+  fef_so2(i) = REAL(jules_pftparm%fef_so2_io(), r_um)
+  fire_mort(i) = REAL(jules_pftparm%fire_mort_io(), r_um)
+  fl_o3_ct(i) = REAL(jules_pftparm%fl_o3_ct_io(), r_um)
+  fsmc_of(i) = REAL(jules_pftparm%fsmc_of_io(), r_um)
+  fsmc_p0(i) = REAL(jules_pftparm%fsmc_p0_io(), r_um)
+  g1_stomata(i) = REAL(jules_pftparm%g1_stomata_io(), r_um)
+  g_leaf_0(i) = REAL(jules_pftparm%g_leaf_0_io(), r_um)
+  glmin(i) = REAL(jules_pftparm%glmin_io(), r_um)
+  gpp_st(i) = REAL(jules_pftparm%gpp_st_io(), r_um)
+  gsoil_f(i) = REAL(jules_pftparm%gsoil_f_io(), r_um)
+  hw_sw(i) = REAL(jules_pftparm%hw_sw_io(), r_um)
+  ief(i) = REAL(jules_pftparm%ief_io(), r_um)
+  infil_f(i) = REAL(jules_pftparm%infil_f_io(), r_um)
+  jv25_ratio(i) = REAL(jules_pftparm%jv25_ratio_io(), r_um)
+  kext(i) = REAL(jules_pftparm%kext_io(), r_um)
+  kn(i) = REAL(jules_pftparm%kn_io(), r_um)
+  knl(i) = REAL(jules_pftparm%knl_io(), r_um)
+  kpar(i) = REAL(jules_pftparm%kpar_io(), r_um)
+  lai_alb_lim(i) = REAL(jules_pftparm%lai_alb_lim_io(), r_um)
+  lma(i) = REAL(jules_pftparm%lma_io(), r_um)
+  mef(i) = REAL(jules_pftparm%mef_io(), r_um)
+  neff(i) = REAL(jules_pftparm%neff_io(), r_um)
+  nl0(i) = REAL(jules_pftparm%nl0_io(), r_um)
+  nmass(i) = REAL(jules_pftparm%nmass_io(), r_um)
+  nr(i) = REAL(jules_pftparm%nr_io(), r_um)
+  nr_nl(i) = REAL(jules_pftparm%nr_nl_io(), r_um)
+  ns_nl(i) = REAL(jules_pftparm%ns_nl_io(), r_um)
+  nsw(i) = REAL(jules_pftparm%nsw_io(), r_um)
+  omega(i) = REAL(jules_pftparm%omega_io(), r_um)
+  omegal(i) = REAL(jules_pftparm%omegal_io(), r_um)
+  omegau(i) = REAL(jules_pftparm%omegau_io(), r_um)
+  omnir(i) = REAL(jules_pftparm%omnir_io(), r_um)
+  omnirl(i) = REAL(jules_pftparm%omnirl_io(), r_um)
+  omniru(i) = REAL(jules_pftparm%omniru_io(), r_um)
+  psi_close(i) = REAL(jules_pftparm%psi_close_io(), r_um)
+  psi_open(i) = REAL(jules_pftparm%psi_open_io(), r_um)
+  q10_leaf(i) = REAL(jules_pftparm%q10_leaf_io(), r_um)
+  r_grow(i) = REAL(jules_pftparm%r_grow_io(), r_um)
+  rootd_ft(i) = REAL(jules_pftparm%rootd_ft_io(), r_um)
+  sigl(i) = REAL(jules_pftparm%sigl_io(), r_um)
+  sox_a(i) = REAL(jules_pftparm%sox_a_io(), r_um)
+  sox_p50(i) = REAL(jules_pftparm%sox_p50_io(), r_um)
+  sox_rp_min(i) = REAL(jules_pftparm%sox_rp_min_io(), r_um)
+  sug_g0(i) = REAL(jules_pftparm%sug_g0_io(), r_um)
+  sug_grec(i) = REAL(jules_pftparm%sug_grec_io(), r_um)
+  sug_yg(i) = REAL(jules_pftparm%sug_yg_io(), r_um)
+  tef(i) = REAL(jules_pftparm%tef_io(), r_um)
+  tleaf_of(i) = REAL(jules_pftparm%tleaf_of_io(), r_um)
+  tlow(i) = REAL(jules_pftparm%tlow_io(), r_um)
+  tupp(i) = REAL(jules_pftparm%tupp_io(), r_um)
+  vint(i) = REAL(jules_pftparm%vint_io(), r_um)
+  vsl(i) = REAL(jules_pftparm%vsl_io(), r_um)
+  z0v(i) = REAL(jules_pftparm%z0v_io(), r_um)
+  z0h_z0m(i) = REAL(jules_pftparm%z0hm_pft_io(), r_um)
+END DO
 
-    if ( n /= npft ) then
-      write(log_scratch_space,'(A)')                                         &
-         'Number of instances of jules_pftparm namelist is not npft'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
-    end if
+IF ( n /= npft ) THEN
+  WRITE(log_scratch_space,'(A)')                                               &
+     'Number of instances of jules_pftparm namelist is not npft'
+  CALL log_event( log_scratch_space, log_level_error )
+END IF
 
 END SUBROUTINE jules_pftparm_init
 #endif
