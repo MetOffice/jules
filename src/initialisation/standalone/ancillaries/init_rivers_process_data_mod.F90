@@ -950,8 +950,6 @@ USE jules_rivers_mod, ONLY: rivers_type
 
 USE jules_rivers_props_mod, ONLY: nvars, var
 
-USE coastal, ONLY: l_use_land_fraction
-
 IMPLICIT NONE
 
 !------------------------------------------------------------------------------
@@ -2474,7 +2472,7 @@ IF ( l_use_land_fraction ) THEN
   frac_chck(:) = ( ( 1.0 - rivers%land_fraction_rp(:) ) > EPSILON(1.0) )
   IF ( ANY ( frac_chck(:) ) ) THEN
     WRITE(jules_message,*) COUNT ( frac_chck(:) ),                             &
-       " coastal points have been detected/"
+       " coastal points have been detected."
     CALL log_info(RoutineName, jules_message)
   END IF
 ELSE
