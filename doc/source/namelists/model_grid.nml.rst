@@ -382,7 +382,7 @@ Examples of how to specify the model domain using through this namelist are prov
 
 .. nml:namelist:: JULES_LAND_FRAC
 
-Land fraction is the fraction of each gridbox that is land. By default, JULES considers any gridbox with land fraction > 0 to be 100% land, and all others to be 100% sea (or sea-ice). Rivers-standalone (TRIP) when coupled to LFRic needs to be able to determine coastal endorheic basins. In this case, :nml:mem:l_use_land_fraction, allows the land fractions to be kept. Land fraction data can be used to select only land points from the full input grid (see below).
+Land fraction is the fraction of each gridbox that is land. By default, JULES considers any gridbox with land fraction > 0 to be 100% land, and all others to be 100% sea (or sea-ice). Rivers-standalone (TRIP) when coupled to LFRic needs to be able to determine coastal endorheic basins. In this case, :nml:mem:`l_use_land_fraction`, allows the land fractions to be kept. Land fraction data can be used to select only land points from the full input grid (see below).
 
 .. warning::
    When the input grid consists of a single location (1D and :nml:mem:`JULES_INPUT_GRID::npoints` = 1 or 2D and :nml:mem:`JULES_INPUT_GRID::nx` = :nml:mem:`JULES_INPUT_GRID::ny` = 1), that single location is assumed to be 100% land.

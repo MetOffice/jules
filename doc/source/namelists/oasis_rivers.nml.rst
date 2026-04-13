@@ -49,7 +49,7 @@ This file contains a single namelists called :nml:lst:`OASIS_RIVERS`, which indi
 
            1. The total river runoff (`outflow_per_river`) which is sent to the ocean.
 
-           2. The inland basin flow (`inland_outflow`) which is sent to the land surface hydrology scheme. Turn on :nml:mem:`JULES_HYDROLOGY::l_inland` (in the land surface side of the coupler) to pass this inland basin flow into soil moisture.  
+           2. The inland basin flow (`inland_outflow`) which is sent to the land surface hydrology scheme. Turn on :nml:mem:`JULES_HYDROLOGY::l_inland` (in the land surface side of the coupler) to pass this inland basin flow into soil moisture.
 
 .. nml:member:: receive_fields
 
