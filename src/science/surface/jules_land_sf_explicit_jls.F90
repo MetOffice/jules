@@ -198,7 +198,7 @@ USE jules_surface_mod, ONLY: l_aggregate, formdrag, l_anthrop_heat_src,        &
 USE jules_vegetation_mod, ONLY: can_model, can_rad_mod, ilayers, l_triffid,    &
                                 l_vegdrag_surft
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd
+USE jules_irrig_mod, ONLY: l_irrig_dmd, irrig_option
 
 USE jules_sea_seaice_mod, ONLY: l_ctile, charnock, ip_ss_solid
 
@@ -1192,16 +1192,18 @@ END IF
 
 ! Set up non irrigated fration
 non_irrig_frac(:) = 1.0
-DO n = 1,ntype
+IF (irrig_option == 2) THEN
+  DO n = 1,ntype
 !$OMP PARALLEL DO SCHEDULE(STATIC) DEFAULT(NONE) PRIVATE(l)                    &
 !$OMP SHARED(land_pts, non_irrig_frac, irrig_tile, frac, n)
-  DO l = 1, land_pts
     IF (irrig_tile(n) > 0) THEN
-      non_irrig_frac(l) =  non_irrig_frac(l) - frac(l,n)
+      DO l = 1, land_pts
+        non_irrig_frac(l) =  non_irrig_frac(l) - frac(l,n)
+      END DO
     END IF
-  END DO
 !$OMP END PARALLEL DO
-END DO
+  END DO
+END IF
 
 !-----------------------------------------------------------------------
 ! Call physiology routine to calculate surface conductances and carbon
