@@ -440,7 +440,8 @@ IF ( is_master_task() ) THEN
     IF ( l_outflow_per_river .AND. (.NOT. l_inland_outflow) ) THEN
       CALL log_warn( RoutineName,                                              &
                      "Adding the inland_outflow_rp diagnostic " //             &
-                     "will alter the contents of the outflow_per_river " //    &
+                     "will alter the flow going into inland basin flow " //    &
+                     "points and the contents of the outflow_per_river " //    &
                      "diagnostic." )
     END IF
 
