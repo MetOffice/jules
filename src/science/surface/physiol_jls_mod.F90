@@ -106,7 +106,7 @@ USE jules_vegetation_mod, ONLY:                                                &
   ! imported variables
   l_crop, l_use_pft_psi, l_triffid
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd
+USE jules_irrig_mod, ONLY: l_irrig_dmd, irrig_option
 
 USE jules_hydrology_mod, ONLY: l_limit_gsoil
 
@@ -1056,7 +1056,7 @@ DO n = 1,npft
   END IF
 !$OMP END PARALLEL
 
-  IF (irrig_tile(n) == 0) THEN
+  IF (irrig_tile(n) == 0 .OR. irrig_option == 0) THEN
     CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
                   sthu_surft(:,m,:),                                           &
                   v_open,smvcst_soilt(:,m,:),                                  &
@@ -1310,7 +1310,7 @@ n = soil
 DO j = 1,surft_pts(n)
   l = surft_index(j,n)
   gs_type(l,n) = gsoil_soilt(l,m)
-  IF (irrig_tile(n) == 0) THEN
+  IF (irrig_tile(n) == 0 .OR. irrig_option == 0) THEN
     wt_ext_type(l,1,n) = 1.0
   END IF
   IF (l_irrig_dmd) THEN

@@ -25,7 +25,7 @@ SUBROUTINE soil_evap (npnts,nshyd,surft_pts,surft_index,                       &
                       ,gsoil_irr,gs_irr,wt_ext_irr                             &
                       )
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd
+USE jules_irrig_mod, ONLY: l_irrig_dmd, irrig_option
 USE yomhook, ONLY: lhook, dr_hook
 USE parkind1, ONLY: jprb, jpim
 USE ancil_info, ONLY: nsoilt
@@ -114,7 +114,7 @@ DO k = 2,nshyd
 !$OMP DO SCHEDULE(STATIC)
   DO j = 1,surft_pts
     l = surft_index(j)
-    IF (nsoilt  /=  1 .OR. irrig_tile == 0) THEN
+    IF (nsoilt  /=  1 .OR. irrig_tile == 0 .OR. irrig_option == 0) THEN
       wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
     END IF
     IF (l_irrig_dmd) THEN
@@ -129,7 +129,7 @@ END DO
 !CDIR NODEP
 DO j = 1,surft_pts
   l = surft_index(j)
-  IF (nsoilt  /=  1 .OR. irrig_tile == 0) THEN
+  IF (nsoilt  /=  1 .OR. irrig_tile == 0 .OR. irrig_option == 0) THEN
     wt_ext(l,1) = (gs(l) * wt_ext(l,1) + fsoil(l) * gsoil(l))                  &
                    / (gs(l) + fsoil(l) * gsoil(l))
   END IF
