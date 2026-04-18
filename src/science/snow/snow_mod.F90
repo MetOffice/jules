@@ -24,8 +24,8 @@ SUBROUTINE snow ( land_pts, timestep, stf_hf_snow_melt, nsurft, n_wtrac_jls,   &
                   hcaps1_soilt, hcons, melt_surft, snowinc_surft,              &
                   smcl1_soilt, sthf1_soilt, surf_htf_surft,                    &
                   t_soil1_soilt, tsurf_elev_surft, tstar_surft,                &
-                  smvcst1_soilt, con_snow_wtrac, ei_surft_wtrac,               &
-                  rgrain, rgrainl, rho_snow_grnd, sice,                        &
+                  z0_surft, smvcst1_soilt, con_snow_wtrac, ei_surft_wtrac,     &
+                  fsnow, rgrain, rgrainl, rho_snow_grnd, sice,                 &
                   sliq, snow_grnd, snow_surft, snowdepth,                      &
                   tsnow, nsnow, con_rain_wtrac, ls_rain_wtrac,                 &
                   ls_snow_wtrac, ls_graup_wtrac, melt_surft_wtrac,             &
@@ -71,12 +71,20 @@ USE jules_snow_mod, ONLY:                                                      &
     ! Include graupel in the surface snowfall.
   ignore_graupel,                                                              &
     ! Ignore graupel in the surface snowfall.
+  i_snow_tile,                                                                 &
+    ! Tiles without (0) or with (1) separate energy balance for snow.
+  maskd,                                                                       &
+    ! Inverse masking depth for snow albedo (1/m).
+  rho_snow_fresh,                                                              &
+    ! Density of fresh snow (kg per m**3).
   r0,                                                                          &
     ! Grain size for fresh snow (microns).
   cansnowtile
     ! Switch for canopy snow model.
 
-USE jules_surface_types_mod, ONLY: lake, ntype
+USE jules_surface_types_mod, ONLY: ice, lake, ntype
+
+USE jules_surface_mod, ONLY: l_point_data
 
 USE jules_radiation_mod, ONLY: l_snow_albedo, l_embedded_snow
 
@@ -128,7 +136,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   con_snow(land_pts),                                                          &
     ! Convective snowfall rate (kg/m2/s).
   tile_frac(land_pts,nsurft),                                                  &
-    ! Tile fractions.
+    ! Tile fractions including snow cover in the ice tile.
   ei_surft(land_pts,nsurft),                                                   &
     ! Sublimation of snow (kg/m2/s).
   snowinc_surft(land_pts,nsurft),                                              &
@@ -157,6 +165,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Surface heat flux (W/m2).
   tstar_surft(land_pts,nsurft),                                                &
     ! Tile surface temperature (K).
+  z0_surft(land_pts,nsurft),                                                   &
+    ! Tile roughness lengths (m).
   smvcst1_soilt(land_pts,nsoilt),                                              &
     ! Surface soil layer volumetric moisture concentration at saturation.
   con_snow_wtrac(land_pts,n_wtrac_jls),                                        &
@@ -181,6 +191,8 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Large-scale graupel fall rate (kg/m2/s).
   ls_rain(land_pts),                                                           &
     ! Large-scale rainfall rate (kg/m2/s).
+  fsnow(land_pts,nsurft),                                                      &
+    ! Snow cover fractions on tiles.
   melt_surft(land_pts,nsurft),                                                 &
     ! Surface or canopy snowmelt rate (kg/m2/s).
     ! On output, this is the total melt rate for the tile
@@ -315,6 +327,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
   snowfall(land_pts),                                                          &
     ! Total frozen precip reaching the ground in timestep
     ! (kg/m2) - includes any canopy unloading.
+  snowonsnow(land_pts),                                                        &
+    ! Frozen precipitation on the snow tile (kg/m2).
   graupfall(land_pts),                                                         &
     ! Graupel reaching the ground in timestep(kg/m2).
   infiltration(land_pts),                                                      &
@@ -358,6 +372,17 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Snow layer densities (kg/m3).
   rgrainl_sl(land_pts,nsmax)
     ! Snow layer grain size (microns).
+
+! Snow quantities on a separate snow tile
+REAL(KIND=real_jlslsm) ::                                                      &    
+  fsnow_old(land_pts),                                                         &
+    ! Snow cover fraction at start of timestep.   
+  fsnow_new(land_pts),                                                         &
+    ! Snow cover fraction at end of timestep.
+  fsratio(land_pts),                                                           &
+    ! Ratio of snow cover fractions at start and end of timestep.   
+  snowdepave(land_pts)
+    ! Average snow depth on surface types with a separate snow tile. 
 
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
   snow_surft_old(:,:),                                                         &
@@ -804,6 +829,35 @@ DO n = 1,nsurft
     END IF ! l_wtrac_jls
 !$OMP END PARALLEL
   END IF
+  
+  !---------------------------------------------------------------------------
+  ! Scale snowfall on selected tiles to the snow tile (number nsurft)
+  !---------------------------------------------------------------------------
+    IF (i_snow_tile(n) == 1) THEN
+      DO k = 1,surft_pts(n)
+        i = surft_index(k,n)
+        snowonsnow(i) = 0.0
+        IF (fsnow(i,n) > EPSILON(0.0)) THEN
+          snowonsnow(i) = snowfall(i) / fsnow(i,n)
+        ELSE IF (snowfall(i) > 0.0) THEN
+          snowdepth(i,n) = snowfall(i) / rho_snow_fresh
+          IF (l_point_data) THEN
+            fsnow(i,n) = 1 - exp(- maskd * snowdepth(i,n))
+          ELSE
+            fsnow(i,n) = snowdepth(i,n) /                                      &
+                        (snowdepth(i,n) + 10*z0_surft(i,nsurft))
+          END IF
+          snowonsnow(i) = snowfall(i) / fsnow(i,n)
+        END IF
+        fsnow_old(i) = fsnow(i,n)
+        snowfall(i) = 0.0 
+      END DO
+    END IF
+    IF ( ANY(i_snow_tile == 1) .AND. n == nsurft ) THEN
+      DO i = 1,land_pts
+        IF (.NOT. l_lice_point(i)) snowfall(i) = snowonsnow(i)
+      END DO
+    END IF
 
   !==========================================================================
   ! *NOTICE REGARDING SOIL TILING**
@@ -902,6 +956,35 @@ DO n = 1,nsurft
     CALL compactsnow ( land_pts, surft_pts(n), timestep, nsnow(:,n),           &
                        surft_index(:,n), sice_sl, sliq_sl,                     &
                        tsnow_sl, rho_snow_sl, ds_sl )
+
+    !-------------------------------------------------------------------------
+    ! Update snow cover fraction and layers on the separate snow tile
+    !-------------------------------------------------------------------------
+    IF (ANY(i_snow_tile == 1) .AND. n == nsurft) THEN
+      DO k = 1,surft_pts(n)
+        i = surft_index(k,n)
+        IF (.NOT. l_lice_point(i)) THEN
+          snowdepth(i,n) = 0.0
+          IF (nsnow(i,n) > 0) snowdepth(i,n) = SUM(ds_sl(i,1:nsnow(i,n)))
+          snowdepth(i,n) = snowdepth(i,n) + sice0(i) / rho0(i)
+          snowdepave(i) = fsnow_old(i) * snowdepth(i,n)
+          IF (l_point_data) THEN
+            fsnow_new(i) = 1 - exp(- maskd * snowdepave(i))
+          ELSE
+            fsnow_new(i) = snowdepave(i) / (snowdepave(i) + 10*z0_surft(i,n))
+          END IF
+          fsratio(i) = 0.0
+          IF (fsnow_new(i) > EPSILON(0.0))                                     &
+            fsratio(i) = fsnow_old(i) / fsnow_new(i)
+          sice0(i) = fsratio(i) * sice0(i)
+          snowfall(i) = fsratio(i) * snowfall(i)
+          snowmass(i) = fsratio(i) * snowmass(i)
+          ds_sl(i,:) = fsratio(i) * ds_sl(i,:)
+          sice_sl(i,:) = fsratio(i) * sice_sl(i,:)
+          sliq_sl(i,:) = fsratio(i) * sliq_sl(i,:)
+        END IF
+      END DO
+    END IF
 
     !-------------------------------------------------------------------------
     ! Redivide snowpack after changes in depth, conserving mass and energy
@@ -1057,6 +1140,26 @@ DO n = 1,nsurft
 !$OMP END PARALLEL
 
 END DO  !  tiles
+
+!-----------------------------------------------------------------------
+! Store average snow masses on selected tiles for diagnostics
+! Snow depth is required for snow fraction calculations
+!-----------------------------------------------------------------------
+IF (ANY(i_snow_tile == 1)) THEN
+  DO n = 1,nsurft-1
+    IF (i_snow_tile(n) == 1) THEN
+      DO k = 1,surft_pts(n)
+        i = surft_index(k,n)
+        fsnow(i,n) = fsnow_new(i)
+        sice(i,n,:) = fsnow_new(i) * sice(i,nsurft,:)
+        sliq(i,n,:) = fsnow_new(i) * sliq(i,nsurft,:)
+        snow_surft(i,n) = fsnow_new(i) * snow_surft(i,nsurft)
+        rgrain(i,n) = rgrain(i,nsurft)
+        snowdepth(i,n) = snowdepave(i)
+      END DO
+    END IF
+  END DO
+END IF
 
 IF (l_flake_model) THEN
 !$OMP PARALLEL DEFAULT(NONE)                                                   &
