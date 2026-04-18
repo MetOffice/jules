@@ -95,6 +95,8 @@ TYPE :: fluxes_data_type
   !   Surface FQW for sea-ice
   REAL(KIND=real_jlslsm), ALLOCATABLE :: fsmc_pft(:,:)
   !   Moisture availability factor.
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: fsnow(:,:)
+  !   Snow cover fraction on tiles
   REAL(KIND=real_jlslsm), ALLOCATABLE :: ftl_sicat(:,:,:)
   !   Surface FTL for sea-ice
   REAL(KIND=real_jlslsm), ALLOCATABLE :: ftl_surft(:,:)
@@ -215,6 +217,8 @@ TYPE :: fluxes_type
   !   Surface FQW for sea-ice
   REAL(KIND=real_jlslsm), POINTER :: fsmc_pft(:,:)
   !   Moisture availability factor.
+  REAL(KIND=real_jlslsm), POINTER :: fsnow(:,:)
+  !   Snow cover fraction on tiles
   REAL(KIND=real_jlslsm), POINTER :: ftl_sicat(:,:,:)
   !   Surface FTL for sea-ice
   REAL(KIND=real_jlslsm), POINTER :: ftl_surft(:,:)
@@ -340,6 +344,7 @@ fluxes_data%sw_sea(:)                = 0.0
 ALLOCATE(fluxes_data%sub_surf_roff_gb(land_pts))
 ALLOCATE(fluxes_data%surf_roff_gb(land_pts))
 ALLOCATE(fluxes_data%alb_surft(land_pts,nsurft,4) )
+ALLOCATE(fluxes_data%fsnow(land_pts,nsurft))
 ALLOCATE(fluxes_data%tstar_ij(t_i_length,t_j_length))
 ALLOCATE(fluxes_data%e_sea_ij(t_i_length,t_j_length))
 ALLOCATE(fluxes_data%fsmc_pft(land_pts,npft))
@@ -383,6 +388,7 @@ ALLOCATE(fluxes_data%lake_evap(land_pts))
 fluxes_data%sub_surf_roff_gb(:)          = 0.0
 fluxes_data%surf_roff_gb(:)              = 0.0
 fluxes_data%alb_surft(:,:,:)             = 0.0
+fluxes_data%fsnow(:,:)                   = 0.0
 fluxes_data%tstar_ij(:,:)                = 0.0
 fluxes_data%e_sea_ij(:,:)                = 0.0
 fluxes_data%fsmc_pft(:,:)                = 0.0
@@ -459,6 +465,7 @@ DEALLOCATE(fluxes_data%sw_sea)
 DEALLOCATE(fluxes_data%sub_surf_roff_gb)
 DEALLOCATE(fluxes_data%surf_roff_gb)
 DEALLOCATE(fluxes_data%alb_surft)
+DEALLOCATE(fluxes_data%fsnow)
 DEALLOCATE(fluxes_data%tstar_ij)
 DEALLOCATE(fluxes_data%e_sea_ij)
 DEALLOCATE(fluxes_data%fsmc_pft)
@@ -541,6 +548,7 @@ fluxes%sw_sea => fluxes_data%sw_sea
 fluxes%sub_surf_roff_gb => fluxes_data%sub_surf_roff_gb
 fluxes%surf_roff_gb => fluxes_data%surf_roff_gb
 fluxes%alb_surft => fluxes_data%alb_surft
+fluxes%fsnow => fluxes_data%fsnow
 fluxes%tstar_ij => fluxes_data%tstar_ij
 fluxes%e_sea_ij => fluxes_data%e_sea_ij
 fluxes%fsmc_pft => fluxes_data%fsmc_pft
@@ -619,6 +627,7 @@ NULLIFY(fluxes%sw_sea)
 NULLIFY(fluxes%sub_surf_roff_gb)
 NULLIFY(fluxes%surf_roff_gb)
 NULLIFY(fluxes%alb_surft)
+NULLIFY(fluxes%fsnow)
 NULLIFY(fluxes%tstar_ij)
 NULLIFY(fluxes%e_sea_ij)
 NULLIFY(fluxes%fsmc_pft)
