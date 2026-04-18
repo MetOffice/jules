@@ -16,6 +16,8 @@ CONTAINS
 SUBROUTINE tilepts(land_pts,frac,surft_pts,surft_index,l_lice_point,           &
                    l_lice_surft)
 
+USE jules_snow_mod, ONLY: i_snow_tile
+
 USE jules_surface_mod, ONLY: all_tiles, l_elev_land_ice
 
 USE jules_surface_types_mod, ONLY: ntype, ice, elev_ice, elev_rock
@@ -41,6 +43,9 @@ INTEGER, INTENT(OUT) ::  surft_pts(ntype)                                      &
 LOGICAL, INTENT(IN) :: l_lice_point(land_pts)
 LOGICAL, INTENT(OUT) :: l_lice_surft(ntype)
 
+LOGICAL :: snow_tile(land_pts)
+                     ! Indicates if a separate snow tile is used on a land point
+
 LOGICAL :: use_tile  ! Indicates if we will model the tile for the current
                      ! land point
 
@@ -62,6 +67,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP         elev_ice, elev_rock, l_lice_point, l_lice_surft,                 &
 !$OMP         l_elev_land_ice, surft_pts )                                     &
 !$OMP PRIVATE( l, n, c, use_tile )
+snow_tile(:) = .FALSE.
 DO n = 1,ntype
   c = 0
   l_lice_surft(n) = ( n == ice .OR. ANY(elev_ice == n) )
@@ -75,6 +81,14 @@ DO n = 1,ntype
       ! as this may be needed for on- or off-line icesheet coupling
       IF (l_elev_land_ice .AND. l_lice_point(l) .AND. l_lice_surft(n))         &
         use_tile = .TRUE.
+      ! Ice tile can be used as a separate snow tile
+      IF (ANY(i_snow_tile == 1)) THEN
+        IF (i_snow_tile(n) == 1 .AND. frac(l,n) > 0.0) THEN
+          snow_tile(l) = .TRUE.
+        ELSE IF (n == ice .AND. snow_tile(l)) THEN
+          use_tile = .TRUE.
+        END IF
+      END IF
     ELSE
       !  with all_tiles we do
       !   * All tiles except the ice/elevated tiles on non-land-ice points
