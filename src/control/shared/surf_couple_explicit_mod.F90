@@ -554,8 +554,8 @@ CASE ( jules )
     !IN soil/vegetation/land surface data :
     ainfo%land_index,nsurft,sm_levels,progs%canopy_surft,psparms%catch_surft,  &
     psparms%catch_snow_surft, psparms%hcon_soilt,jules_vars%ho2r2_orog_gb,     &
-    flandg_tmp,                                                                &
-    progs%snow_surft,jules_vars%sil_orog_land_gb,psparms%smvccl_soilt,         &
+    flandg_tmp, fluxes%fsnow,                                                  &
+    jules_vars%sil_orog_land_gb,psparms%smvccl_soilt,                          &
     psparms%smvcst_soilt,psparms%smvcwt_soilt,                                 &
     psparms%sthf_soilt, psparms%sthu_soilt,psparms%z0_surft,                   &
     psparms%z0h_bare_surft, psparms%z0m_soil_gb,                               &
@@ -636,9 +636,11 @@ CASE ( jules )
     urban_param%wrr_gb,                                                        &
     !Fluxes (IN OUT)
     fluxes%anthrop_heat_surft,                                                 &
-    !prognostics (IN)
+    !snow prognostics (IN)
     progs%nsnow_surft, progs%sice_surft, progs%sliq_surft,                     &
-    progs%snowdepth_surft, progs%tsnow_surft, progs%ds_surft,                  &
+    progs%tsnow_surft, progs%ds_surft,                                         &
+    !snow prognostics (IN OUT)
+    progs%snowdepth_surft, progs%snow_surft,                                   &
     !c_elevate (OUT)
     jules_vars%surf_hgt_surft, jules_vars%lw_down_elevcorr_surft,              &
     !jules_vars_mod (OUT)
