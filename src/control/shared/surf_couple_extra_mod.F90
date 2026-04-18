@@ -703,9 +703,9 @@ CASE ( jules )
                 fluxes%melt_surft,fluxes%snowinc_surft,                        &
                 progs%smcl_soilt(:,:,1),psparms%sthf_soilt(:,:,1),             &
                 fluxes%surf_htf_surft, progs%t_soil_soilt(:,:,1),              &
-                progs%tsurf_elev_surft, progs%tstar_surft,                     &
+                progs%tsurf_elev_surft, progs%tstar_surft, psparms%z0_surft,   &
                 psparms%smvcst_soilt(:,:,1), con_snow_wtrac,                   &
-                wtrac_jls%ei_surft, progs%rgrain_surft,                        &
+                wtrac_jls%ei_surft, fluxes%fsnow, progs%rgrain_surft,          &
                 progs%rgrainl_surft, progs%rho_snow_grnd_surft,                &
                 progs%sice_surft,progs%sliq_surft,progs%snow_grnd_surft,       &
                 progs%snow_surft, progs%snowdepth_surft, progs%tsnow_surft,    &
