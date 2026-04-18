@@ -76,7 +76,7 @@ USE sf_diags_mod, ONLY:                                                        &
   sf_diag
 
 USE jules_snow_mod, ONLY:                                                      &
-  canSnowTile
+  canSnowTile, i_snow_tile
 
 USE overbank_inundation_mod, ONLY:                                             &
   frac_fplain_lp, frac_fplain_rp
@@ -1100,8 +1100,12 @@ CASE ( 'snow_depth_gb' )
   cube = map_from_land(cube_land)
 
 CASE ( 'snow_frac' )
-  ! Sum frac over tiles with snow.
   workspace_land(:) = 0.0
+  IF (ANY(i_snow_tile == 1)) THEN
+  ! Sum snow cover fractions on tiles
+    workspace_land(:) = SUM(fluxes%fsnow * ainfo%frac_surft(:,:),2)
+  ELSE
+  ! Sum frac over tiles with snow.
   IF ( l_aggregate ) THEN
     WHERE ( progs%snow_surft(:,1) + progs%snow_grnd_surft(:,1) > EPSILON(1.0) )
       workspace_land(:) = 1.0
@@ -1109,6 +1113,7 @@ CASE ( 'snow_frac' )
   ELSE
     workspace_land(:) = SUM(ainfo%frac_surft, 2, progs%snow_surft +            &
                             progs%snow_grnd_surft > EPSILON(1.0))
+  END IF
   END IF
   cube_land = cube_from_array(workspace_land)
   cube = map_from_land(cube_land)
