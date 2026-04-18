@@ -71,6 +71,12 @@ INTEGER, PARAMETER ::                                                          &
 INTEGER ::                                                                     &
   i_snow_cond_parm = 0
                    ! Parametrization scheme for snow conductivity
+                   
+INTEGER ::                                                                     &
+  i_snow_tile(nsurft_max)
+                   ! Tiles without (0) or with (1) separate energy balance
+                   ! for snow. Must be 0 on ice tiles
+DATA i_snow_tile / nsurft_max * 0 /                   
 
 !-----------------------------------------------------------------------------
 ! Parametrization of the rate of growth of snow grains
@@ -307,7 +313,7 @@ DATA n_lai_exposed / npft_max * 0.0 /
 NAMELIST  / jules_snow/                                                        &
 ! Switches
     nsmax, l_snowdep_surf, l_rho_snow_corr, frac_snow_subl_melt,               &
-    graupel_options,                                                           &
+    graupel_options,i_snow_tile,                                               &
 ! Equitemperature metamorphism
     l_et_metamorph, a_snow_et, b_snow_et, c_snow_et, rho_snow_et_crit,         &
 ! Thermal conductivity of snow
@@ -333,7 +339,7 @@ USE ereport_mod, ONLY: ereport
 
 USE water_constants_mod, ONLY: tm
 
-USE jules_surface_types_mod, ONLY: npft
+USE jules_surface_types_mod, ONLY: ice, npft, ntype
 USE jules_surface_mod, ONLY: l_aggregate
 USE jules_vegetation_mod, ONLY: can_model
 
@@ -385,6 +391,25 @@ IF ( ABS( rho_firn_albedo - rmdi ) > EPSILON(1.0) ) THEN
   IF ( rho_firn_albedo < 0.01 .OR. rho_firn_albedo > 1000.0 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
        'rho_firn_albedo must lie in the range 0.01 to 1000.0')
+  END IF
+END IF
+
+! Check for inconsistencies if a separate snow tile is used
+IF ( ANY(i_snow_tile == 1) ) THEN
+! Tiles cannot be aggregated
+  IF ( l_aggregate ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+       'l_aggregate = F required if ANY i_snow_tile = 1')
+  END IF
+! The last surface type must be an ice tile
+  IF ( ice .NE. ntype ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+       'ice = ntype required if ANY i_snow_tile = 1')
+  END IF
+! The ice tile cannot be selected
+  IF ( i_snow_tile(ntype) == 1 ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+       'i_snow_tile(ntype) = 1 is not permitted')
   END IF
 END IF
 
