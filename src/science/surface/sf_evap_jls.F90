@@ -25,8 +25,8 @@ CONTAINS
 SUBROUTINE sf_evap (                                                           &
  land_pts,nsurft,                                                              &
  land_index,surft_index,surft_pts,sm_levels,fland,                             &
- ashtf_prime_surft,canopy,dtrdz_1,flake,fracaero_t,fracaero_s,snow_surft,resfs,&
- resft,rhokh_1,tile_frac,smc_soilt,wt_ext_surft,timestep,r_gamma,              &
+ ashtf_prime_surft,canopy,dtrdz_1,flake,fracaero_t,fracaero_s,fsnow,snow_surft,&
+ resfs,resft,rhokh_1,tile_frac,smc_soilt,wt_ext_surft,timestep,r_gamma,        &
  fqw_1,fqw_surft,ftl_1,ftl_surft,tstar_surft,                                  &
  ecan,ecan_surft,elake_surft,esoil_soilt,esoil_surft,ei_surft,ext_soilt,       &
  sf_diag, non_lake_frac,                                                       &
@@ -47,6 +47,8 @@ USE water_constants_mod, ONLY: lc, lf, tm
 USE ancil_info, ONLY: nsoilt
 
 USE jules_irrig_mod, ONLY: l_irrig_dmd
+
+USE jules_snow_mod, ONLY: i_snow_tile
 
 USE jules_surface_mod, ONLY: l_flake_model
 USE jules_surface_types_mod, ONLY: lake
@@ -94,6 +96,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                            !    with only aerodynamic resistance
 !                            !    for land tiles from the frozen part of the
 !                            !    surface alone
+,fsnow(land_pts,nsurft)                                                        &
+                             ! IN Snow cover fractions on tiles
 ,snow_surft(land_pts,nsurft)                                                   &
 !                            ! IN Lying snow amount on tiles (kg/m2).
 ,resfs(land_pts,nsurft)                                                        &
@@ -546,6 +550,22 @@ DO n = 1,nsurft
   END DO !surft_pts
 !$OMP END DO
 END DO !nsurft
+
+!-----------------------------------------------------------------------
+! Do not deposit frost on the snow-free fractions of tiles with a
+! separate snow tile
+!-----------------------------------------------------------------------
+IF (ANY(i_snow_tile == 1)) THEN
+  DO n = 1,nsurft-1
+    DO k = 1,surft_pts(n)
+      l = surft_index(k,n)
+      IF (ei_surft(l,n) < 0.0) THEN
+        fqw_surft(l,n) = ei_surft(l,n)
+        ei_surft(l,n) = 0.0
+      END IF
+    END DO
+  END DO
+END IF
 
 IF ((nsoilt == 1) .AND. (l_flake_model)) THEN
 !$OMP DO SCHEDULE(STATIC)
