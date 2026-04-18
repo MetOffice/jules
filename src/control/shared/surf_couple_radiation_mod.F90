@@ -248,7 +248,7 @@ CASE ( jules )
     progs%rgrain_surft, snow_surft, progs%tstar_surft, psparms%z0_surft,       &
     ainfo%frac_surft,                                                          &
     !INTENT(OUT)
-    fluxes%alb_surft,albobs_sc_ij,fluxes%land_albedo_ij,                       &
+    fluxes%alb_surft,albobs_sc_ij,fluxes%fsnow,fluxes%land_albedo_ij,          &
     !New arguments replacing USE statements
     !jules_vars_mod (IN OUT)
     jules_vars%albobs_scaling_surft,                                           &
