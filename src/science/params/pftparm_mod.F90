@@ -5,7 +5,7 @@
 ! *****************************COPYRIGHT*******************************
 !
 ! Module holds surface parameters for each Plant Functional Type (but
-! not parameters that are only used by TRIFFID).
+! not parameters that are only used by TRIFFID OR RED).
 
 
 
@@ -1552,10 +1552,7 @@ TYPE(jules_pftparm_nml_type), POINTER :: jules_pftparm
 
 INTEGER(KIND=i_def) :: i, n
 
-! Check that the size of the input array is correct. Has to be done
-! before copying to allocated array otherwise errors arise, which cannot
-! be caught by check_jules_pftarm.
-! NEED TO CHECK THAT THIS TEST IS STILL REQUIRED. REMOVE FOR NOW.
+CHARACTER(LEN=*), PARAMETER :: RoutineName='JULES_PFTPARM_INIT'
 
 n = 0
 CALL iter%initialise( config%jules_pftparm )
@@ -1577,10 +1574,19 @@ DO WHILE ( iter%has_next() )
   CASE DEFAULT
     WRITE(log_scratch_space,'(A)')                                             &
        'PFT name not recognised: ' // jules_pftparm%pft_name_io()
-    CALL log_event( log_scratch_space, log_level_error)
+    CALL log_event(RoutineName//': '//TRIM(log_scratch_space), log_level_error)
   END SELECT
 
-  ! c3_io would make more sense as a logical
+  ! Range of specified types (1:npft) checked by check_jules_surface_types
+  IF ( i < 1 ) THEN
+    WRITE(log_scratch_space,'(A)')                                             &
+       'jules_pftparm and jules_surface_types inputs are inconsistent; ' //    &
+       TRIM(jules_pftparm%pft_name_io()) //                                    &
+       ' is not specified in jules_surface_types'
+    CALL log_event(RoutineName//': '//TRIM(log_scratch_space), log_level_error)
+  END IF
+
+  ! c3_io would make more sense as a logical (see MetOffice/jules/issues/106)
   SELECT CASE ( jules_pftparm%c3_io() )
   CASE ( c3_io_no )
     c3(i) = 0
@@ -1712,9 +1718,10 @@ DO WHILE ( iter%has_next() )
 END DO
 
 IF ( n /= npft ) THEN
-  WRITE(log_scratch_space,'(A)')                                               &
-     'Number of instances of jules_pftparm namelist is not npft'
-  CALL log_event( log_scratch_space, log_level_error )
+  WRITE(log_scratch_space,'(2(A,I0))')                                         &
+     'Number of instances of jules_pftparm namelist (', n, ') is not npft = ', &
+     npft
+  CALL log_event(RoutineName//": "//TRIM(log_scratch_space), log_level_error)
 END IF
 
 END SUBROUTINE jules_pftparm_init
