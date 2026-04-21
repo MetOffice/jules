@@ -37,7 +37,7 @@ IMPLICIT NONE
 !-----------------------------------------------------------------------------
 ! Parameters identifying alternative soil biogeochemistry models.
 ! (The "bgc" is for biogeochemistry!)
-! These should be >0 and unique.
+! These should be > 0 and unique.
 INTEGER, PARAMETER ::                                                          &
   soil_model_1pool = 1,                                                        &
     ! A 1-pool model of soil carbon turnover in which the pool is not
@@ -79,8 +79,10 @@ INTEGER ::                                                                     &
 ! Namelist variables used by both 1-pool and 4-pool models.
 !-----------------------------------------------------------------------------
 REAL(KIND=real_jlslsm) ::                                                      &
-  q10_soil = rmdi
+  q10_soil = rmdi,                                                             &
     ! Q10 factor for soil respiration.
+  heat_of_respiration = rmdi
+    ! The heat released during respiration (J/kgC)
 
 LOGICAL ::                                                                     &
   l_layeredC = .FALSE.,                                                        &
@@ -105,18 +107,21 @@ LOGICAL ::                                                                     &
       !   l_soil_resp_lev2=T means uses T and moisture from layer 2
       !   l_soil_resp_lev2=F means uses T and moisture from layer 1
     l_ch4_interactive = .FALSE.,                                               &
-        ! Switch to couple methane release into the carbon cycle
-        ! CH4 flux will be removed from soil carbon pools.
-        ! Must have l_ch4_tlayered = .TRUE.
+      ! Switch to couple methane release into the carbon cycle
+      ! CH4 flux will be removed from soil carbon pools.
+      ! Must have l_ch4_tlayered = .TRUE.
     l_ch4_tlayered = .FALSE.,                                                  &
-        ! Switch to calculate CH4 according to layered soil temperature
-        ! instead of top 1m average.
+      ! Switch to calculate CH4 according to layered soil temperature
+      ! instead of top 1m average.
     l_ch4_microbe = .FALSE.,                                                   &
-        ! Switch to use microbial methane production scheme
-    l_label_frac_cs = .FALSE.
-        ! Need l_layeredc=TRUE
-        ! Switch to determine whether a subset of the soil carbon is labelled
-        ! and traced throughout the simulation
+      ! Switch to use microbial methane production scheme
+    l_label_frac_cs = .FALSE.,                                                 &
+      ! Need l_layeredc=TRUE
+      ! Switch to determine whether a subset of the soil carbon is labelled
+      ! and traced throughout the simulation
+    l_bgc_heat = .FALSE.
+      ! Switch to control biogeochemical heating. If True the heat of
+      ! respiration is added to the soils.
 
 INTEGER ::                                                                     &
   ch4_substrate = ch4_substrate_soil,                                          &
@@ -240,7 +245,7 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
-    l_label_frac_cs, z_burn_max
+    l_label_frac_cs, z_burn_max, l_bgc_heat, heat_of_respiration
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
   ModuleName = 'JULES_SOIL_BIOGEOCHEM_MOD'
@@ -274,13 +279,15 @@ USE ereport_mod, ONLY: ereport
 IMPLICIT NONE
 
 ! Local scalar parameters.
-INTEGER :: errorstatus
+INTEGER :: errorstatus, warningstatus
 
 CHARACTER(LEN=*), PARAMETER ::                                                 &
    RoutineName = 'CHECK_JULES_SOIL_BIOGEOCHEM'   ! Name of this procedure.
 
 ! Set error status to show a fatal error for all checks.
 errorstatus = 101
+! Set warning status to show a warning for all checks.
+warningstatus = -101
 
 ! Check that a valid soil model is selected.
 SELECT CASE ( soil_bgc_model )
@@ -314,6 +321,12 @@ IF ( l_ch4_interactive .AND. .NOT. l_ch4_tlayered ) THEN
   CALL ereport( TRIM(RoutineName), errorstatus,                                &
       'To couple CH4 to soil carbon (l_ch4_interactive) you must use' //       &
       'the layered soil temperature calculation (l_ch4_tlayered)' )
+END IF
+
+IF ( .NOT. l_q10 .AND. l_bgc_heat ) THEN
+  CALL ereport( TRIM(RoutineName), warningstatus,                              &
+      'To use the biogenic heating of soil carbon decomposition' //            &
+      'you must use l_q10=.true. and l_bgc_heat=.true.' )
 END IF
 
 ! Check that certain soil models are only used with a vegetation model.
@@ -647,6 +660,9 @@ CALL jules_print('jules_soil_biogeochem_mod',                                  &
 WRITE(lineBuffer,*) ' soil_bgc_model = ', soil_bgc_model
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
+WRITE(lineBuffer, *) '  l_bgc_heat = ', l_bgc_heat
+CALL jules_print('jules_soil', lineBuffer)
+
 WRITE(lineBuffer, *) ' l_layeredC = ', l_layeredC
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
@@ -758,6 +774,9 @@ CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 WRITE(lineBuffer, *) 'q10_ch4_resps = ', q10_ch4_resps
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
+WRITE(lineBuffer, *) ' heat_of_respiration = ', heat_of_respiration
+CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
+
 CALL jules_print('jules_soil_biogeochem_mod',                                  &
     '- - - - - - end of namelist - - - - - -')
 
@@ -802,8 +821,8 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 2
-INTEGER, PARAMETER :: n_real = 28 + 4
-INTEGER, PARAMETER :: n_log = 7
+INTEGER, PARAMETER :: n_real = 29 + 4
+INTEGER, PARAMETER :: n_log = 8
 
 TYPE :: my_namelist
   SEQUENCE
@@ -837,6 +856,7 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: alpha_ch4
   REAL(KIND=real_jlslsm) :: ev_ch4
   REAL(KIND=real_jlslsm) :: q10_ev_ch4
+  REAL(KIND=real_jlslsm) :: heat_of_respiration
   REAL(KIND=real_jlslsm) :: z_burn_max
   LOGICAL :: l_layeredC
   LOGICAL :: l_label_frac_cs
@@ -845,6 +865,7 @@ TYPE :: my_namelist
   LOGICAL :: l_ch4_interactive
   LOGICAL :: l_ch4_tlayered
   LOGICAL :: l_ch4_microbe
+  LOGICAL :: l_bgc_heat
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -884,6 +905,7 @@ IF (mype == 0) THEN
   my_nml % l_ch4_interactive = l_ch4_interactive
   my_nml % l_ch4_tlayered    = l_ch4_tlayered
   my_nml % l_ch4_microbe     = l_ch4_microbe
+  my_nml % l_bgc_heat        = l_bgc_heat
   my_nml % t0_ch4           = t0_ch4
   my_nml % const_ch4_cs     = const_ch4_cs
   my_nml % const_ch4_npp    = const_ch4_npp
@@ -902,6 +924,7 @@ IF (mype == 0) THEN
   my_nml % ev_ch4           = ev_ch4
   my_nml % q10_ev_ch4       = q10_ev_ch4
   my_nml % z_burn_max       = z_burn_max
+  my_nml % heat_of_respiration = heat_of_respiration
 
 END IF
 
@@ -928,6 +951,7 @@ IF (mype /= 0) THEN
   l_ch4_interactive = my_nml % l_ch4_interactive
   l_ch4_tlayered    = my_nml % l_ch4_tlayered
   l_ch4_microbe     = my_nml % l_ch4_microbe
+  l_bgc_heat        = my_nml % l_bgc_heat
   t0_ch4           = my_nml % t0_ch4
   const_ch4_cs     = my_nml % const_ch4_cs
   const_ch4_npp    = my_nml % const_ch4_npp
