@@ -1190,18 +1190,18 @@ IF ( l_anthrop_heat_src .AND. .NOT. l_aggregate ) THEN
                                   anthrop_heat_surft)
 END IF
 
-! Set up non irrigated fration
+! Set up non irrigated fraction
 non_irrig_frac(:) = 1.0
 IF (irrig_option == 2) THEN
   DO n = 1,ntype
+    IF (irrig_tile(n) > 0) THEN  
 !$OMP PARALLEL DO SCHEDULE(STATIC) DEFAULT(NONE) PRIVATE(l)                    &
-!$OMP SHARED(land_pts, non_irrig_frac, irrig_tile, frac, n)
-    IF (irrig_tile(n) > 0) THEN
+!$OMP SHARED(land_pts, non_irrig_frac, frac, n)
       DO l = 1, land_pts
         non_irrig_frac(l) =  non_irrig_frac(l) - frac(l,n)
       END DO
-    END IF
 !$OMP END PARALLEL DO
+    END IF
   END DO
 END IF
 
