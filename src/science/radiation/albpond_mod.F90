@@ -145,6 +145,8 @@ pond_albedo(4) = RFD + f_out**2 * bottom_albedo(4) / ( n_water**2 * (1 - bottom_
 ! Apply limits to the diffuse_albedo
 IF (pond_albedo(4) > bottom_albedo(4)) pond_albedo(4) = bottom_albedo(4)
 
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
+
 END SUBROUTINE albpond_mal
 
 ! -------------------------------------------------------
