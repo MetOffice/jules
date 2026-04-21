@@ -86,7 +86,7 @@ CHARACTER(LEN=*), PARAMETER :: routinename='CHECK_IRRIGATION'
 
 ! ----------------------------------------------------------------------------
 ! Check to ensure that the values are the allowed values i.e. either 1 or 0
-! and check to ensure that c3_irrig and c4_irrig tiles are the only ones to 
+! and check to ensure that c3_irrig and c4_irrig tiles are the only ones to
 ! have irrig_tile == 1
 ! ----------------------------------------------------------------------------
 ERROR = 0
@@ -102,7 +102,7 @@ IF (ANY(irrig_tile(1:npft) /= imdi)) THEN
                   " irrig_tile values = "                                  //  &
                   TRIM(to_string(irrig_tile(:))) )
   END IF
-  
+
   DO i = 1, ntype
     IF (irrig_tile(i) == 1 .AND. (i /= c3_irrig .AND. i /= c4_irrig)) THEN
         ! Can only irrigate c3_irrig and c4_irrig tiles
@@ -115,11 +115,11 @@ IF (ANY(irrig_tile(1:npft) /= imdi)) THEN
     END IF
   END DO
 ELSE
-  CALL log_info(routinename, "Irrigation is not being applied to surface " //  & 
-                "types, irrig_tile values set to imdi "                    //  & 
+  CALL log_info(routinename, "Irrigation is not being applied to surface " //  &
+                "types, irrig_tile values set to imdi "                    //  &
                  TRIM(to_string(irrig_tile(:))) )
-  CALL log_info(routinename, "irrig_option set to "                        //  & 
-                 TRIM(to_string(irrig_option)) )               
+  CALL log_info(routinename, "irrig_option set to "                        //  &
+                 TRIM(to_string(irrig_option)) )
 END IF
 
 RETURN

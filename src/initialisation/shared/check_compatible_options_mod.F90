@@ -173,22 +173,22 @@ IF (l_irrig_dmd) THEN
   END IF
 END IF
 
-! Add check to make sure if irrig_option is set to 2 then correct options 
+! Add check to make sure if irrig_option is set to 2 then correct options
 ! are set up
 IF (irrig_option == 2) THEN
-  ! check that irrig_tile is 0 or 1 
+  ! check that irrig_tile is 0 or 1
   IF (ALL((irrig_tile(1:npft) /= 0) .AND. (irrig_tile(1:npft) /= 1))) THEN
     ERROR = 1
-    CALL jules_print(routinename, "Incorrect values entered for " //             &
+    CALL jules_print(routinename, "Incorrect values entered for " //           &
                     "irrig_pft, allowed values either 1 or 0")
-  END IF 
+  END IF
   ! Check C3_irrig and c4_irrig tiles are available
   DO i = 1, ntype
     IF (irrig_tile(i) == 1 .AND. (i /= c3_irrig .AND. i /= c4_irrig)) THEN
         ! Can only irrigate c3_irrig and c4_irrig tiles
         ! Generate error if any other tile is selected
       ERROR = 1
-      CALL jules_print(routinename, "Selected tiles cannot be irrigated, " //       &
+      CALL jules_print(routinename, "Selected tiles cannot be irrigated, " //  &
                     "can only select c3_irrig and c4_irrig")
     END IF
   END DO

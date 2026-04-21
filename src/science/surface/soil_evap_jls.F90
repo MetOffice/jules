@@ -93,7 +93,8 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP DEFAULT(NONE)                                                            &
 !$OMP PRIVATE(l,j,k)                                                           &
 !$OMP SHARED(npnts,fsoil,surft_pts,surft_index,lai,nshyd,wt_ext,gs,gsoil,      &
-!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,nsoilt,irrig_tile)
+!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,nsoilt,irrig_tile,        &
+!$OMP        irrig_option)
 
 ! Initialisations
 
