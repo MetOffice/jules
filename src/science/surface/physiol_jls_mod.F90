@@ -1304,7 +1304,7 @@ END IF !nsoilt
 n = soil
 !$OMP PARALLEL DO IF (surft_pts(n) > 1) DEFAULT(NONE) PRIVATE(l, j)            &
 !$OMP             SHARED(gs_irr_type, gs_type, gsoil_soilt, gsoil_irr_soilt,   &
-!$OMP                    l_irrig_dmd, irrig_tile,                              &
+!$OMP                    l_irrig_dmd, irrig_tile, irrig_option,                &
 !$OMP                    n, m, surft_index, surft_pts, wt_ext_type,            &
 !$OMP                    wt_ext_irr_type) SCHEDULE(STATIC)
 DO j = 1,surft_pts(n)
