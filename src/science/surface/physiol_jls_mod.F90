@@ -519,9 +519,9 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ,vf_type(land_pts,ntype)                                                       &
                             ! WORK VFRAC for surface types.
 ,wt_ext_type(land_pts,sm_levels,ntype)                                         &
-!                                 ! WORK WT_EXT for surface types.
+!                           ! WORK WT_EXT for surface types.
 ,wt_ext_soilt(land_pts,nsoilt,sm_levels)                                       &
-   !Gridbox-mean wt_ext_soilt. NB This is only non-zero if l_aggregate=TRUE.
+                            ! Gridbox-mean wt_ext_soilt
 ,fsoil(land_pts,npft)                                                          &
                             ! WORK Fraction of ground below canopy
 !                                 !      contributing to evaporation.
@@ -634,7 +634,6 @@ DO n = 1,npft
     resp_l_pft(l,n)   = 0.0
     resp_r_pft(l,n)   = 0.0
     growth_sug_pft(l,n) = 0.0
-    fsmc_pft(l,n)     = 1.0
     apar_diag_pft(l,n)= 0.0
     isoprene_pft(l,n) = 0.0
     terpene_pft(l,n)  = 0.0
@@ -645,6 +644,11 @@ DO n = 1,npft
     root_param(l,n)   = 0.0
     gc_corr(l,n)      = 0.0
     lwp_c_pft(l,n)    = 0.0
+    ! Where irrig_option = 2 and irrig_tile = 1 there is unrestricted soil 
+    ! moisture availability and fsmc_pft = 1.0
+    ! For tiles where irrig_tile = 0 and/or irrig_option /= 2 then fsmc_pft
+    ! is set by smc_ext.
+    fsmc_pft(l,n)     = 1.0                       
   END DO
 !$OMP END DO NOWAIT
 END DO
@@ -1056,12 +1060,12 @@ DO n = 1,npft
   END IF
 !$OMP END PARALLEL
 
-! For now this code needs to work for the existing irrigation code 
-! (i.e. l_irrig_dmd = T), where irrig_option = imdi.
-! The '<=' can be removed once irrig_otion = 1 is fully plumbed in and replaced 
-! with a '==' However, for now every instance of this in physiol and soil_evap 
-! should be written as:
-  IF (irrig_tile(n) == 0 .OR. irrig_option <= 0) THEN
+  ! For now this code needs to work for the existing irrigation code
+  ! (i.e. l_irrig_dmd = T), where irrig_option = imdi.
+  ! The '<=' can be removed once irrig_otion = 1 is fully plumbed in and replaced
+  ! with a '==' However, for now every instance of this in physiol and soil_evap
+  ! should be written as:
+  IF (nsoilt > 1.0 .OR. irrig_tile(n) == 0 .OR. irrig_option <= 0) THEN
     CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
                   sthu_surft(:,m,:),                                           &
                   v_open,smvcst_soilt(:,m,:),                                  &
@@ -1734,7 +1738,7 @@ ELSE
 !$OMP END PARALLEL DO
   END DO !ntype
 
-  ! If using shaerd soil, normalise wt_ext_soilt for non irrigated tiles
+  ! If using shared soil, normalise wt_ext_soilt for non irrigated tiles
   IF (nsoilt == 1) THEN
     DO l = 1,land_pts
       IF (non_irrig_frac(l)  >   0.0) THEN

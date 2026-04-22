@@ -1194,7 +1194,7 @@ END IF
 non_irrig_frac(:) = 1.0
 IF (irrig_option == 2) THEN
   DO n = 1,ntype
-    IF (irrig_tile(n) > 0) THEN  
+    IF (irrig_tile(n) > 0) THEN
 !$OMP PARALLEL DO SCHEDULE(STATIC) DEFAULT(NONE) PRIVATE(l)                    &
 !$OMP SHARED(land_pts, non_irrig_frac, frac, n)
       DO l = 1, land_pts
