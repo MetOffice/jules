@@ -43,15 +43,23 @@ from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
 
-class vnYY_txxxx(MacroUpgrade):
+class vn81_issue59(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Carolina Duran Rojas"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_issue59"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
         # Add settings
+        """
+          Adding logical and real to the jules biogeochemical namelist
+        """
+        self.add_setting(config,
+                ["namelist:jules_soil_biogeochem", "l_bgc_heat"], ".false.")
+        self.add_setting(config,
+                ["namelist:jules_soil_biogeochem", "heat_of_respiration"], "3.9e07")
+
         return config, self.reports
