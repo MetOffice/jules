@@ -644,11 +644,11 @@ DO n = 1,npft
     root_param(l,n)   = 0.0
     gc_corr(l,n)      = 0.0
     lwp_c_pft(l,n)    = 0.0
-    ! Where irrig_option = 2 and irrig_tile = 1 there is unrestricted soil 
+    ! Where irrig_option = 2 and irrig_tile = 1 there is unrestricted soil
     ! moisture availability and fsmc_pft = 1.0
     ! For tiles where irrig_tile = 0 and/or irrig_option /= 2 then fsmc_pft
     ! is set by smc_ext.
-    fsmc_pft(l,n)     = 1.0                       
+    fsmc_pft(l,n)     = 1.0
   END DO
 !$OMP END DO NOWAIT
 END DO
@@ -1738,16 +1738,15 @@ ELSE
 !$OMP END PARALLEL DO
   END DO !ntype
 
-  ! If using shared soil, normalise wt_ext_soilt for non irrigated tiles
-  IF (nsoilt == 1) THEN
-    DO l = 1,land_pts
-      IF (non_irrig_frac(l)  >   0.0) THEN
-        DO k = 1,sm_levels
-          wt_ext_soilt(l,1,k) = wt_ext_soilt(l,1,k) / non_irrig_frac(l)
-        END DO
-      END IF
-    END DO
-  END IF
+  ! If using a shared soil, normalise wt_ext_soilt for non-irrigated surface
+  ! tile fractions
+  DO l = 1,land_pts
+    IF ((non_irrig_frac(l) > EPSILON(0.0)) .AND. (nsoilt ==1)) THEN
+      DO k = 1,sm_levels
+        wt_ext_soilt(l,1,k) = wt_ext_soilt(l,1,k) / non_irrig_frac(l)
+      END DO
+    END IF
+  END DO
 
   IF (l_flake_model) THEN
     ! Normalise wt_ext_soilt, excluding the lake tile fraction.
@@ -1901,15 +1900,13 @@ IF (l_use_pft_psi ) THEN
 !$OMP END PARALLEL DO
     END DO
   END DO
-  IF (nsoilt == 1) THEN
-    DO k = 1,sm_levels
-      DO l = 1,land_pts
-        IF (non_irrig_frac(l)  >   0.0) THEN
-          smc_soilt(l,m) = smc_soilt(l,m) / non_irrig_frac(l)
-        END IF
-      END DO
-    END DO
-  END IF
+
+  DO l = 1,land_pts
+    IF ((non_irrig_frac(l) > EPSILON(0.0)) .AND. (nsoilt == 1)) THEN
+      smc_soilt(l,m) = smc_soilt(l,m) / non_irrig_frac(l)
+    END IF
+  END DO
+
 ELSE
   DO k = 1,sm_levels
     DO m = 1, nsoilt
