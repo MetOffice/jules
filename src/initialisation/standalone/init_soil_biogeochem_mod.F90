@@ -40,6 +40,7 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
    check_jules_soil_biogeochem,                                                &
  ! imported scalar variables
    l_q10, soil_bgc_model, dim_ch4layer, l_ch4_tlayered,l_bgc_heat,             &
+   dim_ch4subgrid, l_ch4_subgrid,                                              &
  ! imported namelists
    jules_soil_biogeochem
 
@@ -153,6 +154,13 @@ IF (l_ch4_tlayered) THEN
   dim_ch4layer = sm_levels
 ELSE
   dim_ch4layer = 1
+END IF
+
+!Initialise subgrid dimensions for methane production
+IF (l_ch4_subgrid) THEN
+  dim_ch4subgrid = 10
+ELSE
+  dim_ch4subgrid = 1
 END IF
 
 RETURN

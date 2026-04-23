@@ -98,6 +98,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 ! Calculate dztop (doesn't change spatially)
 dztop = 0.5 * (dzdeep + dzsoil)
+hflux_in(:) = 0.0
 
 DO j = 1,soil_pts
   i = soil_index(j)

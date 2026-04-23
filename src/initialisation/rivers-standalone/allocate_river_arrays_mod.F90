@@ -37,7 +37,7 @@ USE jules_vegetation_mod,      ONLY: l_triffid, l_phenol, l_use_pft_psi,       &
                                      l_acclim, l_sugar, l_red
 USE jules_soil_mod,            ONLY: l_bedrock, ns_deep
 USE jules_soil_biogeochem_mod, ONLY: soil_model_ecosse, soil_bgc_model,        &
-                                     l_layeredc, dim_ch4layer
+                                     l_layeredc, dim_ch4layer, dim_ch4subgrid
 USE jules_water_tracers_mod,   ONLY: l_wtrac_jls
 
 !Variables- dimensions
@@ -129,7 +129,7 @@ END IF
 ! needed in future. Could possibly allocate this separately though?
 CALL prognostics_alloc(temp_size, t_i_length, t_j_length,                      &
                       nsurft, npft, nsoilt, sm_levels, ns_deep, nsmax,         &
-                      dim_cslayer, dim_cs1, dim_ch4layer,                      &
+                      dim_cslayer, dim_cs1, dim_ch4layer, dim_ch4subgrid,      &
                       nice, nice_use, soil_bgc_model, soil_model_ecosse,       &
                       l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,       &
                       nmasst, nnpft, l_acclim, l_sugar, progs_data)

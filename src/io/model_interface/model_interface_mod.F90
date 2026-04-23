@@ -52,6 +52,7 @@ CHARACTER(LEN=max_sdf_name_len), PARAMETER ::                                  &
   sclayer_dim_name_out      = 'sclayer',                                       &
   dep_species_dim_name_out  = 'dep_species',                                   &
   ch4layer_dim_name_out     = 'ch4layer',                                      &
+  ch4subgrid_dim_name_out   = "ch4subgrid",                                    &
   bedrock_dim_name_out      = 'bedrock',                                       &
   nmasst_dim_name_out       = 'nmasst',                                        &
   land_dim_name_out         = 'land',                                          &
@@ -84,6 +85,7 @@ CHARACTER(LEN=max_sdf_name_len) ::                                             &
   sclayer_dim_name      = 'sclayer',                                           &
   dep_species_dim_name  = 'dep_species',                                       &
   ch4layer_dim_name = 'ch4layer',                                              &
+  ch4subgrid_dim_name   = "ch4subgrid",                                        &
   bedrock_dim_name  = 'bedrock',                                               &
   nmasst_dim_name   = 'nmasst'
 
@@ -109,6 +111,7 @@ INTEGER ::                                                                     &
   sclayer_dim_size     = -1,                                                   &
   dep_species_dim_size = -1,                                                   &
   ch4layer_dim_size    = -1,                                                   &
+  ch4subgrid_dim_size  = -1,                                                   &
   bedrock_dim_size     = -1,                                                   &
   nmasst_dim_size      = -1
 
@@ -150,7 +153,9 @@ INTEGER, PARAMETER ::                                                          &
   var_type_dep_species    = var_type_soilt_sclayer_scpool+1,                   &
   var_type_surft_dep_species = var_type_dep_species+1,                         &
   var_type_ch4layer       = var_type_surft_dep_species+1,                      &
-  var_type_pft_sclayer    = var_type_ch4layer+1,                               &
+  var_type_ch4subgrid     = var_type_ch4layer+1,                               &
+  var_type_ch4lyrgrid     = var_type_ch4subgrid+1,                             &
+  var_type_pft_sclayer    = var_type_ch4lyrgrid+1,                             &
   var_type_cable_soil     = var_type_pft_sclayer+1,                            &
   var_type_cable_snow     = var_type_cable_soil+1,                             &
   var_type_cable1L_snow   = var_type_cable_snow + 1,                           &
@@ -176,7 +181,7 @@ END TYPE var_metadata
 ! Array holding the metadata for all model variables that we can use for input
 ! or output. The CABLE land surface model adds 10 prognostics for tiled
 ! soil/snow prognostics.
-INTEGER, PARAMETER :: n_vars = 722
+INTEGER, PARAMETER :: n_vars = 726
 TYPE(var_metadata) :: metadata(n_vars)
 
 ! Include the metadata DATA statement
@@ -197,6 +202,7 @@ PUBLIC                                                                         &
     bedrock_dim_name_out, nmasst_dim_name_out, sclayer_dim_name_out,           &
     dep_species_dim_name_out, ch4layer_dim_name_out,                           &
     imogen_drive_dim_name_out, imogen_clim_dim_name_out,                       &
+    ch4subgrid_dim_name_out,                                                   &
     land_dim_name_out, nfarray_dim_name_out, nolevs_dim_name_out,              &
     p_rivers_dim_name_out, seed_dim_name_out, scalar_dim_name_out,             &
 ! Variables
@@ -212,6 +218,7 @@ PUBLIC                                                                         &
     type_dim_size, tile_dim_size, soilt_dim_size, snow_dim_size,               &
     soil_dim_size, scpool_dim_size, soil_n_pool_dim_size, bedrock_dim_size,    &
     sclayer_dim_size, dep_species_dim_size, ch4layer_dim_size,                 &
+    ch4subgrid_dim_size,                                                       &
     cable_tile_dim_size, cable_snow_dim_size, cable_soil_dim_size,             &
 ! Routines for changing between string and integer identifiers
     get_var_id, get_string_identifier,                                         &

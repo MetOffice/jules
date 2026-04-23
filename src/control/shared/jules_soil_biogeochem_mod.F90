@@ -120,18 +120,25 @@ LOGICAL ::                                                                     &
     ! and traced throughout the simulation
   l_lessdecomp_sat = .FALSE.,                                                  &
     ! Less decomposition in saturated soils
-  l_bgc_heat = .FALSE.
+  l_bgc_heat = .FALSE.,                                                        &
     ! Switch to control biogeochemical heating. If True the heat of
     ! respiration is added to the soils.
+  l_ch4_subgrid = .FALSE.,                                                   &
+    ! Calculate methane using a sub-grid distribution of water table
+    ! Only used with l_ch4_microbe
+  l_ch4zw_explicit = .FALSE.
+    ! Use explicit water table in methane calculations, instead of fwetl.
 
 INTEGER ::                                                                     &
   ch4_substrate = ch4_substrate_soil,                                          &
     ! Indicates choice of methane substratel model.
     ! Valid values are given by the ch4_substrate_* parameters.
-  dim_ch4layer = 1
+  dim_ch4layer = 1,                                                            &
     ! If methane is calculated from individual soil layer temperatures, this
     ! will be equal to sm_levels (depends on l_ch4_tlayered)
-
+  dim_ch4subgrid = 1
+    ! If methane is calculated on a subgrid, this will be greater than 1
+    ! (depends on l_ch4_subgrid)
 !-----------------------------------------------------------------------------
 ! Namelist variables used only by the 1-pool model.
 !-----------------------------------------------------------------------------
@@ -260,7 +267,7 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     soil_bgc_model, ch4_substrate, kaps, kaps_4pool, q10_soil, sorp,           &
     n_inorg_turnover, diff_n_pft, tau_resp, tau_lit, bio_hum_CN, l_layeredC,   &
     l_q10, l_soil_resp_lev2, l_ch4_interactive, l_ch4_tlayered, l_ch4_microbe, &
-    l_lessdecomp_sat,                                                          &
+    l_lessdecomp_sat, l_ch4_subgrid, l_ch4zw_explicit,                         &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
@@ -798,6 +805,12 @@ CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 WRITE(lineBuffer, *) ' l_ch4_microbe = ', l_ch4_microbe
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
+WRITE(lineBuffer, *) ' l_ch4_subgrid = ', l_ch4_subgrid
+CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
+
+WRITE(lineBuffer, *) ' l_ch4zw_explicit = ', l_ch4zw_explicit
+CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
+
 WRITE(lineBuffer, *) ' k2_ch4 = ', k2_ch4
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
@@ -900,7 +913,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
 INTEGER, PARAMETER :: n_real = 32 + 4
-INTEGER, PARAMETER :: n_log = 9
+INTEGER, PARAMETER :: n_log = 11
 
 TYPE :: my_namelist
   SEQUENCE
@@ -949,6 +962,8 @@ TYPE :: my_namelist
   LOGICAL :: l_ch4_microbe
   LOGICAL :: l_bgc_heat
   LOGICAL :: l_lessdecomp_sat
+  LOGICAL :: l_ch4_subgrid
+  LOGICAL :: l_ch4zw_explicit
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -991,6 +1006,8 @@ IF (mype == 0) THEN
   my_nml % l_ch4_microbe     = l_ch4_microbe
   my_nml % l_lessdecomp_sat  = l_lessdecomp_sat
   my_nml % l_bgc_heat          = l_bgc_heat
+  my_nml % l_ch4_subgrid     = l_ch4_subgrid
+  my_nml % l_ch4zw_explicit  = l_ch4zw_explicit
   my_nml % t0_ch4           = t0_ch4
   my_nml % const_ch4_cs     = const_ch4_cs
   my_nml % const_ch4_npp    = const_ch4_npp
@@ -1042,6 +1059,8 @@ IF (mype /= 0) THEN
   l_ch4_microbe     = my_nml % l_ch4_microbe
   l_lessdecomp_sat  = my_nml % l_lessdecomp_sat
   l_bgc_heat          = my_nml % l_bgc_heat
+  l_ch4_subgrid     = my_nml % l_ch4_subgrid
+  l_ch4zw_explicit = my_nml % l_ch4zw_explicit
   t0_ch4           = my_nml % t0_ch4
   const_ch4_cs     = my_nml % const_ch4_cs
   const_ch4_npp    = my_nml % const_ch4_npp

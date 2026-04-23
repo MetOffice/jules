@@ -47,6 +47,8 @@ USE jules_hydrology_mod,  ONLY:                                                &
 USE jules_soil_mod,       ONLY:                                                &
   dzsoil, sm_levels
 
+USE jules_soil_biogeochem_mod, ONLY: dim_ch4subgrid
+
 USE jules_print_mgr,      ONLY:                                                &
   jules_message, jules_print
 
@@ -74,7 +76,7 @@ INTEGER, PARAMETER :: nzw = 100  ! Number of ZW values used in fit.
                                  ! Maximum value for a significant
                                  ! improvement in the fit.
 
-INTEGER :: i,j,iz,n,ifita,m  ! Loop counters.
+INTEGER :: i,j,iz,n,ifita,m,mm,nt,nmin  ! Loop counters.
 
 REAL(KIND=real_jlslsm) ::                                                      &
   dzw,                                                                         &
@@ -91,8 +93,16 @@ REAL(KIND=real_jlslsm) ::                                                      &
                  !      for best fit so far.
   cfit,                                                                        &
                  ! WORK CFit value for given loop.
-  cfitmax
+  cfitmax,                                                                     &
                  ! Maximum possible value for Cfit.
+  lam,                                                                         &
+                 ! temporary value of mean TI
+  absmin,                                                                      &
+                 !
+  frcn,                                                                        &
+                 !
+  p_aim
+                 !
 
 REAL(KIND=real_jlslsm), PARAMETER ::                                           &
   thr_err = 5.0e-3,                                                            &
@@ -128,7 +138,11 @@ REAL(KIND=real_jlslsm) ::                                                      &
                             ! WORK As above but for an individual zw.
   top_min_soilt(land_pts,nsoilt),                                              &
                             ! WORK value for when zw=zw_max.
-  wutot_soilt(land_pts,nsoilt)           ! WORK Dummy (set to 1.0).
+  wutot_soilt(land_pts,nsoilt),                                                &
+                            ! WORK Dummy (set to 1.0).
+  prob_cum(52),                                                                &
+                            !
+  ti_tmp(52)
 
 INTEGER :: errorstatus
 CHARACTER(LEN=80) :: cmessage
@@ -359,6 +373,43 @@ ELSE
     END DO
   END DO
 END IF
+
+! CALCULATE LOCAL TOPOGRAPHIC INDEX
+DO m = 1, nsoilt
+  DO j = 1, soil_pts
+    i = ainfo%soil_index(j)
+    lam = toppdm%ti_mean_soilt(i,m)
+    ti_tmp(1) = -0.5
+    DO nt = 1,52
+      prob_cum(nt) = 0.5 * EXP(-lam) * lam**ti_tmp(nt) / GAMMA(ti_tmp(nt) + 1.0)
+      IF (nt >  1) THEN
+        prob_cum(nt) = prob_cum(nt) + prob_cum(nt-1)
+      END IF
+      IF (nt <  52) THEN
+        ti_tmp(nt+1) = ti_tmp(nt) + 0.5
+      END IF
+    END DO
+
+    DO mm = 1,dim_ch4subgrid
+      p_aim = (REAL(mm) - 0.5) / REAL(dim_ch4subgrid)
+      absmin = ABS(prob_cum(1) - p_aim)
+      nmin = 1
+      DO nt = 2,52
+        IF ( ABS(prob_cum(nt) - p_aim)  <   absmin) THEN
+          absmin = ABS(prob_cum(nt) - p_aim)
+          nmin = nt
+        END IF
+      END DO
+      IF (prob_cum(nmin)  >   p_aim) THEN
+        nmin = nmin - 1
+      END IF
+
+      frcn = (p_aim - prob_cum(nmin)) / (prob_cum(nmin+1) - prob_cum(nmin))
+      toppdm%ti_local_soilt(i,m,mm) = ti_tmp(nmin) + frcn * 0.5
+    END DO
+
+  END DO
+END DO
 
 RETURN
 

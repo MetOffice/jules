@@ -1006,6 +1006,7 @@ DO t = 1,trif_pts
   l = trif_index(t)
   DO n = 1,npft
     frac_flux(l,n)        = frac(l,n)        - (1.0 - forw) * dfrac(l,n)
+    frac_flux(l,n)        = MAX(frac_flux(l,n),1e-6)
     frac_flux_nat(l,n)    = frac_na(l,n)     - (1.0 - forw) * dfrac_na(l,n)
     frac_flux_nofire(l,n) = frac_nofire(l,n) - (1.0 - forw) *                  &
                                                              dfrac_nofire(l,n)
@@ -1079,6 +1080,7 @@ DO t = 1,trif_pts
     harvest_biocrop_pft(l,n) = 0.0
     harvest_biocrop_n_pft(l,n) = 0.0
 
+    frac_flux(l,n)=MAX(frac_flux(l,n),1e-6)
     lit_c_orig_pft(l,n) = calc_litter_flux(npp(l,n), c_veg(l,n),               &
                                            dcveg_pft(l,n), frac(l,n),          &
                                            dfrac(l,n), r_gamma,                &
@@ -1378,6 +1380,12 @@ IF ( soil_bgc_model == soil_model_4pool ) THEN
           ! Diffuse N between available and unavailable pools.
           ! 0.5 is arbtriary defines threshold to keep n_inorg_avail_pft
           ! stable - see the user guide for more details.
+          IF (n_inorg_soilt_lyrs(l,1,nn) > 20.0 .AND. l_nitrogen) THEN
+            n_inorg_soilt_lyrs(l,1,nn) = 20.0
+          END IF
+          IF (n_inorg_soilt_lyrs(l,1,nn) < EPSILON(0.0) .AND. l_nitrogen) THEN
+              n_inorg_soilt_lyrs(l,1,nn) = 1.0e-6
+          END IF
           IF (l_trif_eq .OR. (diff_n_pft > r_gamma * 0.5) ) THEN
             n_inorg_avail_pft(l,n,nn) = f_root_pft_dz(n,nn) *                  &
                                         n_inorg_soilt_lyrs(l,1,nn)

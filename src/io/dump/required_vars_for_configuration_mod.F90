@@ -267,6 +267,7 @@ IF ( l_ch4_microbe ) THEN
   CALL add_to_list( 'mic_ch4', nvars, identifiers, l_append_soilt )
   CALL add_to_list( 'mic_act_ch4', nvars, identifiers, l_append_soilt )
   CALL add_to_list( 'acclim_ch4', nvars, identifiers, l_append_soilt )
+  CALL add_to_list( 'timewet_lyr', nvars, identifiers, l_append_soilt )
 END IF
 
 IF ( l_sugar ) THEN

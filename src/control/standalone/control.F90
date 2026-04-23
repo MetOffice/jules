@@ -876,7 +876,8 @@ CALL surf_couple_extra(                                                        &
   lice_pts, soil_pts,                                                          &
   stf_sub_surf_roff,                                                           &
   toppdm%fexp_soilt, toppdm%gamtot_soilt, toppdm%ti_mean_soilt,                &
-  toppdm%ti_sig_soilt, flash_rate_ancil, pop_den_ancil, wealth_index_ancil,    &
+  toppdm%ti_sig_soilt, toppdm%ti_local_soilt,                                  &
+  flash_rate_ancil, pop_den_ancil, wealth_index_ancil,                         &
   toppdm%a_fsat_soilt, toppdm%c_fsat_soilt, toppdm%a_fwet_soilt,               &
   toppdm%c_fwet_soilt,ntype,                                                   &
   delta_lambda, delta_phi, xx_cos_theta_latitude,                              &

@@ -248,7 +248,10 @@ DO j = 1,soil_pts
 
     END DO
 
-    zwest_mean = zwest_mean / zwdef
+    IF (zwdef > EPSILON(0.0)) THEN
+      zwest_mean = zwest_mean / zwdef
+    END IF
+
     zwest_mean = MAX(zwest_mean,0.0)
     zwest_mean = MIN(zwest_mean,zw_max)
 

@@ -176,6 +176,21 @@ CASE ( var_type_ch4layer )
   IF ( PRESENT(dim_names_out) ) dim_names_out(1) = ch4layer_dim_name_out
   IF ( PRESENT(dim_sizes) ) dim_sizes(1) = ch4layer_dim_size
 
+CASE ( var_type_ch4subgrid )
+  IF ( PRESENT(ndims) ) ndims = 1
+  IF ( PRESENT(dim_names_in) ) dim_names_in(1) = ch4subgrid_dim_name
+  IF ( PRESENT(dim_names_out) ) dim_names_out(1) = ch4subgrid_dim_name_out
+  IF ( PRESENT(dim_sizes) ) dim_sizes(1) = ch4subgrid_dim_size
+
+CASE ( var_type_ch4lyrgrid )
+  IF ( PRESENT(ndims) ) ndims = 2
+  IF ( PRESENT(dim_names_in) )                                                 &
+    dim_names_in(1:2) = [ ch4subgrid_dim_name, ch4layer_dim_name ]
+  IF ( PRESENT(dim_names_out) )                                                &
+    dim_names_out(1:2) = [ ch4subgrid_dim_name_out, ch4layer_dim_name_out ]
+  IF ( PRESENT(dim_sizes) )                                                    &
+    dim_sizes(1:2) = [  ch4subgrid_dim_size, ch4layer_dim_size ]
+
 CASE ( var_type_dep_species )
   IF ( PRESENT(ndims) )         ndims            = 1
   IF ( PRESENT(dim_names_in) )  dim_names_in(1)  = dep_species_dim_name

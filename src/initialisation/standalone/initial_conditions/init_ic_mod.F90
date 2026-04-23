@@ -478,15 +478,15 @@ END IF
 !-----------------------------------------------------------------------------
 ! Initialise soil bio and hum pools from soil carbon.
 !-----------------------------------------------------------------------------
-IF ( soil_bgc_model == soil_model_4pool ) THEN
-  !Triffid is incompatible with soil tiling at present. Hard code soil tile
-  !index to 1 using m = 1
-  m = 1
-  DO n = 1,dim_cslayer
-    progs%ns_pool_gb(:,n,3) = progs%cs_pool_soilt(:,m,n,3) / bio_hum_cn
-    progs%ns_pool_gb(:,n,4) = progs%cs_pool_soilt(:,m,n,4) / bio_hum_cn
-  END DO
-END IF
+!IF ( soil_bgc_model == soil_model_4pool ) THEN
+!  !Triffid is incompatible with soil tiling at present. Hard code soil tile
+!  !index to 1 using m = 1
+!  m = 1
+!  DO n = 1,dim_cslayer
+!!    progs%ns_pool_gb(:,n,3) = progs%cs_pool_soilt(:,m,n,3) / bio_hum_cn
+!    progs%ns_pool_gb(:,n,4) = progs%cs_pool_soilt(:,m,n,4) / bio_hum_cn
+!  END DO
+!END IF
 
 !-----------------------------------------------------------------------------
 ! Reconfigure ECOSSE.

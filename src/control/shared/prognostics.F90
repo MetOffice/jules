@@ -92,12 +92,14 @@ TYPE :: progs_data_type
     ! 2  resistant plant material
     ! 3  biomass
     ! 4  humus
-  REAL(KIND=real_jlslsm), ALLOCATABLE :: substr_ch4(:,:)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: substr_ch4(:,:,:)
     ! Dissolved substrate that methanogens consume (kg C/m2)
-  REAL(KIND=real_jlslsm), ALLOCATABLE :: mic_ch4(:,:)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: mic_ch4(:,:,:)
     ! Methanogenic biomass (kg C/m2)
-  REAL(KIND=real_jlslsm), ALLOCATABLE :: mic_act_ch4(:,:)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: mic_act_ch4(:,:,:)
     ! Activity level of methanogenic biomass (fraction)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: timewet_lyr(:,:,:)
+    ! Time that each methane-producing layer has been saturated (s)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: acclim_ch4(:,:)
     ! Acclimation factor for microbial trait adaptation
   REAL(KIND=real_jlslsm), ALLOCATABLE :: triffid_co2_gb(:)
@@ -219,9 +221,10 @@ TYPE :: progs_type
   REAL(KIND=real_jlslsm), POINTER :: n_inorg_gb(:)
   REAL(KIND=real_jlslsm), POINTER :: n_inorg_avail_pft(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: ns_pool_gb(:,:,:)
-  REAL(KIND=real_jlslsm), POINTER :: substr_ch4(:,:)
-  REAL(KIND=real_jlslsm), POINTER :: mic_ch4(:,:)
-  REAL(KIND=real_jlslsm), POINTER :: mic_act_ch4(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: substr_ch4(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: mic_ch4(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: mic_act_ch4(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: timewet_lyr(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: acclim_ch4(:,:)
   REAL(KIND=real_jlslsm), POINTER :: triffid_co2_gb(:)
   REAL(KIND=real_jlslsm), POINTER :: canht_pft(:,:)
@@ -271,7 +274,7 @@ CONTAINS
 !===============================================================================
 SUBROUTINE prognostics_alloc(land_pts, t_i_length, t_j_length,                 &
                        nsurft, npft, nsoilt, sm_levels, ns_deep, nsmax,        &
-                       dim_cslayer, dim_cs1, dim_ch4layer,                     &
+                       dim_cslayer, dim_cs1, dim_ch4layer, dim_ch4subgrid,     &
                        nice, nice_use, soil_bgc_model, soil_model_ecosse,      &
                        l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,      &
                        nmasst, nnpft, l_acclim, l_sugar, progs_data)
@@ -284,7 +287,7 @@ IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: land_pts, t_i_length, t_j_length,                       &
                        nsurft, npft, nsoilt, sm_levels, ns_deep, nsmax,        &
-                       dim_cslayer, dim_cs1, dim_ch4layer,                     &
+                       dim_cslayer, dim_cs1, dim_ch4layer, dim_ch4subgrid,     &
                        nice, nice_use, soil_bgc_model, soil_model_ecosse,      &
                        nmasst, nnpft
 
@@ -415,13 +418,15 @@ ELSE
 END IF
 
 ! Prognostics for microbial methane scheme
-ALLOCATE(progs_data%substr_ch4(land_pts,dim_ch4layer))
-ALLOCATE(progs_data%mic_ch4(land_pts,dim_ch4layer))
-ALLOCATE(progs_data%mic_act_ch4(land_pts,dim_ch4layer))
+ALLOCATE(progs_data%substr_ch4(land_pts,dim_ch4subgrid,dim_ch4layer))
+ALLOCATE(progs_data%mic_ch4(land_pts,dim_ch4subgrid,dim_ch4layer))
+ALLOCATE(progs_data%mic_act_ch4(land_pts,dim_ch4subgrid,dim_ch4layer))
+ALLOCATE(progs_data%timewet_lyr(land_pts,dim_ch4subgrid,dim_ch4layer))
 ALLOCATE(progs_data%acclim_ch4(land_pts,dim_ch4layer))
-progs_data%substr_ch4(:,:) = 0.0
-progs_data%mic_ch4(:,:) = 0.0
-progs_data%mic_act_ch4(:,:) = 0.0
+progs_data%substr_ch4(:,:,:) = 0.0
+progs_data%mic_ch4(:,:,:) = 0.0
+progs_data%mic_act_ch4(:,:,:) = 0.0
+progs_data%timewet_lyr(:,:,:) = 0.0
 progs_data%acclim_ch4(:,:) = 0.0
 
 ! Prognostics for RED scheme
@@ -544,6 +549,7 @@ DEALLOCATE(progs_data%rho_snow_surft)
 DEALLOCATE(progs_data%substr_ch4)
 DEALLOCATE(progs_data%mic_ch4)
 DEALLOCATE(progs_data%mic_act_ch4)
+DEALLOCATE(progs_data%timewet_lyr)
 DEALLOCATE(progs_data%acclim_ch4)
 DEALLOCATE(progs_data%frac_c_label_pool_soilt)
 
@@ -653,6 +659,7 @@ progs%rho_snow_surft => progs_data%rho_snow_surft
 progs%substr_ch4 => progs_data%substr_ch4
 progs%mic_ch4 => progs_data%mic_ch4
 progs%mic_act_ch4 => progs_data%mic_act_ch4
+progs%timewet_lyr => progs_data%timewet_lyr
 progs%acclim_ch4 => progs_data%acclim_ch4
 progs%wood_prod_fast_gb => progs_data%wood_prod_fast_gb
 progs%wood_prod_med_gb => progs_data%wood_prod_med_gb
@@ -743,6 +750,7 @@ NULLIFY(progs%rho_snow_surft)
 NULLIFY(progs%substr_ch4)
 NULLIFY(progs%mic_ch4)
 NULLIFY(progs%mic_act_ch4)
+NULLIFY(progs%timewet_lyr)
 NULLIFY(progs%acclim_ch4)
 NULLIFY(progs%wood_prod_fast_gb)
 NULLIFY(progs%wood_prod_med_gb)

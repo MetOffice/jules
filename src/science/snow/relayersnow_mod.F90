@@ -541,7 +541,11 @@ DO k = 1,surft_pts
       ! unchanged from input value, but the calculation is required for
       ! timesteps when nsnow changes to zero.
       !-----------------------------------------------------------------------
-      rho_snow_grnd(i) = snowmass(i) / snowdepth(i)
+      IF ( snowdepth(i) < 0.000001 ) THEN
+        rho_snow_grnd(i) = rho_snow_fresh
+      ELSE
+        rho_snow_grnd(i) = snowmass(i) / snowdepth(i)
+      END IF
     END IF
 
   END IF   !  nsnow

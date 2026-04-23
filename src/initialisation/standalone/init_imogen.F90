@@ -33,7 +33,7 @@ USE imogen_run, ONLY: imogen_run_list, c_emissions,                            &
                       file_scen_emits, ch4_init_ppbv, co2_init_ppmv,           &
                       initialise_from_dump, dump_file, l_change_metdata,       &
                       change_metdata_method, initial_co2_ch4_year,             &
-                      l_daily_metdata_climatol,                                &
+                      l_daily_metdata_climatol, file_scen_co2_ppmv,            &
                       fch4_ref, yr_fch4_ref, tau_ch4_ref, ch4_ppbv_ref
 
 USE imogen_anlg_vals, ONLY: imogen_anlg_vals_list, file_clim, file_patt,       &
@@ -45,6 +45,7 @@ USE aero, ONLY: co2_mmr
 
 USE logging_mod, ONLY: log_info, log_fatal
 USE ereport_mod, ONLY: ereport
+USE jules_print_mgr, ONLY: jules_message
 
 USE missing_data_mod,   ONLY: rmdi, imdi
 USE errormessagelength_mod, ONLY: errormessagelength
@@ -124,6 +125,9 @@ CHARACTER(LEN=14), DIMENSION(nvars) ::                                         &
                   'range_tl1_patt']
 
 INTEGER :: n  ! Index variables
+
+INTEGER :: yr_co2_file
+  ! Reads in years available in file "file_scen_co2_ppmv"
 
 INTEGER :: ERROR, error_sum, errorstatus  ! Error indicator
 CHARACTER(LEN=errormessagelength) :: iomessage
@@ -306,6 +310,31 @@ IF ( c_emissions .AND. include_co2 .AND. l_change_metdata                      &
   CLOSE(imogen_unit)
 END IF
 
+IF ( include_co2) THEN
+  OPEN(imogen_unit, FILE=file_scen_co2_ppmv,                                   &
+            STATUS='old', POSITION='rewind', ACTION='read', IOSTAT=ERROR)
+  IF (ERROR /= 0) THEN
+    CALL log_fatal(RoutineName, ': file_scen_co2_ppmv not found')
+  END IF
+
+  DO WHILE ( .TRUE. )
+    READ(imogen_unit,FMT=*,IOSTAT = ERROR) yr_co2_file, co2_init_ppmv
+    IF (ERROR /= 0) THEN
+      CALL log_fatal(RoutineName, ': error reading file_scen_co2_ppmv')
+    END IF
+    ! ejb debug PRINT*,yr_co2_file, initial_co2_ch4_year  !ejb ceck this is non zero
+
+    IF (yr_co2_file == initial_co2_ch4_year) THEN
+      imgn_vars%co2_ppmv(:) = co2_init_ppmv
+      EXIT
+    END IF
+  END DO
+
+ELSE
+  CALL log_fatal(RoutineName, ': include_co2 is false and tryimg to read co2 from file')
+END IF
+
+
 !-----------------------------------------------------------------------
 ! Read in monthly climatology of climate data.
 !-----------------------------------------------------------------------
@@ -338,7 +367,7 @@ IF (land_feed_ch4) THEN
   imgn_vars%ch4_ppbv = ch4_init_ppbv
 END IF
 
-imgn_vars%co2_ppmv(:) = co2_init_ppmv
+! deleted imgn_vars%co2_ppmv(:) = co2_init_ppmv
 
 IF ( include_co2 ) imgn_vars%co2_change_ppmv(:) = 0.0
 

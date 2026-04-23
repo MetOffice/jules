@@ -215,7 +215,7 @@ IF (l_change_metdata) THEN
     ! calculate the global and land temperature change using analogue model
     CALL delta_temp(n_olevs, f_ocean, kappa_o, lambda_l, lambda_o, mu, q_total,&
         dtemp_l, imgn_vars%dtemp_o, imgn_vars%dtemp_g(1))
-    imgn_vars%dtemp_g(1) = dtemp_l  !ejb sort this
+    !!!! WRONG EJB imgn_vars%dtemp_g(1) = dtemp_l  !ejb do not need this line
   END IF  ! end anlg_model
 
   IF (change_metdata_method == 1 .OR. change_metdata_method == 3 ) THEN

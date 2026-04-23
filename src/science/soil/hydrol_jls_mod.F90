@@ -39,11 +39,11 @@ SUBROUTINE hydrol (                                                            &
      snowdepth_surft, melt_surft, snow_melt, melt_surft_wtrac,                 &
      snow_melt_wtrac, snow_soil_htf,                                           &
      a_fsat_soilt, c_fsat_soilt, a_fwet_soilt,  c_fwet_soilt,                  &
-     fexp_soilt, ti_mean_soilt,                                                &
-     npp_soilt, inlandout_atm_gb, inlandout_atm_gb_wtrac,                      &
+     fexp_soilt, ti_mean_soilt, ti_local_soilt, zw_local_soilt,                &
+     fch4_local_soilt, npp_soilt, inlandout_atm_gb, inlandout_atm_gb_wtrac,    &
      canopy_surft, canopy_surft_wtrac, smcl_soilt, sthf_soilt,                 &
      sthu_soilt,  sthu_irr_soilt, tsoil_deep_gb,                               &
-     t_soil_soilt, t_soil_soilt_acc, tsurf_elev_surft,                         &
+     t_soil_soilt, t_soil_soilt_acc, timewet_lyr, tsurf_elev_surft,            &
      smcl_soilt_wtrac, sthf_soilt_wtrac, sthu_soilt_wtrac,                     &
      fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, sthzw_soilt_wtrac,        &
      cs_pool_soilt,resp_s_soilt,                                               &
@@ -91,7 +91,7 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
   ! imported scalar parameters
   soil_model_ecosse, soil_model_4pool, soil_model_1pool,                       &
   ! imported scalar variables
-  soil_bgc_model, l_ch4_tlayered, l_layeredc, dim_ch4layer
+  soil_bgc_model, l_ch4_tlayered, l_layeredc, dim_ch4layer, dim_ch4subgrid
 
 USE jules_soil_mod, ONLY:                                                      &
   dzsoil,                                                                      &
@@ -261,8 +261,10 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Fitting parameter for Fwet in LSH model.
   fexp_soilt(land_pts,nsoilt),                                                 &
     ! Decay factor in Sat. Conductivity in deep LSH/TOPMODEL layer.
-  ti_mean_soilt(land_pts,nsoilt)
+  ti_mean_soilt(land_pts,nsoilt),                                              &
     ! Mean topographic index.
+  ti_local_soilt(land_pts,nsoilt,dim_ch4subgrid)
+    ! Local topographic index.
 
 ! Variables related to methane calculation.
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
@@ -352,14 +354,18 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Soil carbon used in CH4 wetlands if TRIFFID is switched off (kg C/m2).
   fch4_wetl_acc_soilt(land_pts,nsoilt),                                        &
     ! Accumulated scaled wetland methane flux (kg C/m2).
-  substr_ch4(land_pts,dim_ch4layer),                                           &
-    ! Dissolved substrate that methanogens consume (kg C/m2)
-  mic_ch4(land_pts,dim_ch4layer),                                              &
+  substr_ch4(land_pts,dim_ch4subgrid,dim_ch4layer),                            &
+    ! Dissolved substrate that methaogens consume (kg C/m2)
+  mic_ch4(land_pts,dim_ch4subgrid,dim_ch4layer),                               &
     ! Methanogenic biomass (kg C/m2)
-  mic_act_ch4(land_pts,dim_ch4layer),                                          &
+  mic_act_ch4(land_pts,dim_ch4subgrid,dim_ch4layer),                           &
     ! Activity level of methanogenic biomass (fraction)
-  acclim_ch4(land_pts,dim_ch4layer)
+  acclim_ch4(land_pts,dim_ch4layer),                                           &
     ! Acclimation factor for microbial trait adaptation
+  zw_local_soilt(land_pts,nsoilt,dim_ch4subgrid),                              &
+    ! Local water table (m).
+  fch4_local_soilt(land_pts,nsoilt,dim_ch4subgrid)
+    ! Local methane flux.
 
 ! Nitrogen variables.
 REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
@@ -424,6 +430,9 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Scaled methane flux (soil respiration substrate) (kg C/m2/s).
   n_leach_soilt(land_pts,nsoilt)
     ! Leached N (kg m-2 s-1).
+
+REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
+    timewet_lyr(land_pts,dim_ch4subgrid,dim_ch4layer)
 
 !-----------------------------------------------------------------------------
 ! Local parameters:
@@ -696,7 +705,8 @@ IF (l_top) THEN
         land_pts, sm_levels, soil_pts, soil_index,                             &
         bexp_soilt(:,m,:), fexp_soilt(:,m), sthf_soilt(:,m,:),                 &
         ti_mean_soilt(:,m), zdepth, zw_soilt(:,m), ksz_soilt(:,m,:),           &
-        qbase_soilt(:,m), qbase_l_soilt(:,m,:), dumtop_crit_soilt(:,m) )
+        qbase_soilt(:,m), qbase_l_soilt(:,m,:), dumtop_crit_soilt(:,m),        &
+        ti_local_soilt(:,m,:), zw_local_soilt(:,m,:))
     END DO
 
     IF (l_wetland_unfrozen) THEN
@@ -713,7 +723,8 @@ IF (l_top) THEN
           bexp_soilt(:,m,:), fexp_soilt(:,m), dumsthf_soilt(:,m,:),            &
           ti_mean_soilt(:,m), zdepth, zw_inund_soilt(:,m), ksz_soilt(:,m,:),   &
           qbase_unfr_soilt(:,m), qbase_l_unfr_soilt(:,m,:),                    &
-          top_crit_soilt(:,m) )
+          top_crit_soilt(:,m), ti_local_soilt(:,m,:),                          &
+          zw_local_soilt(:,m,:))
       END DO
     ELSE
       DO m = 1, nsoilt
@@ -1217,7 +1228,8 @@ DO m = 1, nsoilt
                     fch4_wetl_soilt(:,m), fch4_wetl_cs_soilt(:,m),             &
                     fch4_wetl_npp_soilt(:,m), fch4_wetl_resps_soilt(:,m),      &
                     substr_ch4, mic_ch4, mic_act_ch4, acclim_ch4,              &
-                    cs_pool_soilt(:,m,:,:))
+                    cs_pool_soilt(:,m,:,:), zw_soilt(:,m), timewet_lyr,        &
+                    zw_local_soilt(:,m,:), fch4_local_soilt(:,m,:))
 #if !defined(UM_JULES)
       IF (l_imogen) THEN
         DO i = 1,land_pts

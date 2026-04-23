@@ -24,6 +24,8 @@ USE ancil_info, ONLY:                                                          &
 USE jules_soil_mod,       ONLY:                                                &
   dzsoil, sm_levels
 
+USE jules_soil_biogeochem_mod, ONLY: dim_ch4subgrid
+
 USE jules_hydrology_mod,  ONLY:                                                &
   l_wetland_unfrozen
 
@@ -67,6 +69,10 @@ INTEGER :: i, j, n, m                    ! Index variables
 
 REAL(KIND=real_jlslsm) :: qbase_l_soilt(land_pts,nsoilt,sm_levels+1)
   !Base flow from each layer (kg/m2/s).
+REAL(KIND=real_jlslsm) :: dum_zwlocal(land_pts,dim_ch4subgrid)
+  !Base flow from each layer (kg/m2/s).
+REAL(KIND=real_jlslsm) :: dum_tilocal(land_pts,dim_ch4subgrid)
+  !Base flow from each layer (kg/m2/s).
 REAL(KIND=real_jlslsm) :: top_crit_soilt(land_pts,nsoilt)
   !Critical topographic index required to calculate the surface saturation
   !fraction.
@@ -98,6 +104,8 @@ END DO
 toppdm%fsat_soilt(:,:)     = 0.0
 toppdm%fwetl_soilt(:,:)    = 0.0
 dumwutot_soilt(:,:) = 1.0
+dum_zwlocal(:,:) = 0.0
+dum_tilocal(:,:) = 1.0
 
 IF ( soil_pts /= 0 ) THEN
   DO j = 1,soil_pts
@@ -136,7 +144,9 @@ IF ( soil_pts /= 0 ) THEN
       land_pts, sm_levels, soil_pts, ainfo%soil_index,                         &
       psparms%bexp_soilt(:,m,:), toppdm%fexp_soilt(:,m), dumsthf_soilt(:,m,:), &
       toppdm%ti_mean_soilt(:,m), zdepth, zw_inund_soilt(:,m), ksz_soilt(:,m,:),&
-      toppdm%qbase_soilt(:,m), qbase_l_soilt(:,m,:), top_crit_soilt(:,m) )
+      toppdm%qbase_soilt(:,m), qbase_l_soilt(:,m,:), top_crit_soilt(:,m),      &
+      dum_tilocal, dum_zwlocal)
+
 
     !   Call calc_fsat with l_gamtot=.FALSE. so as to get toppdm%fsat_soilt.
     CALL calc_fsat(                                                            &
