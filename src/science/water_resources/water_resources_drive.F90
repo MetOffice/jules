@@ -139,7 +139,7 @@ INTEGER ::                                                                     &
 ! Local array variables
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm) ::                                                      &
-  abstracted(global_land_pts,nwater_use),                                      &
+  abstracted_per_use(global_land_pts,nwater_use),                              &
     ! Water abstracted for each use (kg).
   conveyance_loss_use(global_land_pts,nwater_use),                             &
     ! Water that is lost during conveyance, for each water use (kg).
@@ -216,23 +216,24 @@ END IF
 !------------------------------------------------------------------------------
 DO i = 1, nwater_use
   IF ( i == use_environment ) THEN
-    abstracted(:,i) = 0.0
+    abstracted_per_use(:,i) = 0.0
   ELSE
-    abstracted(:,i) = demand_accum(:,i) - demand_unmet(:,i)
+    abstracted_per_use(:,i) = demand_accum(:,i) - demand_unmet(:,i)
   END IF
 END DO
 
 !------------------------------------------------------------------------------
 ! Calculate conveyance loss.
 !------------------------------------------------------------------------------
-CALL calc_conveyance_loss( global_land_pts, abstracted, conv_loss_frac,        &
+CALL calc_conveyance_loss( global_land_pts, abstracted_per_use, conv_loss_frac,&
                            conveyance_loss, conveyance_loss_use )
 
-!---------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Calculate return flows.
 !------------------------------------------------------------------------------
-CALL calc_return_flow( global_land_pts, abstracted, conveyance_loss_use,       &
-                       return_flow_gw, return_flow_sw, water_removed )
+CALL calc_return_flow( global_land_pts, abstracted_per_use,                    &
+                       conveyance_loss_use, return_flow_gw, return_flow_sw,    &
+                       water_removed )
 
 !------------------------------------------------------------------------------
 ! Calculate the water supplied for irrigation.
@@ -240,7 +241,7 @@ CALL calc_return_flow( global_land_pts, abstracted, conveyance_loss_use,       &
 IF ( l_water_irrigation ) THEN
   DO l = 1, global_land_pts
     ! Water supplied is the water abstracted, minus conveyance loss.
-    supply_irrig(l) = abstracted(l,use_irrigation)                             &
+    supply_irrig(l) = abstracted_per_use(l,use_irrigation)                     &
                       - conveyance_loss_use(l,use_irrigation)
   END DO
 END IF
@@ -474,11 +475,12 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE split_demands
 
-!#############################################################################
-!#############################################################################
+!##############################################################################
+!##############################################################################
 
-SUBROUTINE calc_conveyance_loss( global_land_pts, abstracted, conv_loss_frac,  &
-                                 conveyance_loss, conveyance_loss_use )
+SUBROUTINE calc_conveyance_loss( global_land_pts, abstracted_per_use,          &
+                                 conv_loss_frac, conveyance_loss,              &
+                                 conveyance_loss_use )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -504,7 +506,7 @@ INTEGER, INTENT(IN) ::                                                         &
 ! Array arguments with INTENT(IN)
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-  abstracted(global_land_pts,nwater_use),                                      &
+  abstracted_per_use(global_land_pts,nwater_use),                              &
     ! Water abstracted to meet each use (kg).
   conv_loss_frac(global_land_pts)
     ! Fraction of water that is lost during conveyance from source to user.
@@ -568,7 +570,7 @@ DO i = 1, nwater_use
   ! Calculate conveyance loss for this use and add to total.
   !---------------------------------------------------------------------------
   DO l = 1, global_land_pts
-    conveyance_loss_use(l,i) = loss_frac(l) * abstracted(l,i)
+    conveyance_loss_use(l,i) = loss_frac(l) * abstracted_per_use(l,i)
     conveyance_loss(l)       = conveyance_loss(l) + conveyance_loss_use(l,i)
   END DO
 
@@ -578,11 +580,12 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE calc_conveyance_loss
 
-!#############################################################################
-!#############################################################################
+!##############################################################################
+!##############################################################################
 
-SUBROUTINE calc_return_flow( global_land_pts, abstracted, conveyance_loss_use, &
-                             return_flow_gw, return_flow_sw, water_removed )
+SUBROUTINE calc_return_flow( global_land_pts, abstracted_per_use,              &
+                             conveyance_loss_use, return_flow_gw,              &
+                             return_flow_sw, water_removed )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -593,7 +596,7 @@ SUBROUTINE calc_return_flow( global_land_pts, abstracted, conveyance_loss_use, &
 USE jules_rivers_mod, ONLY: l_rivers
 
 USE jules_water_resources_mod, ONLY:                                           &
-  l_have_groundwater, l_have_surface_water, nwater_use, rf_domestic,           &
+  l_have_groundwater, nwater_use, rf_domestic,                                 &
   rf_livestock, rf_industry, use_environment, use_domestic, use_industry,      &
   use_irrigation, use_livestock, use_transfers
 
@@ -610,7 +613,7 @@ INTEGER, INTENT(IN) ::                                                         &
 ! Array arguments with INTENT(IN)
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-  abstracted(global_land_pts,nwater_use),                                      &
+  abstracted_per_use(global_land_pts,nwater_use),                              &
     ! Water abstracted to meet each use (kg).
   conveyance_loss_use(global_land_pts,nwater_use)
     ! Water that is lost during conveyance, for each water use (kg).
@@ -671,14 +674,15 @@ DO i = 1, nwater_use
 
   !---------------------------------------------------------------------------
   ! Set fraction of flow that is returned for this water use. Each use returns
-  ! water to either renewable groundwater or river water, but if that sink is
-  ! not modelled the other is used. We know that at least one of l_rivers and
-  ! l_have_groundwater is always TRUE when water resources are modelled. If
-  ! the only groundwater is "non-renewable", any groundwater return is instead
-  ! later added to runoff (not groundwater).
+  ! water to either renewable groundwater or river water; if the preferred sink
+  ! is not modelled the other is used. We know that at least one of l_rivers
+  ! and l_have_groundwater is TRUE when water resources are modelled. If the
+  ! only groundwater is "non-renewable", any groundwater return is instead
+  ! later added to runoff (not groundwater). 
   !---------------------------------------------------------------------------
   IF ( i == use_domestic ) THEN
-    ! Domestic water is returned to rivers, if those are modelled.
+    ! Domestic water is returned to rivers, if those are modelled, otherwise to
+    ! groundwater.
     IF ( l_rivers ) THEN
       return_flow_frac_gw  = 0.0
       return_flow_frac_sw = rf_domestic
@@ -688,7 +692,8 @@ DO i = 1, nwater_use
     END IF
     removed_frac     = 1.0 - rf_domestic
   ELSE IF ( i == use_industry ) THEN
-    ! Industrial water is returned to rivers, if those are modelled.
+    ! Industrial water is returned to rivers, if those are modelled, otherwise
+    ! to groundwater.
     IF ( l_rivers ) THEN
       return_flow_frac_gw  = 0.0
       return_flow_frac_sw = rf_industry
@@ -698,7 +703,8 @@ DO i = 1, nwater_use
     END IF
     removed_frac     = 1.0 - rf_industry
   ELSE IF ( i == use_livestock ) THEN
-    ! Livestock water is returned to groundwater, if that is modelled.
+    ! Livestock water is returned to groundwater, if that is modelled,
+    ! otherwise to rivers.
     IF ( l_have_groundwater ) THEN
       return_flow_frac_gw  = rf_livestock
       return_flow_frac_sw = 0.0
@@ -721,7 +727,7 @@ DO i = 1, nwater_use
 
     ! Calculate the water delivered to meet this demand in this gridbox.
     ! This is the water abstracted, minus conveyance loss.
-    delivered = abstracted(l,i) - conveyance_loss_use(l,i)
+    delivered = abstracted_per_use(l,i) - conveyance_loss_use(l,i)
 
     ! Add to totals. Both GW and SW return flows are always calculated, though
     ! either can be zero if those sources are not represented.

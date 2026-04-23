@@ -892,7 +892,9 @@ CALL surf_couple_extra(                                                        &
   toppdm%fwetl_soilt,  toppdm%zw_soilt, toppdm%sthzw_soilt,                    &
   ls_rainfrac_land,                                                            &
   substore, surfstore, flowin, bflowin,                                        &
-  rivers%tot_surf_runoff_gb, rivers%tot_sub_runoff_gb,rivers%acc_lake_evap_gb, &
+  rivers%tot_surf_runoff_gb, rivers%tot_sub_runoff_gb,                         &
+  rivers%tot_abstracted_minor_res, rivers%tot_net_abstracted_river,            &
+  rivers%acc_lake_evap_gb,                                                     &
   twatstor, asteps_since_triffid,                                              &
   inlandout_atm_gb,                                                            &
   !OUT
