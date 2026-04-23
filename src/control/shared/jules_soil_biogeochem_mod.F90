@@ -970,6 +970,8 @@ IF (mype /= 0) THEN
   ev_ch4           = my_nml % ev_ch4
   q10_ev_ch4       = my_nml % q10_ev_ch4
   z_burn_max       = my_nml % z_burn_max
+  heat_of_respiration = my_nml % heat_of_respiration
+
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)
