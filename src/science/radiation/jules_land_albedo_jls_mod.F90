@@ -1196,7 +1196,7 @@ IF (l_spec_albedo) THEN
             l = surft_index(j,n)
             fsnow(l,ice) = 1.0
             DO band = 1,4
-              alb_type(l,ice,band) = alb_snow(l,n,band) 
+              alb_type(l,ice,band) = alb_snow(l,n,band)
             END DO
           END DO
         ELSE
@@ -1268,7 +1268,7 @@ IF (l_spec_albedo) THEN
             ELSE
               fsnow(l,n) = 1.0 - EXP(-maskd * snowd(l))
             END IF
-            alb_type(l,n,band) = alb_type(l,n,band) +                        &
+            alb_type(l,n,band) = alb_type(l,n,band) +                          &
                                    (dsa - alb_type(l,n,band)) * fsnow(l,n)
           END DO
         END DO
@@ -1552,8 +1552,8 @@ DO band = 1,4
   DO i = 1,pfield
     land_albedo_ij(i,band) = 0.0
   END DO
-  IF (ANY(i_snow_tile == 1)) THEN  
-  ! using a separate snow tile
+  IF (ANY(i_snow_tile == 1)) THEN
+    ! using a separate snow tile
     DO n = 1,ntype
       DO j = 1,surft_pts(n)
         l = surft_index(j,n)
@@ -1561,15 +1561,15 @@ DO band = 1,4
         IF (i_snow_tile(n) == 1) THEN
           land_albedo_ij(i,band) = land_albedo_ij(i,band) +                    &
                       (1 - fsnow(l,n)) * frac_surft(l,n) * alb_type(l,n,band)  &
-                        + fsnow(l,n) * frac_surft(l,n) * alb_type(l,ice,band) 
+                        + fsnow(l,n) * frac_surft(l,n) * alb_type(l,ice,band)
         ELSE
           land_albedo_ij(i,band) = land_albedo_ij(i,band) +                    &
                                    frac_surft(l,n) * alb_type(l,n,band)
         END IF
       END DO
     END DO
-  ELSE  
-  ! not using a separate snow tile
+  ELSE
+    ! not using a separate snow tile
     DO n = 1,ntype
       DO j = 1,surft_pts(n)
         l = surft_index(j,n)
