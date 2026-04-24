@@ -172,7 +172,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 ,emis_surft(land_pts,nsurft)                                                   &
                              ! IN Emissivity for land tiles
 ,fsnow(land_pts,nsurft)                                                        &
-                             ! IN Snow cover fractions on tiles  
+                             ! IN Snow cover fractions on tiles
 ,snow_surft(land_pts,nsurft)                                                   &
                              ! IN Lying snow on tiles (kg/m2)
 ,dtstar_surft(land_pts,nsurft)

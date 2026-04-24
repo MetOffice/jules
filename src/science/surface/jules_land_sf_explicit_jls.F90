@@ -27,8 +27,8 @@ CONTAINS
 !---------------------------------------------------------------------
 !    Arguments :-
 SUBROUTINE jules_land_sf_explicit (                                            &
-! IN date-related values
- curr_day_number,                                                              &
+! IN date- and time-related values
+ curr_day_number, curr_time,                                                   &
 ! IN values defining field dimensions and subset to be processed :
  land_pts,                                                                     &
 ! IN values defining water tracer field dimensions
@@ -51,7 +51,7 @@ SUBROUTINE jules_land_sf_explicit (                                            &
  photosynth_act_rad,lai_pft,                                                   &
  l_mr_physics,t_soil_soilt,tsurf_elev_surft,tstar_surft,z_land,                &
  albsoil_soilt,cos_zenith_angle,l_aero_classic,l_dust,l_dust_diag,             &
- clay_soilt,o3, l_emis_surft_set,                                              &
+ clay_soilt,o3,l_emis_surft_set,latitude,longitude,                            &
 ! INOUT diagnostics
  sf_diag,                                                                      &
 ! INOUT data :
@@ -229,6 +229,8 @@ IMPLICIT NONE
 INTEGER, INTENT(IN) ::                                                         &
  curr_day_number,                                                              &
             ! IN current day of year
+ curr_time,                                                                    &
+            ! IN current time in seconds
  land_pts,                                                                     &
             ! IN No of land points being processed.
  n_wtrac_jls,                                                                  &
@@ -308,7 +310,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                              ! IN Snow interception capacity of
                              !    tiles (kg/m2).
 ,fsnow(land_pts,nsurft)                                                        &
-                             ! IN Snowcover fractions on tiles                             
+                             ! IN Snow cover fractions on tiles
 ,hcon_soilt(land_pts,nsoilt)                                                   &
                              ! IN Soil thermal conductivity
                              !    (W/m/K).
@@ -398,8 +400,12 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                              ! IN Cosine of the zenith angle
 ,clay_soilt(land_pts,nsoilt,dim_cslayer)                                       &
                              ! IN Soil clay fraction.
-,o3(land_pts)
+,o3(land_pts)                                                                  &
                              ! IN Surface ozone concentration (ppb).
+,latitude(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end)                 &
+                             ! IN Latitude (degree)
+,longitude(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end)
+                             ! IN Longitude (degree)
 
 LOGICAL, INTENT(IN) ::                                                         &
  l_aero_classic                                                                &
@@ -709,9 +715,10 @@ REAL(KIND=real_jlslsm), INTENT(IN) :: sice_surft(land_pts,nsurft,nsmax),       &
                                       sliq_surft(land_pts,nsurft,nsmax),       &
                                       tsnow_surft(land_pts,nsurft,nsmax),      &
                                       ds_surft(land_pts,nsurft,nsmax)
+
 !snow prognostics (IN OUT)
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: snowdepth_surft(land_pts,nsurft),    &
-                                          snow_surft(land_pts,nsurft)                                 
+                                          snow_surft(land_pts,nsurft)
 
 !c_elevate (OUT)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: surf_hgt_surft(land_pts,nsurft),        &
@@ -1174,11 +1181,13 @@ CALL tilepts(land_pts, frac, surft_pts, surft_index, l_lice_point, l_lice_surft)
 !   Generate the anthropogenic heat for surface calculations
 !-----------------------------------------------------------------------
 IF ( l_anthrop_heat_src .AND. .NOT. l_aggregate ) THEN
-  CALL generate_anthropogenic_heat( curr_day_number, land_pts, frac,           &
-                                  surft_pts, surft_index,                      &
+  CALL generate_anthropogenic_heat(curr_day_number, curr_time,                 &
+                                  land_pts, frac, surft_pts, surft_index,      &
+                                  land_index,                                  &
                                   !New arguments replacing USE statements
                                   !urban_param (IN)
                                   wrr_gb,                                      &
+                                  latitude, longitude,                         &
                                   !Fluxes (IN OUT)
                                   anthrop_heat_surft)
 END IF
