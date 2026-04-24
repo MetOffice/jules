@@ -1,23 +1,16 @@
 [task parameters]
+    # Compilers
     compiler_cascade = ifx
     # Loobos test variants
-    # ToDo - gl8_medlyn, ukv_deposition (OPT), jules_es_1p0_deposition_spinup, jules_es_1p0_deposition (SPINUPDEP), jules_es_1p0_deposition_dd1 (SPINUPDEP, OPT), jules_es_1p0_deposition_dd2 (SPINUPDEP, OPT), jules_es_1p0_deposition_dd2h2 (SPINUPDEP, OPT), irrig_nirrtile, crm6_traitT_farquhar (OPT)
     loobos_single = gl4, gl4_cable, gl7, gl8, vegdrag, euro4, forecast, ukv, crops, \
-                    prescribe_sthuf, irrig, daily_disagg, \
-                    crm1_traitF, crm4_traitF, \
+                    prescribe_sthuf, irrig, daily_disagg, crm1_traitF, crm4_traitF, \
                     crm5_traitF, crm6_traitF, crm6_traitT, crm6_traitF_srfT
     loobos_with_spinup = trif, julesc, jules_layeredcn, jules_cn, jules_es_1p0, jules_es_1p0_biocrop, fire
     loobos_jules_c1p1 = jules_c1p1, jules_c1p1_fire
     # GSWP2 test variants
-    # ToDo - tidy up
-    gswp2_single = rivers, trip, closures, euro4, gl4, gl7, ukv
+    gswp2_single = closures, euro4, gl4, gl7, ukv
     gswp2_es_1p1 = 1p1, curr, beta
-    gswp2_with_spinup = rivers, trip
+    gswp2_with_spinup = trip
     gswp2_irrig = low, high
     # Eraint test variants
-    # ToDo - OK - tests are complete, all are running
     eraint_tests = rfm_2ddata, trip_2ddata
-    # Imogen test variants
-    # ToDo - OK! (but could remove the imogen_with_spinup group, there is only one case)
-    imogen_with_spinup = layeredc
-    imogen_layeredc_spinup = layeredc_co2conc, layeredc_dtempg, layeredc_ch4

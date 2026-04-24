@@ -20,7 +20,6 @@
         inherit = ESNZ_CASCADE_BG, SOURCE_EXTRACTION
 
 # Cascade node setup
-# Single task
     [[ESNZ_CASCADE_CORES_1]]
         [[[directives]]]
             -l select=1:ncpus=1:mem=2G:ompthreads=1:mpiprocs=1
@@ -88,6 +87,7 @@
         env-script = """
                      . /esi/project/niwa00001/spack/share/spack/setup-env.sh
                      spack load intel-oneapi-mpi@2021.15.0%oneapi@2025.1.0 /yzq7ltd
+                     export PATH=$(spack location -i intel-oneapi-compilers@2025.1.0 /5gt5gbh)/compiler/latest/bin/compiler:$PATH
                      """
         [[[environment]]]
             ROSE_LAUNCHER = mpiexec
@@ -127,18 +127,6 @@
             ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}
             DUMP_FILE = ../esnz_cascade_ifx_loobos_julesc_spinup/output/esnz_cascade_ifx_loobos_julesc_spinup.dump.19971231.82800.nc
 
-    [[esnz_cascade_ifx_loobos<loobos_with_spinup=jules_es_1p0_biocrop>_spinup]]
-        inherit = ESNZ_CASCADE_LOOBOS
-        [[[environment]]]
-            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_spinup
-
-    [[esnz_cascade_ifx_loobos<loobos_with_spinup=jules_es_1p0_biocrop>]]
-        inherit = ESNZ_CASCADE_LOOBOS
-        [[[environment]]]
-            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop
-            DUMP_FILE = ../esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup/output/esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
-
-    ### ToDo - does this work with parameter structure?
     [[esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand]]
         inherit = ESNZ_CASCADE_LOOBOS
         [[[environment]]]
@@ -153,173 +141,15 @@
             BUILD_NAME = fcm_make_esnz_cascade_ifx_omp
             GSWP2_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/gswp2
 
-#ToDo Tidy up
-    [[ESNZ_CASCADE_GSWP2_RFM_RESTART]]
-        pre-script = gen_gswp2_rivers_props_rfm_file
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers_restart
-            DUMP_FILE = ../esnz_cascade_ifx_gswp2_rivers_spinup/output/esnz_cascade_ifx_gswp2_rivers_spinup.dump.19820701.10800.nc
-
-    [[ESNZ_CASCADE_GSWP2_RFM_RESTART_RIVERS_ONLY]]
-        inherit = ESNZ_CASCADE_GSWP2
-        pre-script = gen_gswp2_rivers_props_rfm_file
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers_restart
-            DUMP_FILE = ../esnz_cascade_ifx_gswp2_rivers_spinup/output/esnz_cascade_ifx_gswp2_rivers_spinup.dump.19820701.10800.nc
-            ROSE_APP_COMMAND_KEY = rivers-only
-            ROSE_APP_OPT_CONF_KEYS = rivers-only
-            RIVERS_ONLY_INSTALL_DIR = ../esnz_cascade_ifx_gswp2_rivers_restart/output
-            RIVERS_ONLY_DRIVE_TASK = esnz_cascade_ifx_gswp2_rivers_restart
-
-    [[ESNZ_CASCADE_GSWP2_TRIP_RESTART]]
-        pre-script = gen_gswp2_rivers_props_trip_file
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_trip_restart
-            DUMP_FILE = ../esnz_cascade_ifx_gswp2_trip_spinup/output/esnz_cascade_ifx_gswp2_trip_spinup.dump.19820701.10800.nc
-
-    [[ESNZ_CASCADE_GSWP2_TRIP_RESTART_RIVERS_ONLY]]
-        inherit = ESNZ_CASCADE_GSWP2_TRIP_RESTART
-        [[[environment]]]
-	    ROSE_APP_COMMAND_KEY = rivers-only
-            ROSE_APP_OPT_CONF_KEYS = rivers-only
-	    RIVERS_ONLY_INSTALL_DIR = ../esnz_cascade_ifx_gswp2_trip_restart/output
-	    RIVERS_ONLY_DRIVE_TASK = esnz_cascade_ifx_gswp2_trip_restart
-
-    [[esnz_cascade_ifx_gswp2_rivers_rivers-only]]
-        pre-script = gen_gswp2_rivers_props_rfm_file
-        inherit = ESNZ_CASCADE_GSWP2, ESNZ_CASCADE_CORES_32
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers
-	    ROSE_APP_COMMAND_KEY = rivers-only
-            ROSE_APP_OPT_CONF_KEYS = rivers-only
-            RIVERS_ONLY_INSTALL_DIR = ../esnz_cascade_ifx_gswp2_rivers/output
-	    RIVERS_ONLY_DRIVE_TASK = esnz_cascade_ifx_gswp2_rivers
-
-    [[esnz_cascade_ifx_gswp2_rivers_restart_rivers-only_lrun]]
-        inherit = ESNZ_CASCADE_GSWP2_RFM_RESTART_RIVERS_ONLY
-
-    [[esnz_cascade_ifx_gswp2_rivers_restart_rivers-only_nrun1]]
-        inherit = ESNZ_CASCADE_GSWP2_RFM_RESTART_RIVERS_ONLY
-        [[[environment]]]
-            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun1
-
-    [[esnz_cascade_ifx_gswp2_rivers_restart_rivers-only_nrun2]]
-        inherit = ESNZ_CASCADE_GSWP2_RFM_RESTART_RIVERS_ONLY
-        [[[environment]]]
-            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun2
-            DUMP_FILE = ../esnz_cascade_ifx_gswp2_rivers_restart_rivers-only_nrun1/output/esnz_cascade_ifx_gswp2_rivers_restart_rivers-only_nrun1.dump.19820704.10800.nc
-
-# For GSWP2 rivers overbank hypso, use MPI
-    [[esnz_cascade_ifx_gswp2_rivers_overbank_hypso]]
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers
-            ROSE_APP_OPT_CONF_KEYS = overbank_hypso
-
-    [[esnz_cascade_ifx_gswp2_trip_rivers-only]]
-        pre-script = gen_gswp2_rivers_props_trip_file
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_trip
- 	    ROSE_APP_COMMAND_KEY = rivers-only
-            ROSE_APP_OPT_CONF_KEYS = rivers-only
-            RIVERS_ONLY_INSTALL_DIR = ../esnz_cascade_ifx_gswp2_trip/output
-            RIVERS_ONLY_DRIVE_TASK = esnz_cascade_ifx_gswp2_trip
-
-    [[esnz_cascade_ifx_gswp2_trip_restart_rivers-only_lrun]]
-        inherit = ESNZ_CASCADE_GSWP2_TRIP_RESTART_RIVERS_ONLY
-
-    [[esnz_cascade_ifx_gswp2_trip_restart_rivers-only_nrun1]]
-        inherit = ESNZ_CASCADE_GSWP2_TRIP_RESTART_RIVERS_ONLY
-        [[[environment]]]
-            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun1
-
-    [[esnz_cascade_ifx_gswp2_trip_restart_rivers-only_nrun2]]
-        inherit = ESNZ_CASCADE_GSWP2_TRIP_RESTART_RIVERS_ONLY
-        [[[environment]]]
-            ROSE_APP_OPT_CONF_KEYS = rivers-only nrun2
-            DUMP_FILE = ../esnz_cascade_ifx_gswp2_trip_restart_rivers-only_nrun1/output/esnz_cascade_ifx_gswp2_trip_restart_rivers-only_nrun1.dump.19820704.10800.nc
-
-# For GSWP2 trip restart init storage, use MPI
-    [[esnz_cascade_ifx_gswp2_trip_restart_init_storage]]
-        pre-script = gen_gswp2_rivers_props_trip_file_init_storage
-        inherit = ESNZ_CASCADE_GSWP2_TRIP_RESTART, ESNZ_CASCADE_CORES_32
-        [[[environment]]]
-            ROSE_APP_OPT_CONF_KEYS = rivers-init-storage
-
-    [[esnz_cascade_ifx_gswp2_gl7_flanner]]
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_gl7
-            ROSE_APP_OPT_CONF_KEYS = flanner
-
-    [[GSWP2_UKV_IFX]]
-        [[[environment]]]
-            EXT_NAME = esnz_cascade_ifx_gswp2_ukv
-            ROSE_TASK_APP = gswp2_ukv
-            ROSE_APP_OPT_CONF_KEYS=threading
-
-    [[esnz_cascade_ifx_gswp2_ukv_noomp]]
-        inherit = ESNZ_CASCADE_GSWP2, GSWP2_UKV_IFX
-        [[[environment]]]
-            BUILD_NAME = fcm_make_esnz_cascade_ifx_noomp
-
-    [[esnz_cascade_ifx_gswp2_ukv_8_omp_threads]]
-        inherit = ESNZ_CASCADE_GSWP2, GSWP2_UKV_IFX
-
-    [[esnz_cascade_ifx_gswp2_ukv_omp_flake]]
-        inherit = ESNZ_CASCADE_GSWP2, GSWP2_UKV_IFX
-        [[[environment]]]
-            ROSE_APP_OPT_CONF_KEYS = flake
-
-
     [[esnz_cascade_ifx_gswp2<gswp2_single>]]
         inherit = ESNZ_CASCADE_GSWP2
         [[[environment]]]
             ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_single}
 
-# ToDo - Missing input file "river_number_trip.nc"
-    [[esnz_cascade_ifx_gswp2<gswp2_single=rivers>]]
-        script = true
-        pre-script = gen_gswp2_rivers_props_rfm_file
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers
-
-# ToDo - Missing input file "river_number_trip.nc"
-    [[esnz_cascade_ifx_gswp2<gswp2_single=trip>]]
-        script = true
-        pre-script = gen_gswp2_rivers_props_trip_file
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_trip
-
     [[esnz_cascade_ifx_gswp2<gswp2_with_spinup>_spinup]]
         inherit = ESNZ_CASCADE_GSWP2
         [[[environment]]]
             ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup
-
-    [[esnz_cascade_ifx_gswp2<gswp2_with_spinup>_restart]]
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_restart
-            DUMP_FILE = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup/output/esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup.dump.19820701.10800.nc
-
-# ToDo - Missing input file "river_number_trip.nc"
-    [[esnz_cascade_ifx_gswp2_rivers_restart]]
-        script = true
-        pre-script = gen_gswp2_rivers_props_rfm_file
-        inherit = ESNZ_CASCADE_GSWP2
-        [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers_restart
-            DUMP_FILE = ../esnz_cascade_ifx_gswp2_rivers_spinup/output/esnz_cascade_ifx_gswp2_rivers_spinup.dump.19820701.10800.nc
-
-# ToDo - Missing input file "river_number_trip.nc"
-    [[esnz_cascade_ifx_gswp2_trip_restart]]
-        script = true
-        inherit = ESNZ_CASCADE_GSWP2_TRIP_RESTART, ESNZ_CASCADE_CORES_32
 
     [[esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
         inherit = ESNZ_CASCADE_GSWP2
@@ -346,36 +176,9 @@
             ROSE_TASK_APP = eraint_${CYLC_TASK_PARAM_eraint_tests}
             DUMP_FILE = $ERAINT_INSTALL_DIR/brahma_eraint_small.dump.19951031.0.nc
 
-    # Imogen variants
-    [[ESNZ_CASCADE_IMOGEN]]
-        inherit = ESNZ_CASCADE_RUN_ifx, ESNZ_CASCADE_CORES_8, IMOGEN, COMPUTE
-        [[[environment]]]
-            BUILD_NAME = fcm_make_esnz_cascade_ifx_omp
-            IMOGEN_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/imogen
-
-    [[esnz_cascade_ifx_imogen<imogen_with_spinup>_spinup]]
-        inherit = ESNZ_CASCADE_IMOGEN
-        [[[environment]]]
-            ROSE_TASK_APP = imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup
-
-    [[esnz_cascade_ifx_imogen<imogen_with_spinup>]]
-        inherit = ESNZ_CASCADE_IMOGEN
-        [[[environment]]]
-            ROSE_TASK_APP = imogen_${CYLC_TASK_PARAM_imogen_with_spinup}
-            DUMP_FILE = ../esnz_cascade_ifx_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup/output/esnz_cascade_ifx_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup.dump.18650101.0.nc
-
-    [[esnz_cascade_ifx_imogen_layeredc<imogen_layeredc_spinup>]]
-        inherit = ESNZ_CASCADE_IMOGEN
-        [[[environment]]]
-            ROSE_TASK_APP = imogen_layeredc
-            ROSE_APP_OPT_CONF_KEYS = ${CYLC_TASK_PARAM_imogen_layeredc_spinup}
-            DUMP_FILE = ../esnz_cascade_ifx_imogen_layeredc_spinup/output/esnz_cascade_ifx_imogen_layeredc_spinup.dump.18650101.0.nc
-
 ###############################################################################
 ## Comparison jobs
 ###############################################################################
-
-# ToDo: update
 
     [[ESNZ_CASCADE_NETCDF_COMPARISON]]
         inherit = ESNZ_CASCADE_BG, KGO_CHECK, COMPARISON
@@ -403,11 +206,6 @@
         [[[environment]]]
             OUTPUT_DIR = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}/output
 
-    [[nccmp_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop]]
-        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
-        [[[environment]]]
-            OUTPUT_DIR = ../esnz_cascade_ifx_loobos_jules_es_1p0_biocrop/output
-
     [[nccmp_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand]]
         inherit = ESNZ_CASCADE_NETCDF_COMPARISON
         [[[environment]]]
@@ -418,11 +216,6 @@
         inherit = ESNZ_CASCADE_NETCDF_COMPARISON
         [[[environment]]]
             OUTPUT_DIR = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_single}/output
-
-    [[nccmp_esnz_cascade_ifx_gswp2<gswp2_with_spinup>_restart]]
-        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
-        [[[environment]]]
-            OUTPUT_DIR = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_restart/output
 
     [[nccmp_esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
         inherit = ESNZ_CASCADE_NETCDF_COMPARISON
@@ -440,17 +233,9 @@
         [[[environment]]]
             OUTPUT_DIR = ../esnz_cascade_ifx_eraint_${CYLC_TASK_PARAM_eraint_tests}/output
 
-    # Imogen
-    [[nccmp_esnz_cascade_ifx_imogen<imogen_with_spinup>]]
-        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
-        [[[environment]]]
-            OUTPUT_DIR = ../esnz_cascade_ifx_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}/output
-
 ###############################################################################
 ## Housekeeping jobs
 ###############################################################################
-
-# ToDo: update
 
     [[ESNZ_CASCADE_HOUSEKEEPING]]
         inherit = ESNZ_CASCADE_BG, HOUSEKEEPING
@@ -476,16 +261,6 @@
         [[[environment]]]
             DIR1 = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}
 
-    [[housekeep_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup]]
-        inherit = ESNZ_CASCADE_HOUSEKEEPING
-        [[[environment]]]
-            DIR1 = ../esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup
-
-    [[housekeep_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop]]
-        inherit = ESNZ_CASCADE_HOUSEKEEPING
-        [[[environment]]]
-            DIR1 = ../esnz_cascade_ifx_loobos_jules_es_1p0_biocrop
-
     [[housekeep_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand]]
         inherit = ESNZ_CASCADE_HOUSEKEEPING
         [[[environment]]]
@@ -502,11 +277,6 @@
         [[[environment]]]
             DIR1 = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup
 
-    [[housekeep_esnz_cascade_ifx_gswp2<gswp2_with_spinup>_restart]]
-        inherit = ESNZ_CASCADE_HOUSEKEEPING
-        [[[environment]]]
-            DIR1 = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_restart
-
     [[housekeep_esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
         inherit = ESNZ_CASCADE_HOUSEKEEPING
         [[[environment]]]
@@ -522,14 +292,3 @@
         inherit = ESNZ_CASCADE_HOUSEKEEPING
         [[[environment]]]
             DIR1 = ../esnz_cascade_ifx_eraint_${CYLC_TASK_PARAM_eraint_tests}
-
-    # Imogen variants
-    [[housekeep_esnz_cascade_ifx_imogen<imogen_with_spinup>_spinup]]
-        inherit = ESNZ_CASCADE_HOUSEKEEPING
-        [[[environment]]]
-            DIR1 = ../esnz_cascade_ifx_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}_spinup
-
-    [[housekeep_esnz_cascade_ifx_imogen<imogen_with_spinup>]]
-        inherit = ESNZ_CASCADE_HOUSEKEEPING
-        [[[environment]]]
-            DIR1 = ../esnz_cascade_ifx_imogen_${CYLC_TASK_PARAM_imogen_with_spinup}

@@ -52,13 +52,6 @@
                                            housekeep_esnz_cascade_ifx_gswp2_es<gswp2_es_1p1>",
 
         "esnz_cascade_ifx_gswp2_with_spinup" : "extract_source => fcm_make_esnz_cascade_ifx_omp =>
-                                                esnz_cascade_ifx_gswp2<gswp2_with_spinup>_spinup =>
-                                                esnz_cascade_ifx_gswp2<gswp2_with_spinup>_restart =>
-                                                nccmp_esnz_cascade_ifx_gswp2<gswp2_with_spinup>_restart =>
-                                                housekeep_esnz_cascade_ifx_gswp2<gswp2_with_spinup>_spinup =>
-                                                housekeep_esnz_cascade_ifx_gswp2<gswp2_with_spinup>_restart
-
-                                                extract_source => fcm_make_esnz_cascade_ifx_omp =>
                                                 esnz_cascade_ifx_gswp2_trip_spinup =>
                                                 esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage =>
                                                 nccmp_esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage =>
@@ -69,13 +62,6 @@
                                      esnz_cascade_ifx_eraint<eraint_tests> =>
                                      nccmp_esnz_cascade_ifx_eraint<eraint_tests> =>
                                      housekeep_esnz_cascade_ifx_eraint<eraint_tests>",
-
-        "esnz_cascade_ifx_imogen_with_spinup" : "extract_source => fcm_make_esnz_cascade_ifx_omp =>
-                                                 esnz_cascade_ifx_imogen<imogen_with_spinup>_spinup =>
-                                                 esnz_cascade_ifx_imogen<imogen_with_spinup> =>
-                                                 nccmp_esnz_cascade_ifx_imogen<imogen_with_spinup> =>
-                                                 housekeep_esnz_cascade_ifx_imogen<imogen_with_spinup>_spinup & \
-                                                 housekeep_esnz_cascade_ifx_imogen<imogen_with_spinup>",
 
     }
 %}
@@ -89,22 +75,20 @@
         "esnz_cascade_all" : ["esnz_cascade_build",
                               "esnz_cascade_loobos",
                               "esnz_cascade_gswp2",
-                              "esnz_cascade_eraint",
-                              "esnz_cascade_imogen"],
+                              "esnz_cascade_eraint"],
 
         "esnz_cascade_build" : ["esnz_cascade_fcm_make"],
 
         "esnz_cascade_loobos" : ["esnz_cascade_ifx_loobos_single",
                                  "esnz_cascade_ifx_loobos_with_spinup",
-                                 "esnz_cascade_loobos_jules_es_1p0_biocrop"],
+                                 "esnz_cascade_ifx_loobos_crops",
+                                 "esnz_cascade_ifx_loobos_jules_es_1p0_biocrop"],
 
         "esnz_cascade_gswp2" : ["esnz_cascade_ifx_gswp2_single",
                                 "esnz_cascade_ifx_gswp2_with_spinup",
                                 "esnz_cascade_ifx_gswp2_es_1p1"],
 
         "esnz_cascade_eraint" : ["esnz_cascade_ifx_eraint"],
-
-        "esnz_cascade_imogen" : ["esnz_cascade_ifx_imogen_with_spinup"],
 
     }
 %}
