@@ -160,11 +160,11 @@ END IF
 
 ! Required options if a separate snow tile is being used
 IF ( ANY(i_snow_tile == 1) ) THEN
-  IF ( (.NOT. l_spec_albedo) .OR. l_embedded_snow .OR.                        &
+  IF ( (.NOT. l_spec_albedo) .OR. l_embedded_snow .OR.                         &
        (.NOT. l_snow_albedo) ) THEN
     errorstatus = 1003
-    CALL ereport("check_jules_radiation", errorstatus,                        &
-       "l_spec_albedo = T, l_embedded_snow = F and l_snow_albedo = T" //      &
+    CALL ereport("check_jules_radiation", errorstatus,                         &
+       "l_spec_albedo = T, l_embedded_snow = F and l_snow_albedo = T" //       &
        "required if ANY i_snow_tile = 1")
   END IF
 END IF

@@ -27,7 +27,7 @@ SUBROUTINE jules_land_albedo(                                                  &
         lai_pft, canht_pft,                                                    &
         rgrain_surft, snow_surft, tstar_surft, z0_surft, frac_surft,           &
         !INTENT(OUT)
-        alb_surft,albobs_sc_ij,land_albedo_ij,                                 &
+        alb_surft,albobs_sc_ij,fsnow,land_albedo_ij,                           &
         !New arguments replacing USE statements
         !jules_mod (IN OUT)
         albobs_scaling_surft,                                                  &
@@ -60,10 +60,10 @@ USE pftparm,                  ONLY:                                            &
 USE jules_snow_mod,           ONLY:                                            &
   kland, maskd, tcland, rho_snow_const, rho_snow_fresh, cansnowtile,           &
   l_snowdep_surf, can_clump, lai_alb_lim_sn, n_lai_exposed, amax, aicemax,     &
-  rho_firn_albedo, nsmax
+  i_snow_tile, rho_firn_albedo, nsmax
 
 USE jules_surface_types_mod,  ONLY:                                            &
-  npft, ntype, lake, soil, urban_canyon
+  npft, ntype, ice, lake, soil, urban_canyon
 
 USE water_constants_mod,      ONLY:                                            &
   rho_ice, tm
@@ -168,6 +168,8 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   albobs_sc_ij(pfield,nsurft,2),                                               &
                               ! albedo scaling to obs in VIS and NIR
                               ! for diagnostics output by the UM
+  fsnow(land_pts,nsurft),                                                      &
+                              ! Snow cover fraction on tiles
   land_albedo_ij(pfield,4)
                               ! GBM albedos.
 
@@ -258,8 +260,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
   alb_snow_surft(land_pts,4),                                                  &
                                       !Tiled snow albedo: used with embedded
                                       !snow
-  fsnow(land_pts),                                                             &
-                                      !Weighting factor for albedo.
   lai(land_pts,npft),                                                          &
                                       !Adjusted leaf area index.
   snowd(land_pts),                                                             &
@@ -1161,7 +1161,7 @@ IF (l_spec_albedo) THEN
           END DO
         END IF
         ! Calculate snow albedo weighting factor.
-        fsnow(:) = 0.0
+        fsnow(:,n) = 0.0
         IF ( l_point_data .AND. .NOT. cansnowtile(n)) THEN
           IF (l_fix_snow_frac) THEN
             DO j = 1,surft_pts(n)
@@ -1170,32 +1170,44 @@ IF (l_spec_albedo) THEN
               ! Use linear expansion of exponential if non-linear term
               ! is of order EPSILON (i.e., x^2.0/2.0 ~ EPSILON)
               IF ( snowd(l) > SQRT(2.0*EPSILON(snowd))/maskd) THEN
-                fsnow(l) = 1.0 - EXP( -maskd * snowd(l) )
+                fsnow(l,n) = 1.0 - EXP( -maskd * snowd(l) )
               ELSE
-                fsnow(l) = maskd * snowd(l)
+                fsnow(l,n) = maskd * snowd(l)
               END IF
             END DO
           ELSE
             DO j = 1,surft_pts(n)
               l = surft_index(j,n)
-              IF ( snowd(l) > 0.0) fsnow(l) = 1.0 - EXP( -50.0 * snowd(l) )
+              IF (snowd(l) > 0.0) fsnow(l,n) = 1.0 - EXP( -maskd * snowd(l) )
             END DO
           END IF
         ELSE
+          IF (i_snow_tile(n) == 1) z0(:) = z0_surft(:,ice)
           DO j = 1,surft_pts(n)
             l = surft_index(j,n)
-            IF ( snowd(l) > 0.0) fsnow(l) = snowd(l) /                         &
-                 ( snowd(l) + 10.0 * z0(l) )
+            IF (snowd(l) > 0.0) fsnow(l,n) = snowd(l) / (snowd(l) + 10 * z0(l))
           END DO
         END IF
         ! Calculate weighted tile albedo.
-        DO j = 1,surft_pts(n)
-          l = surft_index(j,n)
-          DO band = 1,4
-            alb_type(l,n,band) = fsnow(l) * alb_snow(l,n,band)                 &
-                                 + (1.0 - fsnow(l)) * alb_type(l,n,band)
+        IF (i_snow_tile(n) == 1) THEN
+          ! Ice tile is used as a separate snow tile
+          ! Preserve snow-free albedo on snow-free fractions of selected tiles
+          DO j = 1,surft_pts(n)
+            l = surft_index(j,n)
+            fsnow(l,ice) = 1.0
+            DO band = 1,4
+              alb_type(l,ice,band) = alb_snow(l,n,band)
+            END DO
           END DO
-        END DO
+        ELSE
+          DO j = 1,surft_pts(n)
+            l = surft_index(j,n)
+            DO band = 1,4
+              alb_type(l,n,band) = fsnow(l,n) * alb_snow(l,n,band)             &
+                                   + (1.0 - fsnow(l,n)) * alb_type(l,n,band)
+            END DO
+          END DO
+        END IF
       END DO   !  ntype
 
     ELSE ! l_snow_albedo
@@ -1232,6 +1244,7 @@ IF (l_spec_albedo) THEN
               snowd(l) = snowdep_surft(l,n)
             END DO
           END IF
+          fsnow(:,n) = 0.0
           DO j = 1,surft_pts(n)
             l = surft_index(j,n)
             IF ( tstar(l)  <   tcland ) THEN
@@ -1248,20 +1261,15 @@ IF (l_spec_albedo) THEN
               ! Use linear expansion of exponential if non-linear term
               ! is of order EPSILON (i.e., x^2.0/2.0 ~ EPSILON)
               IF (snowd(l)  >   SQRT(2.0*EPSILON(snowd))/maskd) THEN
-                alb_type(l,n,band) = alb_type(l,n,band) +                      &
-                                       (dsa - alb_type(l,n,band)) *            &
-                                       ( 1.0 - EXP(-maskd * snowd(l)) )
+                fsnow(l,n) = 1.0 - EXP(-maskd * snowd(l))
               ELSE
-                alb_type(l,n,band) = alb_type(l,n,band) +                      &
-                                       (dsa - alb_type(l,n,band)) *            &
-                                        maskd * snowd(l)
+                fsnow(l,n) = maskd * snowd(l)
               END IF
             ELSE
-              alb_type(l,n,band) = alb_type(l,n,band) +                        &
-                                     (dsa - alb_type(l,n,band)) *              &
-                                     ( 1.0 - EXP(-maskd * snowd(l)) )
-
+              fsnow(l,n) = 1.0 - EXP(-maskd * snowd(l))
             END IF
+            alb_type(l,n,band) = alb_type(l,n,band) +                          &
+                                   (dsa - alb_type(l,n,band)) * fsnow(l,n)
           END DO
         END DO
       END DO
@@ -1514,16 +1522,14 @@ ELSE ! l_spec_albedo
         ! Use linear expansion of exponential if non-linear term
         ! is of order EPSILON (i.e., x^2.0/2.0 ~ EPSILON)
         IF (snowd(l)  >   SQRT(2.0*EPSILON(snowd))/maskd) THEN
-          alb_type(l,n,1) = albsnf(l,n) + (dsa - albsnf(l,n)) *                &
-                              ( 1.0 - EXP(-maskd * snowd(l)) )
+          fsnow(l,n) = 1.0 - EXP(-maskd * snowd(l))
         ELSE
-          alb_type(l,n,1) = albsnf(l,n) + (dsa - albsnf(l,n)) *                &
-                              maskd * snowd(l)
+          fsnow(l,n) = maskd * snowd(l)
         END IF
       ELSE
-        alb_type(l,n,1) = albsnf(l,n) + (dsa - albsnf(l,n)) *                  &
-                            ( 1.0 - EXP(-maskd * snowd(l)) )
+        fsnow(l,n) =  1.0 - EXP(-maskd * snowd(l))
       END IF
+      alb_type(l,n,1) = albsnf(l,n) + (dsa - albsnf(l,n)) * fsnow(l,n)
     END DO
   END DO
 
@@ -1546,14 +1552,33 @@ DO band = 1,4
   DO i = 1,pfield
     land_albedo_ij(i,band) = 0.0
   END DO
-  DO n = 1,ntype
-    DO j = 1,surft_pts(n)
-      l = surft_index(j,n)
-      i = land_index(l)
-      land_albedo_ij(i,band) = land_albedo_ij(i,band) +                        &
-                            frac_surft(l,n) * alb_type(l,n,band)
+  IF (ANY(i_snow_tile == 1)) THEN
+    ! using a separate snow tile
+    DO n = 1,ntype
+      DO j = 1,surft_pts(n)
+        l = surft_index(j,n)
+        i = land_index(l)
+        IF (i_snow_tile(n) == 1) THEN
+          land_albedo_ij(i,band) = land_albedo_ij(i,band) +                    &
+                      (1 - fsnow(l,n)) * frac_surft(l,n) * alb_type(l,n,band)  &
+                        + fsnow(l,n) * frac_surft(l,n) * alb_type(l,ice,band)
+        ELSE
+          land_albedo_ij(i,band) = land_albedo_ij(i,band) +                    &
+                                   frac_surft(l,n) * alb_type(l,n,band)
+        END IF
+      END DO
     END DO
-  END DO
+  ELSE
+    ! not using a separate snow tile
+    DO n = 1,ntype
+      DO j = 1,surft_pts(n)
+        l = surft_index(j,n)
+        i = land_index(l)
+        land_albedo_ij(i,band) = land_albedo_ij(i,band) +                      &
+                                 frac_surft(l,n) * alb_type(l,n,band)
+      END DO
+    END DO
+  END IF
 END DO
 
 !----------------------------------------------------------------------

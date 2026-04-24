@@ -9,3 +9,4 @@
 | ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
 | t00sa           | Sam Clarke-Green | Met Office  | 2026-02-27 |
 | Pierre-siddall  | Pierre Siddall| Met Office | 2026-02-06 |
+| RichardEssery   | Richard Essery   | University of Edinburgh | 2026-04-18 |

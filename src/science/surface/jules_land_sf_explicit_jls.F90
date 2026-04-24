@@ -39,8 +39,8 @@ SUBROUTINE jules_land_sf_explicit (                                            &
  bq_1,bt_1,z1_uv,z1_uv_top,z1_tq,z1_tq_top,qw_1,tl_1,                          &
 ! IN soil/vegetation/land surface data :
  land_index,nsurft,sm_levels,canopy,catch,catch_snow,hcon_soilt,               &
- ho2r2_orog, flandg,                                                           &
- snow_surft,sil_orog_land,smvccl_soilt,smvcst_soilt,smvcwt_soilt,sthf_soilt,   &
+ ho2r2_orog, flandg, fsnow,                                                    &
+ sil_orog_land,smvccl_soilt,smvcst_soilt,smvcwt_soilt,sthf_soilt,              &
  sthu_soilt,z0_surft,z0h_surft_bare, z0m_soil_in,                              &
 ! IN input data from the wave model
  charnock_w,                                                                   &
@@ -99,9 +99,10 @@ SUBROUTINE jules_land_sf_explicit (                                            &
  wrr_gb,                                                                       &
  !Fluxes (IN OUT)
  anthrop_heat_surft,                                                           &
- !prognostics (IN)
- nsnow_surft, sice_surft, sliq_surft, snowdepth_surft,                         &
-                        tsnow_surft, ds_surft,                                 &
+ !snow prognostics (IN)
+ nsnow_surft, sice_surft, sliq_surft, tsnow_surft, ds_surft,                   &
+ !snow prognostics (IN OUT)
+ snowdepth_surft, snow_surft,                                                  &
  !c_elevate (OUT)
  surf_hgt_surft, lw_down_elevcorr_surft,                                       &
  !jules_mod (OUT)
@@ -169,8 +170,8 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
 
 USE jules_soil_mod, ONLY: dzsoil, dzsoil_elev, hcice, hcwat, hcondeep
 
-USE jules_surface_types_mod, ONLY: npft, nnpft, ntype,                         &
-                                   urban_canyon, urban_roof, soil, lake, ncpft
+USE jules_surface_types_mod, ONLY: npft, ncpft, nnpft, ntype,                  &
+                                   urban_canyon, urban_roof, soil, lake, ice
 
 #if defined(UM_JULES)
 USE atm_step_local, ONLY:  dim_cs1, co2_dim_len,co2_dim_row
@@ -181,6 +182,7 @@ USE ancil_info, ONLY:  dim_cs1, co2_dim_len, co2_dim_row
 USE jules_snow_mod, ONLY: cansnowtile                                          &
                           ,rho_snow_const                                      &
                           ,snow_hcon                                           &
+                          ,i_snow_tile                                         &
                           ,l_snowdep_surf                                      &
                           ,l_snow_nocan_hc                                     &
                           ,nsmax                                               &
@@ -307,11 +309,11 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 ,catch_snow(land_pts,nsurft)                                                   &
                              ! IN Snow interception capacity of
                              !    tiles (kg/m2).
+,fsnow(land_pts,nsurft)                                                        &
+                             ! IN Snow cover fractions on tiles
 ,hcon_soilt(land_pts,nsoilt)                                                   &
                              ! IN Soil thermal conductivity
                              !    (W/m/K).
-,snow_surft(land_pts,nsurft)                                                   &
-                             ! IN Lying snow on tiles (kg/m2)
 ,smvccl_soilt(land_pts,nsoilt,sm_levels)                                       &
                              ! IN Critical volumetric SMC
                              !    (cubic m per cubic m of soil).
@@ -707,13 +709,16 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
         wt_ext_irr_surft(land_pts,sm_levels,nsurft)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_irr_surft(land_pts,nsurft)
 
-!prognostics (IN)
+!snow prognostics (IN)
 INTEGER, INTENT(IN) :: nsnow_surft(land_pts,nsurft)
 REAL(KIND=real_jlslsm), INTENT(IN) :: sice_surft(land_pts,nsurft,nsmax),       &
                                       sliq_surft(land_pts,nsurft,nsmax),       &
-                                      snowdepth_surft(land_pts,nsurft),        &
                                       tsnow_surft(land_pts,nsurft,nsmax),      &
                                       ds_surft(land_pts,nsurft,nsmax)
+
+!snow prognostics (IN OUT)
+REAL(KIND=real_jlslsm), INTENT(IN OUT) :: snowdepth_surft(land_pts,nsurft),    &
+                                          snow_surft(land_pts,nsurft)
 
 !c_elevate (OUT)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: surf_hgt_surft(land_pts,nsurft),        &
@@ -1430,6 +1435,28 @@ ELSE
       tile_frac(l,n) = frac(l,n)
     END DO
 !$OMP END PARALLEL DO
+  END DO
+END IF
+
+!-----------------------------------------------------------------------
+! Modify tile fractions and zero snow mass and depth on selected tiles
+! if using the ice tile as a separate snow tile.
+!-----------------------------------------------------------------------
+IF (ANY(i_snow_tile == 1)) THEN
+  DO l = 1, land_pts
+    IF (.NOT. l_lice_point(l)) tile_frac(l,ice) = 0.0
+  END DO
+  DO n = 1,nsurft-1
+    DO l = 1, land_pts
+      tile_frac(l,n) = frac(l,n)
+      IF (i_snow_tile(n) == 1) THEN
+        snow_surft(l,n) = 0.0
+        snowdep_surft(l,n) = 0.0
+        snowdepth_surft(l,n) = 0.0
+        tile_frac(l,n) = (1 - fsnow(l,n))*frac(l,n)
+        tile_frac(l,ice) = tile_frac(l,ice) + fsnow(l,n)*frac(l,n)
+      END IF
+    END DO
   END DO
 END IF
 

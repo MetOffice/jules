@@ -31,12 +31,12 @@ USE pft_sparm_mod,            ONLY: pft_sparm
 USE nvg_sparm_mod,            ONLY: nvg_sparm
 
 !Use in relevant variables
-USE jules_surface_types_mod,  ONLY: lake, npft, ntype, soil, urban_canyon,     &
-                                    urban_roof
+USE jules_surface_types_mod,  ONLY: ice, lake, npft, ntype, soil,              &
+                                    urban_canyon, urban_roof
 USE jules_vegetation_mod,     ONLY: can_model, l_spec_veg_z0
 USE blend_h,                  ONLY: lb
 USE jules_surface_mod,        ONLY: i_aggregate_opt, l_aggregate
-USE jules_snow_mod,           ONLY: cansnowtile, snowloadlai
+USE jules_snow_mod,           ONLY: cansnowtile, i_snow_tile, snowloadlai
 USE c_z0h_z0m,                ONLY: z0h_z0m
 USE jules_urban_mod,          ONLY: l_moruses
 
@@ -102,6 +102,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! GBM canopy capacity (kg/m2).
   catch_t(land_pts,ntype),                                                     &
     ! Canopy capacities for types not tiles (kg/m2); required for l_aggregate.
+  fst(land_pts),                                                               &
+    ! Total fraction of tiles using a separate energy balance for snow.
   fz0(land_pts),                                                               &
     ! Aggregation function of Z0.
   fz0h(land_pts),                                                              &
@@ -164,6 +166,34 @@ IF ( .NOT. l_aggregate ) THEN
   ! z0_surft gets set to zero somewhere so needs to be called.
   CALL nvg_sparm (land_pts, surft_pts, surft_index, z0m_soil_gb, ztm_gb,       &
                   catch_surft, z0_surft)
+
+  !-----------------------------------------------------------------------------
+  ! Set parameters for the snow tile, number ice = ntype
+  !-----------------------------------------------------------------------------
+  ! A separate snow tile can only be used if this is not a land ice point and
+  ! surface types are not aggregated
+  IF (ANY(i_snow_tile == 1)) THEN
+    fst(:) = 0
+    fz0(:) = 0
+    DO n = 1,ntype-1
+      IF (i_snow_tile(n) == 1) THEN
+        DO j = 1,surft_pts(n)
+          l = surft_index(j,n)
+          IF (frac_surft(l,ice)  ==  0.0) THEN
+            fst(l) = fst(l) + frac_surft(l,n)
+            fz0(l) = fz0(l) + frac_surft(l,n) / (LOG(lb / z0_surft(l,n)))**2
+          END IF
+        END DO
+      END IF
+    END DO
+    DO l = 1,land_pts
+      IF (frac_surft(l,ice)  ==  0.0) THEN
+        catch_surft(l,ice) = 0.0
+        IF (fz0(l) > EPSILON(0.0))                                             &
+          z0_surft(l,ice) = lb * EXP(-SQRT(fst(l)/fz0(l)))
+      END IF
+    END DO
+  END IF
 
 ELSE ! l_aggregate
   !---------------------------------------------------------------------------

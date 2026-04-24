@@ -71,12 +71,12 @@ INTEGER, PARAMETER ::                                                          &
 INTEGER ::                                                                     &
   i_snow_cond_parm = 0
                    ! Parametrization scheme for snow conductivity
-                   
+
 INTEGER ::                                                                     &
   i_snow_tile(nsurft_max)
                    ! Tiles without (0) or with (1) separate energy balance
                    ! for snow. Must be 0 on ice tiles
-DATA i_snow_tile / nsurft_max * 0 /                   
+DATA i_snow_tile / nsurft_max * 0 /
 
 !-----------------------------------------------------------------------------
 ! Parametrization of the rate of growth of snow grains
@@ -396,17 +396,17 @@ END IF
 
 ! Check for inconsistencies if a separate snow tile is used
 IF ( ANY(i_snow_tile == 1) ) THEN
-! Tiles cannot be aggregated
+  ! Tiles cannot be aggregated
   IF ( l_aggregate ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
        'l_aggregate = F required if ANY i_snow_tile = 1')
   END IF
-! The last surface type must be an ice tile
-  IF ( ice .NE. ntype ) THEN
+  ! The last surface type must be an ice tile
+  IF ( ice  /=  ntype ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
        'ice = ntype required if ANY i_snow_tile = 1')
   END IF
-! The ice tile cannot be selected
+  ! The ice tile cannot be selected
   IF ( i_snow_tile(ntype) == 1 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
        'i_snow_tile(ntype) = 1 is not permitted')
