@@ -12,7 +12,7 @@
     [[ESNZ_CASCADE_PBS]]
         inherit = ESNZ_CASCADE
         platform = cascade-pbs
-        execution time limit = PT30M
+        execution time limit = PT10M
         [[[directives]]]
             -q = shortq
 
