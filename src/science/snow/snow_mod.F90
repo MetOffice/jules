@@ -374,15 +374,15 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Snow layer grain size (microns).
 
 ! Snow quantities on a separate snow tile
-REAL(KIND=real_jlslsm) ::                                                      &    
+REAL(KIND=real_jlslsm) ::                                                      &
   fsnow_old(land_pts),                                                         &
-    ! Snow cover fraction at start of timestep.   
+    ! Snow cover fraction at start of timestep.
   fsnow_new(land_pts),                                                         &
     ! Snow cover fraction at end of timestep.
   fsratio(land_pts),                                                           &
-    ! Ratio of snow cover fractions at start and end of timestep.   
+    ! Ratio of snow cover fractions at start and end of timestep.
   snowdepave(land_pts)
-    ! Average snow depth on surface types with a separate snow tile. 
+    ! Average snow depth on surface types with a separate snow tile.
 
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
   snow_surft_old(:,:),                                                         &
@@ -829,35 +829,35 @@ DO n = 1,nsurft
     END IF ! l_wtrac_jls
 !$OMP END PARALLEL
   END IF
-  
+
   !---------------------------------------------------------------------------
   ! Scale snowfall on selected tiles to the snow tile (number nsurft)
   !---------------------------------------------------------------------------
-    IF (i_snow_tile(n) == 1) THEN
-      DO k = 1,surft_pts(n)
-        i = surft_index(k,n)
-        snowonsnow(i) = 0.0
-        IF (fsnow(i,n) > EPSILON(0.0)) THEN
-          snowonsnow(i) = snowfall(i) / fsnow(i,n)
-        ELSE IF (snowfall(i) > 0.0) THEN
-          snowdepth(i,n) = snowfall(i) / rho_snow_fresh
-          IF (l_point_data) THEN
-            fsnow(i,n) = 1 - exp(- maskd * snowdepth(i,n))
-          ELSE
-            fsnow(i,n) = snowdepth(i,n) /                                      &
-                        (snowdepth(i,n) + 10*z0_surft(i,nsurft))
-          END IF
-          snowonsnow(i) = snowfall(i) / fsnow(i,n)
+  IF (i_snow_tile(n) == 1) THEN
+    DO k = 1,surft_pts(n)
+      i = surft_index(k,n)
+      snowonsnow(i) = 0.0
+      IF (fsnow(i,n) > EPSILON(0.0)) THEN
+        snowonsnow(i) = snowfall(i) / fsnow(i,n)
+      ELSE IF (snowfall(i) > 0.0) THEN
+        snowdepth(i,n) = snowfall(i) / rho_snow_fresh
+        IF (l_point_data) THEN
+          fsnow(i,n) = 1 - EXP(- maskd * snowdepth(i,n))
+        ELSE
+          fsnow(i,n) = snowdepth(i,n) /                                        &
+                      (snowdepth(i,n) + 10*z0_surft(i,nsurft))
         END IF
-        fsnow_old(i) = fsnow(i,n)
-        snowfall(i) = 0.0 
-      END DO
-    END IF
-    IF ( ANY(i_snow_tile == 1) .AND. n == nsurft ) THEN
-      DO i = 1,land_pts
-        IF (.NOT. l_lice_point(i)) snowfall(i) = snowonsnow(i)
-      END DO
-    END IF
+        snowonsnow(i) = snowfall(i) / fsnow(i,n)
+      END IF
+      fsnow_old(i) = fsnow(i,n)
+      snowfall(i) = 0.0
+    END DO
+  END IF
+  IF ( ANY(i_snow_tile == 1) .AND. n == nsurft ) THEN
+    DO i = 1,land_pts
+      IF (.NOT. l_lice_point(i)) snowfall(i) = snowonsnow(i)
+    END DO
+  END IF
 
   !==========================================================================
   ! *NOTICE REGARDING SOIL TILING**
@@ -969,7 +969,7 @@ DO n = 1,nsurft
           snowdepth(i,n) = snowdepth(i,n) + sice0(i) / rho0(i)
           snowdepave(i) = fsnow_old(i) * snowdepth(i,n)
           IF (l_point_data) THEN
-            fsnow_new(i) = 1 - exp(- maskd * snowdepave(i))
+            fsnow_new(i) = 1 - EXP(- maskd * snowdepave(i))
           ELSE
             fsnow_new(i) = snowdepave(i) / (snowdepave(i) + 10*z0_surft(i,n))
           END IF
