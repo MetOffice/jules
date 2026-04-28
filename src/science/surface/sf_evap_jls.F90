@@ -727,13 +727,15 @@ DO m = 1,sm_levels
   END DO !nsurft
   IF (nsoilt == 1) THEN
     ! Normalise ext_soilt, excluding irrigated fraction.
+    IF (.NOT. l_aggregate) THEN
 !$OMP DO SCHEDULE(STATIC)
-    DO l = 1,land_pts
-      IF (.NOT. l_aggregate .AND. non_irrig_frac(l)  >   0.0) THEN
-        ext_soilt(l,1,m) = ext_soilt(l,1,m) / non_irrig_frac(l)
-      END IF
-    END DO
+      DO l = 1,land_pts
+        IF (non_irrig_frac(l) > EPSILON(0.0)) THEN
+          ext_soilt(l,1,m) = ext_soilt(l,1,m) / non_irrig_frac(l)
+        END IF
+      END DO
 !$OMP END DO
+    END IF
     IF (l_flake_model) THEN
       ! Normalise ext_soilt, excluding the lake tile fraction.
 !$OMP DO SCHEDULE(STATIC)

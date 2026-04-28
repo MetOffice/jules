@@ -1062,7 +1062,7 @@ DO n = 1,npft
 
   ! For now this code needs to work for the existing irrigation code
   ! (i.e. l_irrig_dmd = T), where irrig_option = imdi.
-  ! The '<=' can be removed once irrig_otion = 1 is fully plumbed in and replaced
+  ! The '<=' can be removed once irrig_option = 1 is fully plumbed in and replaced
   ! with a '==' However, for now every instance of this in physiol and soil_evap
   ! should be written as:
   IF (nsoilt > 1.0 .OR. irrig_tile(n) == 0 .OR. irrig_option <= 0) THEN
