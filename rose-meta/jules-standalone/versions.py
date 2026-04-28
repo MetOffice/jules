@@ -54,16 +54,9 @@ class vn80_t34(MacroUpgrade):
         """Upgrade a JULES runtime app configuration."""
 
         # Move the l_inland switch from the rivers namelist to the hydrology
-        # namelist but only when the rivers are turned on. Otherwise set it to
-        # .false.
-        l_inland = ".false."
-        l_rivers = self.get_setting_value(
-            config, ["namelist:jules_rivers", "l_rivers"]
-        )
-        if l_rivers == ".true.":
-            l_inland = self.get_setting_value(
-                config, ["namelist:jules_rivers", "l_inland"]
-            )
+        # namelist. l_inland should always be false as it is only used
+        # in um-jules and lfric-jules (not jules-standalone).
+        # Also add l_use_land_fraction as false.
 
         lsm_id = int(
             self.get_setting_value(
@@ -72,7 +65,7 @@ class vn80_t34(MacroUpgrade):
         )
         if lsm_id != 3:
             self.add_setting(
-                config, ["namelist:jules_hydrology", "l_inland"], l_inland
+                config, ["namelist:jules_hydrology", "l_inland"], ".false."
             )
         self.remove_setting(config, ["namelist:jules_rivers", "l_inland"])
 

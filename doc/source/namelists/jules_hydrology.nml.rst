@@ -103,7 +103,7 @@ This file sets the hydrology options. It contains one namelist called :nml:lst:`
    :default: F
 
    TRUE
-       Some rivers end at inland basin flow points. This inland basin flow is used to increase soil moisture at these locations for water conservation purposes. This is only available for coupled models i.e. UM or LFRic. When coupled to LFRic, the soil moisture flux correction applied by this switch must be calculated by the Rivers-standalone component (:nml:mem:JULES_MODEL_ENVIRONMENT::lsm_id = 3) and passed to LFRic via OASIS using :nml:mem:OASIS_RIVERS::send_fields = inland_outflow.
+       Some rivers end at inland basin flow points. This inland basin flow is used to increase soil moisture at these locations for water conservation purposes. This is only available for coupled models i.e. UM or LFRic. When coupled to LFRic, the soil moisture flux correction applied by this switch must be calculated by the Rivers-standalone component (:nml:mem:`JULES_MODEL_ENVIRONMENT::lsm_id` = 3) and passed to LFRic via OASIS using :nml:mem:`OASIS_RIVERS::send_fields` = inland_outflow.
 
    FALSE
        No inland basin flow.

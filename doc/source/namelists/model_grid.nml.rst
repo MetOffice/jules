@@ -416,7 +416,7 @@ For any input grid with more than a single location, the following are used:
    :type: logical
    :default: F
 
-   Land fractions are used to determine coastal endorheic basins to calculate the inland basin flow diagnostic inland_outflow_rp or :nml:mem:OASIS_RIVERS::send_fields = inland_outflow.
+   Land fractions are used to determine coastal endorheic basins to calculate the inland basin flow diagnostic inland_outflow_rp or :nml:mem:`OASIS_RIVERS::send_fields` = inland_outflow.
 
    TRUE
        Supply land fractions (as fractions) to both the main grid and the rivers grid. This requires both grids and land-sea mask to be the same.

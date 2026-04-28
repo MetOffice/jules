@@ -425,6 +425,13 @@ The required variables for a particular configuration, along with their 'type' a
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | ``rivers_outflow_rp``            | River outflow on river routing points (kg s\ :sup:`-1`)                                 | none    |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
+| ``inland_outflow_rp``            | Inland basin flow on river routing points (kg m\ :sup:`-2` s\ :sup:`-1`).               | none    |
+|                                  | Adding this diagnostic will turn on inland basin flow which diverts river water flowing |         |
+|                                  | into an inland basin flow point to this diagnostic. At the same time runoff feeding     |         |
+|                                  | into an inland basin flow point will go to the oceans (via rivers_outflow_rp). This is  |         |
+|                                  | to stop water being caught in an infinite loop between soils and rivers. Therefore by   |         |
+|                                  | adding this diagnostic the rflow and rivers_sto_rp diagnostics will also change.        |         |
++----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | Required if :nml:mem:`JULES_VEGETATION::photo_acclim_model` = 2 or 3                                                                 |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | ``t_growth_gb``                  | Running mean air temperature (K)                                                        | none    |

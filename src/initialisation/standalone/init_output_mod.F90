@@ -433,16 +433,19 @@ IF ( is_master_task() ) THEN
   END IF
 
   IF ( ANY( var(:) == 'inland_outflow_rp' ) ) THEN
-    ! For the special case when the inland basin flow diagnostic is
-    ! requested and the model does not already have l_inland_outflow
-    ! set by the coupler then this will alter the outflow_per_river
-    ! diagnostic. If this is the case then print out a warning.
-    IF ( l_outflow_per_river .AND. (.NOT. l_inland_outflow) ) THEN
+    ! The inland basin flow is used for water conservation purposes
+    ! and as such alters the calculation of river flow. To avoid
+    ! super-saturation, inflow (surface & sub-surface runoff) is sent
+    ! to the ocean via the closest large river favouring those with
+    ! larger climatological outflows. This diagnostic when coupled
+    ! is passed to the soil moisture. When uncoupled, ensure its
+    ! affect on river flow calculations is known via a warning.
+    IF (.NOT. l_inland_outflow) THEN
       CALL log_warn( RoutineName,                                              &
                      "Adding the inland_outflow_rp diagnostic " //             &
                      "will alter the flow going into inland basin flow " //    &
-                     "points and the contents of the outflow_per_river " //    &
-                     "diagnostic." )
+                     "points, changing the calculation of river flow and " //  &
+                     "its associated diagnostics." )
     END IF
 
     l_inland_outflow = .TRUE.
