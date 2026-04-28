@@ -49,6 +49,8 @@ USE jules_surface_mod,         ONLY: l_aggregate
 USE jules_vegetation_mod, ONLY: l_triffid, l_phenol, can_rad_mod
 USE jules_soil_biogeochem_mod,ONLY: l_layeredc
 
+USE metstats_mod, ONLY: metstats_allocate
+
 USE pftparm_io, ONLY: init_pftparm_allocated
 
 USE nvegparm_io, ONLY: init_nvegparm_allocated
@@ -249,6 +251,10 @@ ELSE
   ALLOCATE(rivers_data%global_land_index(1))
 END IF
 rivers_data%global_land_index(:) = imdi
+
+! Metstats is not available in the UM, but call this to prevent an unallocated
+! pointer.
+CALL metstats_allocate(land_pts)
 
 !Associate the JULES pointer types to the data types.
 !Doing this here reflects when the same is done in standalone JULES

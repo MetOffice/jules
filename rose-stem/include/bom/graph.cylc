@@ -1,3 +1,8 @@
+
+{% if environ["HOSTNAME"].startswith("dr-") %}
+    {% from 'include/bom/graph-dr.cylc' import name_graphs, groups %}
+{% else %}
+
 ###############################################################################
 ## Imports
 ###############################################################################
@@ -9,7 +14,6 @@
 {%- set name_graphs = {} %}
 {%- do name_graphs.update(name_graphs_xc40_intel.items()) %}
 
-
 ###############################################################################
 ## Group definitions
 ###############################################################################
@@ -20,3 +24,5 @@
     }
 %}
 {%- do groups.update(groups_xc40_intel.items()) %}
+
+{% endif %}

@@ -1,0 +1,60 @@
+###############################################################################
+# CODEOWNERS
+###############################################################################
+#
+# Purpose
+# -------
+# This file defines code ownership for the JULES repository.
+#
+# Notes
+# -----
+# * Code ownership indicates leadership and review responsibility, not a
+#   commitment to undertake all work or reviews.
+# * Planned changes should be discussed with the relevant module leader.
+# * Module leaders should be offered the option to review changes affecting
+#   their areas.
+# * Interfaces between components must be agreed by all affected parties.
+# * When leadership changes, this file should be updated.
+# * Rose meta-data (in rose-meta) is owned by the appropriate module leader.
+#
+###############################################################################
+# Science Module Leaders (informational)
+###############################################################################
+# Surface:                 John Edwards, Rich Ellis
+# Hydrology:               Nic Gedney, Sonja Folwell
+# Vegetation:              Lina Mercado, Karina Williams, Rebecca Oliver
+# Veg3 RED Demography:     Andy Wiltshire, Arthur Argles
+# Biogeochemistry:         Eleanor Burke, Noah Smith
+# Biogenic fluxes:         Garry Hayman, James Weber
+# Fire:                    Doug Kelley, Chantelle Burton
+# Lakes:                   Helen Johnson
+# Evaluation:              Nina Raoult, Siyuan Tian
+# CABLE Science:           Ian Harman, Claire Carouge
+# IMOGEN:                  Chris Huntingford, Eleanor Burke
+#
+###############################################################################
+# Code Owners
+###############################################################################
+
+**/                                 @GiorgiaLine
+rose-meta/**/version*.py            @james-bruten-mo
+rose-meta/jules-shared/HEAD/rose-meta.conf    @maggiehendry
+rose-meta/jules-standalone/HEAD/rose-meta.conf    @maggiehendry
+rose-meta/jules-um/HEAD/rose-meta.conf    @maggiehendry
+rose-stem/                        @james-bruten-mo
+etc/                              @MetOffice/ssdteam
+**/science/river_routing            @maggiehendry
+**/initialisation/rivers_standalone @maggiehendry
+**/control/rivers-standalone/       @maggiehendry
+**/control/shared/jules_rivers_mod.F90      @maggiehendry
+**/io/rivers-standalone     @maggiehendry
+**/control/shared/surf_couple_rivers_mod.F90        @maggiehendry
+**/initialisation/standalone/ancillaries/init_ancillaries_coupling_mod.F90      @maggiehendry
+**/initialisation/standalone/ancillaries/init_rivers_process_data_mod.F90       @maggiehendry
+**/initialisation/standalone/ancillaries/init_rivers_props_mod.F90      @maggiehendry
+**/initialisation/standalone/ancillaries/jules_rivers_props_mod.F90     @maggiehendry
+**/initialisation/standalone/grid/init_river_out_grid_mod.F90           @maggiehendry
+**/initialisation/standalone/init_rivers.F90        @maggiehendry
+**/control/shared/jules_water_resources_mod.F90     @maggiehendry
+**/control/shared/overbank_inundation_mod.F90       @maggiehendry
+**/io/dump/get_dim_info_mod.F90     @maggiehendry
