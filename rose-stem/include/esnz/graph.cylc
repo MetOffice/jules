@@ -1,19 +1,17 @@
 ###############################################################################
 ## Imports
 ###############################################################################
-%include 'include/niwa/graph-cs500.cylc'
-%include 'include/niwa/graph-xc50.cylc'
+%include 'include/esnz/graph-cascade.cylc'
 
 ###############################################################################
 ## Name graphs
 ###############################################################################
 {%- set name_graphs = {
-        "umdp3_check"       : "export_source => umdp3_checker",
-        "metadata_check"       : "export_source => metadata_checker",
-        "site_validator" : "export_source => site_validator",
+        "umdp3_check"    : "extract_source => umdp3_checker",
+        "metadata_check" : "extract_source => metadata_checker",
+        "site_validator" : "extract_source => site_validator",
 } %}
-{%- do name_graphs.update(name_graphs_cs500.items()) %}
-{%- do name_graphs.update(name_graphs_xc50.items()) %}
+{%- do name_graphs.update(name_graphs_cascade.items()) %}
 
 ###############################################################################
 ## Group definitions
@@ -21,13 +19,12 @@
 
 {%- set groups = {
 
-        "all" : ["niwa_cs500_all", "niwa_xc50_all", "scripts"],
+        "all" : ["esnz_cascade_all", "scripts"],
 
-        "tutorial" : ["niwa_xc50_intel_loobos_crops"],
+        "tutorial" : ["esnz_cascade_ifx_loobos_crops"],
 
         "scripts"   : ["umdp3_check", "metadata_check", "site_validator"],
 
     }
 %}
-{%- do groups.update(groups_cs500.items()) %}
-{%- do groups.update(groups_xc50.items()) %}
+{%- do groups.update(groups_cascade.items()) %}

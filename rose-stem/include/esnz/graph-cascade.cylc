@@ -1,0 +1,94 @@
+###############################################################################
+## Name graphs
+###############################################################################
+
+# The Loobos crops graph needs to be listed explicitly for the tutorial group
+{%- set name_graphs_cascade = {
+
+        "esnz_cascade_fcm_make" : "extract_source => fcm_make_esnz_cascade<compiler_cascade>_omp
+                                   extract_source => fcm_make_esnz_cascade<compiler_cascade>_debug_noomp",
+
+        "esnz_cascade_ifx_loobos_jules_es_1p0_biocrop" : "extract_source => fcm_make_esnz_cascade_ifx_debug_noomp => \
+                                                          esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup => esnz_cascade_ifx_loobos_jules_es_1p0_biocrop \
+                                                          & esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand => \
+                                                          nccmp_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop \
+                                                          & nccmp_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand => \
+                                                          housekeep_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup \
+                                                          & housekeep_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop \
+                                                          & housekeep_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand",
+
+        "esnz_cascade_ifx_loobos_crops" : "extract_source => fcm_make_esnz_cascade_ifx_debug_noomp =>
+                                           esnz_cascade_ifx_loobos_crops =>
+                                           nccmp_esnz_cascade_ifx_loobos_crops =>
+                                           housekeep_esnz_cascade_ifx_loobos_crops",
+
+        "esnz_cascade_ifx_loobos_single" : "extract_source => fcm_make_esnz_cascade_ifx_debug_noomp =>
+                                            esnz_cascade_ifx_loobos<loobos_single> =>
+                                            nccmp_esnz_cascade_ifx_loobos<loobos_single> =>
+                                            housekeep_esnz_cascade_ifx_loobos<loobos_single>",
+
+        "esnz_cascade_ifx_loobos_with_spinup" : "extract_source => fcm_make_esnz_cascade_ifx_debug_noomp =>
+                                                 esnz_cascade_ifx_loobos<loobos_with_spinup>_spinup =>
+                                                 esnz_cascade_ifx_loobos<loobos_with_spinup> =>
+                                                 nccmp_esnz_cascade_ifx_loobos<loobos_with_spinup> =>
+                                                 housekeep_esnz_cascade_ifx_loobos<loobos_with_spinup>_spinup & \
+                                                 housekeep_esnz_cascade_ifx_loobos<loobos_with_spinup>
+
+                                                 extract_source => fcm_make_esnz_cascade_ifx_debug_noomp =>
+                                                 esnz_cascade_ifx_loobos_julesc_spinup =>
+                                                 esnz_cascade_ifx_loobos<loobos_jules_c1p1> =>
+                                                 nccmp_esnz_cascade_ifx_loobos<loobos_jules_c1p1> =>
+                                                 housekeep_esnz_cascade_ifx_loobos_julesc_spinup & \
+                                                 housekeep_esnz_cascade_ifx_loobos<loobos_jules_c1p1>",
+
+        "esnz_cascade_ifx_gswp2_single" : "extract_source => fcm_make_esnz_cascade_ifx_omp =>
+                                           esnz_cascade_ifx_gswp2<gswp2_single> =>
+                                           nccmp_esnz_cascade_ifx_gswp2<gswp2_single> =>
+                                           housekeep_esnz_cascade_ifx_gswp2<gswp2_single>",
+
+        "esnz_cascade_ifx_gswp2_es_1p1" : "extract_source => fcm_make_esnz_cascade_ifx_omp =>
+                                           esnz_cascade_ifx_gswp2_es<gswp2_es_1p1> =>
+                                           nccmp_esnz_cascade_ifx_gswp2_es<gswp2_es_1p1> =>
+                                           housekeep_esnz_cascade_ifx_gswp2_es<gswp2_es_1p1>",
+
+        "esnz_cascade_ifx_gswp2_with_spinup" : "extract_source => fcm_make_esnz_cascade_ifx_omp =>
+                                                esnz_cascade_ifx_gswp2_trip_spinup =>
+                                                esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage =>
+                                                nccmp_esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage =>
+                                                housekeep_esnz_cascade_ifx_gswp2_trip_spinup =>
+                                                housekeep_esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage",
+
+        "esnz_cascade_ifx_eraint" : "extract_source => fcm_make_esnz_cascade_ifx_omp =>
+                                     esnz_cascade_ifx_eraint<eraint_tests> =>
+                                     nccmp_esnz_cascade_ifx_eraint<eraint_tests> =>
+                                     housekeep_esnz_cascade_ifx_eraint<eraint_tests>",
+
+    }
+%}
+
+###############################################################################
+## Group definitions
+###############################################################################
+
+{%- set groups_cascade = {
+
+        "esnz_cascade_all" : ["esnz_cascade_build",
+                              "esnz_cascade_loobos",
+                              "esnz_cascade_gswp2",
+                              "esnz_cascade_eraint"],
+
+        "esnz_cascade_build" : ["esnz_cascade_fcm_make"],
+
+        "esnz_cascade_loobos" : ["esnz_cascade_ifx_loobos_single",
+                                 "esnz_cascade_ifx_loobos_with_spinup",
+                                 "esnz_cascade_ifx_loobos_crops",
+                                 "esnz_cascade_ifx_loobos_jules_es_1p0_biocrop"],
+
+        "esnz_cascade_gswp2" : ["esnz_cascade_ifx_gswp2_single",
+                                "esnz_cascade_ifx_gswp2_with_spinup",
+                                "esnz_cascade_ifx_gswp2_es_1p1"],
+
+        "esnz_cascade_eraint" : ["esnz_cascade_ifx_eraint"],
+
+    }
+%}
