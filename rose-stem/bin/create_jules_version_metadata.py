@@ -132,14 +132,14 @@ def check_version_numbers(fname, current_version, new_version):
             print(line.strip())
             if not re.search(r"%s"%(current_version), line):
                 print("%s does not match 'Current version'\n"%(fname))
-                something = input("Press CTRL-c to abort, or enter to continue: ")
+                _ = input("Press CTRL-c to abort, or enter to continue: ")
             else:
                 print("%s consistent with 'Current version'"%(fname))
 
     if abs(new_version - current_version - 0.1) > 0.01:
         print ("Increment between 'Current version' and 'New version' greater"
                " than normal value 0.1. Was this intentional?\n")
-        something = input("Press CTRL-c to abort, or enter to continue: ")
+        _ = input("Press CTRL-c to abort, or enter to continue: ")
 
 
 def check_for_new_revision_dirs(dirs, new_version):
@@ -196,6 +196,7 @@ if __name__ == '__main__':
     dirs.append("../rose-meta/jules-fcm-make")
     dirs.append("../rose-meta/jules-standalone")
     dirs.append("../rose-meta/jules-um")
+    dirs.append("../rose-meta/jules-lfric")
 
     # Check that new_version directories do not already exist
     print("\nChecking for existing vn%s directories"%(new_version))
