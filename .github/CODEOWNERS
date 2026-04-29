@@ -38,7 +38,9 @@
 
 **/                                 @GiorgiaLine
 rose-meta/**/version*.py            @james-bruten-mo
-rose-meta/**/HEAD/rose-meta.conf    @maggiehendry
+rose-meta/jules-shared/HEAD/rose-meta.conf    @maggiehendry
+rose-meta/jules-standalone/HEAD/rose-meta.conf    @maggiehendry
+rose-meta/jules-um/HEAD/rose-meta.conf    @maggiehendry
 rose-stem/                        @james-bruten-mo
 etc/                              @MetOffice/ssdteam
 **/science/river_routing            @maggiehendry
