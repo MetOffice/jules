@@ -120,7 +120,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       Switch to include biogenic heating due to soil carbon decomposition.
 
       TRUE
-          Include the release of heat associated with soil carbon decomposition on soil temperature.
+          Include the release of heat associated with soil carbon decomposition.
 
       FALSE
           Not releasing the heat associated with soil carbon decomposition on soil temperature.
