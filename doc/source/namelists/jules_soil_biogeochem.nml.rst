@@ -123,9 +123,9 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
           Include the release of heat associated with soil carbon decomposition.
 
       FALSE
-          Not releasing the heat associated with soil carbon decomposition on soil temperature.
+          Not releasing the heat associated with soil carbon decomposition.
 
-      .. note:: If (:nml:mem:`l_q10` = TRUE) the a peak in the dependence of respiration on soil temperature (Equation 4.4 and Figure 4.1, Catherine Luke PhD thesis) will be included eliminating the problem of unrealistic high soil temperature. Representing the reduction in microbial respiration when the temperatures are very high.
+      .. note:: If (:nml:mem:`l_q10` = TRUE) then a peak in the dependence of respiration on soil temperature (Equation 4.4 and Figure 4.1, Catherine Luke PhD thesis) will be included eliminating the problem of unrealistic high soil temperature. Representing the reduction in microbial respiration when the temperatures are very high.
 
       .. seealso::
          References:
