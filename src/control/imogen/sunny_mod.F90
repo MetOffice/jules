@@ -105,9 +105,10 @@ REAL ::                                                                        &
 INTEGER :: i,j    ! WORK Loop counter.
 
 REAL, PARAMETER :: frac_day_to_tmax = 0.15
-REAL, PARAMETER :: tmax_offset_perpetual = 2.5
-REAL, PARAMETER :: tmax_cap_hours = 3.0
-REAL, PARAMETER :: deg_per_hour = 15.0  ! 360 degrees / 24 hours
+  ! fraction of day after local noon when the daily maximum
+  ! temperature is assumed to occur.
+REAL, PARAMETER :: deg_per_hour = 15.0 
+  ! 360 degrees / 24 hours
 
 CALL solpos (daynumber, year, sindec, scs) ! scs is calculated but unused
 
@@ -163,13 +164,8 @@ END DO
 !----------------------------------------------------------------------
 DO i = 1,points
 
-  coslat = SQRT(MAX(0.0, 1 - sinlat(i)**2))
-  IF (coslat < EPSILON(1.0)) THEN
-    tanlat = SIGN(HUGE(1.0), sinlat(i))  ! Large value with correct sign
-  ELSE
-    tanlat = sinlat(i) / coslat
-  END IF
-
+  coslat = SQRT(1 - sinlat(i)**2)
+  tanlat = sinlat(i) / coslat
   tantan = tanlat * tandec
 
   IF (ABS(tantan) <= 1.0) THEN      ! Sun sets and rises
@@ -181,16 +177,14 @@ DO i = 1,points
     time_down  = 0.5 * rhour_per_day                                           &
                * ((omega_down - lonrad(i)) / pi + 1.0)
 
-    ! Cap offset at tmax_cap_hours (3 hours)
-    ! Prevent unrealistic values for long days
     time_max(i) = 0.5 * (time_up + time_down)                                  &
-                + MIN(frac_day_to_tmax * (time_down - time_up), tmax_cap_hours)
+                + frac_day_to_tmax * (time_down - time_up)
 
   ELSE IF (tantan < -1.0) THEN      ! Perpetual day (sun never sets)
     ! Local noon in UTC: 12 - (longitude in hours)
     ! Max temp ~2-3 hours after local noon
     time_max(i) = rhour_per_day / 2.0 - (lon(i) / deg_per_hour) +              &
-                  tmax_offset_perpetual
+                  frac_day_to_tmax * 24.0
 
   ELSE                               ! Perpetual night (sun never rises)
     ! No solar heating; set to local noon as placeholder
