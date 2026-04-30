@@ -189,14 +189,7 @@ IF (l_q10) THEN
   DO j = 1,sm_levels
 !$OMP DO SCHEDULE(STATIC)
     DO l = 1,land_pts
-      IF (l_bgc_heat) THEN
-        ! If compost bombs need a 'peak' in the respiration function
-        ! this form is from Cat Luke's PhD thesis (REF)
-        ftemp(l,j) = (q10 ** (0.1 * (tsoil(l,j) - 282.4))) /                   &
-                       (1 + q10 ** (tsoil(l,j) - 343.15))
-      ELSE
-        ftemp(l,j) = q10 ** (0.1 * (tsoil(l,j) - 282.4))
-      END IF
+      ftemp(l,j) = q10 ** (0.1 * (tsoil(l,j) - 282.4))
     END DO
 !$OMP END DO NOWAIT
   END DO
