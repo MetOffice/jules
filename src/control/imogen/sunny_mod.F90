@@ -107,7 +107,7 @@ INTEGER :: i,j    ! WORK Loop counter.
 REAL, PARAMETER :: frac_day_to_tmax = 0.15
   ! fraction of day after local noon when the daily maximum
   ! temperature is assumed to occur.
-REAL, PARAMETER :: deg_per_hour = 15.0 
+REAL, PARAMETER :: deg_per_hour = 15.0
   ! 360 degrees / 24 hours
 
 CALL solpos (daynumber, year, sindec, scs) ! scs is calculated but unused
