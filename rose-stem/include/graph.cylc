@@ -12,8 +12,8 @@
 %include 'include/vm/graph.cylc'
 {% elif SITE == 'jasmin' %}
 %include 'include/jasmin/graph.cylc'
-{% elif SITE == 'niwa' %}
-%include 'include/niwa/graph.cylc'
+{% elif SITE == 'esnz' %}
+%include 'include/esnz/graph.cylc'
 {% elif SITE == 'cehwl1' %}
 %include 'include/cehwl1/graph.cylc'
 {% elif SITE == 'nci' %}

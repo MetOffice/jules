@@ -33,7 +33,7 @@ jobs:
     outputs:
       should-deploy: ${{ steps.check-deploy.outputs.should-deploy }}
     env:
-      PYTHON_VRSN: '3.13'
+      PYTHON_VRSN: '3.12'
       JULES_PATH: jules
       ARTIFACT_PATH: artifact
       OUTPUT_PATH: jules_docs
