@@ -118,12 +118,8 @@ DO i = 1,points
   coszm(i)   = 0.0
 END DO
 
-cosdec   = SQRT(MAX(0.0, 1 - sindec**2))
-IF (cosdec < EPSILON(1.0)) THEN
-  tandec = SIGN(HUGE(1.0), sindec)
-ELSE
-  tandec   = sindec / cosdec
-END IF
+cosdec   = SQRT(1 - sindec**2)
+tandec   = sindec / cosdec
 timestep = REAL(secs_in_day) / REAL(jday)
 
 !----------------------------------------------------------------------
