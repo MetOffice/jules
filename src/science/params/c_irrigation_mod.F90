@@ -23,7 +23,7 @@ INTEGER, ALLOCATABLE ::                                                        &
 !                         1 - Irrigated
 
 
-CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='C_IRRIGATION'
+CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='C_IRRIGATION_MOD'
 
 CONTAINS
 

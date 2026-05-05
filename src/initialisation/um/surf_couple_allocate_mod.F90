@@ -55,8 +55,6 @@ USE nvegparm_io, ONLY: init_nvegparm_allocated
 
 USE nvegparm, ONLY: z0_nvg, check_jules_nvegparm
 
-USE c_irrigation_mod, ONLY: check_irrigation
-
 USE trif_io, ONLY:                                                             &
 ! namelist variables:
   crop_io,         harvest_freq_io,                                            &
@@ -407,7 +405,6 @@ z0_soil = z0_nvg(soil - npft)
 
 ! Now that the arrays have been allocated and filled we can check them
 CALL check_jules_nvegparm(nnvg,npft)
-CALL check_irrigation()
 CALL check_jules_red_parms()
 CALL check_compatible_options()
 
