@@ -43,12 +43,12 @@ from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
 
-class vn80_t23(MacroUpgrade):
+class vn81_t23(MacroUpgrade):
 
     """ Upgrade macro from JULES by Heather Rumbold """
 
-    BEFORE_TAG = "vn8.0"
-    AFTER_TAG = "vn8.0_t23"
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_t23"
 
     def upgrade(self,config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
