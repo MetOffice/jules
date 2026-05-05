@@ -63,6 +63,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE c_irrigation_alloc
 
+#if !defined(UM_JULES) && !defined(LFRIC)
 SUBROUTINE check_irrigation()
 
 USE jules_surface_types_mod, ONLY: c3_irrig, c4_irrig, ntype, npft
@@ -124,6 +125,7 @@ END IF
 
 RETURN
 END SUBROUTINE check_irrigation
+#endif
 
 
 END MODULE c_irrigation_mod
