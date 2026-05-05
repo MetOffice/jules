@@ -8,6 +8,8 @@
 name: User Guide
 
 on:
+  release:
+    types: [published]
   push:
     branches:
       - main
@@ -19,6 +21,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -27,13 +30,31 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      should-deploy: ${{ steps.check-deploy.outputs.should-deploy }}
     env:
       PYTHON_VRSN: '3.13'
-      VENV_PATH: 'doc/.venv'
+      JULES_PATH: jules
+      ARTIFACT_PATH: artifact
+      OUTPUT_PATH: jules_docs
+      VENV_PATH: jules/doc/.venv
 
     steps:
+      - name: Check deployment conditions
+        id: check-deploy
+        run: |
+          if [[ "${{ github.repository }}" == "MetOffice/jules" && "${{ github.ref_name }}" == "main" && ("${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "release" || "${{ github.event_name }}" == "workflow_dispatch") ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          path: ${{ env.JULES_PATH }}
+          # Get all refs to build historic versions
+          fetch-depth: 0
 
       - name: Setup uv with Python ${{ env.PYTHON_VRSN }}
         uses: astral-sh/setup-uv@v7
@@ -50,34 +71,66 @@ jobs:
             ${{ runner.os }}-uv-
 
       - name: Install dependencies
-        working-directory: ./doc
+        working-directory: ${{ env.JULES_PATH }}/doc
         run: uv sync
 
       - name: Lint Sphinx docs
-        working-directory: ./doc
+        working-directory: ${{ env.JULES_PATH }}/doc
         run: uv run sphinx-lint source
 
-      - name: Build HTML docs
-        working-directory: ./doc
+      - name: Build HTML docs for testing
+        if: steps.check-deploy.outputs.should-deploy == 'false'
+        working-directory: ${{ env.JULES_PATH }}/doc
         run: uv run make clean html
+
+      - name: Download Artifact
+        if: steps.check-deploy.outputs.should-deploy == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get workflow id of last run to upload an artifact
+          run_id=$(gh run list -R MetOffice/jules -b main -w user-guide.yaml --limit 2 --json databaseId | jq -r '.[1].databaseId')
+
+          # Download tarred artifact
+          gh run download -R MetOffice/jules $run_id -n github-pages
+
+          # Create output directory and untar
+          tar -xf artifact.tar --one-top-level=artifact
+
+
+      - name: Build HTML docs for deployment
+        if: steps.check-deploy.outputs.should-deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source ${{ env.VENV_PATH }}/bin/activate
+          if [ -d ${{ env.ARTIFACT_PATH }} ]; then
+            echo "Using Artifact"
+            python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j ${{ env.JULES_PATH }} -a ${{ env.ARTIFACT_PATH }} -o ${{ env.OUTPUT_PATH }} -l INFO
+          else
+            echo "Not Using Artifact"
+            python3 ${{ env.JULES_PATH }}/.github/scripts/create_jules_version_docs.py -j jules -o ${{ env.OUTPUT_PATH }} -l INFO
+          fi
 
       - name: Minimize uv cache
         run: uv cache prune --ci
 
       # -- Deploy to GitHub Pages only on push to upstream main
       - name: Setup GitHub Pages
-        if: ${{ github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         uses: actions/configure-pages@v5
 
       - name: Upload artifact to GitHub Pages
-        if: ${{ github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           name: github-pages
-          path: doc/build/html
-          retention-days: 1
+          path: ${{ env.OUTPUT_PATH }}
+          # Use maximum retention days to avoid rebuilding all versions if possible
+          retention-days: 90
 
       - name: Deploy to GitHub Pages
         id: deployment
-        if: ${{ github.ref_name == 'main' && (github.event_name == 'push' || github.event_name == 'merge_group') }}
+        if: steps.check-deploy.outputs.should-deploy == 'true'
         uses: actions/deploy-pages@v4

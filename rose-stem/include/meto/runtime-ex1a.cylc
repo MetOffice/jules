@@ -17,6 +17,9 @@
         inherit = METO_EX1A
         script = true
         execution time limit = PT2M
+        [[[directives]]]
+            -q = shared
+            -l ncpus=1
 
     [[extract_source_ex1a]]
         inherit = SOURCE_SYNC
