@@ -1,5 +1,4 @@
 # Contributors
-
 | GitHub user     | Real Name        | Affiliation | Date       |
 | --------------- | ---------------- | ----------- | ---------- |
 | james-bruten-mo | James Bruten     | Met Office  | 2025-12-09 |
@@ -12,3 +11,4 @@
 | eleanorgb       | Eleanor Burke    | Met Office  | 2026-03-06 |
 | Pierre-siddall  | Pierre Siddall| Met Office | 2026-02-06 |
 | tinyendian | Wolfgang Hayek | Earth Sciences New Zealand | 2026-04-24 |
+| Pierre-siddall  | Pierre Siddall| Met Office | 2026-02-06 |
