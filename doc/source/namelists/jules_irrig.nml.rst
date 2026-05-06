@@ -26,7 +26,7 @@ This namelist specifies the different options available for setting up the irrig
    :type: logical
    :default: F
 
-   Switch controlling the implementation of irrigation demand code.
+   Switch controlling the implementation of fraction-based irrigation demand code.
 
    TRUE
       Tiles are irrigated.
@@ -35,7 +35,22 @@ This namelist specifies the different options available for setting up the irrig
       No effect.
 
    This must be set to TRUE if :nml:mem:`JULES_WATER_RESOURCES::l_water_irrigation` = TRUE.
+   This must be set to FALSE if :nml:mem:`JULES_IRRIG::irrig_option` > 0.
 
+
+.. nml:member:: irrig_option
+   
+   :type: integer
+   :permitted: 0, 1 or 2
+   :default: 0
+
+   Options for applying irrigation
+
+   0. No irrigation applied.
+   1. Not available yet
+   2. Apply irrigation to irrigated surface types C3_irrig and/or C4_irrig. This option requires :nml:mem:`JULES_IRRIG::l_irrig_dmd` = FALSE and :nml:mem:`JULES_PFTPARM::irrig_pft_io` = 0 or 1.
+
+   At the moment if :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, then :nml:mem:`JULES_IRRIG::irrig_option` must be set to 0, but in future releases this will be option 1.
 
 .. nml:member:: l_irrig_limit
 
