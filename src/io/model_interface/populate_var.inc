@@ -1632,6 +1632,60 @@ CASE ( 't_soil_soilt' )
     progs%t_soil_soilt(:,:,:) = const_val
   END IF
 
+CASE ( 'alt_currentyear' )
+  IF ( PRESENT(cube) ) THEN
+    IF ( l_tile_soil .AND. l_broadcast_soilt) THEN
+      !Spread around soilt dim
+      cube_land = map_to_land(cube)
+      CALL cube_get_data(cube_land, progs%alt_currentyear_soilt(:,1))
+      progs%alt_currentyear_soilt(:,:) = SPREAD(progs%alt_currentyear_soilt(:,1), 2, nsoilt)
+    ELSE IF ( .NOT. l_tile_soil ) THEN
+      !Do nothing special
+      cube_land = map_to_land(cube)
+      CALL cube_get_data(cube_land, progs%alt_currentyear_soilt(:,1))
+    ELSE
+      CALL log_fatal("populate_var",                                           &
+                     "Cannot populate alt_currentyear- failure in logic")
+    END IF
+  ELSE
+    progs%alt_currentyear_soilt(:,:) = const_val
+  END IF
+
+  CASE ( 'alt_lastyear' )
+  IF ( PRESENT(cube) ) THEN
+    IF ( l_tile_soil .AND. l_broadcast_soilt) THEN
+      !Spread around soilt dim
+      cube_land = map_to_land(cube)
+      CALL cube_get_data(cube_land, progs%alt_lastyear_soilt(:,1))
+      progs%alt_lastyear_soilt(:,:) = SPREAD(progs%alt_lastyear_soilt(:,1), 2, nsoilt)
+    ELSE IF ( .NOT. l_tile_soil ) THEN
+      !Do nothing special
+      cube_land = map_to_land(cube)
+      CALL cube_get_data(cube_land, progs%alt_lastyear_soilt(:,1))
+    ELSE
+      CALL log_fatal("populate_var",                                           &
+                     "Cannot populate alt_lastyear- failure in logic")
+    END IF
+  ELSE
+    progs%alt_lastyear_soilt(:,:) = const_val
+  END IF
+
+CASE ( 'alt_currentyear_soilt' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, progs%alt_currentyear_soilt)
+  ELSE
+    progs%alt_currentyear_soilt(:,:) = const_val
+  END IF
+
+CASE ( 'alt_lastyear_soilt' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, progs%alt_lastyear_soilt)
+  ELSE
+    progs%alt_lastyear_soilt(:,:) = const_val
+  END IF
+
 CASE ( 'tsoil_deep' )
   IF ( PRESENT(cube) ) THEN
     cube_land = map_to_land(cube)

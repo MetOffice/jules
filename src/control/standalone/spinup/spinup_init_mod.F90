@@ -90,6 +90,14 @@ DO i = 1,nvars
     ALLOCATE(spinup_vars(i)%DATA(land_pts,nsoilt,sm_levels))
     spinup_vars(i)%DATA(:,:,:) = progs%t_soil_soilt(:,:,:)
 
+!  CASE ( 'alt_currentyear' )
+!    ALLOCATE(spinup_vars(i)%DATA(land_pts,nsoilt,1))
+!    spinup_vars(i)%DATA(:,:,1) = progs%alt_currentyear_soilt(:,:)
+
+!  CASE ( 'alt_lastyear' )
+!    ALLOCATE(spinup_vars(i)%DATA(land_pts,nsoilt,1))
+!    spinup_vars(i)%DATA(:,:,1) = progs%alt_lastyear_soilt(:,:)
+
     !-------------------------------------------------------------------------
     ! Variables that are only available with TRIFFID.
     !-------------------------------------------------------------------------

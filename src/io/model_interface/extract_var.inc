@@ -2214,6 +2214,26 @@ CASE ( 't_soil_soilt' )
   cube_land = cube_from_array(progs%t_soil_soilt)
   cube = map_from_land(cube_land)
 
+CASE ( 'alt_currentyear' )
+  workspace_land(:) = soiltiles_to_gbm(progs%alt_currentyear_soilt(:,:),ainfo)
+  
+  cube_land = cube_from_array(workspace_land(:))
+  cube = map_from_land(cube_land)
+
+CASE ( 'alt_lastyear' )
+  workspace_land(:) = soiltiles_to_gbm(progs%alt_lastyear_soilt(:,:),ainfo)
+  
+  cube_land = cube_from_array(workspace_land(:))
+  cube = map_from_land(cube_land)
+
+CASE ( 'alt_currentyear_soilt' )
+  cube_land = cube_from_array(progs%alt_currentyear_soilt)
+  cube = map_from_land(cube_land)
+
+CASE ( 'alt_lastyear_soilt' )
+  cube_land = cube_from_array(progs%alt_lastyear_soilt)
+  cube = map_from_land(cube_land)
+
 CASE ( 'tsoil_deep' )
   cube_land = cube_from_array(progs%tsoil_deep_gb(:,1:ns_deep))
   cube = map_from_land(cube_land)

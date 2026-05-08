@@ -189,6 +189,8 @@ CALL add_to_list( 'tstar_tile', nvars, identifiers )
 ! Variables with soil tiling.
 CALL add_to_list( 'cs',         nvars, identifiers, l_append_soilt )
 CALL add_to_list( 't_soil',     nvars, identifiers, l_append_soilt )
+CALL add_to_list( 'alt_currentyear',     nvars, identifiers, l_append_soilt )
+CALL add_to_list( 'alt_lastyear',     nvars, identifiers, l_append_soilt )
 
 !-----------------------------------------------------------------------------
 ! Variables that are needed only if certain options set.
