@@ -113,18 +113,18 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
           .. note:: If layered soil C is used (:nml:mem:`l_layeredc` = TRUE) the temperature and moisture of each soil layer is used to calculation respiration from that layer.
 
-   .. nml:member:: l_lessdecomp_sat
+   .. nml:member:: cs_decomp_soil_moist_func
 
-      :type: logical
-      :default: F
+      :type: integer
+      :permitted: 0 or 1
+      :default: 0
 
       Switch affecting the moisture function used for soil respiration calculation.
 
-      TRUE
-          The response of the soil carbon decomposition to soil moisture is modified using an approach similar to Equation 3 and Figure 1 in Chadburn et al. (2022). Microbial activity drops to zero in completely dry conditions. In anaerobic conditions, respiration is significantly reduced compared to the maximum rate in aerobic conditions. In Chandburn et al. (2022) the value of the respiration in anaerobic conditions is set to 20 % of the maximum rate. This is set by :nml:mem:`fsth_lessdecomp_sat`. This approach was developed for JULES-peat.
+      0. | The response of the soil carbon decomposition to soil moisture is calculated using Equation 67 in Clark et al. (2011).
 
-      FALSE
-         The response of the soil carbon decomposition to soil moisture is calculated using Equation 67 in Clark et al. (2011).
+      1. | The response of the soil carbon decomposition to soil moisture is modified using an approach similar to Equation 3 and Figure 1 in Chadburn et al. (2022). Microbial activity drops in dry conditions. In anaerobic conditions, respiration is significantly reduced compared to the maximum rate in aerobic conditions. In Chandburn et al. (2022) the value of the respiration at saturation in anaerobic conditions is set to 20 % of the maximum rate. This is now set by :nml:mem:`fsthsat_cs_decomp_opt1`. This approach was developed for JULES-peat.
+
 
       .. seealso::
          References:
@@ -133,12 +133,12 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
          * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description – Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701–722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
 
-   .. nml:member:: fsth_lessdecomp_sat
+   .. nml:member:: fsthsat_cs_decomp_opt1
 
       :type: real
       :default: 0.2
 
-      The value of the soil respiration in anaerobic conditions as a fraction of the maximum rate. Values should be between 0 and 1. Only used if :nml:mem:`l_lessdecomp_sat` = TRUE.
+      The value of the soil respiration at saturation in anaerobic conditions as a fraction of the maximum rate. Values should be between 0 and 1. Only used if :nml:mem:`cs_decomp_soil_moist_func` = 1.
 
        .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
 

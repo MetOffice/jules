@@ -53,9 +53,9 @@ class vn81_t70(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        """Add l_lessdecomp_sat to namelist jules_soil_biogeochem"""
-        self.add_setting(config, ["namelist:jules_soil_biogeochem", "l_lessdecomp_sat"], ".false.")
-        self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsth_lessdecomp_sat"], "0.2")
+        """Add cs_decomp_soil_moist_func to namelist jules_soil_biogeochem"""
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "cs_decomp_soil_moist_func"], "0")
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsthsat_cs_decomp_opt1"], "0.2")
 
         # Add settings
         return config, self.reports

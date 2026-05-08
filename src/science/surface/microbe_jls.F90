@@ -24,10 +24,10 @@ SUBROUTINE microbe (land_pts,dim_cs1,l_q10,cs,                                 &
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
 ! imported scalar parameters
-   soil_model_1pool, soil_model_4pool, fsth_lessdecomp_sat,                    &
+   soil_model_1pool, soil_model_4pool, fsthsat_cs_decomp_opt1,                 &
 ! imported scalar variables (IN)
    kaps, l_layeredC, l_soil_resp_lev2, q10 => q10_soil, soil_bgc_model,        &
-   tau_resp, l_lessdecomp_sat,                                                 &
+   tau_resp, cs_decomp_soil_moist_func,                                         &
 ! imported array variables (IN)
    kaps_4pool
 
@@ -105,7 +105,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                                 !      which respiration is maximum.
 ,sth_optl                                                                      &
                             ! Fractional soil moisture at which respiration
-                            ! is maximum, for l_lessdecomp_sat=TRUE
+                            ! is maximum, for cs_decomp_soil_moist_func=1
 ,sth_wilt                   ! WORK Wilting soil moisture as a
 !                                 !      fraction of saturation.
 INTEGER ::                                                                     &
@@ -119,7 +119,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
   ! FACTOR to scale WILT to get RESP_MIN
   ! at 25 deg C and optimum soil moisture (/s).
  fsth_dry = 0.0
-  ! when l_lessdecomp_sat is true this is the soil moisture decomposition
+  ! when cs_decomp_soil_moist_func = 1 this is the soil moisture decomposition
   ! factor when the soil is completely dry (i.e. no soil respiration
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
@@ -180,14 +180,14 @@ DO j = 1,sm_levels
       sth_resp_min  = sth_wilt * min_factor
       fsth(l,j)     = 0.2
 
-      IF ( l_lessdecomp_sat ) THEN
-        ! new function and fsth is set to fsth_lessdecomp_sat when saturated
+      IF ( cs_decomp_soil_moist_func == 1 ) THEN
+        ! new function and fsth is set to fsthsat_cs_decomp_opt1 when saturated
         ! better for peat formation
         IF (sth_soil(l,j) <= sth_optl) THEN
           fsth(l,j) = ((1 - fsth_dry) / sth_optl) * sth_soil(l,j) + fsth_dry
         ELSE IF (sth_soil(l,j) > sth_opt) THEN
-          fsth(l,j) = ((1 - fsth_lessdecomp_sat) / (1 - sth_opt)) *            &
-                    (1 - sth_soil(l,j)) + fsth_lessdecomp_sat
+          fsth(l,j) = ((1 - fsthsat_cs_decomp_opt1) / (1 - sth_opt)) *         &
+                    (1 - sth_soil(l,j)) + fsthsat_cs_decomp_opt1
         ELSE
           fsth(l,j) = 1.0
         END IF
