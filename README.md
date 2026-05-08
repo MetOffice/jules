@@ -12,6 +12,12 @@ projects (e.g., [CMIP6](https://wcrp-cmip.org/cmip-phases/cmip6/)) and is placed
 firmly at the cutting edge of international land surface modelling because of
 continual science development and improved accessibility.
 
+Further details about how JULES works can be found in the [JCHMR overview document](https://jules.jchmr.org/about).
+
+## Documentation
+
+For releases since version 8.0, please see the [current Jules documentation](https://metoffice.github.io/jules/).  For version 7.9 and earlier, please see the [legacy Jules documentation](https://jules-lsm.github.io/)
+
 ## Contributing Guidelines
 
 Welcome!
@@ -49,3 +55,21 @@ Questions are encouraged in the Simulation Systems
 
 Please be aware of and follow the Simulation Systems
 [AI Policy.](https://metoffice.github.io/simulation-systems/FurtherDetails/ai.html)
+
+
+### Mailing Lists & Github Discussions
+
+[JULES-USERS@MAILLISTS.READING.AC.UK](JULES-USERS@MAILLISTS.READING.AC.UK) is a list for all users of JULES. Please use this list to ask a science questions to the community.
+
+[JULES@MAILLISTS.READING.AC.UK](JULES@MAILLISTS.READING.AC.UK) is a list of all people with an interest in JULES. Please use this list to share information relevant to the whole community. For example, new papers, conferences, code release versions etc.
+
+To join, use the [mailing list registration page](https://maillists.reading.ac.uk/scripts/wa-READING.exe?GETPW1=&X=&Y=) to enter your details and wait at least 10 minutes for the email for confirming the registration.
+
+Then:
+
+* register with the [Jules users mailing list](https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES-USERS) to join the user community mailing list
+* register with the [Jules community mailing list](https://maillists.reading.ac.uk/scripts/wa-READING.exe?SUBED1=JULES) to join the wider community
+
+If you need to unsubscribe from either list, you can go to the same subscription link.
+
+You can also join [Simulation Systems Jules discussion board](https://github.com/MetOffice/simulation-systems/discussions/categories/jules) on github.
