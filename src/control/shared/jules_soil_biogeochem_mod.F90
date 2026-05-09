@@ -130,7 +130,7 @@ INTEGER ::                                                                     &
   cs_decomp_soil_moist_func = 0
       ! Switch for response of soil carbon decomposition to soil moisture
       !   cs_decomp_soil_moist_func=0: Method of Clark et al (2011)
-      !   cs_decomp_soil_moist_func=1: Method of Chadburn et al (2022) 
+      !   cs_decomp_soil_moist_func=1: Method of Chadburn et al (2022)
 
 REAL(KIND=real_jlslsm) ::                                                      &
   fsthsat_cs_decomp_opt1 = rmdi

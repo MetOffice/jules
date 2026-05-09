@@ -27,7 +27,7 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
    soil_model_1pool, soil_model_4pool, fsthsat_cs_decomp_opt1,                 &
 ! imported scalar variables (IN)
    kaps, l_layeredC, l_soil_resp_lev2, q10 => q10_soil, soil_bgc_model,        &
-   tau_resp, cs_decomp_soil_moist_func,                                         &
+   tau_resp, cs_decomp_soil_moist_func,                                        &
 ! imported array variables (IN)
    kaps_4pool
 
