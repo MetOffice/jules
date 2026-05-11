@@ -653,7 +653,7 @@ WRITE(lineBuffer,*) ' soil_bgc_model = ', soil_bgc_model
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
 WRITE(lineBuffer, *) '  l_bgc_heat = ', l_bgc_heat
-CALL jules_print('jules_soil', lineBuffer)
+CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
 WRITE(lineBuffer, *) ' l_layeredC = ', l_layeredC
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
