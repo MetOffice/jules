@@ -137,6 +137,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
 
    .. nml:member:: heat_of_respiration
+
       :type: real
       :default: 3.9e07
 
