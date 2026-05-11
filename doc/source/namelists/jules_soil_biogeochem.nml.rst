@@ -114,6 +114,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
           .. note:: If layered soil C is used (:nml:mem:`l_layeredc` = TRUE) the temperature and moisture of each soil layer is used to calculation respiration from that layer.
 
    .. nml:member:: l_bgc_heat
+
       :type: logical
       :default: F
 
