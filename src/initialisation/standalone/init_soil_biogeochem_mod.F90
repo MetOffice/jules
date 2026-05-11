@@ -143,9 +143,9 @@ CASE ( soil_model_1pool, soil_model_4pool )
 END SELECT
 
 IF ( l_bgc_heat ) THEN
-  CALL log_info("init soil", "l_bgc_heat = T - Enabled biogeochemical heating")
+  CALL log_info( RoutineName, "l_bgc_heat = T - Enabled biogeochemical heating")
 ELSE
-  CALL log_info("init soil", "l_bgc_heat = F - Disabled biogeochemical heating")
+  CALL log_info( RoutineName, "l_bgc_heat = F - Disabled biogeochemical heating")
 END IF
 
 
