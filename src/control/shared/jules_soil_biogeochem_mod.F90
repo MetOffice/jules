@@ -837,7 +837,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
 INTEGER, PARAMETER :: n_real = 29 + 4
-INTEGER, PARAMETER :: n_log = 2
+INTEGER, PARAMETER :: n_log = 7
 
 TYPE :: my_namelist
   SEQUENCE
