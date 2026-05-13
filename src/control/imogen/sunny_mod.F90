@@ -182,9 +182,9 @@ DO i = 1,points
 
   ELSE IF (tantan < -1.0) THEN      ! Perpetual day (sun never sets)
     ! Local noon in UTC: 12 - (longitude in hours)
-    ! Max temp ~2-3 hours after local noon
+    ! Max temp 3.6 hours after local noon
     time_max(i) = rhour_per_day / 2.0 - (lon(i) / deg_per_hour) +              &
-                  frac_day_to_tmax * 24.0
+                  frac_day_to_tmax * rhour_per_day
 
   ELSE                               ! Perpetual night (sun never rises)
     ! No solar heating; set to local noon as placeholder
