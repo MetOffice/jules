@@ -19,7 +19,7 @@ USE jules_print_mgr, ONLY:                                                     &
     jules_message, jules_print, PrNorm, newline
 USE jules_vegetation_mod, ONLY: l_gleaf_fix, l_o3_damage, l_use_pft_psi,       &
     fsmc_shape, l_prescsow, l_croprotate, l_trif_biocrop, l_ag_expand,         &
-    l_sugar, stomata_model, l_red
+    l_sugar, l_limit_rootd_alt, stomata_model, l_red
 USE jules_irrig_mod, ONLY: l_irrig_limit
 USE jules_urban_mod, ONLY: l_urban_empirical
 USE jules_rivers_mod, ONLY: l_riv_overbank, l_rivers, i_river_vn,              &
@@ -129,6 +129,15 @@ IF ( l_sugar ) THEN
   WRITE(jules_message,'(I0,A,I0)') error_sum,                                  &
      ": Sugar only available standalone " //                                   &
      "l_sugar= ", l_sugar
+  CALL jules_print(RoutineName, jules_message, level = PrNorm)
+END IF
+
+! jules_vegetation
+IF ( l_limit_rootd_alt ) THEN
+  error_sum = error_sum + 1
+  WRITE(jules_message,'(I0,A,I0)') error_sum,                                  &
+     ": Rootd limitation by ALT only available standalone " //                 &
+     "l_limit_rootd_alt= ", l_limit_rootd_alt
   CALL jules_print(RoutineName, jules_message, level = PrNorm)
 END IF
 

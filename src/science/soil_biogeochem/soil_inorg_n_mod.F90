@@ -209,7 +209,7 @@ INTEGER, INTENT(IN) ::                                                         &
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   frac(land_pts,ntype),                                                        &
     ! Fractional cover of each surface type.
-  f_root_pft(npft,dim_cslayer),                                                &
+  f_root_pft(land_pts,npft,dim_cslayer),                                       &
     ! Root fraction in each soil layer per PFT.
  isunfrozen(land_pts,dim_cslayer),                                             &
     ! Matrix to mask out frozen layers (inaccessible to plants).
@@ -301,10 +301,10 @@ IF ( soil_bgc_model == soil_model_4pool .OR.                                   &
       IF (SUM(isunfrozen(l,:)) > 0.0) THEN
         DO n = 1,npft
           n_fix_denom = 1.0                                                    &
-                        / ( r_gamma * SUM(isunfrozen(l,:) * f_root_pft(n,:)) )
+                        / ( r_gamma * SUM(isunfrozen(l,:) * f_root_pft(l,n,:)) )
           DO iz = 1,dim_cslayer
             n_avail_delta(l,n,iz) = n_fix_pft(l,n)                             &
-                                  * f_root_pft(n,iz) * isunfrozen(l,iz)        &
+                                  * f_root_pft(l,n,iz) * isunfrozen(l,iz)      &
                                   * n_fix_denom
             n_fix_add(l,1,iz)   = n_fix_add(l,1,iz)                            &
                                   + n_avail_delta(l,n,iz) * frac(l,n)
@@ -403,9 +403,9 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Soil carbon layer thicknesses (m).
   frac_flux(land_pts,npft),                                                    &
     ! PFT fraction to be used in the calculation of the gridbox mean fluxes.
-  f_root_pft(npft,dim_cslayer),                                                &
+  f_root_pft(land_pts,npft,dim_cslayer),                                       &
     ! Root fraction in each soil layer per PFT.
-  f_root_pft_dz(npft,dim_cslayer),                                             &
+  f_root_pft_dz(land_pts,npft,dim_cslayer),                                    &
     ! Normalised roots in each soil layer per PFT.
  n_fertiliser_pft(land_pts,npft)
     ! Nitrogen available to crop PFTs in addition to soil nitrogen
@@ -453,7 +453,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
   add_weight(dim_cslayer),                                                     &
     ! Layer weights used in calculation of n_fertiliser_add (the N added to
     ! each layer).
-  delta_weight(npft,dim_cslayer)
+  delta_weight(land_pts,npft,dim_cslayer)
     ! Layer weights used in calculation of increment to n_inorg_avail_pft.
 
 !-----------------------------------------------------------------------------
@@ -498,19 +498,25 @@ IF ( soil_bgc_model == soil_model_4pool .OR.                                   &
     IF ( soil_bgc_model == soil_model_4pool ) THEN
       ! In general this form means that not all of the fertiliser is made
       ! available to plants (because of the factor f_root_pft_dz).
-      DO n = 1,npft
-        delta_weight(n,1:fert_layer) = ( dz(1:fert_layer)                      &
-                                         * f_root_pft_dz(n,1:fert_layer) )     &
-                                       / ( SUM(dz(1:fert_layer)) * r_gamma )
+      DO t = 1,trif_pts
+        l = trif_index(t)
+        DO n = 1,npft
+          delta_weight(l,n,1:fert_layer) = ( dz(1:fert_layer)                  &
+                                           * f_root_pft_dz(l,n,1:fert_layer) ) &
+                                         / ( SUM(dz(1:fert_layer)) * r_gamma )
+        END DO
       END DO
     ELSE IF ( soil_bgc_model == soil_model_ecosse .AND. l_soil_N ) THEN
       ! All of the fertiliser is made available.
-      DO n = 1,npft
-        delta_weight(n,1:fert_layer) = ( dz(1:fert_layer)                      &
-                                         * f_root_pft(n,1:fert_layer) )        &
-                                       / ( SUM( dz(1:fert_layer)               &
-                                           * f_root_pft(n,1:fert_layer) )      &
-                                           * r_gamma )
+      DO t = 1,trif_pts
+        l = trif_index(t)
+        DO n = 1,npft
+          delta_weight(l,n,1:fert_layer) = ( dz(1:fert_layer)                  &
+                                           * f_root_pft(l,n,1:fert_layer) )    &
+                                         / ( SUM( dz(1:fert_layer)             &
+                                             * f_root_pft(l,n,1:fert_layer) )  &
+                                             * r_gamma )
+        END DO
       END DO
     END IF  !  soil_bgc_model
 
@@ -548,7 +554,7 @@ IF ( soil_bgc_model == soil_model_4pool .OR.                                   &
       DO n = 1,npft
         n_inorg_avail_pft(l,n,1:fert_layer) =                                  &
           n_inorg_avail_pft(l,n,1:fert_layer)                                  &
-          +  n_fertiliser_pft(l,n) * delta_weight(n,1:fert_layer)
+          +  n_fertiliser_pft(l,n) * delta_weight(l,n,1:fert_layer)
       END DO
     END DO
   END IF  !  have_layers
@@ -625,7 +631,7 @@ INTEGER, INTENT(IN) ::                                                         &
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   frac_flux(land_pts,npft),                                                    &
     ! PFT fraction to be used in the calculation of the gridbox mean fluxes.
-  f_root_pft(npft,dim_cslayer),                                                &
+  f_root_pft(land_pts,npft,dim_cslayer),                                       &
     ! Root fraction in each soil layer per PFT.
   isunfrozen(land_pts,dim_cslayer)
     ! Matrix to mask out frozen layers (inaccessible to plants).
@@ -747,8 +753,8 @@ DO t = 1,trif_pts
           IF (n_uptake_pft(l,n) * frac_flux(l,n) < 0.0) THEN
             n_uptake_extract(l,1,:) = n_uptake_extract(l,1,:)                  &
                                       + n_uptake_pft(l,n) * frac_flux(l,n)     &
-                                        * f_root_pft(n,:) * scale_to_step
-            n_avail_delta(l,n,:) = n_uptake_pft(l,n) * f_root_pft(n,:)         &
+                                        * f_root_pft(l,n,:) * scale_to_step
+            n_avail_delta(l,n,:) = n_uptake_pft(l,n) * f_root_pft(l,n,:)       &
                                    * scale_to_step
           ELSE IF (n_uptake_pft(l,n) * frac_flux(l,n) > 0.0) THEN
             n_uptake_pft(l,n) = 0.0

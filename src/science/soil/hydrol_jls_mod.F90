@@ -1152,9 +1152,18 @@ IF (soil_pts /= 0) THEN
   !-----------------------------------------------------------------------------
   ! Update active layer thickness
   !-----------------------------------------------------------------------------
-  CALL alt(land_pts, sm_levels, soil_pts, soil_index, dzsoil,                  &
+  IF (nsoilt == 1) THEN
+    m = 1
+    CALL alt(land_pts, sm_levels, soil_pts, soil_index, dzsoil,                &
            t_soil_soilt(:,m,:), alt_currentyear_soilt(:,m),                    &
            alt_lastyear_soilt(:,m))
+  ELSE
+    DO m = 1, nsoilt
+      CALL alt(land_pts, sm_levels, soil_pts, soil_index, dzsoil,              &
+           t_soil_soilt(:,m,:), alt_currentyear_soilt(:,m),                    &
+           alt_lastyear_soilt(:,m))
+    END DO
+  END IF
 
   ! Update water tracers for phase change
   IF (l_wtrac_jls) THEN

@@ -181,6 +181,9 @@ LOGICAL ::                                                                     &
        !      available NPP.
    l_sugar = .FALSE.,                                                          &
        ! Switch fo the non-structural carbohydrate model
+   l_limit_rootd_alt = .FALSE.,                                                &
+        ! Switch for limiting the maximum root depth to the active layer
+        ! thickness
 
 ! Switches for bug fixes.
     l_leaf_n_resp_fix = .FALSE.,                                               &
@@ -353,7 +356,7 @@ NAMELIST  / jules_vegetation/                                                  &
 ! Not used in the UM yet
     l_prescsow, l_recon,l_gleaf_fix,                                           &
     l_scale_resp_pm, l_use_pft_psi, fsmc_shape, l_croprotate,                  &
-    l_trif_biocrop, l_ag_expand, l_sugar,                                      &
+    l_trif_biocrop, l_ag_expand, l_sugar, l_limit_rootd_alt,                   &
     ! RED variables
     l_red
 
@@ -974,6 +977,9 @@ CALL jules_print('jules_vegetation_mod',lineBuffer)
 WRITE(lineBuffer,*)' l_sugar = ',l_sugar
 CALL jules_print('jules_vegetation_mod',lineBuffer)
 
+WRITE(lineBuffer,*)' l_limit_rootd_alt = ',l_limit_rootd_alt
+CALL jules_print('jules_vegetation_mod',lineBuffer)
+
 WRITE(lineBuffer,*)' l_red = ',l_red
 CALL jules_print('jules_vegetation_mod',lineBuffer)
 
@@ -1079,6 +1085,7 @@ TYPE :: my_namelist
   LOGICAL :: l_spec_veg_z0
   LOGICAL :: l_limit_canhc
   LOGICAL :: l_sugar
+  LOGICAL :: l_limit_rootd_alt
   LOGICAL :: l_red
 END TYPE my_namelist
 
@@ -1153,6 +1160,7 @@ IF (mype == 0) THEN
   my_nml % l_spec_veg_z0   = l_spec_veg_z0
   my_nml % l_limit_canhc   = l_limit_canhc
   my_nml % l_sugar         = l_sugar
+  my_nml % l_limit_rootd_alt = l_limit_rootd_alt
   my_nml % l_red           = l_red
 END IF
 
@@ -1216,6 +1224,7 @@ IF (mype /= 0) THEN
   l_spec_veg_z0   = my_nml % l_spec_veg_z0
   l_limit_canhc   = my_nml % l_limit_canhc
   l_sugar         = my_nml % l_sugar
+  l_limit_rootd_alt = my_nml % l_limit_rootd_alt
   l_red           = my_nml % l_red
 END IF
 

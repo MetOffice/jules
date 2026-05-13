@@ -39,7 +39,7 @@ SUBROUTINE allocate_jules_arrays(crop_vars_data,psparms_data,top_pdm_data,     &
 
 !Variables- switches
 USE jules_vegetation_mod,     ONLY: l_crop, l_triffid, l_phenol, l_use_pft_psi,&
-                                    l_acclim, l_sugar, l_red
+                                    l_acclim, l_sugar, l_limit_rootd_alt, l_red
 USE jules_irrig_mod,          ONLY: l_irrig_dmd, irr_crop, irr_crop_doell
 USE jules_surface_mod,        ONLY: l_urban2t
 USE jules_urban_mod,          ONLY: l_moruses
@@ -202,7 +202,8 @@ CALL prognostics_alloc(land_pts, t_i_length, t_j_length,                       &
                       dim_cslayer, dim_cs1, dim_ch4layer,                      &
                       nice, nice_use, soil_bgc_model, soil_model_ecosse,       &
                       l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,       &
-                      nmasst, nnpft, l_acclim, l_sugar, progs_data)
+                      nmasst, nnpft, l_acclim, l_sugar, l_limit_rootd_alt,     &
+                      progs_data)
 
 CALL fluxes_alloc(land_pts, t_i_length, t_j_length,                            &
                   nsurft, npft, nsoilt, sm_levels,                             &

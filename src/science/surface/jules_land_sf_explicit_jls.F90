@@ -49,7 +49,8 @@ SUBROUTINE jules_land_sf_explicit (                                            &
  co2_mmr,co2_3d,l_co2_interactive,l_phenol,                                    &
  asteps_since_triffid,cs_pool_soilt,veg_state,frac,canht_pft,                  &
  photosynth_act_rad,lai_pft,                                                   &
- l_mr_physics,t_soil_soilt,tsurf_elev_surft,tstar_surft,z_land,                &
+ l_mr_physics,t_soil_soilt,alt_lastyear_soilt,tsurf_elev_surft,tstar_surft,    &
+ z_land,                                                                       &
  albsoil_soilt,cos_zenith_angle,l_aero_classic,l_dust,l_dust_diag,             &
  clay_soilt,o3,l_emis_surft_set,latitude,longitude,                            &
 ! INOUT diagnostics
@@ -385,6 +386,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                              ! IN Leaf area index
 ,t_soil_soilt(land_pts,nsoilt,sm_levels)                                       &
                              ! IN Soil temperatures (K).
+,alt_lastyear_soilt(land_pts,nsoilt)                                           &
+                             ! IN Last year active layer thickness (m)
 ,tsurf_elev_surft(land_pts,nsurft)                                             &
                              ! IN Tiled ice sub-surface temperature (K)
 ,tstar_surft(land_pts,nsurft)                                                  &
@@ -1197,7 +1200,8 @@ CALL physiol (                                                                 &
   dim_cs1,                                                                     &
   co2_mmr,co2_3d,co2_dim_len, co2_dim_row,l_co2_interactive,                   &
   can_model,cs_pool_soilt,veg_state,frac,canht_pft,photosynth_act_rad,         &
-  lai_pft,pstar,qw_1,sthu_soilt,sthf_soilt,t_soil_soilt,tstar_surft,           &
+  lai_pft,pstar,qw_1,sthu_soilt,sthf_soilt,t_soil_soilt,alt_lastyear_soilt,    &
+  tstar_surft,                                                                 &
   smvccl_soilt,smvcst_soilt,smvcwt_soilt,vshr,z0_surft,z1_uv,o3,               &
   canhc_surft,vfrac_surft,emis_surft,l_emis_surft_set,emis_soil,flake,         &
   g_leaf,gs,gc_surft,gc_stom_surft,gc_corr,gpp,gpp_pft,npp,npp_pft,            &

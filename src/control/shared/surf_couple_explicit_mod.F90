@@ -567,7 +567,8 @@ CASE ( jules )
     asteps_since_triffid,progs%cs_pool_soilt,veg_state,ainfo%frac_surft,       &
     progs%canht_pft,                                                           &
     photosynth_act_rad, progs%lai_pft,                                         &
-    l_mr_physics,progs%t_soil_soilt,progs%tsurf_elev_surft,                    &
+    l_mr_physics,progs%t_soil_soilt,progs%alt_lastyear_soilt,                  &
+    progs%tsurf_elev_surft,                                                    &
     progs%tstar_surft,jules_vars%z_land_ij,                                    &
     psparms%albsoil_soilt,                                                     &
     psparms%cosz_ij,                                                           &

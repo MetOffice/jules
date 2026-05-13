@@ -70,12 +70,14 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !-----------------------------------------------------------------------------
 IF (l_nitrogen) THEN
   DO n = 1,npft
-    CALL root_frac(n,sm_levels,dzsoil,rootd_ft(n),f_root_pft)
-    f_root_pft_dz = f_root_pft / dzsoil / (f_root_pft(1) / dzsoil(1))
     DO i = 1,soil_pts
       l = soil_index(i)
+      CALL root_frac(n,sm_levels,dzsoil,rootd_ft(n),                           &
+                  progs%alt_lastyear_soilt(l,:), f_root_pft)
+      f_root_pft_dz = f_root_pft / dzsoil / (f_root_pft(1) / dzsoil(1)) 
       DO j = 1,dim_cslayer
-        progs%n_inorg_avail_pft(l,n,j) = progs%n_inorg_soilt_lyrs(l,1,j) * f_root_pft_dz(j)
+        progs%n_inorg_avail_pft(l,n,j) = progs%n_inorg_soilt_lyrs(l,1,j) *     &
+                                         f_root_pft_dz(j)
       END DO
     END DO
   END DO

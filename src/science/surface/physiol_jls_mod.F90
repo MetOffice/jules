@@ -22,7 +22,8 @@ SUBROUTINE physiol (                                                           &
   dim_cs1,                                                                     &
   co2_mmr,co2_3d,co2_dim_len, co2_dim_row,l_co2_interactive,                   &
   can_model,cs_pool_soilt,veg_state,frac,canht_pft,photosynth_act_rad,         &
-  lai_pft,pstar,qw_1,sthu_soilt,sthf_soilt,t_soil_soilt,tstar_surft,           &
+  lai_pft,pstar,qw_1,sthu_soilt,sthf_soilt,t_soil_soilt,alt_lastyear_soilt,    &
+  tstar_surft,                                                                 &
   smvccl_soilt,smvcst_soilt,smvcwt_soilt,vshr,z0_surft,z1_uv_ij,o3,            &
   canhc_surft,vfrac_surft,emis_surft,l_emis_surft_set,emis_soil,flake,         &
   g_leaf,gs,gc_surft,gc_stom_surft,gc_corr,gpp,gpp_pft,npp,npp_pft,            &
@@ -203,6 +204,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     !Frozen Soil moisture content in each layer as a fraction of saturation
   t_soil_soilt(land_pts,nsoilt,sm_levels),                                     &
     !Soil temperature (K).
+  alt_lastyear_soilt(land_pts,nsoilt),                                         &
+    !Last year active layer thickness (m)
   tstar_surft(land_pts,nsurft),                                                &
     !Tile surface temperatures (K).
   smvccl_soilt(land_pts,nsoilt,sm_levels),                                     &
@@ -985,11 +988,12 @@ DO n = 1,npft
   END IF
 
 !$OMP PARALLEL DO IF(surft_pts(n) > 1) DEFAULT(NONE) PRIVATE(i, j, f_root_tmp) &
-!$OMP SHARED(surft_pts, n, sm_levels, dzsoil, root_param, f_root, surft_index) &
-!$OMP SCHEDULE(STATIC)
+!$OMP SHARED(surft_pts, n, sm_levels, dzsoil, root_param, f_root, surft_index, &
+!$OMP        alt_lastyear_soilt) SCHEDULE(STATIC)
   DO j = 1,surft_pts(n)
     i = surft_index(j,n)
-    CALL root_frac(n,sm_levels,dzsoil,root_param(i,n),f_root_tmp)
+    CALL root_frac(n,sm_levels,dzsoil,root_param(i,n),                         &
+                   alt_lastyear_soilt(i,:),f_root_tmp)
     f_root(i,:) = f_root_tmp(:)
   END DO
 !$OMP END PARALLEL DO

@@ -280,7 +280,8 @@ SUBROUTINE prognostics_alloc(land_pts, t_i_length, t_j_length,                 &
                        dim_cslayer, dim_cs1, dim_ch4layer,                     &
                        nice, nice_use, soil_bgc_model, soil_model_ecosse,      &
                        l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,      &
-                       nmasst, nnpft, l_acclim, l_sugar, progs_data)
+                       nmasst, nnpft, l_acclim, l_sugar, l_limit_rootd_alt,    & 
+                       progs_data)
 
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
@@ -295,7 +296,7 @@ INTEGER, INTENT(IN) :: land_pts, t_i_length, t_j_length,                       &
                        nmasst, nnpft
 
 LOGICAL, INTENT(IN) :: l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,      &
-                       l_acclim, l_sugar
+                       l_acclim, l_sugar, l_limit_rootd_alt
 
 TYPE(progs_data_type), INTENT(IN OUT) :: progs_data
   !Instance of the data type we need to allocate
