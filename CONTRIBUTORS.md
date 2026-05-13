@@ -9,4 +9,5 @@
 | ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
 | t00sa           | Sam Clarke-Green | Met Office  | 2026-02-27 |
 | Pierre-siddall  | Pierre Siddall| Met Office | 2026-02-06 |
+| tinyendian | Wolfgang Hayek | Earth Sciences New Zealand | 2026-04-24 |
 | DanCopsey       | Dan Copsey       | Met Office  | 2026-03-27 |

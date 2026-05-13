@@ -1,0 +1,7 @@
+    [[queues]]
+        [[[cascade_run]]]
+            limit = 5
+            members = ESNZ_CASCADE_LOOBOS, ESNZ_CASCADE_GSWP2, ESNZ_CASCADE_ERAINT
+        [[[cascade_build]]]
+            limit = 1
+            members = ESNZ_CASCADE_BUILD
