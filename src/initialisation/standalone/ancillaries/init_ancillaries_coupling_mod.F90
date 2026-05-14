@@ -25,12 +25,14 @@ CONTAINS
 SUBROUTINE check_ancil_rivers( dir_mouth, dir_inland_drainage,                 &
                                direction_grid,                                 &
                                rivers_outflow_number,                          &
-                               rivers_storage )
+                               rivers_storage, land_fraction_2d )
 
 USE jules_rivers_mod, ONLY: nx_rivers, ny_rivers, n_rivers, i_river_vn,        &
                             rivers_trip, l_inland_outflow,                     &
-                            l_outflow_per_river, l_init_storage
+                            l_outflow_per_river, l_init_storage,               &
+                            river_mouth
 USE jules_rivers_props_mod, ONLY: l_ignore_ancil_rivers_check
+USE coastal, ONLY: l_use_land_fraction
 USE missing_data_mod, ONLY: imdi
 USE string_utils_mod, ONLY: to_string
 USE um_types, ONLY: real_jlslsm
@@ -58,6 +60,10 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   rivers_storage(nx_rivers,ny_rivers)
     ! River routing gridbox river storage (kg).
 
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  land_fraction_2d(nx_rivers,ny_rivers)
+    ! Fraction of land in each grid box
+
 !------------------------------------------------------------------------------
 ! Array arguments with INTENT(IN OUT)
 !------------------------------------------------------------------------------
@@ -75,6 +81,8 @@ INTEGER, ALLOCATABLE :: check_river_ancil_test(:,:),                           &
                         ! Field to be checked for consistency
                         check_river_ancil_ctrl(:,:),                           &
                         ! Field used as a control to check for consistency
+                        check_land_fractions(:,:),                             &
+                        ! Field used to check land fractions for conststency
                         match(:,:)
                         ! Difference between test and control
 
@@ -85,6 +93,7 @@ CHARACTER(LEN=*), PARAMETER  :: RoutineName = 'CHECK_ANCIL_RIVERS'
 
 ALLOCATE ( check_river_ancil_test(nx_rivers,ny_rivers) )
 ALLOCATE ( check_river_ancil_ctrl(nx_rivers,ny_rivers) )
+ALLOCATE ( check_land_fractions(nx_rivers,ny_rivers) )
 ALLOCATE ( match(nx_rivers,ny_rivers) )
 
 IF ( l_outflow_per_river ) THEN
@@ -188,7 +197,7 @@ IF ( l_init_storage ) THEN
 
   IF ( ERROR /= 0 ) THEN
     WRITE(jules_message, *)                                                    &
-       'River routine & storage ancillary is not consistent. ' //              &
+       'River routing & storage ancillary are not consistent. ' //             &
        'Number of inconsistent points  = ', ERROR
     CALL log_error(RoutineName, jules_message)
   ELSE
@@ -197,7 +206,53 @@ IF ( l_init_storage ) THEN
   END IF
 END IF
 
-DEALLOCATE( check_river_ancil_test, check_river_ancil_ctrl, match )
+IF ( l_use_land_fraction) THEN
+  ! Make sure there are no land fractions at non-river points.
+  check_land_fractions(:,:) = 0
+  WHERE ( land_fraction_2d(:,:) > 0 )
+    check_land_fractions(:,:) = 1   ! Set points with land fractions to 1
+  END WHERE 
+  WHERE ( direction_grid(:,:) > 0 )
+    check_land_fractions(:,:) = 0   ! Set points with rivers back to 0
+  END WHERE
+  
+  ERROR      = COUNT ( check_land_fractions(:,:) /= 0 )
+
+  IF ( ERROR /= 0 ) THEN
+    WRITE(jules_message, *)                                                    &
+       'There are some land fractions at non-river points. ' //                &
+       'Number of inconsistent points  = ', ERROR
+    CALL log_error(RoutineName, jules_message)
+  ELSE
+    CALL log_info(RoutineName,                                                 &
+       'All non-zero land fraction points are modelled by rivers')
+  END IF
+
+  ! Make sure there are no river direction points (not outflow)
+  ! at zero land fraction points.
+  check_land_fractions(:,:) = 0
+  WHERE ( direction_grid(:,:) > 0 .AND. direction_grid(:,:) < -1*river_mouth )
+    check_land_fractions(:,:) = 1   ! Set points with river directions to 1
+  END WHERE
+  WHERE ( land_fraction_2d(:,:) > 0 )
+    check_land_fractions(:,:) = 0   ! Set points with land fractions back to 0
+  END WHERE 
+ 
+  ERROR      = COUNT ( check_land_fractions(:,:) /= 0 )
+
+  IF ( ERROR /= 0 ) THEN
+    WRITE(jules_message, *)                                                    &
+       'There are some river direction points at zero land fraction points. '//&
+       'Number of inconsistent points  = ', ERROR
+    CALL log_error(RoutineName, jules_message)
+  ELSE
+    CALL log_info(RoutineName,                                                 &
+       'All river direction points have a non-zero land fraction.')
+  END IF
+END IF
+
+DEALLOCATE( check_river_ancil_test, check_river_ancil_ctrl, match,             &
+            check_land_fractions )
 
 END SUBROUTINE check_ancil_rivers
 

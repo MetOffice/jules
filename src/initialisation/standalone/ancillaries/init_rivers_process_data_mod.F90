@@ -366,7 +366,7 @@ IF ( is_master_task() ) THEN
   IF ( l_outflow_per_river .OR. l_init_storage ) THEN
     CALL check_ancil_rivers( dir_mouth, dir_inland_drainage,                   &
                              direction_grid, rivers%rivers_outflow_number,     &
-                             rivers%rivers_storage )
+                             rivers%rivers_storage, rivers%land_fraction_2d )
   END IF
 
 END IF  ! is_master
