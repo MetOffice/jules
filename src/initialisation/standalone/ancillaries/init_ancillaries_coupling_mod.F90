@@ -211,11 +211,11 @@ IF ( l_use_land_fraction) THEN
   check_land_fractions(:,:) = 0
   WHERE ( land_fraction_2d(:,:) > 0 )
     check_land_fractions(:,:) = 1   ! Set points with land fractions to 1
-  END WHERE 
+  END WHERE
   WHERE ( direction_grid(:,:) > 0 )
     check_land_fractions(:,:) = 0   ! Set points with rivers back to 0
   END WHERE
-  
+
   ERROR      = COUNT ( check_land_fractions(:,:) /= 0 )
 
   IF ( ERROR /= 0 ) THEN
@@ -236,8 +236,8 @@ IF ( l_use_land_fraction) THEN
   END WHERE
   WHERE ( land_fraction_2d(:,:) > 0 )
     check_land_fractions(:,:) = 0   ! Set points with land fractions back to 0
-  END WHERE 
- 
+  END WHERE
+
   ERROR      = COUNT ( check_land_fractions(:,:) /= 0 )
 
   IF ( ERROR /= 0 ) THEN
