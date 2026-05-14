@@ -36,18 +36,18 @@
 # Code Owners
 ###############################################################################
 
-**/                                 @GiorgiaLine
+/**                               @GiorgiaLine
 rose-meta/**/version*.py            @james-bruten-mo
-rose-meta/jules-shared/HEAD/rose-meta.conf    @maggiehendry
+rose-meta/jules-shared/**/HEAD/rose-meta.conf    @maggiehendry
 rose-meta/jules-standalone/HEAD/rose-meta.conf    @maggiehendry
 rose-meta/jules-um/HEAD/rose-meta.conf    @maggiehendry
 rose-stem/                        @james-bruten-mo
 etc/                              @MetOffice/ssdteam
-**/science/river_routing            @maggiehendry
-**/initialisation/rivers_standalone @maggiehendry
+**/science/river_routing/            @maggiehendry
+**/initialisation/rivers-standalone/ @maggiehendry
 **/control/rivers-standalone/       @maggiehendry
 **/control/shared/jules_rivers_mod.F90      @maggiehendry
-**/io/rivers-standalone     @maggiehendry
+**/io/rivers-standalone/     @maggiehendry
 **/control/shared/surf_couple_rivers_mod.F90        @maggiehendry
 **/initialisation/standalone/ancillaries/init_ancillaries_coupling_mod.F90      @maggiehendry
 **/initialisation/standalone/ancillaries/init_rivers_process_data_mod.F90       @maggiehendry
