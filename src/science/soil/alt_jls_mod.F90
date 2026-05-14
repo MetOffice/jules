@@ -69,6 +69,10 @@ INTEGER ::                                                                     &
   i, j, n
     ! Loop counters.
 
+REAL(KIND=real_jlslsm) ::                                                      &
+  alpha = 0.5
+    ! Smoothing factor for updating alt_lastyear
+
 !-----------------------------------------------------------------------------
 ! Local array variables:
 !-----------------------------------------------------------------------------
@@ -124,7 +128,8 @@ DO j = 1,soil_pts
 
   IF ( start_of_year ) THEN
     ! Update last year ALT on the first timestep of the year
-    alt_lastyear(i) = alt_currentyear(i)
+    alt_lastyear(i) = alt_lastyear(i) +                                        &
+                      alpha * ( alt_currentyear(i) - alt_lastyear(i) )
     alt_currentyear(i) = alt_instant(i)
   END IF
 

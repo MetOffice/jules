@@ -120,10 +120,19 @@ ELSE
     z1 = z2
     z2 = z2 + dz(n)
     ztot = ztot + dz(n)
-    f_root(n) = EXP(-p * z1 / rootd_limited) - EXP(-p * z2 / rootd_limited)
-
+    IF ( (rootd_limited < rootd) .AND. (ztot > rootd_limited) ) THEN
+      ! If rootd is limited by ALT and we are below the ALT, 
+      ! no root in frozen soil
+      f_root(n) = 0.0
+    ELSE
+      f_root(n) = EXP(-p * z1 / rootd_limited) - EXP(-p * z2 / rootd_limited)
+    END IF
   END DO
 
+  IF (rootd_limited < rootd) THEN
+    ztot = rootd_limited
+  END IF
+  
   ftot = 1.0 - EXP(-p * ztot / rootd_limited)
   DO n = 1,nlayer
     f_root(n) = f_root(n) / ftot
