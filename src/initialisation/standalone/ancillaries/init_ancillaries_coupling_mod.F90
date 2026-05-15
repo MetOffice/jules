@@ -216,7 +216,7 @@ IF ( l_use_land_fraction) THEN
     check_land_fractions(:,:) = 0   ! Set points with rivers back to 0
   END WHERE
 
-  ERROR      = COUNT ( check_land_fractions(:,:) )
+  ERROR      = SUM( check_land_fractions )
 
   IF ( ERROR /= 0 ) THEN
     WRITE(jules_message, *)                                                    &
@@ -238,7 +238,7 @@ IF ( l_use_land_fraction) THEN
     check_land_fractions(:,:) = 0   ! Set points with land fractions back to 0
   END WHERE
 
-  ERROR      = COUNT ( check_land_fractions(:,:) )
+  ERROR      = SUM( check_land_fractions )
 
   IF ( ERROR /= 0 ) THEN
     WRITE(jules_message, *)                                                    &
