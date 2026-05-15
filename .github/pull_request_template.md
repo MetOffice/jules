@@ -29,7 +29,7 @@ Code Reviewer: <!-- CR id, filled by SSD -->
 - [ ] Comments have been included that aid undertanding and enhance the
       readability of the code
 - [ ] My changes generate no new warnings
-- [ ] If editing `rose-meta/jules-shared` then have you supplied a linked UM PR?
+- [ ] If editing `rose-meta/jules-shared` then have you supplied a linked UM and LFRic Apps PR?
 
 ## Testing
 
