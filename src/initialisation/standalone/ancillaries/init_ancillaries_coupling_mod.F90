@@ -230,7 +230,7 @@ IF ( l_use_land_fraction) THEN
   ! Make sure there are no river direction points (not outflow)
   ! at zero land fraction points.
   check_land_fractions(:,:) = 0
-  WHERE ( direction_grid(:,:) > 0 .AND. direction_grid(:,:) < -1*river_mouth )
+  WHERE ( direction_grid(:,:) > 0 .AND. direction_grid(:,:) < dir_mouth )
     check_land_fractions(:,:) = 1   ! Set points with river directions to 1
   END WHERE
   WHERE ( land_fraction_2d(:,:) > 0 )
