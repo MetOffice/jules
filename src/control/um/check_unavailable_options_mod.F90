@@ -71,6 +71,15 @@ IF ( l_rivers ) THEN
 END IF
 
 ! jules_soil_biogeochem_mod
+IF ( l_bgc_heat ) THEN
+  error_sum = error_sum + 1
+  WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
+     ": Biogenic heating scheme is only available to standalone JULES. " //    &
+     "l_bgc_heat = ", l_bgc_heat
+  CALL jules_print(RoutineName, jules_message, level = PrNorm)
+END IF
+
+! jules_soil_biogeochem_mod
 IF ( l_ch4_microbe ) THEN
   error_sum = error_sum + 1
   WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
