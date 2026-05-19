@@ -221,7 +221,7 @@ IF ( l_use_land_fraction) THEN
     WRITE(jules_message, *)                                                    &
        'There are some land fractions at non-river points. ' //                &
        'Number of inconsistent points  = ', ERROR
-    CALL log_error(RoutineName, jules_message)
+    CALL log_fatal(RoutineName, jules_message)
   ELSE
     CALL log_info(RoutineName,                                                 &
        'All non-zero land fraction points are modelled by rivers')
@@ -243,7 +243,7 @@ IF ( l_use_land_fraction) THEN
     WRITE(jules_message, *)                                                    &
        'There are some river direction points at zero land fraction points. '//&
        'Number of inconsistent points  = ', ERROR
-    CALL log_error(RoutineName, jules_message)
+    CALL log_fatal(RoutineName, jules_message)
   ELSE
     CALL log_info(RoutineName,                                                 &
        'All river direction points have a non-zero land fraction.')
