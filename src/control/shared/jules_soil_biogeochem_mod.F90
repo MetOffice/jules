@@ -323,10 +323,26 @@ IF ( l_ch4_interactive .AND. .NOT. l_ch4_tlayered ) THEN
       'the layered soil temperature calculation (l_ch4_tlayered)' )
 END IF
 
+! Check if l_q10=T to use l_bgc_heat
 IF ( .NOT. l_q10 .AND. l_bgc_heat ) THEN
   CALL ereport( TRIM(RoutineName), warningstatus,                              &
       'To use the biogenic heating of soil carbon decomposition' //            &
       'you must use l_q10=.true. and l_bgc_heat=.true.' )
+END IF
+
+! Check if l_layeredC=T to use l_bgc_heat
+IF ( .NOT. l_layeredc .AND. l_bgc_heat ) THEN
+  CALL ereport( TRIM(RoutineName), warningstatus,                              &
+      'To use the biogenic heating of soil carbon decomposition' //            &
+      'you must use l_layeredc=.true. and l_bgc_heat=.true.' )
+END IF
+
+! Check if l_bgc_heat = T, heat_of_respiration is 3.7e09
+IF ( l_bgc_heat .AND. (heat_of_respiration < 0.0 .OR.                          &
+                       heat_of_respiration == rmdi) ) THEN
+  CALL ereport( TRIM(RoutineName), warningstatus,                              &
+      'To use the biogenic heating of soil carbon decomposition' //            &
+      'the heat_of_respiration must be positive.' )
 END IF
 
 ! Check that certain soil models are only used with a vegetation model.
