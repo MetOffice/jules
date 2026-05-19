@@ -29,8 +29,7 @@ SUBROUTINE check_ancil_rivers( dir_mouth, dir_inland_drainage,                 &
 
 USE jules_rivers_mod, ONLY: nx_rivers, ny_rivers, n_rivers, i_river_vn,        &
                             rivers_trip, l_inland_outflow,                     &
-                            l_outflow_per_river, l_init_storage,               &
-                            river_mouth
+                            l_outflow_per_river, l_init_storage
 USE jules_rivers_props_mod, ONLY: l_ignore_ancil_rivers_check
 USE coastal, ONLY: l_use_land_fraction
 USE missing_data_mod, ONLY: imdi
