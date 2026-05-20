@@ -66,6 +66,7 @@ USE init_drive_mod,               ONLY: init_drive
 USE init_rivers_mod,              ONLY: init_rivers
 USE init_water_resources_mod,     ONLY: init_water_resources
 USE metstats_init_mod,            ONLY: metstats_init
+USE metstats_mod,                 ONLY: metstats_allocate
 USE init_parms_mod,               ONLY: init_parms
 USE init_soil_ecosse_mod,         ONLY: init_soil_ecosse
 USE check_compatible_options_mod, ONLY: check_compatible_options
@@ -363,9 +364,6 @@ CALL init_params(nml_dir,progs,land_pts,nsurft,nnpft,npft,nmasst)
 ! Initialise fire module
 CALL init_fire(nml_dir,ainfo%land_index)
 
-! Initialise the metstats module
-CALL metstats_init(ainfo)
-
 ! Contains allocation of progs_data%seed_rain - hence passing in the data type
 CALL init_drive(nml_dir,ainfo,progs_data)
 
@@ -378,6 +376,13 @@ END IF
 
 ! Associate the data and pointer types again after the extra allocation
 CALL prognostics_assoc(progs,progs_data)
+
+! Initialise the metstats module.  Potentially any area of the model can
+! request that metstats calculate a diagnostic (i.e. sets l_metstats=T), so
+! this needs to be done after science options are finalised and before the dump
+! is read by init_ic().
+CALL metstats_allocate(land_pts)
+CALL metstats_init(ainfo)
 
 ! Initialise other prescribed data
 CALL init_prescribed_data(nml_dir)
