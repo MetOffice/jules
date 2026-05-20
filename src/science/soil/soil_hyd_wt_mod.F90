@@ -33,6 +33,8 @@ USE calc_zw2_mod,  ONLY: calc_zw2
 
 USE jules_water_tracers_mod, ONLY: l_wtrac_jls
 
+USE jules_soil_mod, ONLY: l_calc_zw2
+
 USE parkind1,     ONLY: jprb, jpim
 USE yomhook,      ONLY: lhook, dr_hook
 
@@ -142,13 +144,6 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Increment to surface water tracer runoff (kg m-2 s-1).
 
 !-----------------------------------------------------------------------------
-! Local parameters:
-!-----------------------------------------------------------------------------
-LOGICAL, PARAMETER :: l_calc_zw2 = .TRUE.
-! ejb changed LOGICAL, PARAMETER :: l_calc_zw2 = .FALSE.
-! Whether to call calc_zw or calc_zw2
-
-!-----------------------------------------------------------------------------
 ! Local scalars:
 !-----------------------------------------------------------------------------
 INTEGER ::                                                                     &
@@ -177,6 +172,10 @@ IF (l_top) THEN
 
   DO j = 1,soil_pts
     i = soil_index(j)
+    ! Limit qbase_l to prevent smclzw going negative (preserves water balance)
+    ! Max outflow = inflow + available storage
+    qbase_l(i,nshyd+1) = MIN(qbase_l(i,nshyd+1),                               &
+                             w_flux(i,nshyd) + smclzw(i) / timestep)
     smclzw(i) = smclzw(i) - (qbase_l(i,nshyd+1) - w_flux(i,nshyd)) * timestep
     ! Update prognostic deep layer soil moisture fraction:
     sthzw(i) = smclzw(i) / smclsatzw(i)

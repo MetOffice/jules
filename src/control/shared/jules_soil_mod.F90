@@ -54,11 +54,13 @@ LOGICAL ::                                                                     &
   soil_props_const_z = .FALSE.,                                                &
       ! Switch for whether soil ancils has the same values on each layer.
       ! Set in the JULES_SOIL_PROPS namelist.
-  l_holdwater = .FALSE.
+  l_holdwater = .FALSE.,                                                       &
       ! Switch to control how supersaturated and negative soil moisture is
       ! handled in the implicit calculation. FALSE: excess/required moisture
       ! is pushed out/in from the base of the soil. TRUE: water is added/
       ! taken from an adjacent layer.
+  l_calc_zw2 = .FALSE.
+      ! new water table deth calculation
 
 #if !defined(UM_JULES)
 LOGICAL ::                                                                     &
@@ -172,7 +174,7 @@ NAMELIST  / jules_soil/                                                        &
     sm_levels,                                                                 &
 ! Switches
     l_vg_soil, l_dpsids_dsdz, l_soil_sat_down, soilhc_method, l_bedrock,       &
-    l_holdwater, l_tile_soil,                                                  &
+    l_holdwater, l_tile_soil, l_calc_zw2,                                      &
 ! Parameters
     cs_min, zsmc, zst, confrac, ns_deep, hcapdeep, hcondeep,                   &
     dzdeep, dzsoil_io, dzsoil_elev, hflux_geo
@@ -357,6 +359,9 @@ CALL jules_print('jules_soil', lineBuffer)
 WRITE(lineBuffer, *) '  l_tile_soil = ', l_tile_soil
 CALL jules_print('jules_soil', lineBuffer)
 
+WRITE(lineBuffer, *) '  l_calc_zw2 = ', l_calc_zw2
+CALL jules_print('jules_soil', lineBuffer)
+
 WRITE(lineBuffer, *) '  soilhc_method = ', soilhc_method
 CALL jules_print('jules_soil', lineBuffer)
 
@@ -434,7 +439,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
 INTEGER, PARAMETER :: n_real = 9 + sm_levels_max
-INTEGER, PARAMETER :: n_log = 6
+INTEGER, PARAMETER :: n_log = 7
 
 TYPE :: my_namelist
   SEQUENCE
@@ -457,6 +462,7 @@ TYPE :: my_namelist
   LOGICAL :: l_holdwater
   LOGICAL :: l_bedrock
   LOGICAL :: l_tile_soil
+  LOGICAL :: l_calc_zw2
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -493,7 +499,7 @@ IF (mype == 0) THEN
   my_nml % l_holdwater     = l_holdwater
   my_nml % l_bedrock       = l_bedrock
   my_nml % l_tile_soil     = l_tile_soil
-
+  my_nml % l_calc_zw2     = l_calc_zw2
 END IF
 
 CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
@@ -519,6 +525,7 @@ IF (mype /= 0) THEN
   l_holdwater     = my_nml % l_holdwater
   l_bedrock       = my_nml % l_bedrock
   l_tile_soil     = my_nml % l_tile_soil
+  l_calc_zw2 = my_nml % l_calc_zw2
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)
