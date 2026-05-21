@@ -433,7 +433,7 @@ Rivers
 |                               |                                                                                               |            |
 |                               | This technically has dimensions of "np_rivers", although only ``[1:n_rivers]``, defined by    |            |
 |                               | the rivers_outflow_number (see :ref:`list-of-rivers-params`), is populated.                   |            |
-+----------------------------------+--------------------------------------------------------------------------------------------+------------+
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``inland_outflow_rp``         | Inland basin flow on river routing points (kg m\ :sup:`-2` s\ :sup:`-1`).                     | np_rivers  |
 |                               | Adding this diagnostic will turn on inland basin flow which diverts river water flowing       |            |
 |                               | into an inland basin flow point to this diagnostic. At the same time runoff feeding           |            |
