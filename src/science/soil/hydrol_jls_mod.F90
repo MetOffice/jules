@@ -43,7 +43,8 @@ SUBROUTINE hydrol (                                                            &
      fch4_local_soilt, npp_soilt, inlandout_atm_gb, inlandout_atm_gb_wtrac,    &
      canopy_surft, canopy_surft_wtrac, smcl_soilt, sthf_soilt,                 &
      sthu_soilt,  sthu_irr_soilt, tsoil_deep_gb,                               &
-     t_soil_soilt, t_soil_soilt_acc, timewet_lyr, tsurf_elev_surft,            &
+     t_soil_soilt, t_soil_soilt_acc, alt_currentyear_soilt, alt_lastyear_soilt,&
+     timewet_lyr, tsurf_elev_surft,                                            &
      smcl_soilt_wtrac, sthf_soilt_wtrac, sthu_soilt_wtrac,                     &
      fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, sthzw_soilt_wtrac,        &
      cs_pool_soilt,resp_s_soilt,                                               &
@@ -62,6 +63,7 @@ SUBROUTINE hydrol (                                                            &
 
 !Use in relevant subroutines
 USE ancil_info,               ONLY: dim_cslayer, nsoilt
+USE alt_mod,                  ONLY: alt
 USE calc_baseflow_jules_mod,  ONLY: calc_baseflow_jules
 USE calc_zw_inund_mod,        ONLY: calc_zw_inund
 USE ch4_wetl_mod,             ONLY: ch4_wetl
@@ -312,6 +314,10 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   t_soil_soilt_acc(land_pts,nsoilt,sm_levels),                                 &
     ! Sub-surface temperature on layers and soil tiles
     ! accumulated over TRIFFID timestep (K).
+  alt_currentyear_soilt(land_pts,nsoilt),                                      &
+    ! Current year active layer thickness
+  alt_lastyear_soilt(land_pts,nsoilt),                                         &
+    ! Last year active layer thickness
   tsurf_elev_surft(land_pts,nsurft),                                           &
     ! Tiled sub-surface temperatures (K).
   smcl_soilt_wtrac(land_pts,nsoilt,sm_levels,n_wtrac_jls),                     &
@@ -1155,6 +1161,22 @@ IF (soil_pts /= 0) THEN
         sthf_soilt(:,m,:), sthu_soilt(:,m,:),  sthu_irr_soilt(:,m,:),          &
         t_soil_soilt(:,m,:), tsoil_deep_gb, dim_cs1, resp_s_soilt(:,m,:,:),    &
         dtsd_acc_soilt(:,m,:))
+    END DO
+  END IF
+  
+  !-----------------------------------------------------------------------------
+  ! Update active layer thickness
+  !-----------------------------------------------------------------------------
+  IF (nsoilt == 1) THEN
+    m = 1
+    CALL alt(land_pts, sm_levels, soil_pts, soil_index, dzsoil,                &
+           t_soil_soilt(:,m,:), alt_currentyear_soilt(:,m),                    &
+           alt_lastyear_soilt(:,m))
+  ELSE
+    DO m = 1, nsoilt
+      CALL alt(land_pts, sm_levels, soil_pts, soil_index, dzsoil,              &
+           t_soil_soilt(:,m,:), alt_currentyear_soilt(:,m),                    &
+           alt_lastyear_soilt(:,m))
     END DO
   END IF
 

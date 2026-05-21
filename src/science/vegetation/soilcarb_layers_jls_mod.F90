@@ -25,7 +25,7 @@ SUBROUTINE soilcarb_layers (land_pts, trif_pts, trif_index, forw, r_gamma,     &
                            !New arguments replacing USE statements
                            !prognostics
                            ns_pool_gb, n_inorg_soilt_lyrs, n_inorg_avail_pft,  &
-                           t_soil_soilt_acc,                                   &
+                           t_soil_soilt_acc, alt_lastyear_soilt,               &
                            !trif_vars_mod
                            burnt_carbon_dpm, g_burn_gb, burnt_carbon_rpm,      &
                            minl_n_gb, minl_n_pot_gb, immob_n_gb, immob_n_pot_gb, &
@@ -125,6 +125,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) :: ns_pool_gb(land_pts,dim_cslayer,dim_cs
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: n_inorg_soilt_lyrs(land_pts,nsoilt,dim_cslayer)
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: n_inorg_avail_pft(land_pts,npft,dim_cslayer)
 REAL(KIND=real_jlslsm), INTENT(IN) :: t_soil_soilt_acc(land_pts,nsoilt,sm_levels)
+REAL(KIND=real_jlslsm), INTENT(IN) :: alt_lastyear_soilt(land_pts,nsoilt)
 
 !trif_vars_mod
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: burnt_carbon_dpm(land_pts)
@@ -200,7 +201,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Soil respiration (kg C/m2/360days).
   f_root_pft(dim_cslayer),                                                     &
     ! Root fraction in each soil layer.
-  f_root_pft_dz(npft,dim_cslayer),                                             &
+  f_root_pft_dz(land_pts,npft,dim_cslayer),                                    &
     ! Exponential root fraction in each soil layer.
   cs_min_lit_cn,                                                               &
     ! cs_min/lit_cn: speeding up calculations.
@@ -253,9 +254,13 @@ cs_min_bio_hum_cn = cs_min / bio_hum_cn
 
 !Calculate root profiles for updating plant available N
 DO i = 1,npft
-  CALL root_frac(i, dim_cslayer, dzsoil, rootd_ft(i), f_root_pft)
-  f_root_pft_dz(i,:) = f_root_pft(:) / dzsoil(:) /                             &
-                       (f_root_pft(1) / dzsoil(1))
+  DO t = 1,trif_pts
+    l = trif_index(t)
+    CALL root_frac(i, dim_cslayer, dzsoil, rootd_ft(i),                        &
+                   alt_lastyear_soilt(l,:), f_root_pft)
+    f_root_pft_dz(l,i,:) = f_root_pft(:) / dzsoil(:) /                         &
+                         (f_root_pft(1) / dzsoil(1))
+  END DO
 END DO
 
 DO t = 1,trif_pts
@@ -440,7 +445,7 @@ DO t = 1,trif_pts
                  ns_pool_gb(l,n,3) + ns_pool_gb(l,n,4)
     DO i = 1,npft !Update plant available inorganic nitrogen.
       n_inorg_avail_pft(l,i,n) = n_inorg_avail_pft(l,i,n)                      &
-                                 + MAX( (f_root_pft_dz(i,n)                    &
+                                 + MAX( (f_root_pft_dz(l,i,n)                  &
                                          * (minl_n_gb(l,n,5)                   &
                                              - immob_n_gb(l,n,5)               &
                                              - n_gas_gb(l,n)) / r_gamma),      &

@@ -166,6 +166,10 @@ TYPE :: progs_data_type
     ! Snow soot content (kg/kg)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: t_soil_soilt(:,:,:)
     ! Sub-surface temperature on layers and soil tiles (K)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: alt_currentyear_soilt(:,:)
+    ! Current year active layer thickness on soil tiles (m)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: alt_lastyear_soilt(:,:)
+    ! Last year active layer thickness on soil tiles (m)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: t_soil_soilt_acc(:,:,:)
     ! Sub-surface temperature on layers and soil tiles
     ! accumulated over TRIFFID timestep (K).
@@ -246,6 +250,8 @@ TYPE :: progs_type
   REAL(KIND=real_jlslsm), POINTER :: snow_mass_sea_sicat(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: soot_ij(:,:)
   REAL(KIND=real_jlslsm), POINTER :: t_soil_soilt(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: alt_currentyear_soilt(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: alt_lastyear_soilt(:,:)  
   REAL(KIND=real_jlslsm), POINTER :: t_soil_soilt_acc(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: ti_sicat(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: tstar_surft(:,:)
@@ -277,7 +283,8 @@ SUBROUTINE prognostics_alloc(land_pts, t_i_length, t_j_length,                 &
                        dim_cslayer, dim_cs1, dim_ch4layer, dim_ch4subgrid,     &
                        nice, nice_use, soil_bgc_model, soil_model_ecosse,      &
                        l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,      &
-                       nmasst, nnpft, l_acclim, l_sugar, progs_data)
+                       nmasst, nnpft, l_acclim, l_sugar, l_limit_rootd_alt,    & 
+                       progs_data)
 
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
@@ -292,7 +299,7 @@ INTEGER, INTENT(IN) :: land_pts, t_i_length, t_j_length,                       &
                        nmasst, nnpft
 
 LOGICAL, INTENT(IN) :: l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,      &
-                       l_acclim, l_sugar
+                       l_acclim, l_sugar, l_limit_rootd_alt
 
 TYPE(progs_data_type), INTENT(IN OUT) :: progs_data
   !Instance of the data type we need to allocate
@@ -459,6 +466,8 @@ ALLOCATE(progs_data%lai_pft(land_pts,npft))
 ALLOCATE(progs_data%canht_pft(land_pts,npft))
 ALLOCATE(progs_data%smcl_soilt(land_pts,nsoilt,sm_levels))
 ALLOCATE(progs_data%t_soil_soilt(land_pts,nsoilt,sm_levels))
+ALLOCATE(progs_data%alt_currentyear_soilt(land_pts,nsoilt))
+ALLOCATE(progs_data%alt_lastyear_soilt(land_pts,nsoilt))
 ALLOCATE(progs_data%tsurf_elev_surft(land_pts,nsurft))
 ALLOCATE(progs_data%rgrain_surft(land_pts,nsurft))
 ALLOCATE(progs_data%snow_surft(land_pts,nsurft))
@@ -483,6 +492,8 @@ progs_data%lai_pft(:,:)               = 0.0
 progs_data%canht_pft(:,:)             = 0.0
 progs_data%smcl_soilt(:,:,:)          = 0.0
 progs_data%t_soil_soilt(:,:,:)        = 0.0
+progs_data%alt_currentyear_soilt(:,:) = 0.0
+progs_data%alt_lastyear_soilt(:,:)    = 0.0
 progs_data%tsurf_elev_surft(:,:)      = 0.0
 progs_data%rgrain_surft(:,:)          = 0.0
 progs_data%snow_surft(:,:)            = 0.0
@@ -587,6 +598,8 @@ DEALLOCATE(progs_data%lai_pft)
 DEALLOCATE(progs_data%canht_pft)
 DEALLOCATE(progs_data%smcl_soilt)
 DEALLOCATE(progs_data%t_soil_soilt)
+DEALLOCATE(progs_data%alt_currentyear_soilt)
+DEALLOCATE(progs_data%alt_lastyear_soilt)
 DEALLOCATE(progs_data%tsurf_elev_surft)
 DEALLOCATE(progs_data%rgrain_surft)
 DEALLOCATE(progs_data%snow_surft)
@@ -673,6 +686,8 @@ progs%lai_pft => progs_data%lai_pft
 progs%canht_pft => progs_data%canht_pft
 progs%smcl_soilt => progs_data%smcl_soilt
 progs%t_soil_soilt => progs_data%t_soil_soilt
+progs%alt_currentyear_soilt => progs_data%alt_currentyear_soilt
+progs%alt_lastyear_soilt => progs_data%alt_lastyear_soilt
 progs%tsurf_elev_surft => progs_data%tsurf_elev_surft
 progs%rgrain_surft => progs_data%rgrain_surft
 progs%snow_surft => progs_data%snow_surft
@@ -764,6 +779,8 @@ NULLIFY(progs%lai_pft)
 NULLIFY(progs%canht_pft)
 NULLIFY(progs%smcl_soilt)
 NULLIFY(progs%t_soil_soilt)
+NULLIFY(progs%alt_currentyear_soilt)
+NULLIFY(progs%alt_lastyear_soilt)
 NULLIFY(progs%tsurf_elev_surft)
 NULLIFY(progs%rgrain_surft)
 NULLIFY(progs%snow_surft)

@@ -225,6 +225,14 @@ DO i = 1,nvars
       CALL file_read_var(FILE, var_ids(i),                                     &
                          global_data_3d(:,1:nsoilt,1:sm_levels))
 
+    CASE ( 'alt_currentyear', 'alt_lastyear')
+      CALL file_read_var(FILE, var_ids(i),                                     &
+                         global_data_1d)
+
+    CASE ( 'alt_currentyear_soilt', 'alt_lastyear_soilt')
+      CALL file_read_var(FILE, var_ids(i),                                     &
+                         global_data_2d(:,1:nsoilt))
+
     CASE ( 'n_inorg' )
       CALL file_read_var(FILE, var_ids(i),                                     &
                          global_data_2d(:,1:dim_cslayer))
@@ -718,6 +726,38 @@ DO i = 1,nvars
         CALL scatter_land_field(global_data_3d(:,m,n),                         &
                                 progs%t_soil_soilt(:,m,n))
       END DO
+    END DO
+
+  CASE ( 'alt_currentyear' )
+    IF ( l_tile_soil .AND. l_broadcast_soilt ) THEN
+      DO m = 1,nsoilt
+        CALL scatter_land_field(global_data_1d,                                &
+                                  progs%alt_currentyear_soilt(:,m))
+      END DO
+    ELSE !Case if nsoilt == 1, so OK to hardwire the 2nd dimension to 1
+      CALL scatter_land_field(global_data_1d, progs%alt_currentyear_soilt(:,1))
+    END IF
+
+  CASE ( 'alt_lastyear' )
+    IF ( l_tile_soil .AND. l_broadcast_soilt ) THEN
+      DO m = 1,nsoilt
+        CALL scatter_land_field(global_data_1d,                                &
+                                  progs%alt_lastyear_soilt(:,m))
+      END DO
+    ELSE !Case if nsoilt == 1, so OK to hardwire the 2nd dimension to 1
+      CALL scatter_land_field(global_data_1d, progs%alt_lastyear_soilt(:,1))
+    END IF
+
+  CASE ( 'alt_currentyear_soilt' )
+    DO m = 1,nsoilt
+      CALL scatter_land_field(global_data_2d(:,m),                             &
+                                progs%alt_currentyear_soilt(:,m))
+    END DO
+
+   CASE ( 'alt_lastyear_soilt' )
+    DO m = 1,nsoilt
+      CALL scatter_land_field(global_data_2d(:,m),                             &
+                                progs%alt_lastyear_soilt(:,m))
     END DO
 
   CASE ( 'tsoil_deep' )

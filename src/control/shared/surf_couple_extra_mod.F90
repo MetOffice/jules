@@ -779,8 +779,8 @@ CASE ( jules )
       progs%canopy_surft, wtrac_jls%canopy_surft,                              &
       progs%smcl_soilt, psparms%sthf_soilt,                                    &
       psparms%sthu_soilt, crop_vars%sthu_irr_soilt, progs%tsoil_deep_gb,       &
-      progs%t_soil_soilt, progs%t_soil_soilt_acc,                              &
-      progs%timewet_lyr, progs%tsurf_elev_surft,                               &
+      progs%t_soil_soilt, progs%t_soil_soilt_acc, progs%alt_currentyear_soilt, &
+      progs%alt_lastyear_soilt, progs%timewet_lyr, progs%tsurf_elev_surft,     &
       wtrac_jls%smcl_soilt, wtrac_jls%sthf_soilt, wtrac_jls%sthu_soilt,        &
       fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, wtrac_jls%sthzw_soilt,   &
       progs%cs_pool_soilt, trifctltype%resp_s_soilt,                           &
@@ -1132,7 +1132,8 @@ CASE ( jules )
           trifctltype%g_leaf_dr_out_pft, trifctltype%npp_dr_out_pft,           &
           trifctltype%resp_w_dr_out_pft, qbase_l_soilt,                        &
           psparms%sthf_soilt, psparms%sthu_soilt,                              &
-          w_flux_soilt, progs%t_soil_soilt,progs%cs_pool_soilt,                &
+          w_flux_soilt, progs%t_soil_soilt, progs%alt_lastyear_soilt,          &
+          progs%cs_pool_soilt,                                                 &
           progs%frac_c_label_pool_soilt,                                       &
           !New arguments replacing USE statements
           !trif_vars_mod (IN OUT)

@@ -34,7 +34,8 @@ SUBROUTINE allocate_river_arrays(psparms_data,ainfo_data, progs_data,          &
                                  wtrac_jls_data)
 
 USE jules_vegetation_mod,      ONLY: l_triffid, l_phenol, l_use_pft_psi,       &
-                                     l_acclim, l_sugar, l_red
+                                     l_acclim, l_sugar, l_limit_rootd_alt,     &
+                                     l_red
 USE jules_soil_mod,            ONLY: l_bedrock, ns_deep
 USE jules_soil_biogeochem_mod, ONLY: soil_model_ecosse, soil_bgc_model,        &
                                      l_layeredc, dim_ch4layer, dim_ch4subgrid
@@ -132,7 +133,8 @@ CALL prognostics_alloc(temp_size, t_i_length, t_j_length,                      &
                       dim_cslayer, dim_cs1, dim_ch4layer, dim_ch4subgrid,      &
                       nice, nice_use, soil_bgc_model, soil_model_ecosse,       &
                       l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,       &
-                      nmasst, nnpft, l_acclim, l_sugar, progs_data)
+                      nmasst, nnpft, l_acclim, l_sugar, l_limit_rootd_alt,     &
+                      progs_data)
 
 ! This is where sub_surf_roff_gb and surf_roff_gb are allocated, but could
 ! allocate this separately too.

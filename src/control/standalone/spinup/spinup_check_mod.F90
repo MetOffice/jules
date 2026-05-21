@@ -113,6 +113,12 @@ DO i = 1,nvars
   CASE ( 't_soil' )
     DATA(:,:,:) = progs%t_soil_soilt(:,:,:)
 
+!  CASE ( 'alt_currentyear' )
+!    DATA(:,:,1) = progs%alt_currentyear_soilt(:,:)
+
+!  CASE ( 'alt_lastyear' )
+!    DATA(:,:,1) = progs%alt_lastyear_soilt(:,:)
+
   CASE DEFAULT
     CALL log_fatal(RoutineName,                                                &
                    "Unrecognised variable for spinup - " //                    &

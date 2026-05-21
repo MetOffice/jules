@@ -61,6 +61,7 @@ SUBROUTINE ecosse_prepare( land_pts, s, triffid_call, vs_pts,                  &
      nsoilt, dim_cslayer,                                                      &
      ! soil_ecosse_vars_mod
      qbase_l_driver, sthf_driver, sthu_driver, tsoil_driver, wflux_driver,     &
+     alt_lastyear_soilt,                                                       &
      !trif_vars_mod
      lit_c_orig_pft, lit_n_orig_pft,                                           &
      !TYPES
@@ -189,7 +190,7 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Minimum-allowed (residual) inorganic N amount (kg m-2).
   resp_frac_soil(land_pts,nz_soilc),                                           &
     ! The fraction of decomposition that forms new biomass and
-  f_root_pft(npft,nz_soilc),                                                   &
+  f_root_pft(land_pts,npft,nz_soilc),                                          &
     ! Fraction of roots in each soil layer.
   smvc(land_pts,nz_soilc),                                                     &
     ! Volumetric soil moisture content (1).
@@ -250,6 +251,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) :: sthf_driver(land_pts,nsoilt,sm_levels)
 REAL(KIND=real_jlslsm), INTENT(IN) :: sthu_driver(land_pts,nsoilt,sm_levels)
 REAL(KIND=real_jlslsm), INTENT(IN) :: tsoil_driver(land_pts,nsoilt,sm_levels)
 REAL(KIND=real_jlslsm), INTENT(IN) :: wflux_driver(land_pts,nsoilt,sm_levels)
+REAL(KIND=real_jlslsm), INTENT(IN) :: alt_lastyear_soilt(land_pts,nsoilt)
 !trif_vars_mod
 REAL(KIND=real_jlslsm), INTENT(IN) :: lit_c_orig_pft(land_pts,npft)
 REAL(KIND=real_jlslsm), INTENT(IN) :: lit_n_orig_pft(land_pts,npft)
@@ -363,8 +365,12 @@ IF ( .NOT. l_soil_N ) l_extract_n = .FALSE.
 ! normalisation. This is not currently an issue, just beware in future!
 !-----------------------------------------------------------------------------
 DO n = 1,npft
-  CALL root_frac( n, nz_soilc, dz_soilc(:), rootd_ft(n), f_root_pft_tmp )
-  f_root_pft(n,:) = f_root_pft_tmp(:)
+  DO j = 1,vs_pts
+    i = vs_index(j)
+    CALL root_frac(n, nz_soilc, dz_soilc(:), rootd_ft(n),                      &
+                 alt_lastyear_soilt(i,:), f_root_pft_tmp )
+    f_root_pft(i,n,:) = f_root_pft_tmp(:)
+  END DO
 END DO
 
 !-----------------------------------------------------------------------------
@@ -603,7 +609,7 @@ INTEGER, INTENT(IN)  ::                                                        &
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   frac_surft_start(land_pts,ntype),                                            &
     ! Fractional coverage of each land type at start of timestep.
-  f_root_pft(npft,nz_soilc)
+  f_root_pft(land_pts,npft,nz_soilc)
     ! Fraction of roots in each soil layer.
 
 !-----------------------------------------------------------------------------
@@ -638,7 +644,7 @@ INTEGER :: i, iz, j, n   ! loop counters/indices
 REAL(KIND=real_jlslsm) ::                                                      &
   dpm_frac(npft),                                                              &
     ! The fraction of litterfall that is decomposable plant material (DPM).
-  input_frac(npft,nz_soilc)
+  input_frac(land_pts,npft,nz_soilc)
     ! The proportion of plant inputs going into each soil layer.
 
 ! Dr Hook variables
@@ -653,7 +659,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !-----------------------------------------------------------------------------
 ! Calculate the vertical distribution of inputs.
 !-----------------------------------------------------------------------------
-CALL profile_plant_inputs( f_root_pft, input_frac )
+CALL profile_plant_inputs( land_pts, vs_pts, vs_index, f_root_pft, input_frac )
 
 !-----------------------------------------------------------------------------
 ! Calculate fraction of litter that is DPM, from DPM:RPM ratio.
@@ -671,11 +677,11 @@ DO n = 1,npft
       i = vs_index(j)
       plant_input_c_dpm(i,iz) = plant_input_c_dpm(i,iz) +                      &
                                 lit_c_orig_pft(i,n) * dpm_frac(n) *            &
-                                input_frac(n,iz) * frac_surft_start(i,n) *     &
+                                input_frac(i,n,iz) * frac_surft_start(i,n) *   &
                                 convert_360_input
       plant_input_c_rpm(i,iz) = plant_input_c_rpm(i,iz) +                      &
                                 lit_c_orig_pft(i,n) * (1.0 - dpm_frac(n)) *    &
-                                input_frac(n,iz) * frac_surft_start(i,n) *     &
+                                input_frac(i,n,iz) * frac_surft_start(i,n) *   &
                                 convert_360_input
     END DO
   END DO  !  iz
@@ -693,11 +699,11 @@ IF ( l_soil_N ) THEN
         i = vs_index(j)
         plant_input_n_dpm(i,iz) = plant_input_n_dpm(i,iz) +                    &
                                   lit_n_orig_pft(i,n) * dpm_frac(n) *          &
-                                  input_frac(n,iz) * frac_surft_start(i,n)     &
+                                  input_frac(i,n,iz) * frac_surft_start(i,n)   &
                                   * convert_360_input
         plant_input_n_rpm(i,iz) = plant_input_n_rpm(i,iz) +                    &
                                   lit_n_orig_pft(i,n) * (1.0 - dpm_frac(n))    &
-                                  * input_frac(n,iz) *                         &
+                                  * input_frac(i,n,iz) *                       &
                                   frac_surft_start(i,n) * convert_360_input
       END DO
     END DO  !  iz
@@ -724,7 +730,8 @@ END SUBROUTINE distribute_plant_inputs
 !#############################################################################
 !#############################################################################
 
-SUBROUTINE profile_plant_inputs( f_root_pft, input_frac )
+SUBROUTINE profile_plant_inputs( land_pts, vs_pts, vs_index, f_root_pft,       &
+                               input_frac )
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
   ! imported scalars
@@ -757,15 +764,28 @@ IMPLICIT NONE
 !   the soil for each PFT.
 
 !-----------------------------------------------------------------------------
+! Scalar arguments with intent(in).
+!-----------------------------------------------------------------------------
+INTEGER, INTENT(IN) ::                                                         &
+  land_pts,                                                                    &
+    ! The number of land points.
+  vs_pts
+    ! The number of points with veg and/or soil.
+
+!-----------------------------------------------------------------------------
 ! Array arguments with intent(in)
 !-----------------------------------------------------------------------------
-REAL(KIND=real_jlslsm), INTENT(IN) :: f_root_pft(npft,nz_soilc)
+INTEGER, INTENT(IN)  ::                                                        &
+  vs_index(land_pts)
+    ! Indices of veg/soil points.
+
+REAL(KIND=real_jlslsm), INTENT(IN) :: f_root_pft(land_pts,npft,nz_soilc)
     ! Fraction of roots in each soil layer.
 
 !-----------------------------------------------------------------------------
 ! Array arguments with intent(out).
 !-----------------------------------------------------------------------------
-REAL(KIND=real_jlslsm), INTENT(OUT) :: input_frac(npft,nz_soilc)
+REAL(KIND=real_jlslsm), INTENT(OUT) :: input_frac(land_pts,npft,nz_soilc)
     ! The proportion of plant inputs going into each soil layer.
 
 !-----------------------------------------------------------------------------
@@ -776,7 +796,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName = 'PROFILE_PLANT_INPUTS'
 !-----------------------------------------------------------------------------
 ! Local variables.
 !-----------------------------------------------------------------------------
-INTEGER :: iz, p    ! Indices.
+INTEGER :: iz, p, i, j    ! Indices.
 REAL(KIND=real_jlslsm) :: dzSum       ! Accumulated depth (m).
 REAL(KIND=real_jlslsm) :: piRemains   ! Remaining fraction of inputs.
 
@@ -796,14 +816,14 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !-----------------------------------------------------------------------------
 ! Initialise outputs.
 !-----------------------------------------------------------------------------
-input_frac(:,:) = 0.0
+input_frac(:,:,:) = 0.0
 
 IF ( nz_soilc == 1 ) THEN
   !---------------------------------------------------------------------------
   ! Deal with the trivial case of a single soil layer separately.
   ! All inputs are added to this layer.
   !---------------------------------------------------------------------------
-  input_frac(:,:) = 1.0
+  input_frac(:,:,:) = 1.0
 
 ELSE
 
@@ -827,28 +847,31 @@ ELSE
     ! to roots.
     !-------------------------------------------------------------------------
     DO p = 1,npft
+      DO j = 1,vs_pts
+        i = vs_index(j)
+        ! Calculate the inputs to the surface layer.
+        dzSum = 0.0
+        DO iz = 1,nz_soilc
+          IF ( iz == 1 .OR. zmid(iz) <= pi_sfc_depth ) THEN
+            input_frac(i,p,iz) = pi_sfc_frac * dz_soilc(iz)
+            dzSum            = dzSum + dz_soilc(iz)
+          ELSE
+            EXIT  !  leave loop over layers
+          END IF
+        END DO
+        !  Normalise by total depth within surface layer.
+        input_frac(i,p,:) = input_frac(i,p,:) / dzSum
 
-      ! Calculate the inputs to the surface layer.
-      dzSum = 0.0
-      DO iz = 1,nz_soilc
-        IF ( iz == 1 .OR. zmid(iz) <= pi_sfc_depth ) THEN
-          input_frac(p,iz) = pi_sfc_frac * dz_soilc(iz)
-          dzSum            = dzSum + dz_soilc(iz)
-        ELSE
-          EXIT  !  leave loop over layers
-        END IF
-      END DO
-      !  Normalise by total depth within surface layer.
-      input_frac(p,:) = input_frac(p,:) / dzSum
-
-      !-----------------------------------------------------------------------
-      ! Partition remaining litter between all layers (including surface)
-      ! according to root distribution.
-      !-----------------------------------------------------------------------
-      piRemains = 1.0 - SUM( input_frac(p,:) )
-      DO iz = 1,nz_soilc
-        input_frac(p,iz) = input_frac(p,iz) + piRemains * f_root_pft(p,iz)
-      END DO
+        !-----------------------------------------------------------------------
+        ! Partition remaining litter between all layers (including surface)
+        ! according to root distribution.
+        !-----------------------------------------------------------------------
+        piRemains = 1.0 - SUM( input_frac(i,p,:) )
+        DO iz = 1,nz_soilc
+          input_frac(i,p,iz) = input_frac(i,p,iz) + piRemains *                &
+                               f_root_pft(i,p,iz)
+        END DO
+      END DO ! vs_pts
 
     END DO  !  PFT
 
@@ -859,10 +882,13 @@ ELSE
     ! Calculate dz * exp(-tau*z) for mid-point depth in each layer and
     ! include the normalisation factor.
     !-------------------------------------------------------------------------
-    DO iz = 1,nz_soilc
-      input_frac(:,iz) = dz_soilc(iz) * EXP( -tau_lit * zmid(iz) )             &
+    DO j = 1,vs_pts
+      i = vs_index(j)
+      DO iz = 1,nz_soilc
+        input_frac(i,:,iz) = dz_soilc(iz) * EXP( -tau_lit * zmid(iz) )         &
                          / litc_norm
-    END DO
+      END DO
+    END DO ! vs_pts
 
   END IF   !  plant_input_profile
 

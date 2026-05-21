@@ -9355,9 +9355,48 @@ DATA metadata(722) / var_metadata(                                             &
     "kg s-1"                                                                   &
   ) /
 !-----------------------------------------------------------------------------
-! Metadata for timewet_lyr.
+! Metadata for alt_currentyear
 !-----------------------------------------------------------------------------
 DATA metadata(723) / var_metadata(                                             &
+! String identifier
+    'alt_currentyear',                                                         &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Current year active layer thickness",                                     &
+! Units    
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for alt_lastyear
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
+! String identifier
+    'alt_lastyear',                                                            &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Last year active layer thickness",                                        &
+! Units    
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for alt_currentyear_soilt
+!-----------------------------------------------------------------------------
+DATA metadata(725) / var_metadata(                                             &
+! String identifier
+    'alt_currentyear_soilt',                                                   &
+! Variable type
+    var_type_soilt,                                                            &
+! Long name
+    "Current year active layer thickness on soil tiles",                       &
+! Units    
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for timewet_lyr.
+!-----------------------------------------------------------------------------
+DATA metadata(726) / var_metadata(                                             &
 ! String identifier
     'timewet_lyr',                                                             &
 ! Variable type
@@ -9370,7 +9409,7 @@ DATA metadata(723) / var_metadata(                                             &
 !-----------------------------------------------------------------------------
 ! Metadata for ti_local.
 !-----------------------------------------------------------------------------
-DATA metadata(724) / var_metadata(                                             &
+DATA metadata(727) / var_metadata(                                             &
 ! String identifier
     'ti_local',                                                                &
 ! Variable type
@@ -9383,7 +9422,7 @@ DATA metadata(724) / var_metadata(                                             &
 !-----------------------------------------------------------------------------
 ! Metadata for zw_local.
 !-----------------------------------------------------------------------------
-DATA metadata(725) / var_metadata(                                             &
+DATA metadata(728) / var_metadata(                                             &
 ! String identifier
     'zw_local',                                                                &
 ! Variable type
@@ -9394,9 +9433,22 @@ DATA metadata(725) / var_metadata(                                             &
     "m"                                                                        &
   ) /
 !-----------------------------------------------------------------------------
+! Metadata for alt_lastyear_soilt
+!-----------------------------------------------------------------------------
+DATA metadata(729) / var_metadata(                                             &
+! String identifier
+    'alt_lastyear_soilt',                                                      &
+! Variable type
+    var_type_soilt,                                                            &
+! Long name
+    "Last year active layer thickness on soil tiles",                          &
+! Units
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
 ! Metadata for fch4_local.
 !-----------------------------------------------------------------------------
-DATA metadata(726) / var_metadata(                                             &
+DATA metadata(730) / var_metadata(                                             &
 ! String identifier
     'fch4_local',                                                              &
 ! Variable type

@@ -464,6 +464,26 @@ DO i = 1,nvars
       END DO
     END DO
 
+  CASE ( 'alt_currentyear' )
+    CALL gather_land_field(progs%alt_currentyear_soilt(:,1),                   &
+                           global_data_1d)
+
+  CASE ( 'alt_lastyear' )
+    CALL gather_land_field(progs%alt_lastyear_soilt(:,1),                      &
+                           global_data_1d)
+    
+  CASE ( 'alt_currentyear_soilt' )
+    DO m = 1,nsoilt
+      CALL gather_land_field(progs%alt_currentyear_soilt(:,m),                 &
+                               global_data_2d(:,m))
+    END DO
+
+  CASE ( 'alt_lastyear_soilt' )
+    DO m = 1,nsoilt
+      CALL gather_land_field(progs%alt_lastyear_soilt(:,m),                    &
+                               global_data_2d(:,m))
+    END DO
+
   CASE ( 'tsoil_deep' )
     DO n = 1,ns_deep
       CALL gather_land_field(progs%tsoil_deep_gb(:,n), global_data_2d(:,n))
@@ -1013,7 +1033,15 @@ DO i = 1,nvars
     CASE ( 'sthuf_soilt', 't_soil_soilt', 'sthu_irr_soilt' )
       CALL file_write_var(FILE, var_ids(i),                                    &
                           global_data_3d(:,1:nsoilt,1:sm_levels))
+    
+    CASE ( 'alt_currentyear', 'alt_lastyear' )
+      CALL file_write_var(FILE, var_ids(i),                                    &
+                          global_data_1d)
 
+    CASE ( 'alt_currentyear_soilt', 'alt_lastyear_soilt' )
+      CALL file_write_var(FILE, var_ids(i),                                    &
+                          global_data_2d(:,1:nsoilt))
+                          
     CASE ( 'n_inorg')
       CALL file_write_var(FILE, var_ids(i),                                    &
                           global_data_2d(:,1:dim_cslayer))

@@ -49,7 +49,8 @@ SUBROUTINE triffid (land_pts, trif_pts, trif_index, forw, r_gamma,             &
                     wood_prod_slow_gb, frac_agr_prev_gb,                       &
                     frac_past_prev_gb, frac_biocrop_prev_gb, n_inorg_gb,       &
                     n_inorg_soilt_lyrs, n_inorg_avail_pft, ns_pool_gb,         &
-                    triffid_co2_gb, t_soil_soilt_acc, years_since_harvest,     &
+                    triffid_co2_gb, t_soil_soilt_acc, alt_lastyear_soilt,      &
+                    years_since_harvest,                                       &
                     !trif_vars_mod (IN)
                     cnsrv_veg_triffid_gb, cnsrv_soil_triffid_gb,               &
                     cnsrv_prod_triffid_gb, cnsrv_carbon_triffid_gb,            &
@@ -260,6 +261,8 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
           t_soil_soilt_acc(land_pts,nsoilt,sm_levels)
     ! Sub-surface temperature on layers and soil tiles accumulated over
     ! TRIFFID timestep (K).
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+          alt_lastyear_soilt(land_pts,nsoilt)
 
 !trif_vars_mod
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: cnsrv_veg_triffid_gb(land_pts)
@@ -484,9 +487,9 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Plant-available inorganic N on tiles (kgN m-2).
   neg_n(land_pts),                                                             &
     ! Negative N required to prevent ns<0 (kg N).
-  f_root_pft(npft,dim_cslayer),                                                &
+  f_root_pft(land_pts,npft,dim_cslayer),                                       &
     ! Root fraction in each soil layer per PFT.
-  f_root_pft_dz(npft,dim_cslayer),                                             &
+  f_root_pft_dz(land_pts,npft,dim_cslayer),                                    &
     ! Normalised roots in each soil layer per PFT.
   isunfrozen(land_pts,dim_cslayer),                                            &
     ! Matrix to mask out frozen layers (inaccessible to plants).
@@ -745,7 +748,7 @@ CALL soil_n_precalc( land_pts, trif_pts, nstep_trif, trif_index,               &
                  ! These arguments replace USE statements
                     n_soil_pool_soilt, dim_soil_n_pool,                        &
                     ! prognostics
-                    t_soil_soilt_acc)
+                    t_soil_soilt_acc, alt_lastyear_soilt)
 
 !-----------------------------------------------------------------------------
 ! Add nitrogen deposition to the soil.
@@ -1336,7 +1339,7 @@ IF ( soil_bgc_model == soil_model_4pool ) THEN
                          !New arguments replacing USE statements
                          !prognostics
                          ns_pool_gb, n_inorg_soilt_lyrs, n_inorg_avail_pft,    &
-                         t_soil_soilt_acc,                                     &
+                         t_soil_soilt_acc, alt_lastyear_soilt,                 &
                          !trif_vars_mod
                          burnt_carbon_dpm, g_burn_gb, burnt_carbon_rpm,        &
                          minl_n_gb, minl_n_pot_gb, immob_n_gb, immob_n_pot_gb, &
@@ -1387,11 +1390,11 @@ IF ( soil_bgc_model == soil_model_4pool ) THEN
               n_inorg_soilt_lyrs(l,1,nn) = 1.0e-6
           END IF
           IF (l_trif_eq .OR. (diff_n_pft > r_gamma * 0.5) ) THEN
-            n_inorg_avail_pft(l,n,nn) = f_root_pft_dz(n,nn) *                  &
+            n_inorg_avail_pft(l,n,nn) = f_root_pft_dz(l,n,nn) *                &
                                         n_inorg_soilt_lyrs(l,1,nn)
           ELSE
             n_inorg_avail_pft(l,n,nn) = n_inorg_avail_pft(l,n,nn) +            &
-                                        (diff_n_pft * ( (f_root_pft_dz(n,nn) * &
+                                        (diff_n_pft * ( (f_root_pft_dz(l,n,nn)*&
                                         n_inorg_soilt_lyrs(l,1,nn)) -          &
                                         n_inorg_avail_pft(l,n,nn) ) / r_gamma)
           END IF

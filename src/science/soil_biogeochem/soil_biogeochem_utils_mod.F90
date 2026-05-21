@@ -42,7 +42,7 @@ SUBROUTINE soil_n_precalc( land_pts, trif_pts, nstep_trif, trif_index,         &
                         ! These arguments replace USE statements
                            n_soil_pool_soilt, dim_soil_n_pool,                 &
                            ! prognostics
-                           t_soil_soilt_acc )
+                           t_soil_soilt_acc, alt_lastyear_soilt )
 
 !-----------------------------------------------------------------------------
 ! Description:
@@ -151,9 +151,9 @@ LOGICAL, INTENT(OUT) ::                                                        &
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   dz(dim_cslayer),                                                             &
     ! Thicknesses of soil layers (m).
-  f_root_pft(npft,dim_cslayer),                                                &
+  f_root_pft(land_pts,npft,dim_cslayer),                                       &
     ! Root fraction in each soil layer per PFT.
-  f_root_pft_dz(npft,dim_cslayer),                                             &
+  f_root_pft_dz(land_pts,npft,dim_cslayer),                                    &
     ! Normalised roots in each soil layer per PFT.
   isunfrozen(land_pts,dim_cslayer)
     ! Unfrozen soil flag. 1 in unfrozen layers, else 0.
@@ -169,6 +169,9 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Sub-surface temperature on layers and soil tiles accumulated over
     ! TRIFFID timestep (K). On entry this is the accumulation, on exit this
     ! is the average temperature.
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  alt_lastyear_soilt(land_pts,nsoilt)
+    ! Last year active layer thickness (m)
 
 !-----------------------------------------------------------------------------
 ! Local scalar parameters.
@@ -259,10 +262,14 @@ IF ( have_layers ) THEN
   ! Calculate the fraction and normalised roots in each soil layer.
   !-------------------------------------------------------------------------
   DO n = 1,npft
-    CALL root_frac( n, dim_cslayer, dz, rootd_ft(n), f_root_pft_tmp )
-    f_root_pft(n,:) = f_root_pft_tmp(:)
-    f_root_pft_dz(n,:) = f_root_pft_tmp(:) / dzsoil(:) /                       &
-                         (f_root_pft_tmp(1) / dzsoil(1))
+    DO t = 1,trif_pts
+      l = trif_index(t)
+      CALL root_frac(n, dim_cslayer, dz, rootd_ft(n),                          &
+                   alt_lastyear_soilt(l,:), f_root_pft_tmp )
+      f_root_pft(l,n,:) = f_root_pft_tmp(:)
+      f_root_pft_dz(l,n,:) = f_root_pft_tmp(:) / dzsoil(:) /                   &
+                           (f_root_pft_tmp(1) / dzsoil(1))
+    END DO
   END DO
 
   !-------------------------------------------------------------------------
