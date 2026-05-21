@@ -435,12 +435,13 @@ Rivers
 |                               | the rivers_outflow_number (see :ref:`list-of-rivers-params`), is populated.                   |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``inland_outflow_rp``         | Inland basin flow on river routing points (kg m\ :sup:`-2` s\ :sup:`-1`).                     | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE.                                   |            |
+|                               |                                                                                               |            |
 |                               | Adding this diagnostic will turn on inland basin flow which diverts river water flowing       |            |
 |                               | into an inland basin flow point to this diagnostic. At the same time runoff feeding           |            |
 |                               | into an inland basin flow point will go to the oceans (via ``rivers_outflow_rp``). This is    |            |
 |                               | to stop water being caught in an infinite loop between soils and rivers. Therefore by         |            |
 |                               | adding this diagnostic the ``rflow`` and ``rivers_sto_rp`` diagnostics will also change.      |            |
-|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE.                                   |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``rrun_rp``                   | River routing gridbox runoff rate received by river routing routine                           | np_rivers  |
 |                               | (kg m\ :sup:`-2` s\ :sup:`-1`).                                                               |            |
