@@ -169,7 +169,7 @@ END IF
 IF (l_irrig_dmd) THEN
   IF ( ANY( irrig_tile(1:ntype) > 0.0 ) ) THEN
     ERROR = 1
-    CALL jules_print(routinename, 'irrig_pft cannot be set if irrig_pft > 0')
+    CALL jules_print(routinename, 'irrig_pft cannot be set if l_irrig_dmd=T')
   END IF
 END IF
 

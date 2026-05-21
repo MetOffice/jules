@@ -50,9 +50,9 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='C_IRRIGATION_ALLOC'
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
-ALLOCATE( irrig_tile(ntype))
+ALLOCATE( irrig_tile(ntype) )
 
-! Initialise irrig_tile to zero if irrig_option = 2, else set to missing data
+! Initialise irrig_tile to zero if irrig_option = 2, else set to missing data. This clause can be removed when irrigation on non-veg tiles is added.
 IF (irrig_option == 2) THEN
   irrig_tile(:) = 0
 ELSE

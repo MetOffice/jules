@@ -1065,7 +1065,7 @@ DO n = 1,npft
   ! The '<=' can be removed once irrig_option = 1 is fully plumbed in and replaced
   ! with a '==' However, for now every instance of this in physiol and soil_evap
   ! should be written as:
-  IF (nsoilt > 1.0 .OR. irrig_tile(n) == 0 .OR. irrig_option <= 0) THEN
+  IF (nsoilt > 1.0 .OR. irrig_tile(n) == 0 .OR. irrig_option /= 2) THEN
     CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
                   sthu_surft(:,m,:),                                           &
                   v_open,smvcst_soilt(:,m,:),                                  &

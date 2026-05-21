@@ -54,7 +54,7 @@ class vn81_t23(MacroUpgrade):
         """Upgrade a JULES runtime app configuration."""
         
         """
-        1. Add switches to indicate whether a JULES surface tile is irrigated (pft and nvg)
+        1. Add switches to indicate whether a JULES surface tile is irrigated (pft)
         2. Add the surface types, c3_irrig and c4_irrig with a value of zero
         """
         lsm_id = int(
