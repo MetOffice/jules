@@ -36,7 +36,8 @@ SUBROUTINE veg2(                                                               &
                wood_prod_slow_gb, frac_agr_prev_gb,                            &
                frac_past_prev_gb, frac_biocrop_prev_gb,  n_inorg_gb,           &
                n_inorg_soilt_lyrs, n_inorg_avail_pft, ns_pool_gb,              &
-               triffid_co2_gb, t_soil_soilt_acc, years_since_harvest,          &
+               triffid_co2_gb, t_soil_soilt_acc, alt_lastyear_soilt,           &
+               years_since_harvest,                                            &
                !p_s_parms
                sthu_soilt,                                                     &
                ! soil_ecosse_vars_mod (IN)
@@ -253,9 +254,11 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
           ns_pool_gb(land_pts,dim_cslayer,dim_cs1)
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: triffid_co2_gb(land_pts)
 REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
-        t_soil_soilt_acc(land_pts,nsoilt,sm_levels)
+        t_soil_soilt_acc(land_pts,nsoilt,sm_levels) 
         ! Sub-surface temperature on layers and soil tiles accumulated over
         ! TRIFFID timestep (K).
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+        alt_lastyear_soilt(land_pts,nsoilt)
 INTEGER, INTENT(IN OUT) :: years_since_harvest(land_pts,npft)
 
 
@@ -680,7 +683,8 @@ IF (l_triffid .AND.                                                            &
                   wood_prod_slow_gb, frac_agr_prev_gb,                         &
                   frac_past_prev_gb, frac_biocrop_prev_gb,  n_inorg_gb,        &
                   n_inorg_soilt_lyrs, n_inorg_avail_pft, ns_pool_gb,           &
-                  triffid_co2_gb, t_soil_soilt_acc,years_since_harvest,        &
+                  triffid_co2_gb, t_soil_soilt_acc, alt_lastyear_soilt,        &
+                  years_since_harvest,                                         &
                   !trif_vars_mod (IN)
                   trif_vars%cnsrv_veg_triffid_gb,                              &
                   trif_vars%cnsrv_soil_triffid_gb,                             &

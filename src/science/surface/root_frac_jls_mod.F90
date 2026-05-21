@@ -15,7 +15,15 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='ROOT_FRAC_MOD'
 
 CONTAINS
 ! Subroutine Interface:
-SUBROUTINE root_frac (ft,nlayer,dz,rootd,f_root)
+SUBROUTINE root_frac (ft,nlayer,dz,rootd,alt_lastyear_soilt,f_root)
+
+USE ancil_info, ONLY:                                                          &
+  ! imported scalars
+  nsoilt
+
+USE jules_vegetation_mod, ONLY:                                                &
+  ! imported variables
+  l_limit_rootd_alt
 
 USE yomhook, ONLY: lhook, dr_hook
 USE parkind1, ONLY: jprb, jpim
@@ -40,12 +48,16 @@ INTEGER, INTENT(IN) ::                                                         &
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
  dz(nlayer),                                                                   &
                       ! IN Soil layer thicknesses (m).
- rootd                ! IN Rootdepth (m).
+ rootd,                                                                        &
+                      ! IN Rootdepth (m).                                      
+ alt_lastyear_soilt(nsoilt) 
+                      ! IN Last year active layer thickness (m)
+                      ! for a given land point.
 
 !   Array arguments with intent(OUT) :
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
- f_root(nlayer)       ! OUT Fraction of roots in each soil
-                      !     layer.
+ f_root(nlayer)                ! OUT Fraction of roots in each soil
+                               !     layer for a given land point.
 ! Local scalars:
 INTEGER ::                                                                     &
  n                    ! WORK Loop counters
@@ -55,8 +67,11 @@ REAL(KIND=real_jlslsm) ::                                                      &
                       ! WORK Normalisation factor.
  ztot,                                                                         &
                       ! WORK Total depth of soil (m).
- z1,z2                ! WORK Depth of the top and bottom of the
+ z1,z2,                                                                        &                
+                      ! WORK Depth of the top and bottom of the
                       !      soil layers (m).
+ rootd_limited
+                      ! WORK Max root depth limited by ALT
 
 ! Local parameters:
 REAL(KIND=real_jlslsm), PARAMETER :: p = 1.0
@@ -74,32 +89,51 @@ z2 = 0.0
 ztot = 0.0
 ftot = 0.0
 
+IF (l_limit_rootd_alt) THEN
+  ! Limit rootd to last year ALT
+  ! Not compatible with soil tiling for now
+  rootd_limited = MIN(rootd,alt_lastyear_soilt(1))
+ELSE
+  ! Do nothing
+  rootd_limited = rootd
+END IF
+
+! Calculate root profile
 IF (fsmc_mod(ft) == 1) THEN
   DO n = 1,nlayer
     z1 = z2
     z2 = z2 + dz(n)
     ztot = ztot + dz(n)
-    IF (z1 > rootd) THEN
+    IF (z1 > rootd_limited) THEN
       f_root(n) = 0.0
-    ELSE IF (z2 < rootd) THEN
+    ELSE IF (z2 < rootd_limited) THEN
       f_root(n) = dz(n)
     ELSE
-      f_root(n) = rootd - z1
+      f_root(n) = rootd_limited - z1
     END IF
   END DO
 
-  ftot = MIN(rootd, ztot)
+  ftot = MIN(rootd_limited, ztot)
   f_root(:) = f_root(:) / ftot
 ELSE
   DO n = 1,nlayer
     z1 = z2
     z2 = z2 + dz(n)
     ztot = ztot + dz(n)
-    f_root(n) = EXP(-p * z1 / rootd) - EXP(-p * z2 / rootd)
-
+    IF ( (rootd_limited < rootd) .AND. (ztot > rootd_limited) ) THEN
+      ! If rootd is limited by ALT and we are below the ALT, 
+      ! no root in frozen soil
+      f_root(n) = 0.0
+    ELSE
+      f_root(n) = EXP(-p * z1 / rootd_limited) - EXP(-p * z2 / rootd_limited)
+    END IF
   END DO
 
-  ftot = 1.0 - EXP(-p * ztot / rootd)
+  IF (rootd_limited < rootd) THEN
+    ztot = rootd_limited
+  END IF
+  
+  ftot = 1.0 - EXP(-p * ztot / rootd_limited)
   DO n = 1,nlayer
     f_root(n) = f_root(n) / ftot
   END DO

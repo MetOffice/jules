@@ -81,7 +81,7 @@ SUBROUTINE soil_biogeochem_control( land_pts, triffid_call, vs_pts,            &
         resp_s_pot_diag_gb, fn_gb,                                             &
         n_fertiliser_add, n_fix_add, n_uptake_extract,                         &
         !prognostics
-        cs_pool_soilt,                                                         &
+        cs_pool_soilt, alt_lastyear_soilt,                                     &
         !ancil_info
         soil_index,                                                            &
         !TYPES
@@ -218,6 +218,9 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   cs_pool_soilt(land_pts,nsoilt,dim_cslayer,dim_cs1)
     ! Soil carbon (kg m-2).
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  alt_lastyear_soilt(land_pts,nsoilt)
+    ! Last year active layer thickness (m)
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   n_fertiliser_add(land_pts,nsoilt,nz_soilc)
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   n_fix_add(land_pts,nsoilt, nz_soilc)
@@ -313,7 +316,7 @@ IF ( l_run_model ) THEN
                        resp_s_pot_diag_gb, fn_gb,                              &
                        n_fertiliser_add, n_fix_add, n_uptake_extract,          &
                        !prognostics
-                       cs_pool_soilt,                                          &
+                       cs_pool_soilt, alt_lastyear_soilt,                      &
                        ! TYPES
                        soilecosse )
 END IF

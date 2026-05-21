@@ -24,7 +24,7 @@ SUBROUTINE veg_control(                                                        &
   c_veg_pft, cv_gb, lit_c_pft, lit_c_mn_gb, g_leaf_day_pft, g_leaf_phen_pft,   &
   lai_phen_pft, g_leaf_dr_out_pft, npp_dr_out_pft, resp_w_dr_out_pft,          &
   qbase_l_soilt, sthf_soilt, sthu_soilt, w_flux_soilt,                         &
-  t_soil_soilt, cs_pool_soilt, frac_c_label_pool_soilt,                        &
+  t_soil_soilt, alt_lastyear_soilt, cs_pool_soilt, frac_c_label_pool_soilt,    &
   !New arguments replacing USE statements
   !trif_vars_mod (IN OUT)
   trif_vars,                                                                   &
@@ -124,7 +124,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   sthu_soilt(land_pts,nsoilt,sm_levels),                                       &
   w_flux_soilt(land_pts,nsoilt,0:sm_levels),                                   &
         ! Fluxes of water between layers (kg m-2 s-1).
-  t_soil_soilt(land_pts,nsoilt,sm_levels)
+  t_soil_soilt(land_pts,nsoilt,sm_levels),                                     &
+  alt_lastyear_soilt(land_pts,nsoilt)
 
 LOGICAL, INTENT(IN) ::                                                         &
   l_phenol, l_triffid, l_trif_eq
@@ -348,7 +349,8 @@ IF ((phenol_call == 0) .OR. (triffid_call == 0)) THEN
                frac_past_prev_gb, frac_biocrop_prev_gb,                        &
                n_inorg_gb, n_inorg_soilt_lyrs,                                 &
                n_inorg_avail_pft, ns_pool_gb,                                  &
-               triffid_co2_gb, t_soil_soilt_acc, years_since_harvest,          &
+               triffid_co2_gb, t_soil_soilt_acc, alt_lastyear_soilt,           &
+               years_since_harvest,                                            &
                !p_s_parms
                sthu_soilt,                                                     &
                ! soil_ecosse_vars_mod
@@ -434,7 +436,8 @@ IF ( triffid_call == 0 ) THEN
             frac_past_prev_gb, frac_biocrop_prev_gb,                           &
             n_inorg_gb, n_inorg_soilt_lyrs,                                    &
             n_inorg_avail_pft, ns_pool_gb,                                     &
-            triffid_co2_gb, t_soil_soilt_acc, years_since_harvest,             &
+            triffid_co2_gb, t_soil_soilt_acc, alt_lastyear_soilt,              &
+            years_since_harvest,                                               &
             !p_s_parms
             sthu_soilt,                                                        &
             ! soil_ecosse_vars_mod
@@ -492,7 +495,7 @@ IF ( soil_bgc_model == soil_model_ecosse ) THEN
        trif_vars%fn_gb, trif_vars%n_fertiliser_add, trif_vars%n_fix_add,       &
        trif_vars%n_uptake_extract,                                             &
        ! prognostics
-       cs_pool_soilt,                                                          &
+       cs_pool_soilt, alt_lastyear_soilt,                                      &
        !ancil_info
        soil_index,                                                             &
        ! TYPES

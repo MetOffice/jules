@@ -62,7 +62,7 @@ SUBROUTINE ecosse_control( land_pts, triffid_call, vs_pts,                     &
                            resp_s_pot_diag_gb, fn_gb,                          &
                            n_fertiliser_add, n_fix_add, n_uptake_extract,      &
                            !prognostics
-                           cs_pool_soilt,                                      &
+                           cs_pool_soilt, alt_lastyear_soilt,                  &
                            ! TYPES
                            soilecosse )
 
@@ -210,6 +210,9 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
 REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   cs_pool_soilt(land_pts,nsoilt,dim_cslayer,dim_cs1)
     ! Soil carbon (kg m-2).
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  alt_lastyear_soilt(land_pts,nsoilt)
+    ! Last year active layer thickness (m)
 !-----------------------------------------------------------------------------
 ! Local parameters.
 !-----------------------------------------------------------------------------
@@ -334,7 +337,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
   resp_frac_soil(land_pts,nz_soilc),                                           &
     ! The fraction of decomposition that forms new biomass and humus, i.e.
     ! the fraction that remains in the soil.
-  f_root_pft(npft,nz_soilc),                                                   &
+  f_root_pft(land_pts,npft,nz_soilc),                                          &
     ! Fraction of roots in each soil layer.
   veg_cover(land_pts)
     ! Indicator of vegetation coverage (0 to 1).
@@ -401,7 +404,7 @@ CALL ecosse_prepare( land_pts, s, triffid_call, vs_pts, vs_index,              &
                      nsoilt, dim_cslayer,                                      &
                      ! soil_ecosse_vars_mod
                      qbase_l_driver, sthf_driver, sthu_driver,                 &
-                     tsoil_driver, wflux_driver,                               &
+                     tsoil_driver, wflux_driver, alt_lastyear_soilt,           &
                      !trif_vars_mod
                      lit_c_orig_pft, lit_n_orig_pft,                           &
                    !TYPES

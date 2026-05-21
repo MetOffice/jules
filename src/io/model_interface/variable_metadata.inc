@@ -9354,4 +9354,56 @@ DATA metadata(722) / var_metadata(                                             &
 ! Units
     "kg s-1"                                                                   &
   ) /
+!-----------------------------------------------------------------------------
+! Metadata for alt_currentyear
+!-----------------------------------------------------------------------------
+DATA metadata(723) / var_metadata(                                             &
+! String identifier
+    'alt_currentyear',                                                         &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Current year active layer thickness",                                     &
+! Units    
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for alt_lastyear
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
+! String identifier
+    'alt_lastyear',                                                            &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Last year active layer thickness",                                        &
+! Units    
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for alt_currentyear_soilt
+!-----------------------------------------------------------------------------
+DATA metadata(725) / var_metadata(                                             &
+! String identifier
+    'alt_currentyear_soilt',                                                   &
+! Variable type
+    var_type_soilt,                                                            &
+! Long name
+    "Current year active layer thickness on soil tiles",                       &
+! Units
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for alt_lastyear_soilt
+!-----------------------------------------------------------------------------
+DATA metadata(726) / var_metadata(                                             &
+! String identifier
+    'alt_lastyear_soilt',                                                      &
+! Variable type
+    var_type_soilt,                                                            &
+! Long name
+    "Last year active layer thickness on soil tiles",                          &
+! Units
+    "m"                                                                        &
+  ) /
 #endif

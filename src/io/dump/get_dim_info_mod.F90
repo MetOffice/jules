@@ -213,6 +213,16 @@ CASE ( 'sthuf_soilt', 't_soil_soilt', 'sthu_irr_soilt' )
   dim_names(1:ndims) = [ land_dim_name, soilt_dim_name, soil_dim_name ]
   dim_sizes(1:ndims) = [ global_land_pts, nsoilt, sm_levels ]
 
+CASE ( 'alt_currentyear', 'alt_lastyear' )
+  ndims = 1
+  dim_names(1) = land_dim_name
+  dim_sizes(1) = global_land_pts
+
+CASE ( 'alt_currentyear_soilt', 'alt_lastyear_soilt' )
+  ndims = 2
+  dim_names(1:ndims) = [ land_dim_name, soilt_dim_name ]
+  dim_sizes(1:ndims) = [ global_land_pts, nsoilt ]
+
 CASE ( 'n_inorg' )
   ndims = 2
   dim_names(1:ndims) = [ land_dim_name, sclayer_dim_name ]
