@@ -9390,13 +9390,52 @@ DATA metadata(725) / var_metadata(                                             &
     var_type_soilt,                                                            &
 ! Long name
     "Current year active layer thickness on soil tiles",                       &
+! Units    
+    "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for timewet_lyr.
+!-----------------------------------------------------------------------------
+DATA metadata(726) / var_metadata(                                             &
+! String identifier
+    'timewet_lyr',                                                             &
+! Variable type
+    var_type_ch4lyrgrid,                                                       &
+! Long name
+    "Time that a layer has been below the water table",                        &
+! Units
+    "s"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for ti_local.
+!-----------------------------------------------------------------------------
+DATA metadata(727) / var_metadata(                                             &
+! String identifier
+    'ti_local',                                                                &
+! Variable type
+    var_type_ch4subgrid,                                                       &
+! Long name
+    "Local topographic index",                                                 &
+! Units
+    "-"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for zw_local.
+!-----------------------------------------------------------------------------
+DATA metadata(728) / var_metadata(                                             &
+! String identifier
+    'zw_local',                                                                &
+! Variable type
+    var_type_ch4subgrid,                                                       &
+! Long name
+    "Local water table depth",                                                 &
 ! Units
     "m"                                                                        &
   ) /
 !-----------------------------------------------------------------------------
 ! Metadata for alt_lastyear_soilt
 !-----------------------------------------------------------------------------
-DATA metadata(726) / var_metadata(                                             &
+DATA metadata(729) / var_metadata(                                             &
 ! String identifier
     'alt_lastyear_soilt',                                                      &
 ! Variable type
@@ -9405,5 +9444,18 @@ DATA metadata(726) / var_metadata(                                             &
     "Last year active layer thickness on soil tiles",                          &
 ! Units
     "m"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for fch4_local.
+!-----------------------------------------------------------------------------
+DATA metadata(730) / var_metadata(                                             &
+! String identifier
+    'fch4_local',                                                              &
+! Variable type
+    var_type_ch4subgrid,                                                       &
+! Long name
+    "Local methane emissions",                                                 &
+! Units
+    "kgC/m2/s"                                                                 &
   ) /
 #endif

@@ -41,16 +41,21 @@ from .version76_77 import *
 from .version77_78 import *
 from .version78_79 import *
 from .version79_80 import *
+from .version80_81 import *
 
-class vnYY_txxxx(MacroUpgrade):
+class vn81_t70(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Eleanor Burke"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_t70"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
+
+        """Add l_lessdecomp_sat to namelist jules_soil_biogeochem"""
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "l_lessdecomp_sat"], ".false.")
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsth_lessdecomp_sat"], "0.2")
 
         # Add settings
         return config, self.reports

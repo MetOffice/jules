@@ -16,7 +16,8 @@ SUBROUTINE ch4_wetl(npnts, sm_levels, soil_pts, dim_cs1, timestep,             &
                     l_ch4_tlayered, soil_index,                                &
                     tsoil, tsoil_d, cs_ch4, resp_s, npp, f_wetl, sthu, bexp,   &
                     fch4_wetl, fch4_wetl_cs, fch4_wetl_npp, fch4_wetl_resps,   &
-                    substr_ch4, mic_ch4, mic_act_ch4, acclim_ch4, cs)
+                    substr_ch4, mic_ch4, mic_act_ch4, acclim_ch4, cs, zw,      &
+                    timewet_lyr, zw_local, fch4_local )
 
 !Use in relevant subroutines
 USE ch4_tdep_mod, ONLY: ch4_tdep
@@ -27,7 +28,7 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
   kaps_4pool, ch4_substrate,                                                   &
   ch4_substrate_npp,  ch4_substrate_soil, ch4_substrate_soil_resp,             &
   t0_ch4, q10_ch4_cs, q10_ch4_npp, q10_ch4_resps, dim_ch4layer, l_ch4_microbe, &
-  ch4_cpow, ev_ch4, q10_ev_ch4
+  ch4_cpow, ev_ch4, q10_ev_ch4, dim_ch4subgrid, l_ch4_subgrid, l_ch4zw_explicit
 
 USE ancil_info, ONLY: dim_cslayer
 
@@ -54,8 +55,10 @@ INTEGER, INTENT(IN) ::                                                         &
     ! Number of soil carbon pools
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-  timestep
+  timestep,                                                                    &
     ! Model timestep (s).
+  zw(npnts)
+    ! Mean water table
 
 LOGICAL, INTENT(IN) ::                                                         &
   l_ch4_tlayered
@@ -98,24 +101,30 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Scaled methane flux (npp substrate) (kg C/m2/s).
   fch4_wetl_resps(npnts),                                                      &
     ! Scaled methane flux (soil respiration substrate) (kg C/m2/s).
-  substr_ch4(npnts,dim_ch4layer),                                              &
+  substr_ch4(npnts,dim_ch4subgrid,dim_ch4layer),                               &
     ! Dissolved substrate that methanogens consume (kg C/m2)
-  mic_ch4(npnts,dim_ch4layer),                                                 &
+  mic_ch4(npnts,dim_ch4subgrid,dim_ch4layer),                                  &
     ! Methanogenic biomass (kg C/m2)
-  mic_act_ch4(npnts,dim_ch4layer),                                             &
+  mic_act_ch4(npnts,dim_ch4subgrid,dim_ch4layer),                              &
     ! Activity level of methanogenic biomass (fraction)
   acclim_ch4(npnts,dim_ch4layer),                                              &
     ! Acclimation factor for microbial trait adaptation
-  cs(npnts,dim_cslayer,dim_cs1)
+  cs(npnts,dim_cslayer,dim_cs1),                                               &
     ! Soil carbon
     ! For 4-pool C model (dim_cs1=4), the pools are DPM, RPM, biomass and humus
     ! (kg C/m2).
+  timewet_lyr(npnts,dim_ch4subgrid,dim_ch4layer),                              &
+    ! time that layer is below the water table(s)
+  fch4_local(npnts,dim_ch4subgrid),                                            &
+    !
+  zw_local(npnts,dim_ch4subgrid)
+    !
 
 !-----------------------------------------------------------------------------
 ! Local scalar variables:
 !-----------------------------------------------------------------------------
 INTEGER ::                                                                     &
-  i, j, k, n, nn
+  i, j, k, n, nn, m
 
 REAL(KIND=real_jlslsm) ::                                                      &
   const_tdep_cs,                                                               &
@@ -124,8 +133,10 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! T and Q10(0) dependent function.
   const_tdep_resps,                                                            &
     ! T and Q10(0) dependent function.
-  sumkaps
+  sumkaps,                                                                     &
     ! Sum of kaps_4pool values.
+  frcc
+    ! Working variable
 
 !-----------------------------------------------------------------------------
 ! Local array variables:
@@ -154,15 +165,17 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Anaerobic decomposition of whichever substrate is used for microbial
     ! calculation, over the wetland fraction of the grid box (i.e. this is not
     ! scaled by wetland fraction) (kg C/m2/s).
-  fch4_wetlfrac_mic(npnts),                                                    &
+  fch4_wetlfrac_mic(npnts,dim_ch4subgrid),                                     &
     ! Methane flux produced by microbial scheme, over the wetland fraction of
     ! the grid box (i.e. this is not scaled by wetland fraction) (kg C/m2/s).
   tsoil_ch4lyr(npnts,dim_ch4layer),                                            &
     ! Soil temperature on appropriate number of layers (K)
   sthu_ch4lyr(npnts,dim_ch4layer),                                             &
     ! Soil moisture on appropriate number of layers (fraction of saturation)
-  bexp_ch4lyr(npnts,dim_ch4layer)
+  bexp_ch4lyr(npnts,dim_ch4layer),                                             &
     ! Brooks & Corey exponents on appropriate number of layers.
+  zw_mic(npnts,dim_ch4subgrid)
+    ! water table depth (m)
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
@@ -179,7 +192,9 @@ decomp_wetlfrac_cs(:,:)    = 0.0
 decomp_wetlfrac_npp(:,:)   = 0.0
 decomp_wetlfrac_resps(:,:) = 0.0
 decomp_wetlfrac_mic(:,:) = 0.0
-fch4_wetlfrac_mic(:) = 0.0
+fch4_wetlfrac_mic(:,:) = 0.0
+zw_mic(:,:) = 0.0
+fch4_local(:,:) = 0.0
 
 IF (l_ch4_tlayered) THEN
   ! Calculate soil layer depths from layer thicknesses.
@@ -267,9 +282,24 @@ IF (l_ch4_microbe) THEN
       acclim_ch4(i,n) = acclim_ch4(i,n) +  ( q10_ev_ch4**(0.1 *                &
                         (tsoil_ch4lyr(i,n)  - t0_ch4)) - acclim_ch4(i,n) ) *   &
                                    ( timestep / (86400.0 * 365.0 * ev_ch4) )
+      IF (acclim_ch4(i,n) > 50.0) THEN
+        acclim_ch4(i,n) = 50.0
+      END IF
     END DO
   END DO
 END IF
+
+IF (l_ch4_subgrid) THEN
+  zw_mic = zw_local
+ELSE
+  zw_mic(:,1) = zw
+END IF
+
+IF ( .NOT. l_ch4zw_explicit) THEN
+  zw_local(:,:) = -0.1
+  zw_mic(:,:) = -0.1
+END IF
+
 !-----------------------------------------------------------------------------
 ! Calculate scaled wetland methane emission.
 !-----------------------------------------------------------------------------
@@ -303,29 +333,72 @@ IF ( l_ch4_microbe ) THEN
     decomp_wetlfrac_mic = decomp_wetlfrac_resps
   END IF
 
-  CALL ch4_microbe(npnts, soil_pts, dim_ch4layer, timestep,                    &
+  ! call microbial methane model for all subgrid cells
+  DO m = 1,dim_ch4subgrid
+    CALL ch4_microbe(npnts, soil_pts, dim_ch4layer, timestep,                  &
                    l_ch4_tlayered, soil_index,                                 &
                    tsoil_ch4lyr, decomp_wetlfrac_mic, ztot, acclim_ch4,        &
                    sthu_ch4lyr, bexp_ch4lyr,                                   &
-                   mic_ch4, mic_act_ch4, substr_ch4, fch4_wetlfrac_mic)
+                   mic_ch4(:,m,:), mic_act_ch4(:,m,:), substr_ch4(:,m,:),      &
+                   fch4_wetlfrac_mic(:,m), zw_mic(:,m), timewet_lyr(:,m,:))
+  END DO
+
+  ! LOCAL methane fluxfor each subgrid cell
+  DO j = 1,soil_pts
+    i = soil_index(j)
+    DO m = 1,dim_ch4subgrid
+      IF ( zw_local(i,m) < -0.5 ) THEN
+        fch4_local(i,m) = fch4_wetlfrac_mic(i,m)                               &
+                                          * EXP( 0.7 * (0.5 + zw_local(i,m)) )
+      ELSE
+        fch4_local(i,m) = fch4_wetlfrac_mic(i,m)
+      END IF
+    END DO
+  END DO
 
   ! Fill appropriate fch4 variable
   IF ( ch4_substrate == ch4_substrate_soil ) THEN
-    fch4_wetl_cs    = fch4_wetlfrac_mic
+    fch4_wetl_cs    = SUM( fch4_wetlfrac_mic, 2 ) / REAL(dim_ch4subgrid)
     fch4_wetl_npp   = SUM( decomp_wetlfrac_npp, 2 )
     fch4_wetl_resps = SUM( decomp_wetlfrac_resps, 2 )
   ELSE IF ( ch4_substrate == ch4_substrate_npp ) THEN
     fch4_wetl_cs    = SUM( decomp_wetlfrac_cs, 2 )
-    fch4_wetl_npp   = fch4_wetlfrac_mic
+    fch4_wetl_npp   = SUM( fch4_wetlfrac_mic, 2 ) / REAL(dim_ch4subgrid)
     fch4_wetl_resps = SUM( decomp_wetlfrac_resps, 2 )
   ELSE ! ch4_substrate==ch4_substrate_soil_resp
     fch4_wetl_cs   = SUM( decomp_wetlfrac_cs, 2 )
     fch4_wetl_npp   = SUM( decomp_wetlfrac_npp, 2 )
-    fch4_wetl_resps = fch4_wetlfrac_mic
+    fch4_wetl_resps = SUM( fch4_wetlfrac_mic, 2 ) / REAL(dim_ch4subgrid)
   END IF
 
 ELSE
   ! Methane emission is just equal to decomposition rate of organic matter to DOC
+  ! Also affected by water table
+  DO j = 1,soil_pts
+    i = soil_index(j)
+    fch4_local(i,:) = 0.0
+    DO n = 1,dim_ch4layer
+      frcc = 0.0
+      DO m = 1,dim_ch4subgrid
+        ! ejb 0.06 here again
+        IF ( (zw_local(i,m) + 0.06)  <=  ztot(n) ) THEN
+          frcc = frcc + 1.0 / dim_ch4subgrid
+          fch4_local(i,m) = fch4_local(i,m) + decomp_wetlfrac_cs(i,n)
+        END IF
+      END DO
+      decomp_wetlfrac_cs(i,n) = decomp_wetlfrac_cs(i,n) * frcc
+    END DO
+
+    DO m = 1,dim_ch4subgrid
+      ! ejb another threshold here -0.5 m, factor of 0.7 here as well
+      IF ( zw_local(i,m)  <   -0.5 ) THEN
+        decomp_wetlfrac_cs(i,:) = decomp_wetlfrac_cs(i,:)                      &
+                                         * EXP( 0.7 * (0.5 + zw_local(i,m)) )
+        fch4_local(i,m) = fch4_local(i,m) * EXP( 0.7 * (0.5 + zw_local(i,m)) )
+      END IF
+    END DO
+  END DO   ! end soil points
+
   fch4_wetl_cs = SUM( decomp_wetlfrac_cs, 2 )
   fch4_wetl_npp   = SUM( decomp_wetlfrac_npp, 2 )
   fch4_wetl_resps = SUM( decomp_wetlfrac_resps, 2 )
@@ -333,13 +406,15 @@ ELSE
 END IF !l_ch4_microbe
 
 !-----------------------------------------------------------------------------
-! Finally multiply by wetland area
-DO j = 1,soil_pts
-  i = soil_index(j)
-  fch4_wetl_cs(i)    = fch4_wetl_cs(i) * f_wetl(i)
-  fch4_wetl_npp(i)   = fch4_wetl_npp(i) * f_wetl(i)
-  fch4_wetl_resps(i) = fch4_wetl_resps(i) * f_wetl(i)
-END DO
+! Finally multiply by wetland area for old version (l_ch4zw_explicit=FALSE)
+IF ( .NOT. l_ch4zw_explicit) THEN
+  DO j = 1,soil_pts
+    i = soil_index(j)
+    fch4_wetl_cs(i)    = fch4_wetl_cs(i) * f_wetl(i)
+    fch4_wetl_npp(i)   = fch4_wetl_npp(i) * f_wetl(i)
+    fch4_wetl_resps(i) = fch4_wetl_resps(i) * f_wetl(i)
+  END DO
+END IF
 
 IF ( ch4_substrate == ch4_substrate_soil ) THEN
   fch4_wetl(:) = 1.0e9 * fch4_wetl_cs(:)

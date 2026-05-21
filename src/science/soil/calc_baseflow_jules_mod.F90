@@ -18,13 +18,15 @@ CONTAINS
 
 SUBROUTINE calc_baseflow_jules( npnts, nshyd, soil_pts, soil_index,            &
                                 b, fexp, sthf, ti_mean, zdepth, zw, ksz,       &
-                                qbase, qbase_l, top_crit )
+                                qbase, qbase_l, top_crit, ti_local, zw_local )
 
 USE jules_hydrology_mod, ONLY:                                                 &
   ti_max,zw_max,l_baseflow_corr
 
 USE jules_soil_mod, ONLY:                                                      &
   l_vg_soil
+
+USE jules_soil_biogeochem_mod, ONLY: dim_ch4subgrid
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -66,8 +68,15 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Lower soil layer boundary depth (m).
   zw(npnts),                                                                   &
     ! Water table depth (m).
-  ksz(npnts,0:nshyd)
+  ksz(npnts,0:nshyd),                                                          &
     ! Saturated hydraulic conductivity for each layer (kg/m2/s).
+  ti_local(npnts,dim_ch4subgrid)
+    ! Local topographic index
+
+!-----------------------------------------------------------------------------
+! Array arguments with INTENT(INOUT):
+!-----------------------------------------------------------------------------
+REAL(KIND=real_jlslsm), INTENT(IN OUT) ::  zw_local(npnts,dim_ch4subgrid)
 
 !-----------------------------------------------------------------------------
 ! Array arguments with INTENT(OUT):
@@ -86,8 +95,10 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
 INTEGER ::                                                                     &
   i, j,                                                                        &
     ! Loop counters.
-  n
+  n,                                                                           &
     ! Tile loop counter.
+  t
+    ! zw_local loop counter
 
 ! Variables to limit printout
 INTEGER :: fail_count
@@ -106,8 +117,12 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Max possible base flow (kg/m2/s).
   qbase_max_l(npnts,nshyd+1),                                                  &
     ! Max possible base flow from each level (kg/m2/s).
-  qbase_min(npnts)
+  qbase_min(npnts),                                                            &
     ! Residual base flow at zw_max (kg/m2/s).
+  frcq,                                                                        &
+    !
+  frcq1
+    !
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
@@ -258,6 +273,34 @@ DO j = 1,soil_pts
     qbase_l(i,n) = MAX( 0.0, qbase_l(i,n) )
     qbase(i)     = qbase(i) + qbase_l(i,n)
     qbase_max(i) = qbase_max(i) + qbase_max_l(i,n)
+  END DO
+
+  !-----------------------------------------------------------------------
+  ! Calculate local water table depth from local topographic index
+  !-----------------------------------------------------------------------
+  DO t = 1,dim_ch4subgrid
+    zw_local(i,t) = zw_max
+    IF ( (qbase_max_l(i,nshyd+1) * EXP(ti_mean(i) - ti_local(i,t))             &
+                   >=  qbase(i)) .AND. (qbase_max_l(i,nshyd+1)  >   0.0) ) THEN
+      frcq = qbase(i) / qbase_max_l(i,nshyd+1) * EXP(ti_local(i,t) - ti_mean(i))
+      zw_local(i,t) = zw_max - frcq * (zw_max - zdepth(nshyd))
+    ELSE
+      DO n = nshyd,1,-1
+        IF ( (SUM(qbase_max_l(i,n:(nshyd+1))) * EXP(ti_mean(i) - ti_local(i,t))&
+                         >=  qbase(i)) .AND. (qbase_max_l(i,n)  >   0.0) ) THEN
+          frcq = ( qbase(i) * EXP(ti_local(i,t) - ti_mean(i)) -                &
+                    SUM( qbase_max_l(i,(n+1):(nshyd+1)) ) ) / qbase_max_l(i,n)
+          zw_local(i,t) = zdepth(n) - frcq * (zdepth(n) - zdepth(n-1))
+        END IF
+      END DO
+      IF ( (SUM(qbase_max_l(i,1:(nshyd+1))) * EXP(ti_mean(i) - ti_local(i,t))  &
+             <   qbase(i)) ) THEN
+        frcq1 =  ( qbase(i) * EXP(ti_local(i,t) - ti_mean(i)) -                &
+                 SUM( qbase_max_l(i,1:(nshyd+1)) ) ) / ksfz(i,1)
+        frcq = 1.0 + 0.9 * frcq1
+        zw_local(i,t) = - LOG( frcq ) / 0.9
+      END IF
+    END IF
   END DO
 
   !-----------------------------------------------------------------------

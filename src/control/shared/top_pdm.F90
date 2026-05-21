@@ -37,6 +37,12 @@ TYPE :: top_pdm_data_type
     ! Mean topographic index
   REAL(KIND=real_jlslsm), ALLOCATABLE :: ti_sig_soilt(:,:)
     ! Standard dev. of topographic index
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: ti_local_soilt(:,:,:)
+    ! Local topographic index
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: zw_local_soilt(:,:,:)
+    ! Local water table (m)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: fch4_local_soilt(:,:,:)
+    ! Local ch4 emissions (kg C/m2/s)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: fsat_soilt(:,:)
     ! Surface saturation fraction
   REAL(KIND=real_jlslsm), ALLOCATABLE :: fwetl_soilt(:,:)
@@ -95,6 +101,9 @@ TYPE :: top_pdm_type
   REAL(KIND=real_jlslsm), POINTER :: gamtot_soilt(:,:)
   REAL(KIND=real_jlslsm), POINTER :: ti_mean_soilt(:,:)
   REAL(KIND=real_jlslsm), POINTER :: ti_sig_soilt(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: ti_local_soilt(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: zw_local_soilt(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: fch4_local_soilt(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: fsat_soilt(:,:)
   REAL(KIND=real_jlslsm), POINTER :: fwetl_soilt(:,:)
   REAL(KIND=real_jlslsm), POINTER :: zw_soilt(:,:)
@@ -122,7 +131,7 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='TOP_PDM'
 
 CONTAINS
 
-SUBROUTINE top_pdm_alloc(land_pts,nsoilt, top_pdm_data)
+SUBROUTINE top_pdm_alloc(land_pts,nsoilt, dim_ch4subgrid, top_pdm_data)
 
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
@@ -131,7 +140,7 @@ USE yomhook,     ONLY: lhook, dr_hook
 IMPLICIT NONE
 
 !Arguments
-INTEGER, INTENT(IN) :: land_pts, nsoilt
+INTEGER, INTENT(IN) :: land_pts, nsoilt, dim_ch4subgrid
 TYPE(top_pdm_data_type), INTENT(IN OUT) :: top_pdm_data
 
 !Local variables
@@ -167,6 +176,9 @@ ALLOCATE(top_pdm_data%qbase_zw_soilt(land_pts,nsoilt))
 ALLOCATE(top_pdm_data%sthzw_soilt(land_pts,nsoilt))
 ALLOCATE(top_pdm_data%ti_mean_soilt(land_pts,nsoilt))
 ALLOCATE(top_pdm_data%ti_sig_soilt(land_pts,nsoilt))
+ALLOCATE(top_pdm_data%ti_local_soilt(land_pts,nsoilt,dim_ch4subgrid))
+ALLOCATE(top_pdm_data%zw_local_soilt(land_pts,nsoilt,dim_ch4subgrid))
+ALLOCATE(top_pdm_data%fch4_local_soilt(land_pts,nsoilt,dim_ch4subgrid))
 ALLOCATE(top_pdm_data%zw_soilt(land_pts,nsoilt))
 ALLOCATE(top_pdm_data%inlandout_atm_gb(land_pts))
 ! from pdm_vars_alloc
@@ -193,6 +205,9 @@ top_pdm_data%qbase_zw_soilt(:,:)        = 0.0
 top_pdm_data%sthzw_soilt(:,:)           = 0.0
 top_pdm_data%ti_mean_soilt(:,:)         = 0.0
 top_pdm_data%ti_sig_soilt(:,:)          = 0.0
+top_pdm_data%ti_local_soilt(:,:,:)      = 0.0
+top_pdm_data%zw_local_soilt(:,:,:)      = 0.0
+top_pdm_data%fch4_local_soilt(:,:,:)    = 0.0
 top_pdm_data%zw_soilt(:,:)              = 0.0
 top_pdm_data%inlandout_atm_gb(:)        = 0.0
 ! from pdm_vars_alloc
@@ -249,6 +264,9 @@ DEALLOCATE(top_pdm_data%qbase_zw_soilt)
 DEALLOCATE(top_pdm_data%sthzw_soilt)
 DEALLOCATE(top_pdm_data%ti_mean_soilt)
 DEALLOCATE(top_pdm_data%ti_sig_soilt)
+DEALLOCATE(top_pdm_data%ti_local_soilt)
+DEALLOCATE(top_pdm_data%zw_local_soilt)
+DEALLOCATE(top_pdm_data%fch4_local_soilt)
 DEALLOCATE(top_pdm_data%zw_soilt)
 DEALLOCATE(top_pdm_data%inlandout_atm_gb)
 ! from pdm_vars_alloc
@@ -310,6 +328,9 @@ top_pdm%qbase_zw_soilt => top_pdm_data%qbase_zw_soilt
 top_pdm%sthzw_soilt => top_pdm_data%sthzw_soilt
 top_pdm%ti_mean_soilt => top_pdm_data%ti_mean_soilt
 top_pdm%ti_sig_soilt => top_pdm_data%ti_sig_soilt
+top_pdm%ti_local_soilt => top_pdm_data%ti_local_soilt
+top_pdm%zw_local_soilt => top_pdm_data%zw_local_soilt
+top_pdm%fch4_local_soilt => top_pdm_data%fch4_local_soilt
 top_pdm%zw_soilt => top_pdm_data%zw_soilt
 top_pdm%inlandout_atm_gb => top_pdm_data%inlandout_atm_gb
 ! from pdm_vars_alloc
@@ -366,6 +387,9 @@ NULLIFY(top_pdm%qbase_zw_soilt)
 NULLIFY(top_pdm%sthzw_soilt)
 NULLIFY(top_pdm%ti_mean_soilt)
 NULLIFY(top_pdm%ti_sig_soilt)
+NULLIFY(top_pdm%ti_local_soilt)
+NULLIFY(top_pdm%zw_local_soilt)
+NULLIFY(top_pdm%fch4_local_soilt)
 NULLIFY(top_pdm%zw_soilt)
 NULLIFY(top_pdm%inlandout_atm_gb)
 ! from pdm_vars_alloc

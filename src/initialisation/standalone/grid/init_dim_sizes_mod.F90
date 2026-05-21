@@ -17,7 +17,8 @@ USE switches, ONLY: l_co2_interactive
 
 USE jules_soil_biogeochem_mod, ONLY: soil_model_1pool, soil_model_ecosse,      &
                                       soil_model_4pool, l_layeredC,            &
-                                      soil_bgc_model, dim_ch4layer
+                                      soil_bgc_model, dim_ch4layer,            &
+                                      dim_ch4subgrid
 
 USE jules_surface_mod, ONLY: l_aggregate
 
@@ -44,6 +45,7 @@ USE model_interface_mod, ONLY: bl_level_dim_size, bedrock_dim_size,            &
                                 type_dim_size, tile_dim_size, snow_dim_size,   &
                                 soil_dim_size, soilt_dim_size,                 &
                                 scpool_dim_size, ch4layer_dim_size,            &
+                                ch4subgrid_dim_size,                           &
                                 sclayer_dim_size, dep_species_dim_size,        &
                                 imogen_drive_dim_size, imogen_clim_dim_size,   &
                                 nmasst_dim_size
@@ -144,6 +146,7 @@ ELSE
   imogen_clim_dim_size = imogen_drive_dim_size
 END IF
 ch4layer_dim_size = dim_ch4layer
+ch4subgrid_dim_size  = dim_ch4subgrid
 dep_species_dim_size = ndry_dep_species
 bedrock_dim_size  = ns_deep
 nmasst_dim_size    = nmasst

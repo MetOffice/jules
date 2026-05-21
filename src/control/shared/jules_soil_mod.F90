@@ -6,7 +6,8 @@
 
 MODULE jules_soil_mod
 
-USE max_dimensions, ONLY: sm_levels_max
+USE max_dimensions,   ONLY: sm_levels_max
+USE ancil_info,       ONLY: nsoilt
 
 USE missing_data_mod, ONLY: rmdi, imdi
 
@@ -53,11 +54,13 @@ LOGICAL ::                                                                     &
   soil_props_const_z = .FALSE.,                                                &
       ! Switch for whether soil ancils has the same values on each layer.
       ! Set in the JULES_SOIL_PROPS namelist.
-  l_holdwater = .FALSE.
+  l_holdwater = .FALSE.,                                                       &
       ! Switch to control how supersaturated and negative soil moisture is
       ! handled in the implicit calculation. FALSE: excess/required moisture
       ! is pushed out/in from the base of the soil. TRUE: water is added/
       ! taken from an adjacent layer.
+  l_calc_zw2 = .FALSE.
+      ! new water table deth calculation
 
 #if !defined(UM_JULES)
 LOGICAL ::                                                                     &
@@ -129,12 +132,14 @@ INTEGER ::                                                                     &
 
 REAL(KIND=real_jlslsm) ::                                                      &
   hcapdeep = rmdi,                                                             &
-      ! Heat capacity of bedrock
+      ! Heat capacity of bedrock (J/K/m3)
   hcondeep = rmdi,                                                             &
-      ! Thermal conductivity of bedrock
-  dzdeep = rmdi
-      ! Thickness of bedrock layers
-
+      ! Thermal conductivity of bedrock (W/m/K)
+  dzdeep = rmdi,                                                               &
+      ! Thickness of bedrock layers (m)
+  hflux_geo = rmdi
+      ! Geothermal heat flux (W/m2)
+      ! 0.067 +- 0.031 is areal average for continents (F.Lucazeau, 2019)
 
 !-----------------------------------------------------------------------------
 ! Variable length arrays that can be set using the namelist
@@ -169,10 +174,10 @@ NAMELIST  / jules_soil/                                                        &
     sm_levels,                                                                 &
 ! Switches
     l_vg_soil, l_dpsids_dsdz, l_soil_sat_down, soilhc_method, l_bedrock,       &
-    l_holdwater, l_tile_soil,                                                  &
+    l_holdwater, l_tile_soil, l_calc_zw2,                                      &
 ! Parameters
     cs_min, zsmc, zst, confrac, ns_deep, hcapdeep, hcondeep,                   &
-    dzdeep, dzsoil_io, dzsoil_elev
+    dzdeep, dzsoil_io, dzsoil_elev, hflux_geo
 
 
 
@@ -286,27 +291,36 @@ IF ( l_bedrock ) THEN
   ELSE IF ( ns_deep < 1 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
                  'Bedrock must have at least one layer')
+  ELSE IF ( nsoilt > 1 ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+              'Bedrock not yet compatible with soil tiling')
   END IF
 
   IF ( ABS( dzdeep - rmdi ) < EPSILON(1.0) ) THEN
     CALL ereport(RoutineName, errorstatus, 'dzdeep not found')
   ELSE IF ( dzdeep < 0.01 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
-                 'layer thickness for bedrock (dzdeep) must be > 0.01')
+                 'layer thickness for bedrock (dzdeep) must be > 0.01 m')
   END IF
 
   IF ( ABS( hcondeep - rmdi ) < EPSILON(1.0) ) THEN
     CALL ereport(RoutineName, errorstatus, 'hcondeep not found')
   ELSE IF ( hcondeep < 0.4 .OR. hcondeep > 12.0 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
-                   'hcondeep must lie in the range 0.4 to 12.0')
+                   'hcondeep must lie in the range 0.4 to 12.0 W/m/K')
   END IF
 
   IF ( ABS( hcapdeep - rmdi ) < EPSILON(1.0) ) THEN
     CALL ereport(RoutineName, errorstatus, 'hcapdeep not found')
   ELSE IF (hcapdeep < 100000.0 .OR. hcapdeep > 8000000.0 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
-                   'hcapdeep must lie in the range 100000 to 8000000')
+                   'hcapdeep must lie in the range 100000 to 8000000 J/K/m3')
+  END IF
+
+  ! For continents, areal average 0.067 (F.LUCAZEAU, 2019)
+  IF (hflux_geo < -0.052 .OR. hflux_geo > 15.6 ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+                   'hflux_geo must lie in the range -0.052 to 15.6 W/m2')
   END IF
 END IF  ! end if l_bedrock
 
@@ -345,6 +359,9 @@ CALL jules_print('jules_soil', lineBuffer)
 WRITE(lineBuffer, *) '  l_tile_soil = ', l_tile_soil
 CALL jules_print('jules_soil', lineBuffer)
 
+WRITE(lineBuffer, *) '  l_calc_zw2 = ', l_calc_zw2
+CALL jules_print('jules_soil', lineBuffer)
+
 WRITE(lineBuffer, *) '  soilhc_method = ', soilhc_method
 CALL jules_print('jules_soil', lineBuffer)
 
@@ -370,6 +387,9 @@ WRITE(lineBuffer, *) '  hcondeep = ', hcondeep
 CALL jules_print('jules_soil', lineBuffer)
 
 WRITE(lineBuffer, *) '  dzdeep = ', dzdeep
+CALL jules_print('jules_soil', lineBuffer)
+
+WRITE(lineBuffer, *) '  hflux_geo = ', hflux_geo
 CALL jules_print('jules_soil', lineBuffer)
 
 WRITE(lineBuffer, *) '  dzsoil_io = ', dzsoil_io
@@ -418,8 +438,8 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
-INTEGER, PARAMETER :: n_real = 8 + sm_levels_max
-INTEGER, PARAMETER :: n_log = 6
+INTEGER, PARAMETER :: n_real = 9 + sm_levels_max
+INTEGER, PARAMETER :: n_log = 7
 
 TYPE :: my_namelist
   SEQUENCE
@@ -433,6 +453,7 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: hcapdeep
   REAL(KIND=real_jlslsm) :: hcondeep
   REAL(KIND=real_jlslsm) :: dzdeep
+  REAL(KIND=real_jlslsm) :: hflux_geo
   REAL(KIND=real_jlslsm) ::dzsoil_io(sm_levels_max)
   REAL(KIND=real_jlslsm) ::dzsoil_elev
   LOGICAL :: l_vg_soil
@@ -441,6 +462,7 @@ TYPE :: my_namelist
   LOGICAL :: l_holdwater
   LOGICAL :: l_bedrock
   LOGICAL :: l_tile_soil
+  LOGICAL :: l_calc_zw2
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -467,6 +489,7 @@ IF (mype == 0) THEN
   my_nml % confrac         = confrac
   my_nml % hcapdeep        = hcapdeep
   my_nml % hcondeep        = hcondeep
+  my_nml % hflux_geo       = hflux_geo
   my_nml % dzdeep          = dzdeep
   my_nml % dzsoil_io       = dzsoil_io
   my_nml % dzsoil_elev     = dzsoil_elev
@@ -476,7 +499,7 @@ IF (mype == 0) THEN
   my_nml % l_holdwater     = l_holdwater
   my_nml % l_bedrock       = l_bedrock
   my_nml % l_tile_soil     = l_tile_soil
-
+  my_nml % l_calc_zw2     = l_calc_zw2
 END IF
 
 CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
@@ -493,6 +516,7 @@ IF (mype /= 0) THEN
   hcapdeep        = my_nml % hcapdeep
   hcondeep        = my_nml % hcondeep
   dzdeep          = my_nml % dzdeep
+  hflux_geo       = my_nml % hflux_geo
   dzsoil_io       = my_nml % dzsoil_io
   dzsoil_elev     = my_nml % dzsoil_elev
   l_vg_soil       = my_nml % l_vg_soil
@@ -501,6 +525,7 @@ IF (mype /= 0) THEN
   l_holdwater     = my_nml % l_holdwater
   l_bedrock       = my_nml % l_bedrock
   l_tile_soil     = my_nml % l_tile_soil
+  l_calc_zw2 = my_nml % l_calc_zw2
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)

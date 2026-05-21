@@ -44,7 +44,7 @@ USE jules_soil_mod, ONLY:                                                      &
   sm_levels, ns_deep, l_tile_soil
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
-  dim_ch4layer
+  dim_ch4layer, dim_ch4subgrid
 
 USE fire_mod, ONLY:                                                            &
   fire_prog
@@ -159,8 +159,8 @@ IF ( is_master_task() ) THEN
                                                nsurft, ntype, ns_deep,         &
                                                nsoilt, dim_ch4layer)))
   ALLOCATE(global_data_3d(global_land_pts,                                     &
-                          MAX(nsurft, dim_cslayer, nsoilt, npft),              &
-                          MAX(nsmax, dim_cs1, sm_levels, nmasst)))
+                      MAX(nsurft, dim_cslayer, nsoilt, npft, dim_ch4subgrid),  &
+                      MAX(nsmax, dim_cs1, sm_levels, nmasst, dim_ch4layer)))
   ALLOCATE(global_data_4d(global_land_pts, nsoilt,                             &
                           MAX(nsurft, dim_cslayer),                            &
                           MAX(nsmax, dim_cs1)))
@@ -241,9 +241,13 @@ DO i = 1,nvars
       CALL file_read_var(FILE, var_ids(i),                                     &
                          global_data_3d(:,1:nsoilt,1:dim_cslayer))
 
-    CASE ( 'substr_ch4','mic_ch4','mic_act_ch4','acclim_ch4' )
+    CASE ( 'acclim_ch4' )
       CALL file_read_var(FILE, var_ids(i),                                     &
                          global_data_2d(:,1:dim_ch4layer))
+
+    CASE ( 'substr_ch4', 'mic_ch4', 'mic_act_ch4', 'timewet_lyr' )
+      CALL file_read_var(FILE, var_ids(i),                                     &
+                         global_data_3d(:,1:dim_ch4subgrid,1:dim_ch4layer))
 
     CASE ( 'tsoil_deep' )
       CALL file_read_var(FILE, var_ids(i), global_data_2d(:,1:ns_deep))
@@ -517,18 +521,33 @@ DO i = 1,nvars
     END DO
 
   CASE ( 'substr_ch4' )
-    DO n = 1,dim_ch4layer
-      CALL scatter_land_field(global_data_2d(:,n), progs%substr_ch4(:,n))
+    DO m = 1,dim_ch4subgrid
+      DO n = 1,dim_ch4layer
+        CALL scatter_land_field(global_data_3d(:,m,n), progs%substr_ch4(:,m,n))
+      END DO
     END DO
 
   CASE ( 'mic_ch4' )
-    DO n = 1,dim_ch4layer
-      CALL scatter_land_field(global_data_2d(:,n), progs%mic_ch4(:,n))
+    DO m = 1,dim_ch4subgrid
+      DO n = 1,dim_ch4layer
+        CALL scatter_land_field(global_data_3d(:,m,n), progs%mic_ch4(:,m,n))
+      END DO
     END DO
 
   CASE ( 'mic_act_ch4' )
-    DO n = 1,dim_ch4layer
-      CALL scatter_land_field(global_data_2d(:,n), progs%mic_act_ch4(:,n))
+    DO m = 1,dim_ch4subgrid
+      DO n = 1,dim_ch4layer
+        CALL scatter_land_field(global_data_3d(:,m,n),                         &
+                                progs%mic_act_ch4(:,m,n))
+      END DO
+    END DO
+
+  CASE ( 'timewet_lyr' )
+    DO m = 1,dim_ch4subgrid
+      DO n = 1,dim_ch4layer
+        CALL scatter_land_field(global_data_3d(:,m,n),                         &
+                                progs%timewet_lyr(:,m,n))
+      END DO
     END DO
 
   CASE ( 'acclim_ch4' )

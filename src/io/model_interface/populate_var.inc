@@ -1271,7 +1271,7 @@ CASE ( 'substr_ch4' )
     cube_land = map_to_land(cube)
     CALL cube_get_data(cube_land, progs%substr_ch4)
   ELSE
-    progs%substr_ch4(:,:) = const_val
+    progs%substr_ch4(:,:,:) = const_val
   END IF
 
 CASE ( 'mic_ch4' )
@@ -1279,7 +1279,15 @@ CASE ( 'mic_ch4' )
     cube_land = map_to_land(cube)
     CALL cube_get_data(cube_land, progs%mic_ch4)
   ELSE
-    progs%mic_ch4(:,:) = const_val
+    progs%mic_ch4(:,:,:) = const_val
+  END IF
+
+CASE ( 'timewet_lyr' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, progs%timewet_lyr)
+  ELSE
+    progs%timewet_lyr(:,:,:) = const_val
   END IF
 
 CASE ( 'mic_act_ch4' )
@@ -1287,7 +1295,7 @@ CASE ( 'mic_act_ch4' )
     cube_land = map_to_land(cube)
     CALL cube_get_data(cube_land, progs%mic_act_ch4)
   ELSE
-    progs%mic_act_ch4(:,:) = const_val
+    progs%mic_act_ch4(:,:,:) = const_val
   END IF
 
 CASE ( 'acclim_ch4' )

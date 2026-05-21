@@ -62,7 +62,7 @@ SUBROUTINE surf_couple_extra(                                                  &
    cca_2d, nsurft, surft_pts,                                                  &
    lice_pts, soil_pts,                                                         &
    stf_sub_surf_roff,                                                          &
-   fexp_soilt, gamtot_soilt, ti_mean_soilt, ti_sig_soilt,                      &
+   fexp_soilt, gamtot_soilt, ti_mean_soilt, ti_sig_soilt, ti_local_soilt,      &
    flash_rate_ancil, pop_den_ancil, wealth_index_ancil,                        &
    a_fsat_soilt, c_fsat_soilt, a_fwet_soilt, c_fwet_soilt,                     &
    ntype,                                                                      &
@@ -199,7 +199,7 @@ USE lake_mod, ONLY:    h_snow_sw_att                                           &
 USE jules_snow_mod,      ONLY: nsmax
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
-  soil_model_4pool, soil_bgc_model
+  soil_model_4pool, soil_bgc_model, dim_ch4subgrid
 
 USE jules_soil_mod,           ONLY: sm_levels, l_soil_sat_down, confrac
 
@@ -334,6 +334,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   gamtot_soilt(land_pts,nsoilt),                                               &
   ti_mean_soilt(land_pts,nsoilt),                                              &
   ti_sig_soilt(land_pts,nsoilt),                                               &
+  ti_local_soilt(land_pts,nsoilt,dim_ch4subgrid),                              &
   npp_gb(land_pts),                                                            &
   a_fsat_soilt(land_pts,nsoilt),                                               &
   c_fsat_soilt(land_pts,nsoilt),                                               &
@@ -772,13 +773,14 @@ CASE ( jules )
       progs%snowdepth_surft, fluxes%melt_surft, fluxes%snow_melt_gb,           &
       wtrac_ex%melt_surft, wtrac_ex%snow_melt, fluxes%snow_soil_htf,           &
       a_fsat_soilt,c_fsat_soilt,a_fwet_soilt, c_fwet_soilt,                    &
-      fexp_soilt, ti_mean_soilt,                                               &
+      fexp_soilt, ti_mean_soilt, ti_local_soilt,                               &
+      toppdm%zw_local_soilt, toppdm%fch4_local_soilt,                          &
       npp_gb, inlandout_atm_gb, wtrac_jls%inlandout_atm_gb,                    &
       progs%canopy_surft, wtrac_jls%canopy_surft,                              &
       progs%smcl_soilt, psparms%sthf_soilt,                                    &
       psparms%sthu_soilt, crop_vars%sthu_irr_soilt, progs%tsoil_deep_gb,       &
       progs%t_soil_soilt, progs%t_soil_soilt_acc, progs%alt_currentyear_soilt, &
-      progs%alt_lastyear_soilt, progs%tsurf_elev_surft,                        &
+      progs%alt_lastyear_soilt, progs%timewet_lyr, progs%tsurf_elev_surft,     &
       wtrac_jls%smcl_soilt, wtrac_jls%sthf_soilt, wtrac_jls%sthu_soilt,        &
       fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, wtrac_jls%sthzw_soilt,   &
       progs%cs_pool_soilt, trifctltype%resp_s_soilt,                           &
@@ -793,7 +795,7 @@ CASE ( jules )
       toppdm%qbase_soilt, qbase_l_soilt, toppdm%qbase_zw_soilt,                &
       toppdm%fch4_wetl_soilt, toppdm%fch4_wetl_cs_soilt,                       &
       toppdm%fch4_wetl_npp_soilt, toppdm%fch4_wetl_resps_soilt,                &
-      trif_vars%n_leach_soilt)
+      trif_vars%n_leach_soilt, psparms%dtsd_acc_soilt)
 
 
     DEALLOCATE(ls_graup_wtrac)

@@ -65,7 +65,7 @@ USE veg_param, ONLY:                                                           &
   secs_per_360days
 
 USE jules_soil_biogeochem_mod, ONLY: soil_bgc_model, soil_model_ecosse,        &
-  soil_model_4pool
+  soil_model_4pool, dim_ch4subgrid
 
 USE jules_soil_ecosse_mod, ONLY: dt_soilc
 
@@ -156,6 +156,9 @@ REAL :: workspace_cpft(land_pts, ncpft)
 REAL :: workspace_cs(land_pts, dim_cslayer)
                                 ! Used in calculation of soil C layer
                                 ! variables.
+REAL :: workspace_ch4g(land_pts, dim_ch4subgrid)
+                                ! Used in calculation of gridbox mean (GBM)
+                                ! on soil levels
 
 REAL :: workspace_rivers(np_rivers) ! Used in calculation of river
                                     ! grid variables (if rivers are off then
@@ -186,6 +189,7 @@ workspace_surft(:,:)  = mdi
 workspace_cpft(:,:)   = mdi
 workspace_levs(:,:)   = mdi
 workspace_cs(:,:)     = mdi
+workspace_ch4g(:,:)   = mdi
 workspace_rivers(:)   = mdi
 ones(:,:)             = 1.0
 
@@ -1689,9 +1693,52 @@ CASE ( 'mic_act_ch4' )
   cube_land = cube_from_array(progs%mic_act_ch4)
   cube = map_from_land(cube_land)
 
+CASE ( 'timewet_lyr' )
+  cube_land = cube_from_array(progs%timewet_lyr)
+  cube = map_from_land(cube_land)
+
 CASE ( 'acclim_ch4' )
   cube_land = cube_from_array(progs%acclim_ch4)
   cube = map_from_land(cube_land)
+
+CASE ( 'ti_local' )
+  IF ( nsoilt == 1) THEN
+    DO k = 1, dim_ch4subgrid
+      workspace_ch4g(:,k) = soiltiles_to_gbm(toppdm%ti_local_soilt(:,:,k),ainfo)
+    END DO
+    cube_land = cube_from_array(workspace_ch4g(:,1:dim_ch4subgrid))
+    cube = map_from_land(cube_land)
+  ELSE
+    CALL log_fatal("extract_var",                                              &
+                   "Cannot output GB mean value for ti_local with " //         &
+                   "nsoilt>1. Use toppdm%ti_local_soilt instead.")
+  END IF
+
+CASE ( 'zw_local' )
+  IF ( nsoilt == 1) THEN
+    DO k = 1, dim_ch4subgrid
+      workspace_ch4g(:,k) = soiltiles_to_gbm(toppdm%zw_local_soilt(:,:,k),ainfo)
+    END DO
+    cube_land = cube_from_array(workspace_ch4g(:,1:dim_ch4subgrid))
+    cube = map_from_land(cube_land)
+  ELSE
+    CALL log_fatal("extract_var",                                              &
+                   "Cannot output GB mean value for zw_local with " //         &
+                   "nsoilt>1. Use toppdm%ti_local_soilt instead.")
+  END IF
+
+CASE ( 'fch4_local' )
+  IF ( nsoilt == 1) THEN
+    DO k = 1, dim_ch4subgrid
+      workspace_ch4g(:,k) = soiltiles_to_gbm(toppdm%fch4_local_soilt(:,:,k),ainfo)
+    END DO
+    cube_land = cube_from_array(workspace_ch4g(:,1:dim_ch4subgrid))
+    cube = map_from_land(cube_land)
+  ELSE
+    CALL log_fatal("extract_var",                                              &
+                   "Cannot output GB mean value for fch4_local with " //       &
+                   "nsoilt>1. Use toppdm%fch4_local_soilt instead.")
+  END IF
 
 CASE ( 'g_burn_pft' )
   cube_land = cube_from_array(REAL(trif_vars%g_burn_pft))

@@ -16,12 +16,13 @@ SUBROUTINE ch4_microbe(npnts, soil_pts, dim_ch4layer, timestep,                &
                        l_ch4_tlayered, soil_index,                             &
                        tsoil, decomp_wetlfrac,                                 &
                        ztot, acclim_ch4, sthu, bexp,                           &
-                       mic_ch4, mic_act_ch4, substr_ch4, fch4_wetlfrac )
+                       mic_ch4, mic_act_ch4, substr_ch4, fch4_wetlfrac,        &
+                       zw, timewet_lyr)
 
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
   t0_ch4, k2_ch4, kd_ch4, rho_ch4, q10_mic_ch4, cue_ch4, mu_ch4, tau_ch4,      &
-  frz_ch4, alpha_ch4
+  frz_ch4, alpha_ch4, l_ch4zw_explicit
 
 USE jules_soil_mod, ONLY: dzsoil
 
@@ -44,8 +45,10 @@ INTEGER, INTENT(IN) ::                                                         &
     ! Soil layers for methane calc. Can be either 1 or sm_levels
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-  timestep
+  timestep,                                                                    &
     ! Model timestep (s).
+  zw(npnts)
+    ! Water table depth
 
 LOGICAL, INTENT(IN) ::                                                         &
   l_ch4_tlayered
@@ -81,8 +84,10 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Concentration of active methanogenic biomass (mgC/m3)
   mic_act_ch4(npnts,dim_ch4layer),                                             &
     ! Activity level of methanogenic biomass (fraction)
-  substr_ch4(npnts,dim_ch4layer)
+  substr_ch4(npnts,dim_ch4layer),                                              &
     ! Concentration of dissolved substrate that methanogens consume (mgC/m3)
+  timewet_lyr(npnts,dim_ch4layer)
+    ! Time that layer has been below the water table (in seconds)
 
 !-----------------------------------------------------------------------------
 ! Arguments with INTENT(OUT):
@@ -114,8 +119,11 @@ REAL(KIND=real_jlslsm) ::                                                      &
   ! Death of microbial biomass
   b_dorm,                                                                      &
   ! Dormancy of microbial biomass
+  rewet_delay,                                                                 &
+  ! Rewetting delay for methanogens (days)
   frac_ch4,                                                                    &
   ! Fraction of anaerobic decomposition that forms methane.
+  ! Set as a parameter below
   tstep_hr
   ! Model timestep in units of hours
 
@@ -144,8 +152,8 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 ! Initialise variables / set parameters
 ch4_prod(:,:) = 0.0
 frac_ch4    = 0.5
-
-
+rewet_delay = 4.0
+  !ejb add rewet_delay to a namelist
 !-----------------------------------------------------------------------------
 ! Put things in the units used for the calculation: mgC/m3/hour
 !-----------------------------------------------------------------------------
@@ -179,16 +187,34 @@ DO j = 1,soil_pts
     ! Calculate 'arh' (arrhenius function)
     arh = q10_mic_ch4**( 0.1 * (tsoil(i,n) - t0_ch4) * t0_ch4 / tsoil(i,n) )
     ! Calculate 'phi' (substrate limitation curve)
-    phi = TANH(( substr_mg_m3(i,n) * rho_ch4 * EXP(-3270.0 / tsoil(i,n))       &
+    IF ( arh > 1.0e-6 ) THEN
+      phi = TANH(( substr_mg_m3(i,n) * rho_ch4 * EXP(-3270.0 / tsoil(i,n))     &
                  / arh )**0.8)
+    ELSE
+      phi = 1.0
+    END IF
 
     ! Calculate freezing effect on substrate production
     IF ( sthu(i,n) < (0.02 * bexp(i,n)) ) THEN
       substr_prod = substr_prod * frz_ch4
     END IF
 
+    IF ( l_ch4zw_explicit ) THEN              ! Calculate 'timewet'
+      ! ejb why 0.06 m and why 1.0e6 seconds?
+      ! layer becomes dry when zw is < 6cm above layer midpoint
+      ! days parameter
+      IF ( ztot(n)  >=  (zw(i) + 0.06) .AND. timewet_lyr(i,n)  <   1.0e6 ) THEN
+        timewet_lyr(i,n) = timewet_lyr(i,n) + timestep
+      ELSE IF ( ztot(n)  <   (zw(i) + 0.06) ) THEN
+        timewet_lyr(i,n) = 0.0
+        ! ejb elsewhat? (timewet_lyr >= 1e6)
+      END IF
+    ELSE  ! make timewet big so it doesnt trigger stuff
+      timewet_lyr(i,n) = 1.0e6
+    END IF
+
     ! Production and consumption of substrate
-    IF ( acclim_ch4(i,n) > 0.0 ) THEN
+    IF ( acclim_ch4(i,n) > 1.0e-6 ) THEN
       substr_cons = arh * phi * k2_ch4 * mic_mg_m3(i,n) * mic_act_ch4(i,n)     &
                         / acclim_ch4(i,n)
 
@@ -197,13 +223,18 @@ DO j = 1,soil_pts
       b_death   = mic_mg_m3(i,n) * alpha_ch4 * k2_ch4 * arh / acclim_ch4(i,n)
       growth_rt = arh * phi * k2_ch4 * cue_ch4 / acclim_ch4(i,n)
 
-      IF (b_prod - b_death < 0.0) THEN
+      IF (b_prod - b_death < 0.0 .OR. (timewet_lyr(i,n)  < rewet_delay * 86400.0) ) THEN
+        ! wet for less than 4 days have death
         b_death = mic_mg_m3(i,n) * kd_ch4 * mic_act_ch4(i,n) * arh             &
                   / acclim_ch4(i,n) + b_death
       END IF
 
+      !I need a cumulative variables to be read in and out of the subroutine keeping
+      ! account of how long ztot(n) .LT. (zw(i)-0.06) has been the case
+      ! It needs land pts and ch4 layers as dimenions.
+
       ! Dormancy/reactivation
-      IF ( growth_rt < mu_ch4 ) THEN
+      IF ( growth_rt < mu_ch4 .OR. (timewet_lyr(i,n)  <   rewet_delay * 86400.0) ) THEN
         b_prod = 0.0
         b_dorm = mic_act_ch4(i,n) * k2_ch4 * cue_ch4 * arh / acclim_ch4(i,n)
       ELSE
@@ -220,6 +251,9 @@ DO j = 1,soil_pts
     ! Update the variables
     substr_mg_m3(i,n) = substr_mg_m3(i,n) + tstep_hr * (substr_prod -          &
                                                         substr_cons + b_death)
+    IF ( (timewet_lyr(i,n)  <   345600.0) ) THEN
+      substr_mg_m3(i,n) = substr_mg_m3(i,n) * (1.0 - 0.0 * tstep_hr)
+    END IF
     mic_mg_m3(i,n)    = mic_mg_m3(i,n)    + tstep_hr * (b_prod - b_death)
     mic_act_ch4(i,n)  = mic_act_ch4(i,n)  + tstep_hr * (- b_dorm)
 
@@ -232,6 +266,10 @@ DO j = 1,soil_pts
     IF (substr_mg_m3(i,n) > 1.0e7)  substr_mg_m3(i,n) = 1.0e7
 
     ch4_prod(i,n) = substr_cons * frac_ch4
+    ! once layer has been wet for 4 days make methane otherwise zero
+    IF ( timewet_lyr(i,n)  <   345600.0 ) THEN
+      ch4_prod(i,n) = 0.0
+    END IF
   END DO
 END DO
 

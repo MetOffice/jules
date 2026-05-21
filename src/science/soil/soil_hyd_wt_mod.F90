@@ -29,8 +29,11 @@ SUBROUTINE soil_hyd_wt (npnts, nshyd, soil_pts, curr_soilt, nsoilt,            &
 
 ! Use relevant subroutines
 USE calc_zw_mod,  ONLY: calc_zw
+USE calc_zw2_mod,  ONLY: calc_zw2
 
 USE jules_water_tracers_mod, ONLY: l_wtrac_jls
+
+USE jules_soil_mod, ONLY: l_calc_zw2
 
 USE parkind1,     ONLY: jprb, jpim
 USE yomhook,      ONLY: lhook, dr_hook
@@ -169,13 +172,22 @@ IF (l_top) THEN
 
   DO j = 1,soil_pts
     i = soil_index(j)
+    ! Limit qbase_l to prevent smclzw going negative (preserves water balance)
+    ! Max outflow = inflow + available storage
+    qbase_l(i,nshyd+1) = MIN(qbase_l(i,nshyd+1),                               &
+                             w_flux(i,nshyd) + smclzw(i) / timestep)
     smclzw(i) = smclzw(i) - (qbase_l(i,nshyd+1) - w_flux(i,nshyd)) * timestep
     ! Update prognostic deep layer soil moisture fraction:
     sthzw(i) = smclzw(i) / smclsatzw(i)
   END DO
 
-  CALL calc_zw(npnts, nshyd, soil_pts, soil_index,                             &
+  IF (l_calc_zw2) THEN
+    CALL calc_zw2(npnts, nshyd, soil_pts, soil_index,                          &
                bexp, sathh, smcl, smclzw, smclsat, smclsatzw, v_sat, zw)
+  ELSE
+    CALL calc_zw(npnts, nshyd, soil_pts, soil_index,                           &
+               bexp, sathh, smcl, smclzw, smclsat, smclsatzw, v_sat, zw)
+  END IF
 
   IF (l_wtrac_jls) THEN
     ! Update water tracer deep layer soil moisture fraction

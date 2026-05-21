@@ -35,7 +35,7 @@ USE jules_soil_mod, ONLY:                                                      &
   sm_levels, ns_deep
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
-  dim_ch4layer
+  dim_ch4layer, dim_ch4subgrid
 
 USE jules_snow_mod, ONLY:                                                      &
   nsmax
@@ -67,6 +67,7 @@ USE model_interface_mod, ONLY: bedrock_dim_name => bedrock_dim_name_out,       &
                                scpool_dim_name => scpool_dim_name_out,         &
                                sclayer_dim_name => sclayer_dim_name_out,       &
                                ch4layer_dim_name => ch4layer_dim_name_out,     &
+                               ch4subgrid_dim_name => ch4subgrid_dim_name_out, &
                                soil_n_pool_dim_name =>                         &
                                   soil_n_pool_dim_name_out,                    &
                                nmasst_dim_name => nmasst_dim_name_out
@@ -234,10 +235,16 @@ CASE ( 'n_inorg_soilt' )
                           sclayer_dim_name ]
   dim_sizes(1:ndims) = [ global_land_pts, nsoilt, dim_cslayer ]
 
-CASE ( 'substr_ch4', 'mic_ch4', 'mic_act_ch4', 'acclim_ch4' )
+CASE ( 'acclim_ch4' )
   ndims = 2
   dim_names(1:ndims) = [ land_dim_name, ch4layer_dim_name ]
   dim_sizes(1:ndims) = [ global_land_pts, dim_ch4layer ]
+
+CASE ( 'substr_ch4', 'mic_ch4', 'mic_act_ch4', 'timewet_lyr' )
+  ndims = 3
+  dim_names(1:ndims) = [ land_dim_name, ch4subgrid_dim_name,                   &
+                            ch4layer_dim_name]
+  dim_sizes(1:ndims) = [ global_land_pts, dim_ch4subgrid,  dim_ch4layer ]
 
 CASE ( 'tsoil_deep' )
   ndims = 2

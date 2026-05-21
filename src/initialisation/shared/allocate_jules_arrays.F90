@@ -47,7 +47,8 @@ USE jules_surface_mod,        ONLY: l_flake_model
 USE jules_soil_mod,           ONLY: l_bedrock, ns_deep
 USE jules_radiation_mod,      ONLY: l_albedo_obs
 USE jules_soil_biogeochem_mod,ONLY: soil_model_ecosse, soil_bgc_model,         &
-                                    l_label_frac_cs, l_layeredc, dim_ch4layer
+                                    l_label_frac_cs, l_layeredc, dim_ch4layer, &
+                                    dim_ch4subgrid
 USE jules_water_resources_mod,ONLY: l_have_groundwater, l_have_surface_water,  &
                                     l_water_domestic, l_water_industry,        &
                                     l_water_irrigation,l_water_livestock,      &
@@ -199,7 +200,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 CALL prognostics_alloc(land_pts, t_i_length, t_j_length,                       &
                       nsurft, npft, nsoilt, sm_levels, ns_deep, nsmax,         &
-                      dim_cslayer, dim_cs1, dim_ch4layer,                      &
+                      dim_cslayer, dim_cs1, dim_ch4layer, dim_ch4subgrid,      &
                       nice, nice_use, soil_bgc_model, soil_model_ecosse,       &
                       l_layeredc, l_triffid, l_phenol, l_bedrock, l_red,       &
                       nmasst, nnpft, l_acclim, l_sugar, l_limit_rootd_alt,     &
@@ -239,9 +240,9 @@ CALL pftparm_alloc(npft)
 CALL psparms_alloc(land_pts,t_i_length,t_j_length,                             &
                    nsoilt,sm_levels,dim_cslayer,nsurft,npft,                   &
                    soil_bgc_model,soil_model_ecosse,l_use_pft_psi,             &
-                   psparms_data)
+                   psparms_data,l_bedrock,ns_deep)
 
-CALL top_pdm_alloc(land_pts,nsoilt, top_pdm_data)
+CALL top_pdm_alloc(land_pts,nsoilt, dim_ch4subgrid, top_pdm_data)
 
 CALL trif_alloc(npft,                                                          &
                 l_triffid, l_phenol)
