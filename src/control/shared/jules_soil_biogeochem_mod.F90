@@ -336,11 +336,14 @@ IF ( .NOT. l_layeredc .AND. l_bgc_heat ) THEN
 END IF
 
 ! Check if l_bgc_heat = T, heat_of_respiration is 3.7e09
-IF ( l_bgc_heat .AND. (heat_of_respiration < 0.0 .OR.                          &
-                       heat_of_respiration == rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), warningstatus,                              &
-      'To use the biogenic heating of soil carbon decomposition' //            &
-      'the heat_of_respiration must be positive.' )
+IF ( l_bgc_heat ) THEN
+  IF ( ABS( heat_of_respiration - rmdi ) < EPSILON(1.0) ) THEN
+    CALL ereport(RoutineName, errorstatus, "heat_of_respiration not found")
+  ELSE IF ( heat_of_respiration < 0.0 ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+       "To use the biogenic heating of soil carbon decomposition" //           &
+       "the heat_of_respiration must be positive.'")
+  END IF
 END IF
 
 ! Check that certain soil models are only used with a vegetation model.
