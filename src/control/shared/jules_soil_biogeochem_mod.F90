@@ -330,7 +330,7 @@ END IF
 
 ! Check if l_layeredC=T to use l_bgc_heat
 IF ( .NOT. l_layeredc .AND. l_bgc_heat ) THEN
-  CALL ereport( TRIM(RoutineName), warningstatus,                              &
+  CALL ereport( TRIM(RoutineName), errorstatus,                              &
       'To use the biogenic heating of soil carbon decomposition' //            &
       'you must use l_layeredc=.true. and l_bgc_heat=.true.' )
 END IF
