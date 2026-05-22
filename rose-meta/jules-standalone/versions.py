@@ -53,10 +53,7 @@ class vn81_t59(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
-        """
-          Adding logical and real to the jules biogeochemical namelist
-        """
+        # Adding logical and real to the jules biogeochemical namelist
         self.add_setting(config,
                 ["namelist:jules_soil_biogeochem", "l_bgc_heat"], ".false.")
         self.add_setting(config,
