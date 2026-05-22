@@ -286,8 +286,6 @@ CHARACTER(LEN=*), PARAMETER ::                                                 &
 
 ! Set error status to show a fatal error for all checks.
 errorstatus = 101
-! Set warning status to show a warning for all checks.
-warningstatus = 101
 
 ! Check that a valid soil model is selected.
 SELECT CASE ( soil_bgc_model )
