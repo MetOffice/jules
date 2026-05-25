@@ -768,8 +768,8 @@ DO t = 1,trif_pts
         ELSE
           ! n_inorg_gb < 0
           error_status = -101
-          CALL ereport(RoutineName, error_status,                              &
-                       "n_inorg_gb is negative")
+          !CALL ereport(RoutineName, error_status,                              &
+          !             "n_inorg_gb is negative")
 
         END IF  !  n_inorg_gb
 

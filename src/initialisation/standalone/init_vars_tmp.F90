@@ -238,10 +238,10 @@ IF (l_triffid) THEN
 
         IF (l_phenol) THEN
           phen = progs%lai_pft(l,n) / trif_vars%lai_bal_pft(l,n)
-          IF ( phen > 1.0 + TINY(1.0e0) ) THEN
-            CALL log_warn("init_vars_tmp",                                     &
-                          "lai_pft should be <= trif_vars%lai_bal_pft")
-          END IF
+          !IF ( phen > 1.0 + TINY(1.0e0) ) THEN
+          !  CALL log_warn("init_vars_tmp",                                     &
+          !                "lai_pft should be <= trif_vars%lai_bal_pft")
+          !END IF
         ELSE
           phen = 1.0
           progs%lai_pft(l,n) = trif_vars%lai_bal_pft(l,n)

@@ -36,7 +36,8 @@ USE jules_vegetation_mod, ONLY: can_model, can_rad_mod,                        &
                                 l_nitrogen, l_prescsow, l_trif_crop,           &
                                 photo_acclim_model, photo_adapt,               &
                                 photo_acclim, photo_adapt_acclim,              &
-                                l_croprotate, l_trif_biocrop, l_sugar, l_red
+                                l_croprotate, l_trif_biocrop, l_sugar, l_red,  &
+                                l_limit_rootd_alt
 
 USE jules_water_resources_mod, ONLY: l_water_irrigation, l_water_resources,    &
        nwater_use, partition_ancil, partition_method, use_environment
@@ -189,8 +190,11 @@ CALL add_to_list( 'tstar_tile', nvars, identifiers )
 ! Variables with soil tiling.
 CALL add_to_list( 'cs',         nvars, identifiers, l_append_soilt )
 CALL add_to_list( 't_soil',     nvars, identifiers, l_append_soilt )
-CALL add_to_list( 'alt_currentyear',     nvars, identifiers, l_append_soilt )
-CALL add_to_list( 'alt_lastyear',     nvars, identifiers, l_append_soilt )
+
+IF ( l_limit_rootd_alt ) THEN
+  CALL add_to_list( 'alt_currentyear',     nvars, identifiers, l_append_soilt )
+  CALL add_to_list( 'alt_lastyear',     nvars, identifiers, l_append_soilt )
+END IF
 
 !-----------------------------------------------------------------------------
 ! Variables that are needed only if certain options set.
