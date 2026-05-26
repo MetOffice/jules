@@ -213,7 +213,7 @@ USE nvegparm, ONLY:                                                            &
   emis_nvg,     gs_nvg,       infil_nvg,                                       &
   vf_nvg,       z0_nvg,       l_z0_nvg
 
-USE c_z0h_z0m,    ONLY: z0h_z0m,  z0h_z0m_classic
+USE c_z0h_z0m, ONLY: z0h_z0m,  z0h_z0m_classic
 
 USE jules_surface_types_mod, ONLY: npft, nnvg, urban_canyon, urban_roof, soil
 USE jules_surface_mod,       ONLY: l_vary_z0m_soil

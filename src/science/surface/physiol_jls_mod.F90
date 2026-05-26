@@ -1060,12 +1060,8 @@ DO n = 1,npft
   END IF
 !$OMP END PARALLEL
 
-  ! For now this code needs to work for the existing irrigation code
-  ! (i.e. l_irrig_dmd = T), where irrig_option = imdi.
-  ! The '<=' can be removed once irrig_option = 1 is fully plumbed in and replaced
-  ! with a '==' However, for now every instance of this in physiol and soil_evap
-  ! should be written as:
-  IF (nsoilt > 1.0 .OR. irrig_tile(n) == 0 .OR. irrig_option /= 2) THEN
+  ! Irrigated tiles do not extract water
+  IF (nsoilt > 1.0 .OR. irrig_tile(n) /= 1 ) THEN
     CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
                   sthu_surft(:,m,:),                                           &
                   v_open,smvcst_soilt(:,m,:),                                  &
@@ -1319,7 +1315,7 @@ n = soil
 DO j = 1,surft_pts(n)
   l = surft_index(j,n)
   gs_type(l,n) = gsoil_soilt(l,m)
-  IF (irrig_tile(n) == 0 .OR. irrig_option <= 0) THEN
+  IF (irrig_tile(n) /= 1 ) THEN
     wt_ext_type(l,1,n) = 1.0
   END IF
   IF (l_irrig_dmd) THEN

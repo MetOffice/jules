@@ -116,7 +116,7 @@ DO k = 2,nshyd
 !$OMP DO SCHEDULE(STATIC)
   DO j = 1,surft_pts
     l = surft_index(j)
-    IF (nsoilt > 1 .OR. irrig_tile == 0 .OR. irrig_option <= 0) THEN
+    IF (nsoilt > 1 .OR. irrig_tile /= 1) THEN
       wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
     END IF
     IF (l_irrig_dmd) THEN

@@ -246,6 +246,19 @@ IF ( set_irrfrac_on_irrtiles .AND. frac_irrig_all_tiles ) THEN
                "set_irrfrac_on_irrtiles to be true ")
 END IF
 
+IF ( irrig_option /= 0 .OR. irrig_option /= 2 ) THEN
+  errcode = 101
+  CALL ereport(RoutineName, errcode,                                           &
+               "irrig_option should have values = 0 or 2  " //                 &
+               "0 = No irrigation, 2 = Apply irrigation to surface types ")
+END IF
+
+IF ( l_irrig_dmd .AND. irrig_option == 2 ) THEN
+  errcode = 101
+  CALL ereport(RoutineName, errcode,                                           &
+               "l_irrig_dmd must be FALSE if irrig_option = 2  ")
+END IF
+
 END SUBROUTINE check_jules_irrig
 #endif
 
