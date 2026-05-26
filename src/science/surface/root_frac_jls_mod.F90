@@ -105,7 +105,7 @@ IF (fsmc_mod(ft) == 1) THEN
     z2 = z2 + dz(n)
     ztot = ztot + dz(n)
     IF (z1 > rootd_limited) THEN
-      f_root(n) = 0.0
+      f_root(n) = 1.0e-6
     ELSE IF (z2 < rootd_limited) THEN
       f_root(n) = dz(n)
     ELSE
@@ -123,7 +123,7 @@ ELSE
     IF ( (rootd_limited < rootd) .AND. (ztot > rootd_limited) ) THEN
       ! If rootd is limited by ALT and we are below the ALT, 
       ! no root in frozen soil
-      f_root(n) = 0.0
+      f_root(n) = 1.0e-6
     ELSE
       f_root(n) = EXP(-p * z1 / rootd_limited) - EXP(-p * z2 / rootd_limited)
     END IF
