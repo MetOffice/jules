@@ -271,7 +271,7 @@ END IF
 
 IF ( l_irrig_dmd .AND. irrig_option /= imdi ) THEN
   errcode = 101
-  CALL ereport(RoutineName, errcode, &
+  CALL ereport(RoutineName, errcode,                                           &
      "l_irrig_dmd and irrig_option cannot be used at the same time.")
 END IF
 
