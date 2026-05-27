@@ -62,6 +62,14 @@ INTEGER :: nstep_irrig = imdi
 INTEGER :: irrig_option = imdi
     ! Options for applying irrigation
 
+INTEGER, PARAMETER ::                                                          &
+  no_irrigation = 0,                                                           &
+    ! No irrigation
+  frac_based_irrigation = 1,                                                   &
+    ! Not currently available; will replace l_irrig_dmd in a future release
+  tile_based_irrigation = 2
+    ! Apply irrigation to available irrigated surface types
+
 ! Non-namelist variable but arrays used elsewhere after namelists are
 ! read in - moved out of crop_vars_mod (Hopefully this is the best place
 ! to put these).
@@ -246,17 +254,25 @@ IF ( set_irrfrac_on_irrtiles .AND. frac_irrig_all_tiles ) THEN
                "set_irrfrac_on_irrtiles to be true ")
 END IF
 
-IF ( irrig_option /= 0 .OR. irrig_option /= 2 ) THEN
-  errcode = 101
-  CALL ereport(RoutineName, errcode,                                           &
-               "irrig_option should have values = 0 or 2  " //                 &
-               "0 = No irrigation, 2 = Apply irrigation to surface types ")
+IF ( irrig_option /= imdi ) THEN
+  SELECT CASE ( irrig_option )
+  CASE ( no_irrigation, tile_based_irrigation )
+    ! These are allowed options
+  CASE ( frac_based_irrigation )
+    errcode = 101
+    CALL ereport(RoutineName, errcode,                                         &
+                 "Fraction based irrigation is not yet available")
+  CASE DEFAULT
+    errcode = 101
+    CALL ereport(RoutineName, errcode,                                         &
+                 "Invalid value for irrig_option")
+  END SELECT
 END IF
 
-IF ( l_irrig_dmd .AND. irrig_option == 2 ) THEN
+IF ( l_irrig_dmd .AND. irrig_option /= imdi ) THEN
   errcode = 101
-  CALL ereport(RoutineName, errcode,                                           &
-               "l_irrig_dmd must be FALSE if irrig_option = 2  ")
+  CALL ereport(RoutineName, errcode, &
+     "l_irrig_dmd and irrig_option cannot be used at the same time.")
 END IF
 
 END SUBROUTINE check_jules_irrig
