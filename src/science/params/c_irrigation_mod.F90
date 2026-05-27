@@ -33,7 +33,7 @@ SUBROUTINE c_irrigation_alloc(ntype)
 USE parkind1,    ONLY: jprb, jpim
 USE yomhook,     ONLY: lhook, dr_hook
 USE missing_data_mod, ONLY: imdi
-USE jules_irrig_mod, ONLY: irrig_option
+USE jules_irrig_mod, ONLY: irrig_option, tile_based_irrigation
 
 IMPLICIT NONE
 
@@ -52,9 +52,10 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 ALLOCATE( irrig_tile(ntype) )
 
-! Initialise irrig_tile to zero if irrig_option = 2, else set to missing data. 
+! Initialise irrig_tile to zero if irrig_option = tile_based_irrigation (2), 
+! else set to missing data. 
 ! This clause can be removed when irrigation on non-veg tiles is added.
-IF (irrig_option == 2) THEN
+IF (irrig_option == tile_based_irrigation) THEN
   irrig_tile(:) = 0
 ELSE
   irrig_tile(:) = imdi

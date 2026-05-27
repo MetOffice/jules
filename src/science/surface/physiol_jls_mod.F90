@@ -644,10 +644,10 @@ DO n = 1,npft
     root_param(l,n)   = 0.0
     gc_corr(l,n)      = 0.0
     lwp_c_pft(l,n)    = 0.0
-    ! Where irrig_option = 2 and irrig_tile = 1 there is unrestricted soil
+    ! Where irrig_option = tile_based_irrigation and irrig_tile = 1 there is unrestricted soil
     ! moisture availability and fsmc_pft = 1.0
-    ! For tiles where irrig_tile = 0 and/or irrig_option /= 2 then fsmc_pft
-    ! is set by smc_ext.
+    ! For tiles where irrig_tile = 0 and/or irrig_option = no_irrigation
+    ! or frac_based_irrigation then fsmc_pft is set by smc_ext.
     fsmc_pft(l,n)     = 1.0
   END DO
 !$OMP END DO NOWAIT

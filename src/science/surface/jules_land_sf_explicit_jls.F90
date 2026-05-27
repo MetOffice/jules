@@ -198,7 +198,7 @@ USE jules_surface_mod, ONLY: l_aggregate, formdrag, l_anthrop_heat_src,        &
 USE jules_vegetation_mod, ONLY: can_model, can_rad_mod, ilayers, l_triffid,    &
                                 l_vegdrag_surft
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd, irrig_option
+USE jules_irrig_mod, ONLY: l_irrig_dmd, irrig_option, tile_based_irrigation
 
 USE jules_sea_seaice_mod, ONLY: l_ctile, charnock, ip_ss_solid
 
@@ -1192,7 +1192,7 @@ END IF
 
 ! Set up non irrigated fraction
 non_irrig_frac(:) = 1.0
-IF (irrig_option == 2) THEN
+IF (irrig_option == tile_based_irrigation) THEN
   DO n = 1,ntype
     IF (irrig_tile(n) > 0) THEN
 !$OMP PARALLEL DO SCHEDULE(STATIC) DEFAULT(NONE) PRIVATE(l)                    &
