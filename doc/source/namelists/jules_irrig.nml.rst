@@ -50,7 +50,7 @@ This namelist specifies the different options available for setting up the irrig
    1. Not available yet. In a future release this will replace :nml:mem:`l_irrig_dmd`.
    2. Apply irrigation to irrigated surface types C3_irrig and/or C4_irrig. This option requires :nml:mem:`JULES_IRRIG::l_irrig_dmd` = FALSE and :nml:mem:`JULES_PFTPARM::irrig_pft_io` = 0 or 1.
 
-   At the moment if :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, then :nml:mem:`JULES_IRRIG::irrig_option` must be set to 0. In a future release, :nml:mem:`l_irrig_dmd` will be option 1.
+  When :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, :nml:mem:`JULES_IRRIG::irrig_option` is not available.
 
 .. nml:member:: l_irrig_limit
 

@@ -25,7 +25,7 @@ SUBROUTINE check_compatible_options(call_type)
 
 USE jules_deposition_mod,          ONLY: l_deposition
 USE jules_irrig_mod,               ONLY: l_irrig_dmd, l_irrig_limit,           &
-                                         nstep_irrig, irrig_option
+                                         nstep_irrig
 USE jules_model_environment_mod,   ONLY: lsm_id, cable
 USE jules_radiation_mod,           ONLY: l_albedo_obs, l_snow_albedo,          &
                                          l_albedo_obs
@@ -34,8 +34,7 @@ USE jules_rivers_mod,              ONLY: i_river_vn, l_rivers, l_riv_overbank, &
 USE jules_soil_biogeochem_mod,     ONLY: l_layeredc, z_burn_max
 USE jules_soil_mod,                ONLY: l_tile_soil, l_holdwater
 USE jules_surface_mod,             ONLY: l_flake_model, l_aggregate
-USE jules_surface_types_mod,       ONLY: urban_roof, npft, nnvg, ntype,        &
-                                         c3_irrig, c4_irrig
+USE jules_surface_types_mod,       ONLY: urban_roof, npft, nnvg, ntype
 USE jules_urban_mod,               ONLY: l_moruses_storage
 USE jules_vegetation_mod,          ONLY: l_triffid, l_inferno, l_trif_fire
 USE jules_water_resources_mod,     ONLY: l_water_environment,                  &

@@ -106,7 +106,7 @@ USE jules_vegetation_mod, ONLY:                                                &
   ! imported variables
   l_crop, l_use_pft_psi, l_triffid
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd, irrig_option
+USE jules_irrig_mod, ONLY: l_irrig_dmd
 
 USE jules_hydrology_mod, ONLY: l_limit_gsoil
 
@@ -1060,7 +1060,7 @@ DO n = 1,npft
   END IF
 !$OMP END PARALLEL
 
-  ! Irrigated tiles do not extract water
+  ! Tile-based irrigated surface types do not extract water so routine is not called.
   IF (nsoilt > 1.0 .OR. irrig_tile(n) /= 1 ) THEN
     CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
                   sthu_surft(:,m,:),                                           &
@@ -1309,7 +1309,7 @@ END IF !nsoilt
 n = soil
 !$OMP PARALLEL DO IF (surft_pts(n) > 1) DEFAULT(NONE) PRIVATE(l, j)            &
 !$OMP             SHARED(gs_irr_type, gs_type, gsoil_soilt, gsoil_irr_soilt,   &
-!$OMP                    l_irrig_dmd, irrig_tile, irrig_option,                &
+!$OMP                    l_irrig_dmd, irrig_tile,                              &
 !$OMP                    n, m, surft_index, surft_pts, wt_ext_type,            &
 !$OMP                    wt_ext_irr_type) SCHEDULE(STATIC)
 DO j = 1,surft_pts(n)

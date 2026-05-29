@@ -25,7 +25,7 @@ SUBROUTINE soil_evap (npnts,nshyd,surft_pts,surft_index,                       &
                       ,gsoil_irr,gs_irr,wt_ext_irr                             &
                       )
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd, irrig_option
+USE jules_irrig_mod, ONLY: l_irrig_dmd
 USE yomhook, ONLY: lhook, dr_hook
 USE parkind1, ONLY: jprb, jpim
 USE ancil_info, ONLY: nsoilt
@@ -93,8 +93,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP DEFAULT(NONE)                                                            &
 !$OMP PRIVATE(l,j,k)                                                           &
 !$OMP SHARED(npnts,fsoil,surft_pts,surft_index,lai,nshyd,wt_ext,gs,gsoil,      &
-!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,nsoilt,irrig_tile,        &
-!$OMP        irrig_option)
+!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,nsoilt,irrig_tile)
 
 ! Initialisations
 
