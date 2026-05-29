@@ -142,7 +142,7 @@ END IF
 
 !$OMP PARALLEL                                                                 &
 !$OMP DEFAULT(SHARED)                                                          &
-!$OMP PRIVATE(l,n,j,sth_wilt,sth_opt,sth_resp_min)
+!$OMP PRIVATE(l,n,j,sth_wilt,sth_opt,sth_optl,sth_resp_min)
 
 DO j = 1,sm_levels
 !$OMP DO SCHEDULE(STATIC)
