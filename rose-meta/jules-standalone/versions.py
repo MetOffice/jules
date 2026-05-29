@@ -43,15 +43,20 @@ from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
 
-class vnYY_txxxx(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+class vn81_t70(MacroUpgrade):
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    """Upgrade macro from JULES by Eleanor Burke"""
+
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_t70"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
+
+        """Add cs_decomp_soil_moist_func to namelist jules_soil_biogeochem"""
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "cs_decomp_soil_moist_func"], "0")
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsthsat_cs_decomp_opt1"], "0.2")
 
         # Add settings
         return config, self.reports
