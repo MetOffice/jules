@@ -28,7 +28,6 @@ SUBROUTINE soil_evap (npnts,nshyd,surft_pts,surft_index,                       &
 USE jules_irrig_mod, ONLY: l_irrig_dmd
 USE yomhook, ONLY: lhook, dr_hook
 USE parkind1, ONLY: jprb, jpim
-USE ancil_info, ONLY: nsoilt
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) ::                                                         &
@@ -93,7 +92,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP DEFAULT(NONE)                                                            &
 !$OMP PRIVATE(l,j,k)                                                           &
 !$OMP SHARED(npnts,fsoil,surft_pts,surft_index,lai,nshyd,wt_ext,gs,gsoil,      &
-!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,nsoilt,irrig_tile)
+!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,irrig_tile)
 
 ! Initialisations
 
@@ -115,7 +114,7 @@ DO k = 2,nshyd
 !$OMP DO SCHEDULE(STATIC)
   DO j = 1,surft_pts
     l = surft_index(j)
-    IF (nsoilt > 1 .OR. irrig_tile /= 1) THEN
+    IF (irrig_tile /= 1) THEN
       wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
     END IF
     IF (l_irrig_dmd) THEN
@@ -131,7 +130,7 @@ END DO
 !CDIR NODEP
 DO j = 1,surft_pts
   l = surft_index(j)
-  IF (nsoilt > 1 .OR. irrig_tile /= 1) THEN
+  IF (irrig_tile /= 1) THEN
     wt_ext(l,1) = (gs(l) * wt_ext(l,1) + fsoil(l) * gsoil(l))                  &
                    / (gs(l) + fsoil(l) * gsoil(l))
   END IF

@@ -1060,8 +1060,8 @@ DO n = 1,npft
   END IF
 !$OMP END PARALLEL
 
-  ! Tile-based irrigated surface types do not extract water so routine is not called.
-  IF (nsoilt > 1.0 .OR. irrig_tile(n) /= 1 ) THEN
+  ! Tile-based irrigated surface types do not extract water
+  IF ( irrig_tile(n) /= 1 ) THEN
     CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n, f_root, &
                   sthu_surft(:,m,:),                                           &
                   v_open,smvcst_soilt(:,m,:),                                  &
@@ -1737,7 +1737,7 @@ ELSE
   ! If using a shared soil, normalise wt_ext_soilt for non-irrigated surface
   ! tile fractions
   DO l = 1,land_pts
-    IF ((non_irrig_frac(l) > EPSILON(0.0)) .AND. (nsoilt ==1)) THEN
+    IF ((non_irrig_frac(l) > EPSILON(0.0)) .AND. (nsoilt == 1)) THEN
       DO k = 1,sm_levels
         wt_ext_soilt(l,1,k) = wt_ext_soilt(l,1,k) / non_irrig_frac(l)
       END DO
