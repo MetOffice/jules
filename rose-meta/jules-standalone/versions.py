@@ -43,6 +43,7 @@ from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
 
+
 class vn81_t70(MacroUpgrade):
 
     """Upgrade macro from JULES by Eleanor Burke"""
