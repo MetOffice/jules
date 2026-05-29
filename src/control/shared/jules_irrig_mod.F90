@@ -254,25 +254,31 @@ IF ( set_irrfrac_on_irrtiles .AND. frac_irrig_all_tiles ) THEN
                "set_irrfrac_on_irrtiles to be true ")
 END IF
 
+! irrig_option can be used when l_irrig_dmd = F
 IF ( irrig_option /= imdi ) THEN
   SELECT CASE ( irrig_option )
   CASE ( no_irrigation, tile_based_irrigation )
     ! These are allowed options
   CASE ( frac_based_irrigation )
     errcode = 101
-    CALL ereport(RoutineName, errcode,                                         &
-                 "Fraction based irrigation is not yet available")
+    WRITE(jules_message,'(A,I0)')                                              &
+       "Fraction based irrigation is not yet available. irrig_option = ",      &
+       irrig_option
+    CALL ereport(RoutineName, errcode, jules_message)
   CASE DEFAULT
     errcode = 101
-    CALL ereport(RoutineName, errcode,                                         &
-                 "Invalid value for irrig_option")
+    WRITE(jules_message,'(A,I0)')                                              &
+       "Invalid value for irrig_option. irrig_option = ", irrig_option
+    CALL ereport(RoutineName, errcode, jules_message)
   END SELECT
 END IF
 
 IF ( l_irrig_dmd .AND. irrig_option /= imdi ) THEN
   errcode = 101
-  CALL ereport(RoutineName, errcode,                                           &
-     "l_irrig_dmd and irrig_option cannot be used at the same time.")
+  WRITE(jules_message,'(A,I0)')                                                &
+     "l_irrig_dmd and irrig_option cannot be used at the same time. " //       &
+     "irrig_option = ", irrig_option
+  CALL ereport(RoutineName, errcode, jules_message)
 END IF
 
 END SUBROUTINE check_jules_irrig
