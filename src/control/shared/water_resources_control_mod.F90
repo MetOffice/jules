@@ -97,7 +97,7 @@ CONTAINS
 
 !##############################################################################
 
-SUBROUTINE water_resources_control(                                            &
+SUBROUTINE water_resources_control( global_land_pts,                           &
              global_land_index, land_index, map_river_to_land_points,          &
              rivers_index_rp, con_rain_ij, con_snow_ij,                        &
              conv_loss_frac, demand_rate_domestic, demand_rate_industry,       &
@@ -115,8 +115,8 @@ SUBROUTINE water_resources_control(                                            &
              sthzw_soilt, sub_surf_roff, tl_1_day_av_gb,                       &
              tl_1_day_av_use_gb,  priority_order, demand_unmet, gw_abstracted, &
              gw_avail_start, gw_nr_abstracted,                                 &
-             irrig_water_gb, abstracted_minor_res, net_abstracted_river,       &
-             sw_abstracted, sw_avail_total, water_removed )
+             irrig_water_gb, abstracted_minor_res, abstracted_minor_res_global,&
+             net_abstracted_river, sw_abstracted, sw_avail_total, water_removed )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -149,10 +149,8 @@ USE jules_surface_types_mod, ONLY: ncpft, ntype
 
 USE jules_water_resources_mod, ONLY:                                           &
   l_have_groundwater, l_have_surface_water, l_water_irrigation,                &
-  nstep_water_res, n_sw_source, nwater_use, sw_river_source, use_irrigation,   &
-  water_res_count
-
-USE model_grid_mod, ONLY: global_land_pts
+  nstep_water_res, n_sw_source, nwater_use, sw_minor_res_source,               &
+  sw_river_source, use_irrigation, water_res_count
 
 USE parallel_mod, ONLY: is_master_task
 
@@ -169,6 +167,13 @@ USE update_soil_water_mod, ONLY: update_soil_water
 USE water_resources_drive_mod, ONLY: water_resources_drive
 
 IMPLICIT NONE
+
+!------------------------------------------------------------------------------
+! Scalar arguments with INTENT(IN)
+!------------------------------------------------------------------------------
+INTEGER, INTENT(IN) ::                                                         &
+  global_land_pts
+    ! Number of land points (summed over all tasks).
 
 !------------------------------------------------------------------------------
 ! Array arguments with INTENT(IN)
@@ -301,7 +306,11 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   irrig_water_gb(land_pts),                                                    &
     ! Water added to soil via irrigation (kg m-2 s-1).
   abstracted_minor_res(land_pts),                                              &
-    ! Water abstracted from minor reservoirs (kg).
+    ! Water abstracted from minor reservoirs (kg). Diagnostic only.
+    !cxyz Perhaps don't specify size?
+  abstracted_minor_res_global(global_land_pts),                                &
+    ! Water abstracted from minor reservoirs, on global land points (kg).
+    ! This is used to couple to minor reservoirs.
     ! Note that this has reduced size if it is not required.
     !cxyz Perhaps don't specify size?
   net_abstracted_river(land_pts),                                              &
@@ -400,7 +409,7 @@ END IF
 !------------------------------------------------------------------------------
 ! Initialise coupling fluxes.
 IF ( l_minor_reservoirs ) THEN
-  abstracted_minor_res(:) = 0.0
+  abstracted_minor_res_global(:) = 0.0
 END IF
 IF ( sw_river_source > 0 ) THEN
   net_abstracted_river(:) = 0.0
@@ -412,6 +421,10 @@ sw_abstracted(:,:)  = 0.0
 ! Initialise other fluxes.
 demand_unmet(:,:)   = 0.0
 water_removed(:)    = 0.0
+! Initialise diagnostics.
+IF ( l_minor_reservoirs ) THEN
+  abstracted_minor_res(:) = 0.0
+END IF
 
 !------------------------------------------------------------------------------
 ! Add to the accumulated demands (only for prescribed demands).
@@ -523,6 +536,12 @@ IF ( l_water_res_call ) THEN
            sw_abstracted_global, sw_avail_global, water_removed_global,        &
            conveyance_loss_global, return_flow_gw_global,                      &
            return_flow_sw_global, supply_irrig_global )
+
+    ! If minor reservoirs are modelled, save abstraction in a new variable.
+    IF ( sw_minor_res_source > 0 ) THEN
+      abstracted_minor_res_global(:)                                           &
+        = sw_abstracted_global(:,sw_minor_res_source)
+    END IF
 
   END IF  !  is_master_task
 
@@ -1212,11 +1231,13 @@ CALL scatter_land_field( return_flow_gw_global, return_flow_gw )
 
 ! Fields that are only required if we are modelling surface water sources.
 IF ( l_have_surface_water ) THEN
+
   ! Surface water fraction only needs to be scattered if it was calculated by
   ! the master task. If it was read as an ancillary field, nothing to do here.
   IF ( partition_method == partition_calc_from_stores ) THEN
     CALL scatter_land_field( sfc_water_frac_global, sfc_water_frac )
   END IF
+
   ! Surface water always includes rivers, so we always calculate return flow.
   !cxyz No longer true.
   CALL scatter_land_field( return_flow_sw_global, return_flow_sw )
@@ -1224,15 +1245,14 @@ IF ( l_have_surface_water ) THEN
     CALL scatter_land_field( sw_abstracted_global(:,i), sw_abstracted(:,i) )
   END DO
   CALL scatter_land_field( sw_avail_total_start_global, sw_avail_total )
-  ! Abstraction from minor reservoirs.
-  !cxyz Note that it is slightly daft that we are scattering here only to later
-  !     regather in rivers code (as for net abs from river?) - but this does
-  !     allows this to better follow existing code.
+
+  ! Save diagnostic of abstraction from minor reservoirs.
   IF ( l_minor_reservoirs ) THEN
     CALL scatter_land_field( sw_abstracted_global(:,sw_minor_res_source),     &
                              abstracted_minor_res )
   END IF
-END IF
+
+END IF  !  l_have_surface_water
 
 ! Fields for irrigation.
 IF ( l_water_irrigation ) THEN

@@ -629,6 +629,12 @@ SUBROUTINE allocate_rivers_vars_rp( np_rivers, rivers, rivers_data )
 
 USE ancil_info, ONLY: land_pts
 
+#if defined(UM_JULES)
+USE atm_land_sea_mask, ONLY: global_land_pts => atmos_number_of_landpts
+#else
+USE model_grid_mod, ONLY: global_land_pts
+#endif
+
 USE jules_model_environment_mod, ONLY: l_oasis_rivers
 
 USE jules_rivers_mod, ONLY: i_river_vn, l_minor_reservoirs, l_sea_level,       &
@@ -663,6 +669,8 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName = 'ALLOCATE_RIVERS_VARS_RP'
 INTEGER ::                                                                     &
   ERROR, error_sum,                                                            &
     ! Error flags.
+  np_global_land_tmp,                                                          &
+    ! Number of global land points (across all tasks) to allocate for.
   np_land_tmp,                                                                 &
     ! Number of land points to allocate for.
   np_rivers_tmp
@@ -898,10 +906,12 @@ error_sum = error_sum + ERROR
 !------------------------------------------------------------------------------
 IF ( l_minor_reservoirs .AND. is_master_task() ) THEN
   ! Full size.
-  np_rivers_tmp = np_rivers
+  np_rivers_tmp      = np_rivers
+  np_global_land_tmp = global_land_pts
 ELSE
   ! Minimum size.
-  np_rivers_tmp = 1
+  np_rivers_tmp      = 1
+  np_global_land_tmp = 1
 END IF
 
 ! Minor reservoir ancillaries.
@@ -911,6 +921,10 @@ ALLOCATE( rivers_data%minor_res_frac(np_rivers_tmp),          STAT = ERROR )
 error_sum = error_sum + ERROR
 ! Minor reservoir prognostics.
 ALLOCATE( rivers_data%minor_res_storage(np_rivers_tmp),       STAT = ERROR )
+error_sum = error_sum + ERROR
+! Minor reservoir coupling.
+ALLOCATE( rivers_data%tot_abstracted_minor_res_global(np_global_land_tmp),     &
+                                                              STAT = ERROR )
 error_sum = error_sum + ERROR
 
 IF ( error_sum /= 0 ) THEN
@@ -993,6 +1007,8 @@ rivers_data%surf_roff_rp(:)     = 0.0
 rivers_data%minor_res_capacity(:) = rmdi
 rivers_data%minor_res_frac(:)     = rmdi
 rivers_data%minor_res_storage(:)  = 0.0
+!cxyz initialise coupling to zero or handled elsewhere?
+rivers_data%tot_abstracted_minor_res_global(:) = 0.0
 
 !------------------------------------------------------------------------------
 ! Associate pointers
@@ -1060,10 +1076,12 @@ rivers%rivers_outflow_number_rp => rivers_data%rivers_outflow_number_rp
 rivers%sub_surf_roff_rp => rivers_data%sub_surf_roff_rp
 rivers%surf_roff_rp => rivers_data%surf_roff_rp
 
-! Associate pointers for reservoir variables.
+! Associate pointers for minor reservoir variables.
 rivers%minor_res_capacity      => rivers_data%minor_res_capacity
 rivers%minor_res_frac          => rivers_data%minor_res_frac
 rivers%minor_res_storage       => rivers_data%minor_res_storage
+rivers%tot_abstracted_minor_res_global                                         &
+                               => rivers_data%tot_abstracted_minor_res_global
 
 RETURN
 END SUBROUTINE allocate_rivers_vars_rp

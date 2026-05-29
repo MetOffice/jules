@@ -271,7 +271,7 @@ REAL ::                                                                        &
     !Total resistance factor, fracaero_t+(1-fracaero_t)*RESFS for snow-free
     !land, 1 for snow.
   rhokh(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end),                  &
-    ! Grid-box surface exchange coefficients
+    ! Grid-box surfac<e exchange coefficients
   rhokh_surft(land_pts,nsurft),                                                &
     ! Surface exchange coefficients for land tiles
   rhokh_sice(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end,nice_use),    &
@@ -893,7 +893,7 @@ CALL surf_couple_extra(                                                        &
   ls_rainfrac_land,                                                            &
   substore, surfstore, flowin, bflowin,                                        &
   rivers%tot_surf_runoff_gb, rivers%tot_sub_runoff_gb,                         &
-  rivers%tot_abstracted_minor_res, rivers%tot_net_abstracted_river,            &
+  rivers%tot_net_abstracted_river,                                             &
   rivers%acc_lake_evap_gb,                                                     &
   twatstor, asteps_since_triffid,                                              &
   inlandout_atm_gb,                                                            &
