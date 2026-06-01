@@ -53,10 +53,55 @@ class vn81_t70(MacroUpgrade):
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            npft = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_surface_types", "npft"]
+                )
+            )
+            self.add_setting(
+                config,
+                ["namelist:jules_pftparm", "pft_name_io"],
+                ",".join(["''"] * npft),
+            )
 
         """Add cs_decomp_soil_moist_func to namelist jules_soil_biogeochem"""
         self.add_setting(config, ["namelist:jules_soil_biogeochem", "cs_decomp_soil_moist_func"], "0")
         self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsthsat_cs_decomp_opt1"], "0.2")
 
         # Add settings
+        return config, self.reports
+
+
+class vn81_t41(MacroUpgrade):
+
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.1_t70"
+    AFTER_TAG = "vn8.1_t41"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            npft = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_surface_types", "npft"]
+                )
+            )
+            self.add_setting(
+                config,
+                ["namelist:jules_pftparm", "pft_name_io"],
+                ",".join(["''"] * npft),
+            )
+
         return config, self.reports
