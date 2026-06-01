@@ -200,6 +200,61 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='PFTPARM_IO'
 
 CONTAINS
 
+#if !defined(UM_JULES)
+SUBROUTINE read_nml_jules_pftparm (nml_dir)
+
+USE io_constants, ONLY: namelist_unit
+
+USE string_utils_mod, ONLY: to_string
+
+USE logging_mod, ONLY: log_info, log_fatal
+
+USE errormessagelength_mod, ONLY: errormessagelength
+
+IMPLICIT NONE
+
+! Arguments
+CHARACTER(LEN=*), INTENT(IN) :: nml_dir  ! The directory containing the
+                                         ! namelists
+! Work variables
+INTEGER :: ERROR  ! Error indicator
+CHARACTER(LEN=errormessagelength) :: iomessage
+
+CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_PFTPARM'
+
+!-----------------------------------------------------------------------------
+! Read namelist
+!-----------------------------------------------------------------------------
+CALL log_info(routinename, "Reading JULES_PFTPARM namelist...")
+
+! Open the pft parameters namelist file
+OPEN(namelist_unit, FILE=(TRIM(nml_dir) // '/' // 'pft_params.nml'),           &
+               STATUS='old', POSITION='rewind', ACTION='read', IOSTAT = ERROR, &
+               IOMSG = iomessage)
+IF ( ERROR /= 0 )                                                              &
+  CALL log_fatal(routinename,                                                  &
+                 "Error opening namelist file pft_params.nml " //              &
+                 "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
+                 TRIM(iomessage) // ")")
+
+READ(namelist_unit, NML = jules_pftparm, IOSTAT = ERROR, IOMSG = iomessage)
+IF ( ERROR /= 0 )                                                              &
+  CALL log_fatal(routinename,                                                  &
+                 "Error reading namelist JULES_PFTPARM " //                    &
+                 "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
+                 TRIM(iomessage) // ")")
+
+! Close the namelist file
+CLOSE(namelist_unit, IOSTAT = ERROR, IOMSG = iomessage)
+IF ( ERROR /= 0 )                                                              &
+  CALL log_fatal(routinename,                                                  &
+                 "Error closing namelist file pft_params.nml " //              &
+                 "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
+                 TRIM(iomessage) // ")")
+
+END SUBROUTINE read_nml_jules_pftparm
+#endif
+
 #if defined(UM_JULES)
 SUBROUTINE read_nml_jules_pftparm (unitnumber)
 

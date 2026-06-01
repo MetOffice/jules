@@ -12,15 +12,11 @@ USE missing_data_mod, ONLY:                                                    &
 !  imported scalar parameters
      rmdi
 
-USE io_constants, ONLY: namelist_unit
-
-USE string_utils_mod, ONLY: to_string
-
 USE jules_surface_types_mod, ONLY: npft, nnpft
 
 USE ancil_info, ONLY: land_pts
 
-USE pftparm_io, ONLY: jules_pftparm, init_pftparm_allocated,                   &
+USE pftparm_io, ONLY: read_nml_jules_pftparm, init_pftparm_allocated,          &
                       canht_ft_io, lai_io
 
 USE pftparm, ONLY: print_nlist_jules_pftparm, check_jules_pftparm
@@ -59,36 +55,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 CHARACTER(LEN=*), PARAMETER :: routinename='INIT_PFTPARM_JULES'
 
-!-----------------------------------------------------------------------------
-! Read namelist
-!-----------------------------------------------------------------------------
-CALL log_info(routinename, "Reading JULES_PFTPARM namelist...")
-
-! Open the pft parameters namelist file
-OPEN(namelist_unit, FILE=(TRIM(nml_dir) // '/' // 'pft_params.nml'),           &
-               STATUS='old', POSITION='rewind', ACTION='read', IOSTAT = ERROR, &
-               IOMSG = iomessage)
-IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal(routinename,                                                  &
-                 "Error opening namelist file pft_params.nml " //              &
-                 "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
-                 TRIM(iomessage) // ")")
-
-READ(namelist_unit, NML = jules_pftparm, IOSTAT = ERROR, IOMSG = iomessage)
-IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal(routinename,                                                  &
-                 "Error reading namelist JULES_PFTPARM " //                    &
-                 "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
-                 TRIM(iomessage) // ")")
-
-! Close the namelist file
-CLOSE(namelist_unit, IOSTAT = ERROR, IOMSG = iomessage)
-IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal(routinename,                                                  &
-                 "Error closing namelist file pft_params.nml " //              &
-                 "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
-                 TRIM(iomessage) // ")")
-
+CALL read_nml_jules_pftparm (nml_dir)
 !-----------------------------------------------------------------------------
 ! Process the namelist values
 !-----------------------------------------------------------------------------
