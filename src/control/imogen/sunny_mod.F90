@@ -8,6 +8,8 @@
 !
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise
 
 MODULE sunny_mod
 
@@ -43,7 +45,7 @@ IMPLICIT NONE
 !
 !-----------------------------------------------------------------------------
 
-INTEGER ::                                                                     &
+INTEGER, INTENT(IN) ::                                                         &
   daynumber,                                                                   &
             ! IN Day of the year.
   jday,                                                                        &
@@ -52,15 +54,20 @@ INTEGER ::                                                                     &
             ! IN Number of spatial points.
   year      ! IN Calender year.
 
-REAL ::                                                                        &
+REAL, INTENT(IN) ::                                                            &
   lat(points),                                                                 &
             ! IN Latitude (degrees).
-  lon(points),                                                                 &
+  lon(points)
             ! IN Longitude (degrees).
+
+
+REAL, INTENT(OUT) ::                                                           &
   sun(points,jday),                                                            &
             ! OUT Normalised solar radiation at each time.
-  time_max(points),                                                            &
+  time_max(points)
             ! OUT Time (UTC) at which temperature is maximum (hrs).
+
+REAL ::                                                                        &
   cosdec,                                                                      &
             ! WORK COS (solar declination).
   coslat,                                                                      &
@@ -97,8 +104,13 @@ REAL ::                                                                        &
 
 INTEGER :: i,j    ! WORK Loop counter.
 
+REAL, PARAMETER :: frac_day_to_tmax = 0.15
+  ! fraction of day after local noon when the daily maximum
+  ! temperature is assumed to occur.
+REAL, PARAMETER :: deg_per_hour = 15.0
+  ! 360 degrees / 24 hours
 
-CALL solpos (daynumber, year, sindec, scs)
+CALL solpos (daynumber, year, sindec, scs) ! scs is calculated but unused
 
 DO i = 1,points
   latrad     = pi_over_180 * lat(i)
@@ -114,6 +126,9 @@ timestep = REAL(secs_in_day) / REAL(jday)
 !----------------------------------------------------------------------
 ! Calculate the COSZ at each time
 !----------------------------------------------------------------------
+cosz(:)  = 0.0
+lit(:)   = 0.0
+
 DO j = 1,jday
 
   timeday = (j-1) * timestep
@@ -162,13 +177,29 @@ DO i = 1,points
     time_down  = 0.5 * rhour_per_day                                           &
                * ((omega_down - lonrad(i)) / pi + 1.0)
 
-  ELSE                             ! Perpertual day or night
-    time_up   = 0.0
-    time_down = 0.0
+    time_max(i) = 0.5 * (time_up + time_down)                                  &
+                + frac_day_to_tmax * (time_down - time_up)
+
+  ELSE IF (tantan < -1.0) THEN      ! Perpetual day (sun never sets)
+    ! Local noon in UTC: 12 - (longitude in hours)
+    ! Max temp 3.6 hours after local noon
+    time_max(i) = rhour_per_day / 2.0 - (lon(i) / deg_per_hour) +              &
+                  frac_day_to_tmax * rhour_per_day
+
+  ELSE                               ! Perpetual night (sun never rises)
+    ! No solar heating; set to local noon as placeholder
+    time_max(i) = rhour_per_day / 2.0 - (lon(i) / deg_per_hour)
+
   END IF
 
-  time_max(i) = 0.5 * (time_up + time_down)                                    &
-              + 0.15 * (time_down - time_up)
+  ! Wrap time_max to 0-24 range
+  DO WHILE (time_max(i) < 0.0)
+    time_max(i) = time_max(i) + rhour_per_day
+  END DO
+
+  DO WHILE (time_max(i) >= rhour_per_day)
+    time_max(i) = time_max(i) - rhour_per_day
+  END DO
 
 END DO
 
