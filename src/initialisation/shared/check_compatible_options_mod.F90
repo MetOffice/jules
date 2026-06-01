@@ -170,15 +170,6 @@ IF ( l_irrig_dmd .AND. .NOT. l_water_irrigation ) THEN
   END IF
 END IF
 
-! Check to make sure that if l_irrig_dmd is TRUE then irrig_option related
-! variables are not set
-IF (l_irrig_dmd) THEN
-  IF ( ANY( irrig_tile(1:ntype) > 0.0 ) ) THEN
-    ERROR = 1
-    CALL jules_print(routinename, 'irrig_pft cannot be set if l_irrig_dmd=T')
-  END IF
-END IF
-
 ! Namelists based on tiles are not read by the UM RECON so any checks based on
 ! these namelists cannot be made.
 ! By default, we will perform these checks.
@@ -196,6 +187,15 @@ IF ( lsm_id == cable ) check_tiles_namelists = .FALSE.
 ! These checks are not to be carried out when called from UM RECON or when the
 ! land surface model is CABLE, which has its own namelists.
 IF (check_tiles_namelists) THEN
+  ! Check to make sure that if l_irrig_dmd is TRUE then irrig_option related
+  ! variables are not set
+  IF (l_irrig_dmd) THEN
+    IF ( ANY( irrig_tile(1:ntype) > 0.0 ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, 'irrig_pft cannot be set if l_irrig_dmd=T')
+    END IF
+  END IF
+
   IF ( l_moruses_storage ) THEN
     ! The roof surface needs to be either 0 (meaning "uncoupled"
     ! in this case)
