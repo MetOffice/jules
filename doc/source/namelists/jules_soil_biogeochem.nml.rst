@@ -154,7 +154,6 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
          .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
 
-
    .. nml:member:: heat_of_respiration
 
       :type: real
@@ -162,7 +161,6 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
       Specific heat of the respiration reaction J (kgC)\ :sup:`-1`. Only required if (:nml:mem:`l_bgc_heat` = TRUE)
 
-   
    .. nml:member:: fsthsat_cs_decomp_opt1
 
       :type: real
