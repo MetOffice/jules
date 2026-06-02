@@ -163,7 +163,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       Specific heat of the respiration reaction J (kgC)\ :sup:`-1`. Only required if (:nml:mem:`l_bgc_heat` = TRUE)
 
    
-      .. nml:member:: fsthsat_cs_decomp_opt1
+   .. nml:member:: fsthsat_cs_decomp_opt1
 
       :type: real
       :default: 0.2
