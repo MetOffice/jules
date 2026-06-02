@@ -152,7 +152,7 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
          * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description – Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701–722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
 
-       .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
+         .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
 
 
    .. nml:member:: heat_of_respiration
