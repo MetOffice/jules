@@ -50,15 +50,26 @@ class vn81_t59(MacroUpgrade):
 
     BEFORE_TAG = "vn8.1"
     AFTER_TAG = "vn8.1_t59"
-=======
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+
+        # Adding logical and real to the jules biogeochemical namelist
+        self.add_setting(config,
+                ["namelist:jules_soil_biogeochem", "l_bgc_heat"], ".false.")
+        self.add_setting(config,
+                ["namelist:jules_soil_biogeochem", "heat_of_respiration"], "3.9e07")
+
+        return config, self.reports
+
 
 class vn81_t70(MacroUpgrade):
 
     """Upgrade macro from JULES by Eleanor Burke"""
 
-    BEFORE_TAG = "vn8.1"
+    BEFORE_TAG = "vn8.1_t59"
     AFTER_TAG = "vn8.1_t70"
->>>>>>> main
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
@@ -83,11 +94,6 @@ class vn81_t70(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_soil_biogeochem", "cs_decomp_soil_moist_func"], "0")
         self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsthsat_cs_decomp_opt1"], "0.2")
 
-        # Adding logical and real to the jules biogeochemical namelist
-        self.add_setting(config,
-                ["namelist:jules_soil_biogeochem", "l_bgc_heat"], ".false.")
-        self.add_setting(config,
-                ["namelist:jules_soil_biogeochem", "heat_of_respiration"], "3.9e07")
 
         return config, self.reports
 

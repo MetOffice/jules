@@ -872,15 +872,9 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
-<<<<<<< test_59_biogenic_heating
-INTEGER, PARAMETER :: n_int = 2
-INTEGER, PARAMETER :: n_real = 29 + 4
-INTEGER, PARAMETER :: n_log = 8
-=======
 INTEGER, PARAMETER :: n_int = 3
 INTEGER, PARAMETER :: n_real = 29 + 4
-INTEGER, PARAMETER :: n_log = 7
->>>>>>> main
+INTEGER, PARAMETER :: n_log = 8
 
 TYPE :: my_namelist
   SEQUENCE
