@@ -113,7 +113,6 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
           .. note:: If layered soil C is used (:nml:mem:`l_layeredc` = TRUE) the temperature and moisture of each soil layer is used to calculation respiration from that layer.
 
-<<<<<<< test_59_biogenic_heating
    .. nml:member:: l_bgc_heat
 
       :type: logical
@@ -153,6 +152,8 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
 
          * Clark, D. B., Mercado, L. M., Sitch, S., Jones, C. D., Gedney, N., Best, M. J., Pryor, M., Rooney, G. G., Essery, R. L. H., Blyth, E., Boucher, O., Harding, R. J., Huntingford, C., and Cox, P. M.: The Joint UK Land Environment Simulator (JULES), model description – Part 2: Carbon fluxes and vegetation dynamics, Geosci. Model Dev., 4, 701–722, (https://doi.org/10.5194/gmd-4-701-2011), 2011.
 
+       .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
+
 
    .. nml:member:: heat_of_respiration
 
@@ -168,8 +169,6 @@ If using the ECOSSE soil model, most soil parameters are read from a separate fi
       :default: 0.2
 
       The value of the soil respiration at saturation in anaerobic conditions as a fraction of the maximum rate. Values should be between 0 and 1. Only used if :nml:mem:`cs_decomp_soil_moist_func` = 1.
-
-       .. note:: In Chadburn et al. (2022) the value of this parameter is set to 0.2 but in Elise Dehaen's PhD thesis (Exeter University, 2026) a value of 0.1 was proposed for peatlands.
 
 
 .. nml:group:: Parameters for the 4-pool model (only used if :nml:mem:`soil_bgc_model` = 2)
