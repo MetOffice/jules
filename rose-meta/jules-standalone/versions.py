@@ -43,20 +43,79 @@ from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
 
+<<<<<<< test_59_biogenic_heating
 class vn81_t59(MacroUpgrade):
 
     """Upgrade macro from JULES by Carolina Duran Rojas"""
 
     BEFORE_TAG = "vn8.1"
     AFTER_TAG = "vn8.1_t59"
+=======
+
+class vn81_t70(MacroUpgrade):
+
+    """Upgrade macro from JULES by Eleanor Burke"""
+
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_t70"
+>>>>>>> main
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            npft = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_surface_types", "npft"]
+                )
+            )
+            self.add_setting(
+                config,
+                ["namelist:jules_pftparm", "pft_name_io"],
+                ",".join(["''"] * npft),
+            )
+
+        """Add cs_decomp_soil_moist_func to namelist jules_soil_biogeochem"""
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "cs_decomp_soil_moist_func"], "0")
+        self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsthsat_cs_decomp_opt1"], "0.2")
 
         # Adding logical and real to the jules biogeochemical namelist
         self.add_setting(config,
                 ["namelist:jules_soil_biogeochem", "l_bgc_heat"], ".false.")
         self.add_setting(config,
                 ["namelist:jules_soil_biogeochem", "heat_of_respiration"], "3.9e07")
+
+        return config, self.reports
+
+
+class vn81_t41(MacroUpgrade):
+
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.1_t70"
+    AFTER_TAG = "vn8.1_t41"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            npft = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_surface_types", "npft"]
+                )
+            )
+            self.add_setting(
+                config,
+                ["namelist:jules_pftparm", "pft_name_io"],
+                ",".join(["''"] * npft),
+            )
 
         return config, self.reports

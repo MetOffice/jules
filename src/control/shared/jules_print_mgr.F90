@@ -49,7 +49,7 @@ CHARACTER(LEN=*), INTENT(IN) :: src
 INTEGER, OPTIONAL            :: level
 
 #if defined(UM_JULES)
-CALL umPrint(TRIM(line),src = src,model='jules',level = level)
+CALL umPrint( TRIM(src)//': '//TRIM(line), model='jules', level = level )
 #else
 CALL log_info(TRIM(src),TRIM(line))
 #endif
