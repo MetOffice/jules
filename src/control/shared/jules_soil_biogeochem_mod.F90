@@ -256,11 +256,8 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
-<<<<<<< test_59_biogenic_heating
-    l_label_frac_cs, z_burn_max, l_bgc_heat, heat_of_respiration
-=======
-    l_label_frac_cs, z_burn_max, fsthsat_cs_decomp_opt1
->>>>>>> main
+    l_label_frac_cs, z_burn_max, l_bgc_heat, heat_of_respiration,              &
+    fsthsat_cs_decomp_opt1
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
   ModuleName = 'JULES_SOIL_BIOGEOCHEM_MOD'
