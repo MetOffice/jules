@@ -200,7 +200,7 @@ SUBROUTINE read_jules_nvegparm (unitnumber)
 !  read the JULES_NVEGPARM namelist
 
 USE nvegparm_io,      ONLY:                                                    &
-  print_nlist_jules_nvegparm, read_nml_jules_nvegparm
+  read_nml_jules_nvegparm
 
 IMPLICIT NONE
 
@@ -213,10 +213,6 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_JULES_NVEGPARM'
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 CALL read_nml_jules_nvegparm(unitnumber)
-
-IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
-  CALL print_nlist_jules_nvegparm()
-END IF
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -261,7 +257,7 @@ SUBROUTINE read_jules_pftparm (unitnumber)
 !  Read the JULES_PFTPARM namelist
 
 USE pftparm_io,       ONLY:                                                    &
-  print_nlist_jules_pftparm, read_nml_jules_pftparm
+  read_nml_jules_pftparm
 
 IMPLICIT NONE
 
@@ -274,10 +270,6 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_JULES_PFTPARM'
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 CALL read_nml_jules_pftparm(unitnumber)
-
-IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
-  CALL print_nlist_jules_pftparm()
-END IF
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN

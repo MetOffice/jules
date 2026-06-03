@@ -372,7 +372,7 @@ CALL jules_print('jules_soil', lineBuffer)
 WRITE(lineBuffer, *) '  dzdeep = ', dzdeep
 CALL jules_print('jules_soil', lineBuffer)
 
-WRITE(lineBuffer, *) '  dzsoil_io = ', dzsoil_io
+WRITE(lineBuffer, *) '  dzsoil_io = ', dzsoil_io(1:sm_levels)
 CALL jules_print('jules_soil', lineBuffer)
 
 WRITE(lineBuffer, *) '  dzsoil_elev = ', dzsoil_elev
