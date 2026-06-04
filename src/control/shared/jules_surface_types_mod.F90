@@ -30,6 +30,8 @@ IMPLICIT NONE
 !-----------------------------------------------------------------------------
 ! Module variables.
 !-----------------------------------------------------------------------------
+INTEGER, PARAMETER :: nml_instance_len = 30
+
 INTEGER ::                                                                     &
   nnpft,                                                                       &
                 ! Number of natural pfts
@@ -679,5 +681,58 @@ IF ( ERROR /= 0 )                                                              &
 
 END SUBROUTINE read_nml_jules_surface_types
 #endif
+
+FUNCTION map_nml_instance_to_tile_number ( nml, nml_instance )                 &
+   RESULT( tile_number )
+
+! Description:
+!  Maps instance of duplicate namelist to tile number in surface configuration
+
+USE ereport_mod, ONLY: ereport
+USE jules_print_mgr, ONLY: jules_message
+
+IMPLICIT NONE
+
+CHARACTER(LEN=*), INTENT(IN) ::                                                &
+   ! Namelist being read
+   nml,                                                                        &
+   ! Identifier of the namelist instance e.g. pft_name_io
+   nml_instance
+INTEGER :: tile_number
+
+INTEGER :: errorstatus
+
+CHARACTER(LEN=*), PARAMETER ::                                                 &
+   RoutineName = 'map_nml_instance_to_tile_number'
+
+select case ( trim( nml_instance ) )
+case ( 'brd_leaf' )
+  tile_number = brd_leaf
+case ( 'ndl_leaf' )
+  tile_number = ndl_leaf
+case ( 'c3_grass' )
+  tile_number = c3_grass
+case ( 'c4_grass' )
+  tile_number = c4_grass
+case ( 'shrub' )
+  tile_number = shrub
+case DEFAULT
+  errorstatus = 101
+  write(jules_message,'(A)')                                                   &
+     TRIM( nml ) // ' namelist instance not recognised: ' //                   &
+     trim( nml_instance )
+  CALL ereport(RoutineName, errorstatus, jules_message)
+end select
+
+! Range of specified types checked by check_jules_surface_types
+if ( tile_number < 1 ) then
+  errorstatus = 101
+  write(jules_message,'(A)')                                                   &
+     TRIM( nml ) // ' and jules_surface_types inputs are inconsistent; '//     &
+     trim( nml_instance ) // ' is not specified in jules_surface_types'
+  CALL ereport(RoutineName, errorstatus, jules_message)
+end if
+
+END FUNCTION map_nml_instance_to_tile_number
 
 END MODULE jules_surface_types_mod

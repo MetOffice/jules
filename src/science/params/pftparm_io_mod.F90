@@ -16,6 +16,7 @@ MODULE pftparm_io
 
 USE missing_data_mod, ONLY: imdi, rmdi
 USE um_types, ONLY: real_jlslsm
+USE jules_surface_types_mod, ONLY: nml_instance_len
 
 IMPLICIT NONE
 
@@ -148,7 +149,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
   sox_p50_io = rmdi,                                                 &
   sox_rp_min_io = rmdi
 
-CHARACTER(LEN=30) :: pft_name_io
+CHARACTER(LEN=nml_instance_len) :: pft_name_io
 
 !---------------------------------------------------------------------
 ! Set up a namelist for reading and writing these arrays
@@ -713,8 +714,7 @@ USE pftparm, ONLY:                                                             &
 
 USE c_z0h_z0m, ONLY: z0h_z0m,  z0h_z0m_classic
 
-use jules_surface_types_mod,  only: npft, brd_leaf, ndl_leaf, c3_grass,    &
-   c4_grass, shrub
+use jules_surface_types_mod,  only: map_nml_instance_to_tile_number
 
 USE ereport_mod, ONLY: ereport
 USE jules_print_mgr, ONLY: jules_print, jules_message
@@ -733,35 +733,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='INIT_PFTPARM_ALLOCATED'
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
-! Probably need to find a better way to map these; for now test with the
-! original 5 PFTs.
-select case ( trim( pft_name_io ) )
-case ( 'brd_leaf' )
-  i = brd_leaf
-case ( 'ndl_leaf' )
-  i = ndl_leaf
-case ( 'c3_grass' )
-  i = c3_grass
-case ( 'c4_grass' )
-  i = c4_grass
-case ( 'shrub' )
-  i = shrub
-case DEFAULT
-  errorstatus = 101
-  write(jules_message,'(A)')                                         &
-     'PFT name not recognised: ' // trim( pft_name_io )
-  CALL ereport(RoutineName, errorstatus, jules_message)
-end select
-
-! Range of specified types (1:npft) checked by check_jules_surface_types
-if ( i < 1 ) then
-  errorstatus = 101
-  write(jules_message,'(A)')                                         &
-     'jules_pftparm and jules_surface_types inputs are inconsistent; '// &
-     trim(pft_name_io) //                                &
-     ' is not specified in jules_surface_types'
-  CALL ereport(RoutineName, errorstatus, jules_message)
-end if
+i = map_nml_instance_to_tile_number ( 'jules_pftparm', pft_name_io )
 
 ! Radiation and albedo parameters.
 albsnc_max(i)   = albsnc_max_io
