@@ -27,6 +27,13 @@ INTEGER, ALLOCATABLE ::                                                        &
                  ! Flag for leaf orientation: 1 for horizontal,
 !                    0 for spherical.
 
+! Only required by JULES standalone before spreading over land_pts arrays
+REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
+ canht_pft(:)                                                                  &
+                 ! Canopy height (m).
+,lai_pft(:)
+                 ! Leaf Area Index (LAI)
+
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
  albsnc_max(:)                                                                 &
                  ! Snow-covered albedo for large LAI.
@@ -400,6 +407,12 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 !  ====pftparm module common====
 
+! JULES standalone IO variables; required before spreading over land_pts arrays
+ALLOCATE( canht_pft(npft))
+ALLOCATE( lai_pft(npft))
+canht_pft(:) = rmdi
+lai_pft(:)   = rmdi
+
 ! Radiation and albedo parameters.
 ALLOCATE( albsnc_max(npft))
 ALLOCATE( albsnc_min(npft))
@@ -671,10 +684,13 @@ IMPLICIT NONE
 
 CHARACTER(LEN=50000) :: lineBuffer
 
-CALL jules_print('pftparm',                                                    &
-    'Contents of namelist jules_pftparm')
+CALL jules_print('pftparm', 'Contents of namelist jules_pftparm')
 
 #if !defined(UM_JULES)
+WRITE(lineBuffer,*)' canht_pft = ',canht_pft
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' lai_pft = ',lai_pft
+CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' fsmc_mod = ',fsmc_mod
 CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' psi_close = ',psi_close
@@ -682,7 +698,6 @@ CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' psi_open = ',psi_open
 CALL jules_print('pftparm',lineBuffer)
 #endif
-
 
 WRITE(lineBuffer,*)' a_wl = ',a_wl
 CALL jules_print('pftparm',lineBuffer)
@@ -930,6 +945,14 @@ ERROR = 0
 ! and other triggered off option to check the value if any > rmdi and then
 ! check if they should have a value in check_available_options or based on
 ! science options.
+IF ( ANY( ABS( canht_pft(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for canht_pft")
+END IF
+IF ( ANY( ABS( lai_pft(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+  ERROR = 1
+  CALL jules_print(routinename, "No value for lai_pft")
+END IF
 IF ( ANY( fsmc_mod(:) < 0 ) ) THEN  ! fsmc_mod was initialised to < 0
   ERROR = 1
   CALL jules_print(routinename, "No value for fsmc_mod")

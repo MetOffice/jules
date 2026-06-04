@@ -16,10 +16,10 @@ USE jules_surface_types_mod, ONLY: npft, nnpft
 
 USE ancil_info, ONLY: land_pts
 
-USE pftparm_io, ONLY: read_nml_jules_pftparm, init_pftparm_allocated,          &
-                      canht_ft_io, lai_io
+USE pftparm_io, ONLY: read_nml_jules_pftparm
 
-USE pftparm, ONLY: print_nlist_jules_pftparm, check_jules_pftparm
+USE pftparm, ONLY: print_nlist_jules_pftparm, check_jules_pftparm,             &
+                   canht_pft, lai_pft
 
 USE errormessagelength_mod, ONLY: errormessagelength
 
@@ -59,33 +59,12 @@ CALL read_nml_jules_pftparm (nml_dir)
 !-----------------------------------------------------------------------------
 ! Process the namelist values
 !-----------------------------------------------------------------------------
-CALL init_pftparm_allocated()
 CALL print_nlist_jules_pftparm()
-
-! Print members of pftparm_io not copied to pftparm_mod.
-CALL jules_print('pftparm',                                                    &
-    'Contents of namelist jules_pftparm (standalone only)')
-WRITE(iomessage,*)' canht_ft = ',canht_ft_io(1:npft)
-CALL jules_print('pftparm',iomessage)
-WRITE(iomessage,*)' lai = ',lai_io(1:npft)
-CALL jules_print('pftparm',iomessage)
-CALL jules_print('pftparm',                                                    &
-    '- - - - - - end of namelist - - - - - -')
-
 CALL check_jules_pftparm(npft,nnpft)
-! Check values of pftparm_io not copied to pftparm_mod before spreading
-IF ( ANY( ABS( canht_ft_io(1:npft) - rmdi ) < EPSILON(1.0) ) ) THEN
-  ERROR = 1
-  CALL log_error(routinename, "No value for canht_ft")
-END IF
-IF ( ANY( ABS( lai_io(1:npft) - rmdi ) < EPSILON(1.0) ) ) THEN
-  ERROR = 1
-  CALL log_error(routinename, "No value for lai")
-END IF
 
 ! Spread over land_pts array
-progs%canht_pft(:,:)   = SPREAD(canht_ft_io(1:npft), 1, land_pts)
-progs%lai_pft(:,:)     = SPREAD(lai_io(1:npft), 1, land_pts)
+progs%canht_pft(:,:)   = SPREAD(canht_pft(:), 1, land_pts)
+progs%lai_pft(:,:)     = SPREAD(lai_pft(:), 1, land_pts)
 
 RETURN
 
