@@ -163,7 +163,8 @@ class vn81_t115(MacroUpgrade):
                         "0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,0.5,0.5",
                     )
                 else:
-                    # non-standard number for npft: Set all values to missing data
+                    # non-standard number for npft: Set all values to missing
+                    # data
                     RMDI = str(-(2**30))
                     self.change_setting_value(
                         config,
@@ -317,18 +318,36 @@ class vn81_t115(MacroUpgrade):
 
             # Add unique descriptor used to identify instances of duplicate
             # namelist
-            # *** Will need to make this more generic and read
-            # jules_surface_types to work out what should be where ***
-            jules_pftparm["pft_name_io"] = [
-                "'brd_leaf'",
-                "'ndl_leaf'",
-                "'c3_grass'",
-                "'c4_grass'",
-                "'shrub'",
-            ]
+            pft_name = [None] * npft
+            jules_surface_types = {}
+            jules_surface_types["brd_leaf"] = ""
+            jules_surface_types["brd_leaf_dec"] = ""
+            jules_surface_types["brd_leaf_eg_temp"] = ""
+            jules_surface_types["brd_leaf_eg_trop"] = ""
+            jules_surface_types["c3_crop"] = ""
+            jules_surface_types["c3_grass"] = ""
+            jules_surface_types["c3_pasture"] = ""
+            jules_surface_types["c4_crop"] = ""
+            jules_surface_types["c4_grass"] = ""
+            jules_surface_types["c4_pasture"] = ""
+            jules_surface_types["ndl_leaf"] = ""
+            jules_surface_types["ndl_leaf_dec"] = ""
+            jules_surface_types["ndl_leaf_eg"] = ""
+            jules_surface_types["shrub"] = ""
+            jules_surface_types["shrub_dec"] = ""
+            jules_surface_types["shrub_eg"] = ""
+            # Read jules_surface_types into dictionary
+            for item, values in jules_surface_types.items():
+                config_value = self.get_setting_value(
+                    config, ["namelist:jules_surface_types", item]
+                )
+                if config_value is not None:
+                    i = int(config_value)
+                    if i > 0:
+                        pft_name[i-1] = "'{}'".format(item)
+            jules_pftparm["pft_name_io"] = pft_name
 
             for i in range(npft):
-                pft_name = jules_pftparm["pft_name_io"]
                 nml = "namelist:jules_pftparm({})".format(
                     pft_name[i].strip("'")
                 )
