@@ -893,7 +893,6 @@ CALL surf_couple_extra(                                                        &
   ls_rainfrac_land,                                                            &
   substore, surfstore, flowin, bflowin,                                        &
   rivers%tot_surf_runoff_gb, rivers%tot_sub_runoff_gb,                         &
-  rivers%tot_net_abstracted_river,                                             &
   rivers%acc_lake_evap_gb,                                                     &
   twatstor, asteps_since_triffid,                                              &
   inlandout_atm_gb,                                                            &

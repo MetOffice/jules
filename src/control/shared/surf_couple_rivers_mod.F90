@@ -18,13 +18,13 @@ SUBROUTINE surf_couple_rivers(                                                 &
    !INTEGER, INTENT(IN)
    land_pts, n_wtrac_jls,                                                      &
    !REAL, INTENT(IN)
-   abstracted_minor_res_global, net_abstracted_river,                          &
+   abstracted_minor_res_global, net_abstracted_river_global,                   &
    sub_surf_roff, surf_roff, sub_surf_roff_wtrac, surf_roff_wtrac,             &
    !INTEGER, INTENT(INOUT)
    a_steps_since_riv,                                                          &
    !REAL, INTENT (INOUT)
    tot_surf_runoff_gb, tot_sub_runoff_gb, tot_abstracted_minor_res_global,     &
-   tot_net_abstracted_river, acc_lake_evap_gb,                                 &
+   tot_net_abstracted_river_global, acc_lake_evap_gb,                          &
    tot_surf_runoff_gb_wtrac, tot_sub_runoff_gb_wtrac,                          &
    acc_lake_evap_gb_wtrac,                                                     &
    !REAL, INTENT (OUT)
@@ -150,7 +150,7 @@ INTEGER, INTENT(IN OUT)  ::                                                    &
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   abstracted_minor_res_global(global_land_pts),                                &
     ! Water abstracted from minor reservoirs (kg).
-  net_abstracted_river(land_pts),                                              &
+  net_abstracted_river_global(global_land_pts),                                &
     ! Net abstraction from rivers (kg m-2).
   surf_roff(land_pts),                                                         &
   ! Surface runoff (kg m-2 s-1)
@@ -192,7 +192,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Average rate of subsurface runoff over river timestep (kg m-2 s-1).
   tot_abstracted_minor_res_global(global_land_pts),                            &
     ! Water abstracted from minor reservoirs over river timestep (kg).
-  tot_net_abstracted_river(land_pts),                                          &
+  tot_net_abstracted_river_global(global_land_pts),                            &
     ! Water abstracted from rivers over river timestep (kg m-2).
   acc_lake_evap_gb(row_length,rows),                                           &
   tot_surf_runoff_gb_wtrac(land_pts,n_wtrac_jls),                              &
@@ -241,8 +241,6 @@ REAL(KIND=real_jlslsm), ALLOCATABLE :: global_tot_sub_runoff(:)
   ! Average rate of subsurface runoff over river timestep (kg m-2 s-1).
 REAL(KIND=real_jlslsm), ALLOCATABLE :: global_tot_surf_runoff(:)
   ! Average rate of surface runoff over river timestep (kg m-2 s-1).
-REAL(KIND=real_jlslsm), ALLOCATABLE :: global_tot_net_abstracted_river(:)
-  ! Water abstracted from rivers over river timestep (kg).
 REAL(KIND=real_jlslsm), ALLOCATABLE :: global_rrun(:)
 REAL(KIND=real_jlslsm), ALLOCATABLE :: global_rflow(:)
 REAL(KIND=real_jlslsm), ALLOCATABLE :: global_sea_level(:)
@@ -367,7 +365,7 @@ IF ( a_steps_since_riv == 0 ) THEN
 
   ! Initialise the accumulated abstraction from rivers.
   IF ( sw_river_source > 0 ) THEN
-    tot_net_abstracted_river(:) = 0.0
+    tot_net_abstracted_river_global(:) = 0.0
   END IF
 
   ! Initialise the accumulated abstraction from minor reservoirs.
@@ -412,10 +410,10 @@ ELSE
     END DO
   END IF  ! l_wtrac_jls
 
-  ! Accumulate abstraction from rivers.
+  ! Accumulate net abstraction from rivers.
   IF ( sw_river_source > 0 ) THEN
-    CALL accumulate_abstraction( land_pts, net_abstracted_river,               &
-                                 tot_net_abstracted_river )
+    CALL accumulate_abstraction( global_land_pts, net_abstracted_river_global, &
+                                 tot_net_abstracted_river_global )
   END IF
 
   ! Accumulate abstraction from minor reservoirs.
@@ -573,17 +571,14 @@ IF ( rivers_call ) THEN
     ! Allocate abstraction from rivers.
     IF ( .NOT. l_oasis_rivers .AND. sw_river_source > 0                        &
          .AND. is_master_task() ) THEN
-      tmp_land_size  = global_land_pts
       tmp_river_size = np_rivers
     ELSE
       ! Allocate at minimum size.
-      tmp_land_size  = 1
       tmp_river_size = 1
     END IF
-    ALLOCATE(global_tot_net_abstracted_river(tmp_land_size), STAT = ERROR)
-    error_sum = error_sum + ERROR
     ALLOCATE(net_abstracted_river_rp(tmp_river_size), STAT = ERROR)
     error_sum = error_sum + ERROR
+    !cxyz do we need to initalise as below for minor res?
 
     ! Allocate abstraction from minor reservoirs.
     IF ( .NOT. l_oasis_rivers .AND. l_minor_reservoirs                         &
@@ -593,8 +588,6 @@ IF ( rivers_call ) THEN
       ! Allocate at minimum size.
       tmp_river_size = 1
     END IF
-    !!ALLOCATE(global_tot_abstracted_minor_res(tmp_land_size), STAT = ERROR)
-    !!error_sum = error_sum + ERROR
     ALLOCATE(abstracted_minor_res_rp(tmp_river_size), STAT = ERROR)
     error_sum = error_sum + ERROR
 
@@ -622,12 +615,6 @@ IF ( rivers_call ) THEN
       IF ( l_vary_sea_level ) THEN
         CALL gather_land_field(rivers%sea_level_lp, global_sea_level,          &
                                rivers%global_land_index )
-      END IF
-      ! Gather abstraction from river.
-      IF ( sw_river_source > 0 ) THEN
-        CALL gather_land_field( tot_net_abstracted_river,                      &
-                                global_tot_net_abstracted_river,               &
-                                rivers%global_land_index )
       END IF
     END IF  !  .NOT. l_oasis_rivers ) THEN
 
@@ -683,7 +670,7 @@ IF ( rivers_call ) THEN
                                   rivers%map_river_to_land_points,             &
                                   rivers%global_land_index,                    &
                                   rivers%rivers_index_rp,                      &
-                                  global_tot_net_abstracted_river,             &
+                                  tot_net_abstracted_river_global,             &
                                   net_abstracted_river_rp )
         END IF
 
@@ -768,7 +755,6 @@ IF ( rivers_call ) THEN
     ! Deallocate local variables (in reverse order to allocation).
     DEALLOCATE(abstracted_minor_res_rp)
     DEALLOCATE(net_abstracted_river_rp)
-    DEALLOCATE(global_tot_net_abstracted_river)
     DEALLOCATE(global_sea_level)
     DEALLOCATE(global_rflow)
     DEALLOCATE(global_rrun)

@@ -624,7 +624,7 @@ SUBROUTINE allocate_rivers_vars_rp( np_rivers, rivers, rivers_data )
 !------------------------------------------------------------------------------
 ! Description:
 !   Allocate river point variables, initialise, and associate pointers.
-!   Also allocates at least one variable on land points.
+!   Also allocates related variables on land points.
 !------------------------------------------------------------------------------
 
 USE ancil_info, ONLY: land_pts
@@ -641,6 +641,8 @@ USE jules_rivers_mod, ONLY: i_river_vn, l_minor_reservoirs, l_sea_level,       &
                             l_vary_sea_level, rivers_camaflood,                &
                             rivers_data_type, rivers_rfm,                      &
                             rivers_trip, rivers_type, l_outflow_per_river
+
+USE jules_water_resources_mod, ONLY: l_water_resources
 
 USE missing_data_mod, ONLY: imdi, rmdi
 
@@ -922,8 +924,24 @@ error_sum = error_sum + ERROR
 ! Minor reservoir prognostics.
 ALLOCATE( rivers_data%minor_res_storage(np_rivers_tmp),       STAT = ERROR )
 error_sum = error_sum + ERROR
-! Minor reservoir coupling.
+! Minor reservoir coupling to rivers.
 ALLOCATE( rivers_data%tot_abstracted_minor_res_global(np_global_land_tmp),     &
+                                                              STAT = ERROR )
+error_sum = error_sum + ERROR
+
+!------------------------------------------------------------------------------
+! Allocate further variables for coupling to water resources.
+!------------------------------------------------------------------------------
+IF ( l_water_resources .AND. is_master_task() ) THEN
+  ! Full size.
+  np_global_land_tmp = global_land_pts
+ELSE
+  ! Minimum size.
+  np_global_land_tmp = 1
+END IF
+
+! Coupling abstractions from rivers.
+ALLOCATE( rivers_data%tot_net_abstracted_river_global(np_global_land_tmp),     &
                                                               STAT = ERROR )
 error_sum = error_sum + ERROR
 
@@ -1010,6 +1028,9 @@ rivers_data%minor_res_storage(:)  = 0.0
 !cxyz initialise coupling to zero or handled elsewhere?
 rivers_data%tot_abstracted_minor_res_global(:) = 0.0
 
+! Initialise further variables to couple to water resources.
+rivers_data%tot_net_abstracted_river_global(:) = 0.0
+
 !------------------------------------------------------------------------------
 ! Associate pointers
 !------------------------------------------------------------------------------
@@ -1030,10 +1051,10 @@ rivers%rrun_rp => rivers_data%rrun_rp
 rivers%rrun_sub_surf_rp => rivers_data%rrun_sub_surf_rp
 rivers%rrun_surf_rp => rivers_data%rrun_surf_rp
 
-! Associate pointers for regridding variable.
+! Regridding variable.
 rivers%map_river_to_land_points => rivers_data%map_river_to_land_points
 
-! Associate pointers for CaMa-Flood variables.
+! CaMa-Flood variables.
 ! CaMa-Flood ancillary variables.
 rivers%channel_depth      => rivers_data%channel_depth
 rivers%channel_width      => rivers_data%channel_width
@@ -1056,7 +1077,7 @@ rivers%river_flow_prev    => rivers_data%river_flow_prev
 ! CaMa-Flood diagnostic variables.
 rivers%river_depth        => rivers_data%river_depth
 
-! Associate pointers for RFM variables.
+! RFM variables.
 rivers%rfm_flowobs1_rp => rivers_data%rfm_flowobs1_rp
 rivers%rfm_iarea_rp => rivers_data%rfm_iarea_rp
 rivers%rfm_land_rp => rivers_data%rfm_land_rp
@@ -1067,21 +1088,25 @@ rivers%rfm_rivflow_rp => rivers_data%rfm_rivflow_rp
 rivers%rfm_substore_rp => rivers_data%rfm_substore_rp
 rivers%rfm_surfstore_rp => rivers_data%rfm_surfstore_rp
 
-! Associate pointers for TRIP variables.
+! TRIP variables.
 rivers%rivers_seq_rp => rivers_data%rivers_seq_rp
 rivers%rivers_sto_rp => rivers_data%rivers_sto_rp
 
-! Associate pointers for coupling variables.
+! Coupling variables.
 rivers%rivers_outflow_number_rp => rivers_data%rivers_outflow_number_rp
 rivers%sub_surf_roff_rp => rivers_data%sub_surf_roff_rp
 rivers%surf_roff_rp => rivers_data%surf_roff_rp
 
-! Associate pointers for minor reservoir variables.
+! Minor reservoir variables.
 rivers%minor_res_capacity      => rivers_data%minor_res_capacity
 rivers%minor_res_frac          => rivers_data%minor_res_frac
 rivers%minor_res_storage       => rivers_data%minor_res_storage
 rivers%tot_abstracted_minor_res_global                                         &
                                => rivers_data%tot_abstracted_minor_res_global
+
+! Further variables to couple to water resources.
+rivers%tot_net_abstracted_river_global                                        &
+                               => rivers_data%tot_net_abstracted_river_global
 
 RETURN
 END SUBROUTINE allocate_rivers_vars_rp

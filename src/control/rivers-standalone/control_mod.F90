@@ -121,14 +121,14 @@ REAL ::                                                                        &
   flowin(row_length, rows),                                                    &
   bflowin(row_length, rows),                                                   &
   twatstor(river_row_length, river_rows),                                      &
-!cxyz Size not done yet.
+!cxyz Sizes not done yet.
   abstracted_minor_res_global(land_pts),                                       &
     ! Water abstracted from minor reservoirs (kg).
-  net_abstracted_river(land_pts),                                              &
+  net_abstracted_river_global(land_pts),                                       &
   ! Net abstraction from rivers (kg m-2)
   tot_abstracted_minor_res_global(land_pts),                                   &
     ! Water abstracted from minor reservoirs over river timestep (kg).
-  tot_net_abstracted_river(land_pts)
+  tot_net_abstracted_river_global(land_pts)
     ! Water abstracted from rivers over river timestep (kg m-2).
 
 REAL(KIND=real_jlslsm) ::                                                      &
@@ -146,9 +146,9 @@ CHARACTER(LEN=*), PARAMETER  :: RoutineName = 'CONTROL'
 
 ! Abstractions of water are zero in rivers-only configuration.
 abstracted_minor_res_global(:)     = 0.0
-net_abstracted_river(:)            = 0.0
+net_abstracted_river_global(:)     = 0.0
 tot_abstracted_minor_res_global(:) = 0.0
-tot_net_abstracted_river(:)        = 0.0
+tot_net_abstracted_river_global(:) = 0.0
 
 SELECT CASE ( lsm_id )
 CASE ( rivers )
@@ -156,7 +156,7 @@ CASE ( rivers )
      !INTEGER, INTENT(IN)
      land_pts, n_wtrac_jls,                                                    &
      !REAL, INTENT(IN)
-     abstracted_minor_res_global, net_abstracted_river,                        &
+     abstracted_minor_res_global, net_abstracted_river_global,                 &
      fluxes%sub_surf_roff_gb, fluxes%surf_roff_gb,                             &
      wtrac_jls%sub_surf_roff_gb,  wtrac_jls%surf_roff_gb,                      &
      !INTEGER, INTENT(INOUT)
@@ -164,7 +164,7 @@ CASE ( rivers )
      !REAL, INTENT (INOUT)
      river%tot_surf_runoff_gb, river%tot_sub_runoff_gb,                        &
      tot_abstracted_minor_res_global,                                          &
-     tot_net_abstracted_river, river%acc_lake_evap_gb,                         &
+     tot_net_abstracted_river_global, river%acc_lake_evap_gb,                  &
      wtrac_jls%tot_surf_runoff_gb, wtrac_jls%tot_sub_runoff_gb,                &
      wtrac_jls%acc_lake_evap_gb,                                               &
      !REAL, INTENT (OUT)

@@ -80,7 +80,7 @@ SUBROUTINE surf_couple_extra(                                                  &
    ls_rainfrac_gb,                                                             &
    substore, surfstore, flowin, bflowin,                                       &
    tot_surf_runoff_gb, tot_sub_runoff_gb,                                      &
-   tot_net_abstracted_river, acc_lake_evap_gb, twatstor,                       &
+   acc_lake_evap_gb, twatstor,                                                 &
    asteps_since_triffid,                                                       &
    inlandout_atm_gb,                                                           &
    !OUT
@@ -391,8 +391,6 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   tot_surf_runoff_gb(land_pts),                                                &
   tot_sub_runoff_gb(land_pts),                                                 &
     ! Water abstracted from minor reservoirs over river timestep (kg).
-  tot_net_abstracted_river(land_pts),                                          &
-    ! Water abstracted from rivers over river timestep (kg m-2).
   twatstor(river_row_length, river_rows),                                      &
   inlandout_atm_gb(land_pts)
 
@@ -877,7 +875,7 @@ CASE ( jules )
            crop_vars%irrig_water_gb,                                           &
            water_resources%abstracted_minor_res,                               &
            water_resources%abstracted_minor_res_global,                        &
-           water_resources%net_abstracted_river,                               &
+           water_resources%net_abstracted_river_global,                        &
            water_resources%sw_abstracted, water_resources%sw_avail_total,      &
            water_resources%water_removed )
   END IF
@@ -889,15 +887,15 @@ CASE ( jules )
       land_pts, n_wtrac_jls,                                                   &
       !REAL, INTENT(IN)
       water_resources%abstracted_minor_res_global,                             &
-      water_resources%net_abstracted_river,                                    &
+      water_resources%net_abstracted_river_global,                             &
       fluxes%sub_surf_roff_gb, fluxes%surf_roff_gb,                            &
       wtrac_jls%sub_surf_roff_gb,  wtrac_jls%surf_roff_gb,                     &
       !INTEGER, INTENT(INOUT)
       a_steps_since_riv,                                                       &
-      !REAL, INTENT (INOUT)<
+      !REAL, INTENT (INOUT)
       tot_surf_runoff_gb, tot_sub_runoff_gb,                                   &
       rivers%tot_abstracted_minor_res_global,                                  &
-      tot_net_abstracted_river, acc_lake_evap_gb,                              &
+      rivers%tot_net_abstracted_river_global, acc_lake_evap_gb,                &
       wtrac_jls%tot_surf_runoff_gb, wtrac_jls%tot_sub_runoff_gb,               &
       wtrac_jls%acc_lake_evap_gb,                                              &
       !REAL, INTENT (OUT)
