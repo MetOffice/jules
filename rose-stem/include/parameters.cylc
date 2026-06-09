@@ -1,5 +1,5 @@
 # Import site-specific parameter sets
 
-{% if SITE == 'niwa' %}
-%include 'include/niwa/parameters.cylc'
+{% if SITE == 'esnz' %}
+%include 'include/esnz/parameters.cylc'
 {% endif %}

@@ -49,11 +49,16 @@ USE jules_surface_mod,         ONLY: l_aggregate
 USE jules_vegetation_mod, ONLY: l_triffid, l_phenol, can_rad_mod
 USE jules_soil_biogeochem_mod,ONLY: l_layeredc
 
+USE metstats_mod, ONLY: metstats_allocate
+
 USE pftparm_io, ONLY: init_pftparm_allocated
+USE pftparm,     ONLY: print_nlist_jules_pftparm, check_jules_pftparm
 
 USE nvegparm_io, ONLY: init_nvegparm_allocated
+USE nvegparm,    ONLY: print_nlist_jules_nvegparm, check_jules_nvegparm,       &
+                       z0_nvg
 
-USE nvegparm, ONLY: z0_nvg, check_jules_nvegparm
+USE c_z0h_z0m,   ONLY: c_z0h_z0m_print, c_z0h_z0m_check
 
 USE trif_io, ONLY:                                                             &
 ! namelist variables:
@@ -115,6 +120,9 @@ USE deposition_species_mod, ONLY:                                              &
   check_jules_deposition_species
 
 USE jules_print_mgr,  ONLY: jules_print
+
+USE umPrintMgr, ONLY: PrintStatus, PrStatus_Oper
+USE UM_ParCore, ONLY: mype
 
 USE missing_data_mod, ONLY: imdi
 
@@ -250,6 +258,10 @@ ELSE
 END IF
 rivers_data%global_land_index(:) = imdi
 
+! Metstats is not available in the UM, but call this to prevent an unallocated
+! pointer.
+CALL metstats_allocate(land_pts)
+
 !Associate the JULES pointer types to the data types.
 !Doing this here reflects when the same is done in standalone JULES
 !in init.F90
@@ -278,9 +290,20 @@ CALL wtrac_jls_assoc(wtrac_jls, wtrac_jls_data)
 
 ! jules_pftparm
 CALL init_pftparm_allocated()
+IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
+  CALL print_nlist_jules_pftparm()
+END IF
 
 ! jules_nvegparm
 CALL init_nvegparm_allocated()
+IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
+  CALL print_nlist_jules_nvegparm()
+END IF
+
+! ntype arrays (pft & nvg)
+IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
+  CALL c_z0h_z0m_print()
+END IF
 
 ! jules_triffid
 ! Space only allocated if at least phenology is enabled
@@ -404,8 +427,10 @@ END IF
 z0_soil = z0_nvg(soil - npft)
 
 ! Now that the arrays have been allocated and filled we can check them
-CALL check_jules_nvegparm(nnvg,npft)
+CALL check_jules_pftparm(npft,nnpft)
+CALL check_jules_nvegparm(nnvg)
 CALL check_jules_red_parms()
+CALL c_z0h_z0m_check(ntype)
 CALL check_compatible_options()
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
