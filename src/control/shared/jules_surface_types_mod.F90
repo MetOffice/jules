@@ -682,7 +682,7 @@ IF ( ERROR /= 0 )                                                              &
 END SUBROUTINE read_nml_jules_surface_types
 #endif
 
-FUNCTION map_nml_instance_to_tile_number ( nml, nml_instance )                 &
+FUNCTION map_nml_instance_to_tile_number ( NML, nml_instance )                 &
    RESULT( tile_number )
 
 ! Description:
@@ -695,7 +695,7 @@ IMPLICIT NONE
 
 CHARACTER(LEN=*), INTENT(IN) ::                                                &
    ! Namelist being read
-   nml,                                                                        &
+   NML,                                                                        &
    ! Identifier of the namelist instance e.g. pft_name_io
    nml_instance
 INTEGER :: tile_number
@@ -705,33 +705,61 @@ INTEGER :: errorstatus
 CHARACTER(LEN=*), PARAMETER ::                                                 &
    RoutineName = 'map_nml_instance_to_tile_number'
 
-select case ( trim( nml_instance ) )
-case ( 'brd_leaf' )
+SELECT CASE ( TRIM( nml_instance ) )
+CASE ( 'brd_leaf' )
   tile_number = brd_leaf
-case ( 'ndl_leaf' )
-  tile_number = ndl_leaf
-case ( 'c3_grass' )
+CASE ( 'brd_leaf_dec' )
+  tile_number = brd_leaf_dec
+CASE ( 'brd_leaf_eg_temp' )
+  tile_number = brd_leaf_eg_temp
+CASE ( 'brd_leaf_eg_trop' )
+  tile_number = brd_leaf_eg_trop
+CASE ( 'c3_crop' )
+  tile_number = c3_crop
+CASE ( 'c3_grass' )
   tile_number = c3_grass
-case ( 'c4_grass' )
+CASE ( 'c3_pasture' )
+  tile_number = c3_pasture
+CASE ( 'c4_crop' )
+  tile_number = c4_crop
+CASE ( 'c4_grass' )
   tile_number = c4_grass
-case ( 'shrub' )
+CASE ( 'c4_pasture' )
+  tile_number = c4_pasture
+CASE ( 'ndl_leaf' )
+  tile_number = ndl_leaf
+CASE ( 'ndl_leaf_dec' )
+  tile_number = ndl_leaf_dec
+CASE ( 'ndl_leaf_eg' )
+  tile_number = ndl_leaf_eg
+CASE ( 'shrub' )
   tile_number = shrub
-case DEFAULT
+CASE ( 'shrub_dec' )
+  tile_number = shrub_dec
+CASE ( 'shrub_eg' )
+  tile_number = shrub_eg
+CASE DEFAULT
+  IF ( INDEX(nml_instance, 'usr_type') > 0 ) THEN
+    errorstatus = -101
+    WRITE(jules_message,'(A)') TRIM( nml_instance ) //                         &
+       ': "usr_type" detected, still need to write code to deal with this.'
+    CALL ereport(RoutineName, errorstatus, jules_message)
+  END IF
   errorstatus = 101
-  write(jules_message,'(A)')                                                   &
-     TRIM( nml ) // ' namelist instance not recognised: ' //                   &
-     trim( nml_instance )
+  WRITE(jules_message,'(A)')                                                   &
+     TRIM( NML ) // ' namelist instance not recognised: ' //                   &
+     TRIM( nml_instance )
   CALL ereport(RoutineName, errorstatus, jules_message)
-end select
+END SELECT
 
 ! Range of specified types checked by check_jules_surface_types
-if ( tile_number < 1 ) then
+IF ( tile_number < 1 ) THEN
   errorstatus = 101
-  write(jules_message,'(A)')                                                   &
-     TRIM( nml ) // ' and jules_surface_types inputs are inconsistent; '//     &
-     trim( nml_instance ) // ' is not specified in jules_surface_types'
+  WRITE(jules_message,'(A)')                                                   &
+     TRIM( NML ) // ' and jules_surface_types inputs are inconsistent; '//     &
+     TRIM( nml_instance ) // ' is not specified in jules_surface_types'
   CALL ereport(RoutineName, errorstatus, jules_message)
-end if
+END IF
 
 END FUNCTION map_nml_instance_to_tile_number
 

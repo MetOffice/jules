@@ -443,7 +443,7 @@ class vn81_t115(MacroUpgrade):
                                     # usr_type is also used by non-veg varieties
                                     # so need to prevent going out of bounds
                                     msg = """
-    usr_type detected assumed to be non-veg
+    usr_type detected; currently only dealing with vegetation varieties
                                     """
                                     self.add_report(
                                         info=msg, is_warning=True
