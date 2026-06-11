@@ -1352,6 +1352,10 @@ IF ( l_bvoc_emis ) THEN
 END IF
 
 IF ( l_inferno ) THEN
+  IF ( ANY( ABS( fef_bc(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_bc")
+  END IF
   IF ( ANY( ABS( fef_co2(:) - rmdi ) < EPSILON(1.0) ) ) THEN
     ERROR = 1
     CALL jules_print(routinename, "No value for fef_co2")
@@ -1367,6 +1371,10 @@ IF ( l_inferno ) THEN
   IF ( ANY( ABS( fef_nox(:) - rmdi ) < EPSILON(1.0) ) ) THEN
     ERROR = 1
     CALL jules_print(routinename, "No value for fef_nox")
+  END IF
+  IF ( ANY( ABS( fef_oc(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fef_oc")
   END IF
   IF ( ANY( ABS( fef_so2(:) - rmdi ) < EPSILON(1.0) ) ) THEN
     ERROR = 1
