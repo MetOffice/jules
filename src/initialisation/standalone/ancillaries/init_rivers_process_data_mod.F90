@@ -2286,7 +2286,7 @@ INTEGER ::                                                                     &
 
 LOGICAL ::                                                                     &
   frac_chck(np_rivers)
-    ! Flag indicating costal river points i.e. land fraction < 1.0.
+    ! Flag indicating coastal river points i.e. land fraction < 1.0.
 
 !end of header
 
