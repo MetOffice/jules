@@ -687,28 +687,11 @@ DO j = 1,nvars_in
   !----------------------------------------------------------------------------
   IF ( .NOT. l_minor_reservoirs ) THEN
     SELECT CASE ( var(j) )
-    CASE ( 'minor_res_abstracted', 'minor_res_capacity', 'minor_res_frac',     &
-           'minor_res_storage' )
+    CASE ( 'minor_res_capacity', 'minor_res_frac', 'minor_res_storage' )
       remove_var = .TRUE.
       message    = 'Minor reservoirs not used.'
     END SELECT
-
-  ELSE
-
-    ! l_minor_reservoirs = T
-    !--------------------------------------------------------------------------
-    ! Variables that are only allowed with minor reservoirs in combination
-    ! with water resources.
-    !--------------------------------------------------------------------------
-    IF ( .NOT. l_water_resources ) THEN
-      SELECT CASE ( var(j) )
-      CASE ( 'minor_res_abstracted' )
-        remove_var = .TRUE.
-        message    = 'Minor reservoirs + water resources not used.'
-      END SELECT
-    END IF
-
-  END IF  !  l_minor_reservoirs
+  END IF
 
   !---------------------------------------------------------------------------
   ! Thermal acclimation variables.
@@ -727,8 +710,8 @@ DO j = 1,nvars_in
   ! Water resource variables that only require l_water_resources=T.
   IF ( .NOT. l_water_resources ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'conv_loss_frac', 'water_demand', 'water_demand_unmet',            &
-            'water_removed' )
+    CASE (  'conv_loss_frac', 'conveyance_loss', 'water_demand',               &
+            'water_demand_unmet', 'water_removed' )
       remove_var = .TRUE.
       message    = 'Water resources (l_water_resources) not selected.'
     END SELECT
@@ -816,6 +799,22 @@ DO j = 1,nvars_in
     CASE (  'sfc_water_frac' )
       remove_var = .TRUE.
       message    = 'sfc_water_frac is not being used.'
+    END SELECT
+  END IF
+
+  IF ( .NOT. l_water_resources .OR. .NOT. l_minor_reservoirs ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'minor_res_abstracted' )
+      remove_var = .TRUE.
+      message    = 'Water resources + minor reservoirs not used.'
+    END SELECT
+  END IF
+
+  IF ( .NOT. l_water_resources .OR. .NOT. l_rivers ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'river_abstracted' )
+      remove_var = .TRUE.
+      message    = 'Water resources + rivers not used.'
     END SELECT
   END IF
 

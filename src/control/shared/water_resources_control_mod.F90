@@ -115,11 +115,12 @@ SUBROUTINE water_resources_control( global_land_pts,                           &
              rn_1_day_av_gb,rn_1_day_av_use_gb, sfc_water_frac, smcl_soilt,    &
              sthu_irr_soilt, sthu_soilt,                                       &
              sthzw_soilt, sub_surf_roff, tl_1_day_av_gb,                       &
-             tl_1_day_av_use_gb,  priority_order, demand_unmet, gw_abstracted, &
+             tl_1_day_av_use_gb,                                               &
+             priority_order, conveyance_loss, demand_unmet, gw_abstracted,     &
              gw_avail_start, gw_nr_abstracted,                                 &
              irrig_water_gb, abstracted_minor_res, abstracted_minor_res_global,&
-             net_abstracted_river_global, sw_abstracted, sw_avail_total,       &
-             water_removed )
+             abstracted_river, net_abstracted_river_global, sw_abstracted,     &
+             sw_avail_total, water_removed )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -298,6 +299,8 @@ INTEGER, INTENT(OUT) ::                                                        &
 
 ! Diagnostics and coupling variables.
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
+  conveyance_loss(land_pts),                                                   &
+    ! Water that is lost during conveyance (kg).
   demand_unmet(land_pts,nwater_use),                                           &
     ! The part of the demand for water that is not satisfied (kg).
   gw_abstracted(land_pts),                                                     &
@@ -316,9 +319,11 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! This is used to couple to minor reservoirs.
     ! Note that this has reduced size if it is not required.
     !cxyz Perhaps don't specify size?
+  abstracted_river(land_pts),                                                  &
+    ! Water abstracted from rivers (kg). Diagnostic only.
   net_abstracted_river_global(global_land_pts),                                &
     ! Net abstraction from river, on global land points (kg m-2).
-    !cxy size OK, as above?
+    !cxyz size OK, as above?
   sw_abstracted(land_pts,n_sw_source),                                         &
     ! Water that is abstracted from surface waters (kg).
   sw_avail_total(land_pts),                                                    &
@@ -351,8 +356,6 @@ LOGICAL ::                                                                     &
 ! Local array variables
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm) ::                                                      &
-  conveyance_loss(land_pts),                                                   &
-    ! Water that is lost during conveyance (kg).
   demand_irrig_layer(land_pts,nsoilt,sm_levels),                               &
     ! Demand for irrigation water for each soil layer (kg m-2).
     ! This has sm_levels layers (though we only need nlayer_irrig) for ease of
@@ -423,11 +426,15 @@ gw_abstracted(:)    = 0.0
 gw_nr_abstracted(:) = 0.0
 sw_abstracted(:,:)  = 0.0
 ! Initialise other fluxes.
+conveyance_loss(:)  = 0.0
 demand_unmet(:,:)   = 0.0
 water_removed(:)    = 0.0
 ! Initialise diagnostics.
 IF ( l_minor_reservoirs ) THEN
   abstracted_minor_res(:) = 0.0
+END IF
+IF ( sw_river_source > 0 ) THEN
+  abstracted_river(:) = 0.0
 END IF
 
 !------------------------------------------------------------------------------
@@ -550,7 +557,7 @@ IF ( l_water_res_call ) THEN
 
     !--------------------------------------------------------------------------
     ! Calculate the net abstraction from rivers.
-    !--------------------------------------------------------------------------
+    !------------<--------------------------------------------------------------
     IF ( sw_river_source > 0 ) THEN
       CALL calc_river_flux( global_land_pts, grid_area_global,                 &
                             return_flow_sw_global,                             &
@@ -566,10 +573,10 @@ IF ( l_water_res_call ) THEN
   ! There are no prognostic variables to be scattered.
   !----------------------------------------------------------------------------
   CALL scatter_global_water( conveyance_loss, demand_unmet, gw_abstracted,     &
-                             abstracted_minor_res,                             &
-                             gw_nr_abstracted, return_flow_gw, return_flow_sw, &
-                             sfc_water_frac, supply_irrig, sw_abstracted,      &
-                             sw_avail_total, water_removed )
+                             abstracted_minor_res, abstracted_river,           &
+                             gw_nr_abstracted, return_flow_gw,                 &
+                             return_flow_sw, sfc_water_frac, supply_irrig,     &
+                             sw_abstracted, sw_avail_total, water_removed )
 
   !----------------------------------------------------------------------------
   ! Deallocate global arrays.
@@ -1169,7 +1176,7 @@ END SUBROUTINE gather_global_water
 !##############################################################################
 
 SUBROUTINE scatter_global_water( conveyance_loss, demand_unmet, gw_abstracted, &
-                                 abstracted_minor_res,                         &
+                                 abstracted_minor_res, abstracted_river,       &
                                  gw_nr_abstracted, return_flow_gw,             &
                                  return_flow_sw, sfc_water_frac, supply_irrig, &
                                  sw_abstracted, sw_avail_total, water_removed )
@@ -1185,7 +1192,8 @@ USE jules_rivers_mod, ONLY: l_minor_reservoirs
 
 USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_surface_water, &
       l_water_irrigation, n_sw_source, nwater_use,                             &
-      partition_calc_from_stores, partition_method, sw_minor_res_source
+      partition_calc_from_stores, partition_method, sw_minor_res_source,       &
+      sw_river_source
 
 USE model_grid_mod, ONLY: global_land_pts
 
@@ -1207,6 +1215,8 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Water abstracted from non-renewable groundwater (kg).
   abstracted_minor_res(land_pts),                                              &
     ! Water abstracted from minor reservoirs (kg).
+  abstracted_river(land_pts),                                                  &
+    ! Water abstracted from rivers (kg).
   return_flow_gw(land_pts),                                                    &
     ! Water that is returned to renewable groundwater after use (kg).
   return_flow_sw(land_pts),                                                    &
@@ -1269,6 +1279,12 @@ IF ( l_have_surface_water ) THEN
   IF ( l_minor_reservoirs ) THEN
     CALL scatter_land_field( sw_abstracted_global(:,sw_minor_res_source),     &
                              abstracted_minor_res )
+  END IF
+
+  ! Save diagnostic of abstraction from rivers.
+  IF ( l_minor_reservoirs ) THEN
+    CALL scatter_land_field( sw_abstracted_global(:,sw_river_source),     &
+                             abstracted_river )
   END IF
 
 END IF  !  l_have_surface_water

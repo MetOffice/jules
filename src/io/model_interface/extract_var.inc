@@ -3324,6 +3324,11 @@ CASE ( 'conv_loss_frac' )
   cube_land = cube_from_array( water_resources%conv_loss_frac )
   cube = map_from_land(cube_land)
 
+CASE ( 'conveyance_loss' )
+  ! Convert kg to kg s-1.
+  cube_land = cube_from_array(water_resources%conveyance_loss / timestep)
+  cube = map_from_land(cube_land)
+
 CASE ( 'demand_rate_domestic' )
   cube_land = cube_from_array(water_resources%demand_rate_domestic)
   cube = map_from_land(cube_land)
@@ -3429,6 +3434,11 @@ CASE ( 'gw_nr_abstracted' )
 CASE ( 'minor_res_abstracted' )
   ! Convert kg to kg s-1.
   cube_land = cube_from_array( water_resources%abstracted_minor_res / timestep )
+  cube = map_from_land(cube_land)
+
+CASE ( 'river_abstracted' )
+  ! Convert kg to kg s-1.
+  cube_land = cube_from_array( water_resources%abstracted_river / timestep )
   cube = map_from_land(cube_land)
 
 CASE ( 'sfc_water_frac' )

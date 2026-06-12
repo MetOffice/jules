@@ -9355,9 +9355,22 @@ DATA metadata(722) / var_metadata(                                             &
     "kg s-1"                                                                   &
   ) /
 !-----------------------------------------------------------------------------
-! Metadata for minor_res_capacity_grid
+! Metadata for conveyance_loss
 !-----------------------------------------------------------------------------
 DATA metadata(723) / var_metadata(                                             &
+! String identifier
+    'conveyance_loss',                                                         &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Water that is lost during conveyance",                                    &
+! Units
+    "kg s-1"                                                                   &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for minor_res_capacity_grid
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
 ! String identifier
     'minor_res_capacity_grid',                                                 &
 ! Variable type
@@ -9369,7 +9382,7 @@ DATA metadata(723) / var_metadata(                                             &
 !-----------------------------------------------------------------------------
 ! Metadata for minor_res_frac_grid
 !-----------------------------------------------------------------------------
-DATA metadata(724) / var_metadata(                                             &
+DATA metadata(725) / var_metadata(                                             &
 ! String identifier
     'minor_res_frac_grid',                                                     &
 ! Variable type
@@ -9381,7 +9394,7 @@ DATA metadata(724) / var_metadata(                                             &
 !-----------------------------------------------------------------------------
 ! Metadata for minor_res_capacity
 !-----------------------------------------------------------------------------
-DATA metadata(725) / var_metadata(                                             &
+DATA metadata(726) / var_metadata(                                             &
 ! String identifier
     'minor_res_capacity',                                                      &
 ! Variable type
@@ -9394,7 +9407,7 @@ DATA metadata(725) / var_metadata(                                             &
 !-----------------------------------------------------------------------------
 ! Metadata for minor_res_frac
 !-----------------------------------------------------------------------------
-DATA metadata(726) / var_metadata(                                             &
+DATA metadata(727) / var_metadata(                                             &
 ! String identifier
     'minor_res_frac',                                                          &
 ! Variable type
@@ -9407,7 +9420,7 @@ DATA metadata(726) / var_metadata(                                             &
 !-----------------------------------------------------------------------------
 ! Metadata for minor_res_storage
 !-----------------------------------------------------------------------------
-DATA metadata(727) / var_metadata(                                             &
+DATA metadata(728) / var_metadata(                                             &
 ! String identifier
     'minor_res_storage',                                                       &
 ! Variable type
@@ -9420,13 +9433,26 @@ DATA metadata(727) / var_metadata(                                             &
 !-----------------------------------------------------------------------------
 ! Metadata for minor_res_abstracted
 !-----------------------------------------------------------------------------
-DATA metadata(728) / var_metadata(                                             &
+DATA metadata(729) / var_metadata(                                             &
 ! String identifier
     'minor_res_abstracted',                                                    &
 ! Variable type
     var_type_surface,                                                          &
 ! Long name
     "Water abstracted from minor_reservoirs",                                  &
+! Units
+    "kg s-1"                                                                   &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for river_abstracted
+!-----------------------------------------------------------------------------
+DATA metadata(730) / var_metadata(                                             &
+! String identifier
+    'river_abstracted',                                                        &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Water abstracted from rivers",                                            &
 ! Units
     "kg s-1"                                                                   &
   ) /
