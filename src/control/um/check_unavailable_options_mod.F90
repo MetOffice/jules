@@ -24,7 +24,8 @@ USE jules_irrig_mod, ONLY: l_irrig_limit
 USE jules_urban_mod, ONLY: l_urban_empirical
 USE jules_rivers_mod, ONLY: l_riv_overbank, l_rivers, i_river_vn,              &
     rivers_um_trip, rivers_rfm
-USE jules_soil_biogeochem_mod, ONLY: l_ch4_microbe, l_label_frac_cs
+USE jules_soil_biogeochem_mod, ONLY: l_ch4_microbe, l_label_frac_cs,           &
+                                     l_bgc_heat
 USE jules_soil_mod, ONLY: l_tile_soil, l_bedrock
 USE jules_surface_types_mod, ONLY: ncpft
 USE jules_water_resources_mod, ONLY: l_water_resources
