@@ -116,10 +116,10 @@ SUBROUTINE water_resources_control( global_land_pts,                           &
              sthu_irr_soilt, sthu_soilt,                                       &
              sthzw_soilt, sub_surf_roff, tl_1_day_av_gb,                       &
              tl_1_day_av_use_gb,                                               &
-             priority_order, conveyance_loss, demand_unmet, gw_abstracted,     &
-             gw_avail_start, gw_nr_abstracted,                                 &
-             irrig_water_gb, abstracted_minor_res, abstracted_minor_res_global,&
-             abstracted_river, net_abstracted_river_global, sw_abstracted,     &
+             priority_order, abstracted_minor_res_global,                      &
+             net_abstracted_river_global, gw_abstracted, irrig_water_gb,       &
+             abstracted_minor_res, abstracted_river, conveyance_loss,          &
+             demand_unmet, gw_avail_start, gw_nr_abstracted, sw_abstracted,    &
              sw_avail_total, water_removed )
 
 !------------------------------------------------------------------------------
@@ -297,33 +297,42 @@ INTEGER, INTENT(OUT) ::                                                        &
     ! Priorities of water demands at each gridpoint, in order of decreasing
     ! priority. Values are the index in multi-sector arrays.
 
-! Diagnostics and coupling variables.
+! Coupling variables and diagnostics.
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
-  conveyance_loss(land_pts),                                                   &
-    ! Water that is lost during conveyance (kg).
-  demand_unmet(land_pts,nwater_use),                                           &
-    ! The part of the demand for water that is not satisfied (kg).
-  gw_abstracted(land_pts),                                                     &
-    ! Water abstracted from renewable groundwater (kg).
-  gw_avail_start(land_pts),                                                    &
-    ! Groundwater that is available for abstraction at start of timestep (kg).
-  gw_nr_abstracted(land_pts),                                                  &
-    ! Water abstracted from non-renewable groundwater (kg).
-  irrig_water_gb(land_pts),                                                    &
-    ! Water added to soil via irrigation (kg m-2 s-1).
-  abstracted_minor_res(land_pts),                                              &
-    ! Water abstracted from minor reservoirs (kg). Diagnostic only.
-    !cxyz Perhaps don't specify size?
+  !----------------------------------------------------------------------------
+  ! Coupling variables
+  !----------------------------------------------------------------------------
   abstracted_minor_res_global(global_land_pts),                                &
     ! Water abstracted from minor reservoirs, on global land points (kg).
     ! This is used to couple to minor reservoirs.
     ! Note that this has reduced size if it is not required.
+  net_abstracted_river_global(global_land_pts),                                &
+    ! Net abstraction from river, on global land points (kg m-2).
+    ! Note that this has reduced size if it is not required.
+  !----------------------------------------------------------------------------
+  ! Variables that are passed out for diagnostic purposes.
+  !----------------------------------------------------------------------------
+  gw_abstracted(land_pts),                                                     &
+    ! Water abstracted from renewable groundwater (kg). This is for coupling
+    ! to a groundwater model - though that is currently done internally to
+    ! the water resources code.
+  irrig_water_gb(land_pts),                                                    &
+    ! Water added to soil via irrigation (kg m-2 s-1). This is for coupling
+    ! to a soil model - though that is currently done internally to the water
+    ! resources code.
+  abstracted_minor_res(land_pts),                                              &
+    ! Water abstracted from minor reservoirs (kg). Diagnostic only.
     !cxyz Perhaps don't specify size?
   abstracted_river(land_pts),                                                  &
     ! Water abstracted from rivers (kg). Diagnostic only.
-  net_abstracted_river_global(global_land_pts),                                &
-    ! Net abstraction from river, on global land points (kg m-2).
-    !cxyz size OK, as above?
+  conveyance_loss(land_pts),                                                   &
+    ! Water that is lost during conveyance (kg).
+  demand_unmet(land_pts,nwater_use),                                           &
+    ! The part of the demand for water that is not satisfied (kg).
+  gw_avail_start(land_pts),                                                    &
+    ! Groundwater that is available for abstraction at start of timestep (kg).
+  gw_nr_abstracted(land_pts),                                                  &
+    ! Water abstracted from non-renewable groundwater (kg).
   sw_abstracted(land_pts,n_sw_source),                                         &
     ! Water that is abstracted from surface waters (kg).
   sw_avail_total(land_pts),                                                    &
@@ -421,7 +430,7 @@ END IF
 IF ( sw_river_source > 0 ) THEN
   net_abstracted_river_global(:) = 0.0
 END IF
-! Initialise abstractions.  cxyz Always allocated at full size?
+! Initialise abstractions.
 gw_abstracted(:)    = 0.0
 gw_nr_abstracted(:) = 0.0
 sw_abstracted(:,:)  = 0.0

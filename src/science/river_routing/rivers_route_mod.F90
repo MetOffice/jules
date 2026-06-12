@@ -123,7 +123,6 @@ END IF
 ! surface runoff variable becomes a more generic source/sink term for rivers.
 ! The resulting term can be negative.
 !------------------------------------------------------------------------------
-!cxyz Do we need to test both? That IS clearer.
 IF ( l_water_resources .AND. sw_river_source > 0 ) THEN
   ! Calculate reciprocal of timestep length.
   recip_timestep = 1.0 / ( REAL(nstep_rivers) * timestep )

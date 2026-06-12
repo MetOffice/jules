@@ -148,6 +148,8 @@ USE UM_ParParams,    ONLY: halo_type_no_halo
 USE Field_Types,     ONLY: fld_type_r
 #endif
 
+USE parallel_mod, ONLY: is_master_task
+
 USE parkind1,                 ONLY: jprb, jpim
 USE yomhook,                  ONLY: lhook, dr_hook
 
@@ -297,14 +299,14 @@ CALL coastal_alloc(land_pts,t_i_length,t_j_length,                             &
 
 CALL deposition_species_alloc(ntype, ndry_dep_species, l_deposition)
 
-CALL water_resources_alloc( global_land_pts,                                   &
-                            land_pts, n_sw_source, nwater_use, sw_river_source,&
-                            l_have_groundwater, l_have_surface_water,          &
-                            l_minor_reservoirs, l_water_domestic,              &
-                            l_water_industry,                                  &
-                            l_water_irrigation, l_water_livestock,             &
-                            l_water_resources, l_water_transfers,              &
-                            water_resources_data )
+CALL water_resources_alloc( global_land_pts, land_pts, n_sw_source,            &
+                            nwater_use, sw_river_source, l_have_groundwater,   &
+                            l_have_surface_water, is_master_task(),            &
+                            l_minor_reservoirs,                                &
+                            l_water_domestic, l_water_industry,                &
+                            l_water_irrigation,                                &
+                            l_water_livestock, l_water_resources,              &
+                            l_water_transfers, water_resources_data )
 
 ! Set up local river grid sizes  (Note, water tracers only work in UM_JULES)
 #if defined(UM_JULES)

@@ -973,7 +973,6 @@ rivers_data%map_river_to_land_points(:) = imdi
 
 ! Initialise CaMa-Flood array values
 ! CaMa-Flood ancillary variables.
-!cxyz Note not zero despite message in required_vars_for_rivers (out of scope!).
 rivers_data%channel_depth(:)    = rmdi
 rivers_data%channel_width(:)    = rmdi
 rivers_data%river_distance(:)   = rmdi
@@ -1025,11 +1024,10 @@ rivers_data%surf_roff_rp(:)     = 0.0
 rivers_data%minor_res_capacity(:) = rmdi
 rivers_data%minor_res_frac(:)     = rmdi
 rivers_data%minor_res_storage(:)  = 0.0
-!cxyz initialise coupling to zero or handled elsewhere?
-rivers_data%tot_abstracted_minor_res_global(:) = 0.0
 
 ! Initialise further variables to couple to water resources.
-rivers_data%tot_net_abstracted_river_global(:) = 0.0
+rivers_data%tot_abstracted_minor_res_global(:) = rmdi
+rivers_data%tot_net_abstracted_river_global(:) = rmdi
 
 !------------------------------------------------------------------------------
 ! Associate pointers
@@ -1118,7 +1116,6 @@ SUBROUTINE deallocate_river_props( )
 !------------------------------------------------------------------------------
 ! Description:
 !   Deallocate river variables that are not needed any further.
-!cxyz Ideally in reverse order...
 !------------------------------------------------------------------------------
 
 USE jules_rivers_mod, ONLY:                                                    &

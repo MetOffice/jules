@@ -1,4 +1,13 @@
-!cxyz add header
+!******************************COPYRIGHT**************************************
+! (c) UK Centre for Ecology & Hydrology.
+! All rights reserved.
+!
+! This routine has been licensed to the other JULES partners for use and
+! distribution under the JULES collaboration agreement, subject to the terms
+! and conditions set out therein.
+!
+! [Met Office Ref SC0237]
+!******************************COPYRIGHT**************************************
 
 MODULE  route_minor_reservoirs_mod
 

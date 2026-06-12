@@ -719,8 +719,8 @@ DO j = 1,nvars_in
 
   ! Water resource variables that also require another switch.
 
-  ! These sector-specific switches are set to F if l_water_resources=F,
-  ! so we don't need to test l_water_resources here.
+  ! Sector-specific switches (such as l_water_domestic) are FALSE if
+  ! l_water_resources=F, so we don't need to test l_water_resources here.
   IF ( .NOT. l_water_domestic ) THEN
     SELECT CASE ( var(j) )
     CASE (  'demand_domestic', 'demand_rate_domestic', 'unmet_domestic' )

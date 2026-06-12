@@ -567,10 +567,10 @@ IF ( rivers_call ) THEN
     ALLOCATE(global_sea_level(tmp_land_size), STAT = ERROR)
     error_sum = error_sum + ERROR
 
-!cxyz
     ! Allocate abstraction from rivers.
     IF ( .NOT. l_oasis_rivers .AND. sw_river_source > 0                        &
          .AND. is_master_task() ) THEN
+      ! Water resource code will calclate abstraction.
       tmp_river_size = np_rivers
     ELSE
       ! Allocate at minimum size.
@@ -578,7 +578,6 @@ IF ( rivers_call ) THEN
     END IF
     ALLOCATE(net_abstracted_river_rp(tmp_river_size), STAT = ERROR)
     error_sum = error_sum + ERROR
-    !cxyz do we need to initalise as below for minor res?
 
     ! Allocate abstraction from minor reservoirs.
     IF ( .NOT. l_oasis_rivers .AND. l_minor_reservoirs                         &
@@ -596,10 +595,12 @@ IF ( rivers_call ) THEN
       CALL ereport( RoutineName, errorstatus,                                  &
                      "Error related to allocation of abstraction variables." )
     ELSE
-      ! Initialise abstraction to zero - this value is passed to
-      ! subroutine rivers_route_rp and used if l_minor_reservoirs=T but
-      ! l_water_resources=F.
+      ! Initialise abstraction from minor reservoirs to zero - this value is
+      ! passed to subroutine rivers_route_rp and used if l_minor_reservoirs=T
+      ! but l_water_resources=F.
       abstracted_minor_res_rp(:) = 0.0
+      ! Initialise abstraction from rivers.
+      net_abstracted_river_rp(:) = 0.0
     END IF
 
     !--------------------------------------------------------------------------
