@@ -43,7 +43,6 @@ from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
 
-<<<<<<< test_59_biogenic_heating
 class vn81_t59(MacroUpgrade):
 
     """Upgrade macro from JULES by Carolina Duran Rojas"""
