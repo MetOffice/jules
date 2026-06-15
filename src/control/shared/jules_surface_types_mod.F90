@@ -698,7 +698,7 @@ CHARACTER(LEN=*), INTENT(IN) ::                                                &
    NML,                                                                        &
    ! Identifier of the namelist instance e.g. pft_name_io
    nml_instance
-INTEGER :: tile_number
+INTEGER :: i, p, tile_number
 
 INTEGER :: errorstatus
 
@@ -740,16 +740,25 @@ CASE ( 'shrub_eg' )
   tile_number = shrub_eg
 CASE DEFAULT
   IF ( INDEX(nml_instance, 'usr_type') > 0 ) THEN
-    errorstatus = -101
-    WRITE(jules_message,'(A)') TRIM( nml_instance ) //                         &
-       ': "usr_type" detected, still need to write code to deal with this.'
+    p = INDEX(nml_instance, '#')
+    READ(nml_instance(p+1:),'(I2)') i
+    tile_number = usr_type(i)
+    ! For now, only dealing with PFTs so issue an error if a non-PFT is
+    ! encountered
+    IF ( tile_number > npft ) THEN
+      errorstatus = 101
+      WRITE(jules_message,'(2(A,I0))') TRIM( nml_instance ) //                 &
+       ' is a non-veg variety (n > npft); the code requires development' //    &
+       ' to handle non-veg types. npft = ', npft, ', n = ', tile_number
+      CALL ereport(RoutineName, errorstatus, jules_message)
+    END IF
+  ELSE
+    errorstatus = 101
+    WRITE(jules_message,'(A)')                                                 &
+       TRIM( NML ) // ' namelist instance not recognised: ' //                 &
+       TRIM( nml_instance )
     CALL ereport(RoutineName, errorstatus, jules_message)
   END IF
-  errorstatus = 101
-  WRITE(jules_message,'(A)')                                                   &
-     TRIM( NML ) // ' namelist instance not recognised: ' //                   &
-     TRIM( nml_instance )
-  CALL ereport(RoutineName, errorstatus, jules_message)
 END SELECT
 
 ! Range of specified types checked by check_jules_surface_types

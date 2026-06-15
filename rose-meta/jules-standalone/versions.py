@@ -410,6 +410,7 @@ class vn81_t115(MacroUpgrade):
             # Add unique descriptor used to identify instances of duplicate
             # namelist
             pft_name = [None] * npft
+            # Define known vegetation types in jules_surface_types
             jules_surface_types = {}
             jules_surface_types["brd_leaf"] = ""
             jules_surface_types["brd_leaf_dec"] = ""
@@ -454,10 +455,10 @@ class vn81_t115(MacroUpgrade):
                                     )
                             else:
                                 pft_name[n-1] = item
-                                if len(levels) > 1:
-                                    if item == "usr_type":
-                                        pft_name[n-1] += "#"+str(l+1)
-                                    else:
+                                if item == "usr_type":
+                                    pft_name[n-1] += "#"+str(l+1)
+                                else:
+                                    if len(levels) > 1:
                                         raise UpgradeError (
                                             f"{item} cannot be a list"
                                         )
