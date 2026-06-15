@@ -74,7 +74,7 @@ class vn81_t70(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_soil_biogeochem", "cs_decomp_soil_moist_func"], "0")
         self.add_setting(config, ["namelist:jules_soil_biogeochem", "fsthsat_cs_decomp_opt1"], "0.2")
 
-        # Add settings
+
         return config, self.reports
 
 
@@ -103,5 +103,25 @@ class vn81_t41(MacroUpgrade):
                 ["namelist:jules_pftparm", "pft_name_io"],
                 ",".join(["''"] * npft),
             )
+
+        return config, self.reports
+
+
+class vn81_t59(MacroUpgrade):
+
+    """Upgrade macro from JULES by Carolina Duran Rojas"""
+
+    BEFORE_TAG = "vn8.1_t41"
+    AFTER_TAG = "vn8.1_t59"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+
+        # Adding logical and real to the jules biogeochemical namelist
+        self.add_setting(config,
+                ["namelist:jules_soil_biogeochem", "l_bgc_heat"], ".false.")
+        self.add_setting(config,
+                ["namelist:jules_soil_biogeochem", "heat_of_respiration"], "3.9e07")
 
         return config, self.reports
