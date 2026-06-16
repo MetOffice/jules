@@ -390,12 +390,28 @@ CASE ( 'fexp   ', 'ti_mean', 'ti_sig ' )
   ELSE
     l_read_from_dump = .FALSE.
   END IF
+CASE ('ti_local' )
+  IF ( need_dims( l_reading, ancil_dump_read%top ) ) THEN
+    ndims = 2
+    dim_names(1:ndims) = [land_dim_name, ch4subgrid_dim_name]
+    dim_sizes(1:ndims) = [global_land_pts, dim_ch4subgrid]
+  ELSE
+    l_read_from_dump = .FALSE.
+  END IF
 
 CASE ( 'fexp_soilt', 'ti_mean_soilt', 'ti_sig_soilt' )
   IF ( need_dims( l_reading, ancil_dump_read%top ) ) THEN
     ndims = 2
     dim_names(1:ndims) = [ land_dim_name, soilt_dim_name ]
     dim_sizes(1:ndims) = [ global_land_pts, nsoilt ]
+  ELSE
+    l_read_from_dump = .FALSE.
+  END IF
+CASE ('ti_local_soilt' )
+  IF ( need_dims( l_reading, ancil_dump_read%top ) ) THEN
+    ndims = 3
+    dim_names(1:ndims) = [ land_dim_name, soilt_dim_name, ch4subgrid_dim_name ]
+    dim_sizes(1:ndims) = [ global_land_pts, nsoilt, dim_ch4subgrid]
   ELSE
     l_read_from_dump = .FALSE.
   END IF

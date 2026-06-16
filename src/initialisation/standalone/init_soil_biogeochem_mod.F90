@@ -157,11 +157,8 @@ ELSE
 END IF
 
 !Initialise subgrid dimensions for methane production
-IF (l_ch4_subgrid) THEN
-  dim_ch4subgrid = 10
-ELSE
-  dim_ch4subgrid = 1
-END IF
+!dim_ch4subgrid set via namelist
+IF (.NOT. l_ch4_subgrid) dim_ch4subgrid = 1
 
 RETURN
 END SUBROUTINE init_soil_biogeochem

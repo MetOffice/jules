@@ -116,7 +116,7 @@ REAL, ALLOCATABLE :: seed_rain_real(:)
 ! The number of elements of the "seed_rain" array
 INTEGER :: seed_rain_len
 
-INTEGER :: i, j, m, n, s  ! Loop counters
+INTEGER :: i, j, m, n, s, mm  ! Loop counters
 
 INTEGER :: ERROR  ! Variable to collect MPI errors - most MPI
                   ! implementations bail on error, so this is not checked.
@@ -365,12 +365,12 @@ DO i = 1,nvars
       END IF
 
       !Topmodel ancil namelist
-    CASE ( 'fexp   ', 'ti_mean', 'ti_sig ' )
+    CASE ( 'fexp   ', 'ti_mean', 'ti_sig ' , 'ti_local ' )
       IF ( ancil_dump_read%top ) THEN
         CALL file_read_var(FILE, var_ids(i), global_data_1d)
       END IF
 
-    CASE ( 'toppdm%fexp_soilt', 'toppdm%ti_mean_soilt', 'toppdm%ti_sig_soilt' )
+    CASE ( 'toppdm%fexp_soilt', 'toppdm%ti_mean_soilt', 'toppdm%ti_sig_soilt', 'toppdm%ti_local_soilt' )
       IF ( ancil_dump_read%top ) THEN
         CALL file_read_var(FILE, var_ids(i), global_data_2d(:,1:nsoilt))
       END IF
@@ -1402,6 +1402,33 @@ DO i = 1,nvars
         CALL scatter_land_field(global_data_2d(:,m), toppdm%ti_sig_soilt(:,m))
       END DO
     END IF
+
+    !Case if nsoilt == 1, so it is OK to hardwire the 2nd dimension to 1
+  CASE ( 'ti_local' )
+    IF ( ancil_dump_read%top ) THEN
+      IF ( l_tile_soil .AND. l_broadcast_soilt ) THEN
+        DO m = 1,nsoilt
+          DO mm = 1,dim_ch4subgrid
+            CALL scatter_land_field(global_data_1d, toppdm%ti_local_soilt(:,m,mm))
+          END DO
+        END DO
+      ELSE !Case if nsoilt == 1, so OK to hardwire the 2nd dimension to 1
+        DO mm = 1,dim_ch4subgrid
+          CALL scatter_land_field(global_data_1d, toppdm%ti_local_soilt(:,1,mm))
+        END DO
+      END IF
+    END IF
+
+  CASE ( 'toppdm%ti_local_soilt' )
+    IF ( ancil_dump_read%top ) THEN
+      DO m = 1,nsoilt
+        DO mm = 1,dim_ch4subgrid
+          CALL scatter_land_field(global_data_3d(:,m,mm), &
+                                toppdm%ti_local_soilt(:,m,mm))
+        END DO
+      END DO
+    END IF
+
 
     !Agric ancil namelist
   CASE ( 'frac_agr' )

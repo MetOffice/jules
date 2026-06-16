@@ -26,7 +26,7 @@ USE jules_radiation_mod, ONLY: l_snow_albedo, l_embedded_snow
 
 USE jules_soil_biogeochem_mod, ONLY: soil_model_ecosse, soil_model_4pool,      &
                                      soil_bgc_model, l_ch4_microbe,            &
-                                     l_label_frac_cs
+                                     l_label_frac_cs, l_ch4_subgrid
 
 USE jules_soil_ecosse_mod, ONLY: l_soil_N
 
@@ -586,6 +586,10 @@ IF ( l_top ) THEN
   CALL add_to_list( 'ti_mean', nvars, identifiers, l_append_soilt )
   CALL add_to_list( 'ti_sig',  nvars, identifiers, l_append_soilt )
 
+  IF ( l_ch4_subgrid ) THEN
+    CALL add_to_list( 'ti_local',    nvars, identifiers, l_append_soilt )
+  END IF
+
   ! If not reading from dump, indicate variables come from an ancil file.
   IF ( .NOT. ancil_dump_read%top) THEN
     CALL add_to_list( 'fexp',    nvars_from_ancil,vars_from_ancil,             &
@@ -594,6 +598,10 @@ IF ( l_top ) THEN
                                  l_append_soilt )
     CALL add_to_list( 'ti_sig',  nvars_from_ancil,vars_from_ancil,             &
                                  l_append_soilt )
+    IF ( l_ch4_subgrid ) THEN
+      CALL add_to_list( 'ti_local',  nvars_from_ancil,vars_from_ancil,             &
+                                 l_append_soilt )
+    END IF
   END IF
 END IF !l_top
 

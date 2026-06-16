@@ -28,6 +28,8 @@ USE jules_hydrology_mod, ONLY: l_top
 
 USE jules_soil_mod, ONLY: l_tile_soil, l_broadcast_ancils
 
+USE jules_soil_biogeochem_mod, ONLY: l_ch4_subgrid
+
 USE dump_mod, ONLY: ancil_dump_read
 
 USE errormessagelength_mod, ONLY: errormessagelength
@@ -48,7 +50,7 @@ IMPLICIT NONE
 !   This code is written to JULES coding standards v1.
 !-----------------------------------------------------------------------------
 ! Work variables
-INTEGER, PARAMETER :: nvars_max = 3
+INTEGER, PARAMETER :: nvars_max = 4
        ! The maximum possible number of TOPMODEL variables that can be given
 
 INTEGER :: nvars_required      ! The number of variables that are
@@ -165,7 +167,18 @@ IF ( .NOT. ancil_dump_read%top) THEN !we read from the ancil file
   ! All the TOPMODEL variables are always required
   nvars_required = nvars_max
   ! ti_skew may be available in later releases
-  required_vars(:) = [ 'fexp   ', 'ti_mean', 'ti_sig ' ]
+  
+  IF (l_ch4_subgrid) THEN
+    IF (.NOT. ANY(var(1:nvars) == 'ti_local')) THEN
+      CALL log_warn(RoutineName, &
+        "l_ch4_subgrid is TRUE but ti_local is not present in ancillary files." )
+    END IF
+  END IF
+
+  required_vars(:) = [ 'fexp   ', 'ti_mean', 'ti_sig ', 'ti_local' ]
+  ! ELSE
+  !   required_vars(:) = [ 'fexp   ', 'ti_mean', 'ti_sig ' ]
+  ! ENDIF
 
   !---------------------------------------------------------------------------
   ! Determine whether to append _soilt as well to tell model_interface_mod

@@ -152,7 +152,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 ! Initialise variables / set parameters
 ch4_prod(:,:) = 0.0
 frac_ch4    = 0.5
-rewet_delay = 4.0
+rewet_delay = 0.03 ! <30min, in days
   !ejb add rewet_delay to a namelist
 !-----------------------------------------------------------------------------
 ! Put things in the units used for the calculation: mgC/m3/hour
@@ -224,7 +224,7 @@ DO j = 1,soil_pts
       growth_rt = arh * phi * k2_ch4 * cue_ch4 / acclim_ch4(i,n)
 
       IF (b_prod - b_death < 0.0 .OR. (timewet_lyr(i,n)  < rewet_delay * 86400.0) ) THEN
-        ! wet for less than 4 days have death
+        ! wet for less than rewet_delay have death
         b_death = mic_mg_m3(i,n) * kd_ch4 * mic_act_ch4(i,n) * arh             &
                   / acclim_ch4(i,n) + b_death
       END IF
@@ -251,7 +251,7 @@ DO j = 1,soil_pts
     ! Update the variables
     substr_mg_m3(i,n) = substr_mg_m3(i,n) + tstep_hr * (substr_prod -          &
                                                         substr_cons + b_death)
-    IF ( (timewet_lyr(i,n)  <   345600.0) ) THEN
+    IF ( (timewet_lyr(i,n)  <   86400.0*rewet_delay) ) THEN
       substr_mg_m3(i,n) = substr_mg_m3(i,n) * (1.0 - 0.0 * tstep_hr)
     END IF
     mic_mg_m3(i,n)    = mic_mg_m3(i,n)    + tstep_hr * (b_prod - b_death)
@@ -266,8 +266,8 @@ DO j = 1,soil_pts
     IF (substr_mg_m3(i,n) > 1.0e7)  substr_mg_m3(i,n) = 1.0e7
 
     ch4_prod(i,n) = substr_cons * frac_ch4
-    ! once layer has been wet for 4 days make methane otherwise zero
-    IF ( timewet_lyr(i,n)  <   345600.0 ) THEN
+    ! once layer has been wet for rewet_delay make methane otherwise zero
+    IF ( timewet_lyr(i,n)  <   86400.0*rewet_delay ) THEN
       ch4_prod(i,n) = 0.0
     END IF
   END DO

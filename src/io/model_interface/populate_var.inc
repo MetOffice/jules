@@ -53,6 +53,9 @@ USE jules_forcing_mod, ONLY: u_1_ij, v_1_ij
 USE metstats_mod, ONLY:                                                        &
   metstats_prog
 
+USE jules_soil_biogeochem_mod, ONLY: l_ch4_subgrid
+
+
 !Others
 USE data_cube_mod, ONLY:                                                       &
   data_cube, cube_get_data, cube_free, cube_create
@@ -1123,6 +1126,46 @@ CASE ( 'toppdm%ti_sig_soilt' ) !with tiles
     toppdm%ti_sig_soilt(:,:) = const_val
   END IF
   !=== End cases for ti_sig ===
+
+  !== Start cases for ti_local ===
+CASE ( 'ti_local' )  !no tiles
+  IF ( l_ch4_subgrid ) THEN
+    IF ( PRESENT(cube) ) THEN
+      IF ( l_tile_soil .AND. l_broadcast_ancils ) THEN
+        !Spread around soilt dim
+        cube_land = map_to_land(cube)
+        CALL cube_get_data(cube_land, toppdm%ti_local_soilt(:,1,:))
+        toppdm%ti_local_soilt(:,:,:) = SPREAD( &
+             toppdm%ti_local_soilt(:,1,:), 2, nsoilt)
+      ELSE IF ( .NOT. l_tile_soil ) THEN
+        !Do nothing special
+        cube_land = map_to_land(cube)
+        CALL cube_get_data(cube_land, toppdm%ti_local_soilt(:,1,:))
+      ELSE
+        CALL log_fatal("populate_var", &
+                       "Cannot populate ti_local- failure in logic")
+      END IF
+    ELSE
+      toppdm%ti_local_soilt(:,:,:) = const_val
+    END IF
+  END IF
+
+CASE ( 'toppdm%ti_local_soilt' ) !with tiles
+  IF ( l_ch4_subgrid ) THEN
+    IF ( PRESENT(cube) ) THEN
+      IF ( l_tile_soil .AND. .NOT. l_broadcast_ancils ) THEN
+        !Do nothing special
+        cube_land = map_to_land(cube)
+        CALL cube_get_data(cube_land, toppdm%ti_local_soilt(:,:,:))
+      ELSE
+        CALL log_fatal("populate_var", &
+                       "Cannot populate toppdm%ti_local_soilt- failure in logic")
+      END IF
+    ELSE
+      toppdm%ti_local_soilt(:,:,:) = const_val
+    END IF
+  END IF
+  !== End cases for ti_local ===
 
   !-----------------------------------------------------------------------------
   ! Agricultural fraction is on land points only

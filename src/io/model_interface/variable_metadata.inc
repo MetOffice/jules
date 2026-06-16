@@ -9400,7 +9400,7 @@ DATA metadata(726) / var_metadata(                                             &
 ! String identifier
     'timewet_lyr',                                                             &
 ! Variable type
-    var_type_ch4lyrgrid,                                                       &
+    var_type_ch4layer,                                                         &
 ! Long name
     "Time that a layer has been below the water table",                        &
 ! Units
@@ -9457,5 +9457,17 @@ DATA metadata(730) / var_metadata(                                             &
     "Local methane emissions",                                                 &
 ! Units
     "kgC/m2/s"                                                                 &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for ti_local_soilt
+!-----------------------------------------------------------------------------
+DATA metadata(731) / var_metadata(                                             &
+! String identifier
+    'ti_local_soilt',                                                          &
+! Variable type
+    var_type_ch4subgrid,                                                       &
+! Variable is not available for output, so give dummy values for
+! long name and units
+    "", ""                                                                     &
   ) /
 #endif

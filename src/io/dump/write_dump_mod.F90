@@ -105,7 +105,7 @@ INTEGER :: nvars_from_ancil
 INTEGER :: var_ids(max_var_dump)
                       ! The ids of the variables in the dump file
 
-INTEGER :: i, m, n, s  ! Loop counters
+INTEGER :: i, m, n, s, mm  ! Loop counters
 
 REAL :: frac_irrig_all_tiles_real
 REAL :: set_irrfrac_irrtiles_real
@@ -903,6 +903,19 @@ DO i = 1,nvars
       CALL gather_land_field(toppdm%ti_sig_soilt(:,m), global_data_2d(:,m))
     END DO
 
+    !Case if nsoilt == 1, so it is OK to hardwire the 2nd dimension to 1
+  CASE ( 'ti_local' )
+    DO mm = 1,dim_ch4subgrid
+      CALL gather_land_field(toppdm%ti_local_soilt(:,1,mm),global_data_2d(:,mm))
+    END DO
+
+  CASE ( 'toppdm%ti_local_soilt' )
+    DO m = 1,nsoilt
+      DO mm = 1,dim_ch4subgrid
+        CALL gather_land_field(toppdm%ti_local_soilt(:,m,mm), global_data_3d(:,m,mm))
+      END DO
+    END DO
+
     !Agric ancillaries namelist
   CASE ( 'frac_agr' )
     CALL gather_land_field(trifctltype%frac_agr_gb, global_data_1d)
@@ -1157,6 +1170,13 @@ DO i = 1,nvars
 
     CASE ( 'toppdm%fexp_soilt', 'toppdm%ti_mean_soilt', 'toppdm%ti_sig_soilt' )
       CALL file_write_var(FILE, var_ids(i), global_data_2d(:,1:nsoilt))
+
+    CASE ( 'ti_local' )
+      CALL file_write_var(FILE, var_ids(i),                                    &
+                          global_data_2d(:,1:dim_ch4subgrid))
+
+    CASE ( 'toppdm%ti_local_soilt' )
+      CALL file_write_var(FILE, var_ids(i), global_data_3d(:,1:nsoilt,1:dim_ch4subgrid))
 
       !Agric ancil namelist
     CASE ( 'frac_agr' )

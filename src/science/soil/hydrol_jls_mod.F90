@@ -460,6 +460,8 @@ INTEGER ::                                                                     &
   m_wt,                                                                        &
     ! Actual or dummy pointer to array defined only when running with water
     ! tracers
+  t,                                                                           &
+    ! Counter for ch4subgrid
   errorstatus
 
 !-----------------------------------------------------------------------------
@@ -575,7 +577,7 @@ IF ( soil_bgc_model == soil_model_1pool ) THEN
 !$OMP END PARALLEL DO
 END IF
 
-!$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,m,n)                                    &
+!$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,m,n,t)                                  &
 !$OMP SHARED(sm_levels, nsoilt, smcl_old_soilt, smcl_soilt, w_flux_soilt,      &
 !$OMP        w_flux_irr_soilt, land_pts)
 ! smcl_old_soilt calculated for leaching code
@@ -1054,6 +1056,9 @@ IF (soil_pts /= 0) THEN
         ! Zero soil porosity over land ice:
         IF (smvcst_soilt(i,m,sm_levels) <= 0.0) THEN
           zw_soilt(i,m) = zw_max
+          DO t = 1,dim_ch4subgrid
+              zw_local_soilt(i,m,t) = zw_max
+          END DO
         END IF
       END DO
 

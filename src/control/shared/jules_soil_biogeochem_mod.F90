@@ -137,8 +137,8 @@ INTEGER ::                                                                     &
     ! If methane is calculated from individual soil layer temperatures, this
     ! will be equal to sm_levels (depends on l_ch4_tlayered)
   dim_ch4subgrid = 1
-    ! If methane is calculated on a subgrid, this will be greater than 1
-    ! (depends on l_ch4_subgrid)
+    ! This determines the number of subgrids if methane is calculated on a
+    ! subgrid (l_ch4_subgrid=true)
 !-----------------------------------------------------------------------------
 ! Namelist variables used only by the 1-pool model.
 !-----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     soil_bgc_model, ch4_substrate, kaps, kaps_4pool, q10_soil, sorp,           &
     n_inorg_turnover, diff_n_pft, tau_resp, tau_lit, bio_hum_CN, l_layeredC,   &
     l_q10, l_soil_resp_lev2, l_ch4_interactive, l_ch4_tlayered, l_ch4_microbe, &
-    l_lessdecomp_sat, l_ch4_subgrid, l_ch4zw_explicit,                         &
+    l_lessdecomp_sat, l_ch4_subgrid, l_ch4zw_explicit, dim_ch4subgrid,         &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
@@ -701,6 +701,13 @@ IF ( l_ch4_microbe ) THEN
   END IF
 END IF ! end if l_ch4_microbe
 
+! check that dim_ch4layer is set if l_ch4_subgrid is true
+IF (l_ch4_subgrid) THEN
+  IF (dim_ch4subgrid < 2) THEN
+    CALL ereport(RoutineName,errorstatus, &
+         'l_ch4_subgrid is true but dim_ch4subgrid < 2')
+  END IF
+END IF
 
 #if defined(UM_JULES)
 ! UM-only code.
@@ -808,6 +815,9 @@ CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 WRITE(lineBuffer, *) ' l_ch4_subgrid = ', l_ch4_subgrid
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
+WRITE(lineBuffer, *) ' dim_ch4subgrid = ', dim_ch4subgrid
+CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
+
 WRITE(lineBuffer, *) ' l_ch4zw_explicit = ', l_ch4zw_explicit
 CALL jules_print('jules_soil_biogeochem_mod',lineBuffer)
 
@@ -911,7 +921,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
-INTEGER, PARAMETER :: n_int = 3
+INTEGER, PARAMETER :: n_int = 4
 INTEGER, PARAMETER :: n_real = 32 + 4
 INTEGER, PARAMETER :: n_log = 11
 
@@ -920,6 +930,7 @@ TYPE :: my_namelist
   INTEGER :: soil_bgc_model
   INTEGER :: ch4_substrate
   INTEGER :: cryoturb_method
+  INTEGER :: dim_ch4subgrid
   REAL(KIND=real_jlslsm) :: q10_soil
   REAL(KIND=real_jlslsm) :: kaps
   REAL(KIND=real_jlslsm) :: kaps_4pool(4)
@@ -985,6 +996,7 @@ IF (mype == 0) THEN
 
   my_nml % soil_bgc_model    = soil_bgc_model
   my_nml % ch4_substrate     = ch4_substrate
+  my_nml % dim_ch4subgrid    = dim_ch4subgrid
   my_nml % q10_soil          = q10_soil
   my_nml % kaps              = kaps
   my_nml % kaps_4pool         = kaps_4pool
@@ -1038,6 +1050,7 @@ CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
 IF (mype /= 0) THEN
   soil_bgc_model    = my_nml % soil_bgc_model
   ch4_substrate     = my_nml % ch4_substrate
+  dim_ch4subgrid    = my_nml % dim_ch4subgrid
   q10_soil          = my_nml % q10_soil
   kaps              = my_nml % kaps
   kaps_4pool         = my_nml % kaps_4pool
