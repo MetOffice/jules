@@ -112,41 +112,49 @@ END DO
 ! Adjustments to wt_ext from soil layers 2 to nshyd
 DO k = 2,nshyd
 !$OMP DO SCHEDULE(STATIC)
-  DO j = 1,surft_pts
-    l = surft_index(j)
-    IF (irrig_tile /= 1) THEN
-      wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
-    END IF
-    IF (l_irrig_dmd) THEN
-      wt_ext_irr(l,k) = gs_irr(l) * wt_ext_irr(l,k)                            &
-             / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
-    END IF
-  END DO
+  IF (irrig_tile /= 1) THEN
+    DO j = 1,surft_pts
+      l = surft_index(j)
+        wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
+    END DO
+  END IF
+  IF (l_irrig_dmd) THEN
+    DO j = 1,surft_pts
+      l = surft_index(j)
+        wt_ext_irr(l,k) = gs_irr(l) * wt_ext_irr(l,k)                          &
+               / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
+    END DO
+  END IF
 !$OMP END DO NOWAIT
 END DO
 
 ! Adjustments to wt_ext from soil layer 1
 !$OMP DO SCHEDULE(STATIC)
 !CDIR NODEP
-DO j = 1,surft_pts
-  l = surft_index(j)
-  IF (irrig_tile /= 1) THEN
-    wt_ext(l,1) = (gs(l) * wt_ext(l,1) + fsoil(l) * gsoil(l))                  &
-                   / (gs(l) + fsoil(l) * gsoil(l))
-  END IF
-  gs(l) = gs(l) + fsoil(l) * gsoil(l)
 
-  IF (l_irrig_dmd) THEN
-    wt_ext_irr(l,1) = (gs_irr(l) * wt_ext_irr(l,1)                             &
-                        + fsoil(l) * gsoil_irr(l))                             &
-                        / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
+IF (irrig_tile /= 1) THEN
+  DO j = 1,surft_pts
+    l = surft_index(j)
+      wt_ext(l,1) = (gs(l) * wt_ext(l,1) + fsoil(l) * gsoil(l))                &
+                     / (gs(l) + fsoil(l) * gsoil(l))
+  END DO
+END IF
 
-    ! Transpiration and soil conductances over irrigated fraction of tile
-    ! relative to tile mean conductance (scaled by relative area later).
-    ! Assume soil evaporation uses grid box mean soil moisture:
-    gs_irr(l) = gs_irr(l) + fsoil(l) * gsoil_irr(l)
-  END IF
-END DO
+gs(l) = gs(l) + fsoil(l) * gsoil(l)
+
+IF (l_irrig_dmd) THEN
+  DO j = 1,surft_pts
+    l = surft_index(j)
+      wt_ext_irr(l,1) = (gs_irr(l) * wt_ext_irr(l,1)                           &
+                          + fsoil(l) * gsoil_irr(l))                           &
+                          / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
+
+      ! Transpiration and soil conductances over irrigated fraction of tile
+      ! relative to tile mean conductance (scaled by relative area later).
+      ! Assume soil evaporation uses grid box mean soil moisture:
+      gs_irr(l) = gs_irr(l) + fsoil(l) * gsoil_irr(l)
+  END DO
+END IF
 !$OMP END DO NOWAIT
 
 !$OMP END PARALLEL
