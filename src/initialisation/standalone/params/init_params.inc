@@ -6,10 +6,11 @@
 ! *****************************COPYRIGHT**************************************
 
 
-SUBROUTINE init_params(nml_dir,progs,land_pts,nsurft,nnpft,npft,nmasst)
+SUBROUTINE init_params(nml_dir,progs,land_pts,nsurft,nnpft,npft,nmasst,ntype)
 
 !Module imports
-USE jules_model_environment_mod,           ONLY: lsm_id, jules, cable
+USE jules_model_environment_mod, ONLY: lsm_id, jules, cable
+USE c_z0h_z0m,                   ONLY: c_z0h_z0m_print, c_z0h_z0m_check
 
 !TYPE definitions
 USE prognostics, ONLY: progs_type
@@ -32,7 +33,7 @@ IMPLICIT NONE
 !   This code is written to JULES coding standards v1.
 !-----------------------------------------------------------------------------
 ! Arguments
-INTEGER, INTENT(IN) :: land_pts, nnpft, npft, nsurft, nmasst
+INTEGER, INTENT(IN) :: land_pts, nnpft, npft, nsurft, nmasst, ntype
 
 CHARACTER(LEN=*), INTENT(IN) :: nml_dir  ! The directory containing the
                                          ! namelists
@@ -56,6 +57,8 @@ CASE (jules)
   CALL init_pftparm_jules(nml_dir,progs)
   CALL init_nvegparm_jules(nml_dir)
   CALL check_irrigation()
+  CALL c_z0h_z0m_print()
+  CALL c_z0h_z0m_check(ntype)
 
 CASE (cable)
   CALL init_vegin_cbl(nml_dir,progs)

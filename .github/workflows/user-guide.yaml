@@ -33,7 +33,7 @@ jobs:
     outputs:
       should-deploy: ${{ steps.check-deploy.outputs.should-deploy }}
     env:
-      PYTHON_VRSN: '3.13'
+      PYTHON_VRSN: '3.12'
       JULES_PATH: jules
       ARTIFACT_PATH: artifact
       OUTPUT_PATH: jules_docs
@@ -43,7 +43,7 @@ jobs:
       - name: Check deployment conditions
         id: check-deploy
         run: |
-          if [[ "${{ github.repository }}" == "MetOffice/jules" && "${{ github.ref_name }}" == "main" && ("${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "release" || "${{ github.event_name }}" == "workflow_dispatch") ]]; then
+          if [[ "${{ github.repository }}" == "MetOffice/jules" && ("${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "stable") && ("${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "release" || "${{ github.event_name }}" == "workflow_dispatch") ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
           else
             echo "should-deploy=false" >> $GITHUB_OUTPUT

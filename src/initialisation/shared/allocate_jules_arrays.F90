@@ -82,7 +82,6 @@ USE fire_vars_mod,            ONLY: fire_vars_alloc
 USE fluxes_mod,               ONLY: fluxes_alloc
 USE jules_vars_mod,           ONLY: jules_vars_alloc
 USE jules_irrig_mod,          ONLY: irrig_vars_alloc
-USE metstats_mod,             ONLY: metstats_allocate
 USE nvegparm,                 ONLY: nvegparm_alloc
 USE jules_chemvars_mod,       ONLY: chemvars_alloc
 USE pftparm,                  ONLY: pftparm_alloc
@@ -231,8 +230,6 @@ CALL jules_vars_alloc(land_pts,ntype,nsurft,rad_nband,nsoilt,sm_levels,        &
                 t_i_length, t_j_length, npft, bl_levels, pdims_s, pdims,       &
                 l_albedo_obs, cansnowtile, l_deposition,                       &
                 jules_vars_data)
-
-CALL metstats_allocate(land_pts)
 
 CALL nvegparm_alloc(nnvg)
 

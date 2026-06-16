@@ -1558,7 +1558,7 @@ CASE ( soil_model_1pool, soil_model_4pool )
   DO m = 1, nsoilt
     CALL microbe (land_pts,dim_cs1,l_q10,cs_pool_soilt(:,m,:,:),               &
                   sthu_soilt(:,m,:),sthf_soilt(:,m,:),smvcst_soilt(:,m,:),     &
-                  smvcwt_soilt(:,m,:),t_soil_soilt(:,m,:),                     &
+                  smvccl_soilt(:,m,:),smvcwt_soilt(:,m,:),t_soil_soilt(:,m,:), &
                   resp_s_soilt(:,m,:,:),veg_frac,sf_diag,l_soil_point)
   END DO
 END SELECT

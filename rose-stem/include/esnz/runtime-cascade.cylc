@@ -1,0 +1,294 @@
+###############################################################################
+## Common classes
+###############################################################################
+
+    [[ESNZ_CASCADE]]
+
+    [[ESNZ_CASCADE_BG]]
+        inherit = ESNZ_CASCADE
+        platform = niwa-build01-background
+        execution time limit = PT45M
+
+    [[ESNZ_CASCADE_PBS]]
+        inherit = ESNZ_CASCADE
+        platform = cascade-pbs
+        execution time limit = PT10M
+        [[[directives]]]
+            -q = shortq
+
+    [[extract_source]]
+        inherit = ESNZ_CASCADE_BG, SOURCE_EXTRACTION
+
+# Cascade node setup
+    [[ESNZ_CASCADE_CORES_1]]
+        [[[directives]]]
+            -l select=1:ncpus=1:mem=2G:ompthreads=1:mpiprocs=1
+
+    [[ESNZ_CASCADE_CORES_8]]
+        [[[directives]]]
+            -l select=1:ncpus=8:mem=16G:ompthreads=1:mpiprocs=8
+
+    [[ESNZ_CASCADE_CORES_32]]
+        [[[directives]]]
+            -l select=1:ncpus=32:mem=64G:ompthreads=1:mpiprocs=32
+
+###############################################################################
+## Scripts
+###############################################################################
+
+# Redefine site-independent SCRIPTS group to run on build node
+    [[SCRIPTS]]
+        inherit = ESNZ_CASCADE_BG
+
+###############################################################################
+## Build jobs
+###############################################################################
+
+    [[ESNZ_CASCADE_BUILD]]
+        inherit = ESNZ_CASCADE_BG, EXTRACT_AND_BUILD
+        [[[environment]]]
+            ROSE_TASK_N_JOBS = 6
+
+    [[ESNZ_CASCADE_BUILD_ifx]]
+        inherit = ESNZ_CASCADE_BUILD
+        pre-script = """
+                     . /esi/project/niwa00001/spack/share/spack/setup-env.sh
+                     spack load intel-oneapi-compilers@2025.1.0 /5gt5gbh
+                     spack load intel-oneapi-mpi@2021.15.0%oneapi@2025.1.0 /yzq7ltd
+                     spack load fcm@2021.05.0 /qcebcci
+                     export NETCDF_FORTRAN_ROOT=$(spack location -i netcdf-fortran@4.6.1%oneapi@2025.1.0 /ws6lxbf)
+                     """
+        [[[environment]]]
+            JULES_PLATFORM = esnz-cascade-ifx
+
+# Debug build without OpenMP
+    [[fcm_make_esnz_cascade<compiler_cascade>_debug_noomp]]
+        inherit = ESNZ_CASCADE_BUILD<compiler_cascade>
+        [[[environment]]]
+            JULES_BUILD = debug
+            JULES_OMP = noomp
+
+# Normal build with OpenMP
+    [[fcm_make_esnz_cascade<compiler_cascade>_omp]]
+        inherit = ESNZ_CASCADE_BUILD<compiler_cascade>
+        [[[environment]]]
+            JULES_BUILD = normal
+            JULES_OMP = omp
+
+###############################################################################
+## Compute jobs
+###############################################################################
+
+    [[ESNZ_CASCADE_RUN]]
+        inherit = ESNZ_CASCADE_PBS
+
+    [[ESNZ_CASCADE_RUN_ifx]]
+        inherit = ESNZ_CASCADE_RUN
+        env-script = """
+                     . /esi/project/niwa00001/spack/share/spack/setup-env.sh
+                     spack load intel-oneapi-mpi@2021.15.0%oneapi@2025.1.0 /yzq7ltd
+                     export PATH=$(spack location -i intel-oneapi-compilers@2025.1.0 /5gt5gbh)/compiler/latest/bin/compiler:$PATH
+                     """
+        [[[environment]]]
+            ROSE_LAUNCHER = mpiexec
+
+    # Loobos variants
+    [[ESNZ_CASCADE_LOOBOS]]
+        inherit = ESNZ_CASCADE_RUN_ifx, ESNZ_CASCADE_CORES_1, LOOBOS, COMPUTE
+        [[[environment]]]
+            BUILD_NAME = fcm_make_esnz_cascade_ifx_debug_noomp
+            LOOBOS_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/loobos
+
+    [[esnz_cascade_ifx_loobos<loobos_single>]]
+        inherit = ESNZ_CASCADE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_single}
+
+    [[esnz_cascade_ifx_loobos<loobos_single=gl4_cable>]]
+        inherit = ESNZ_CASCADE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl4
+            ROSE_APP_OPT_CONF_KEYS = cable
+
+    [[esnz_cascade_ifx_loobos<loobos_with_spinup>_spinup]]
+        inherit = ESNZ_CASCADE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup
+
+    [[esnz_cascade_ifx_loobos<loobos_with_spinup>]]
+        inherit = ESNZ_CASCADE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_with_spinup}
+            DUMP_FILE = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup/output/esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup.dump.19971231.82800.nc
+
+    [[esnz_cascade_ifx_loobos<loobos_jules_c1p1>]]
+        inherit = ESNZ_CASCADE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}
+            DUMP_FILE = ../esnz_cascade_ifx_loobos_julesc_spinup/output/esnz_cascade_ifx_loobos_julesc_spinup.dump.19971231.82800.nc
+
+    [[esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = ESNZ_CASCADE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_jules_es_1p0_biocrop_agexpand
+            DUMP_FILE = ../esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup/output/esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_spinup.dump.19971231.82800.nc
+
+    # GSWP2 variants
+    [[ESNZ_CASCADE_GSWP2]]
+        inherit = ESNZ_CASCADE_RUN_ifx, ESNZ_CASCADE_CORES_32, GSWP2, COMPUTE
+        pre-script = gen_gswp2_drive_file
+        [[[environment]]]
+            BUILD_NAME = fcm_make_esnz_cascade_ifx_omp
+            GSWP2_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/gswp2
+
+    [[esnz_cascade_ifx_gswp2<gswp2_single>]]
+        inherit = ESNZ_CASCADE_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_single}
+
+    [[esnz_cascade_ifx_gswp2<gswp2_with_spinup>_spinup]]
+        inherit = ESNZ_CASCADE_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup
+
+    [[esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
+        inherit = ESNZ_CASCADE_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_irrig_limit_${CYLC_TASK_PARAM_gswp2_irrig}_river_storage
+            DUMP_FILE = ../esnz_cascade_ifx_gswp2_trip_spinup/output/esnz_cascade_ifx_gswp2_trip_spinup.dump.19820701.10800.nc
+
+    [[esnz_cascade_ifx_gswp2_es<gswp2_es_1p1>]]
+        inherit = ESNZ_CASCADE_GSWP2
+        [[[environment]]]
+            ROSE_TASK_APP = gswp2_es_1p1
+            ROSE_APP_OPT_CONF_KEYS = ${CYLC_TASK_PARAM_gswp2_es_1p1}
+
+    # Eraint variants
+    [[ESNZ_CASCADE_ERAINT]]
+        inherit = ESNZ_CASCADE_RUN_ifx, ESNZ_CASCADE_CORES_8, ERAINT, COMPUTE
+        [[[environment]]]
+            BUILD_NAME = fcm_make_esnz_cascade_ifx_omp
+            ERAINT_INSTALL_DIR = /opt/niwa/um_sys/jules/benchmarking-data/eraint
+
+    [[esnz_cascade_ifx_eraint<eraint_tests>]]
+        inherit = ESNZ_CASCADE_ERAINT
+        [[[environment]]]
+            ROSE_TASK_APP = eraint_${CYLC_TASK_PARAM_eraint_tests}
+            DUMP_FILE = $ERAINT_INSTALL_DIR/brahma_eraint_small.dump.19951031.0.nc
+
+###############################################################################
+## Comparison jobs
+###############################################################################
+
+    [[ESNZ_CASCADE_NETCDF_COMPARISON]]
+        inherit = ESNZ_CASCADE_BG, KGO_CHECK, COMPARISON
+        pre-script = """
+                     . /opt/niwa/profile/conda_24.11.3_2025.05.1.sh
+                     conda activate niwa_tools_2025.07.1
+                     """
+        [[[environment]]]
+            CMD_CMP = nccmp -d --force
+            KGO_DIR = /esi/project/niwa00001/rose-stem/jules/rose-stem-kgo/{{ KGO_VERSION }}
+
+    # Loobos variants
+    [[nccmp_esnz_cascade_ifx_loobos<loobos_single>]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_single}/output
+
+    [[nccmp_esnz_cascade_ifx_loobos<loobos_with_spinup>]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}/output
+
+    [[nccmp_esnz_cascade_ifx_loobos<loobos_jules_c1p1>]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}/output
+
+    [[nccmp_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand/output
+
+    # GSWP2 variants
+    [[nccmp_esnz_cascade_ifx_gswp2<gswp2_single>]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_single}/output
+
+    [[nccmp_esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_gswp2_irrig_limit_${CYLC_TASK_PARAM_gswp2_irrig}_river_storage/output
+
+    [[nccmp_esnz_cascade_ifx_gswp2_es<gswp2_es_1p1>]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_gswp2_es_${CYLC_TASK_PARAM_gswp2_es_1p1}/output
+
+    # Eraint variants
+    [[nccmp_esnz_cascade_ifx_eraint<eraint_tests>]]
+        inherit = ESNZ_CASCADE_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../esnz_cascade_ifx_eraint_${CYLC_TASK_PARAM_eraint_tests}/output
+
+###############################################################################
+## Housekeeping jobs
+###############################################################################
+
+    [[ESNZ_CASCADE_HOUSEKEEPING]]
+        inherit = ESNZ_CASCADE_BG, HOUSEKEEPING
+
+    # Loobos variants
+    [[housekeep_esnz_cascade_ifx_loobos<loobos_single>]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_single}
+
+    [[housekeep_esnz_cascade_ifx_loobos<loobos_with_spinup>_spinup]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}_spinup
+
+    [[housekeep_esnz_cascade_ifx_loobos<loobos_with_spinup>]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_with_spinup}
+
+    [[housekeep_esnz_cascade_ifx_loobos<loobos_jules_c1p1>]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_loobos_${CYLC_TASK_PARAM_loobos_jules_c1p1}
+
+    [[housekeep_esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_loobos_jules_es_1p0_biocrop_agexpand
+
+    # GSWP2 variants
+    [[housekeep_esnz_cascade_ifx_gswp2<gswp2_single>]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_single}
+
+    [[housekeep_esnz_cascade_ifx_gswp2<gswp2_with_spinup>_spinup]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_gswp2_${CYLC_TASK_PARAM_gswp2_with_spinup}_spinup
+
+    [[housekeep_esnz_cascade_ifx_gswp2_irrig_limit<gswp2_irrig>_river_storage]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_gswp2_irrig_limit_${CYLC_TASK_PARAM_gswp2_irrig}_river_storage
+
+    [[housekeep_esnz_cascade_ifx_gswp2_es<gswp2_es_1p1>]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_gswp2_es_${CYLC_TASK_PARAM_gswp2_es_1p1}
+
+    # Eraint variants
+    [[housekeep_esnz_cascade_ifx_eraint<eraint_tests>]]
+        inherit = ESNZ_CASCADE_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../esnz_cascade_ifx_eraint_${CYLC_TASK_PARAM_eraint_tests}
