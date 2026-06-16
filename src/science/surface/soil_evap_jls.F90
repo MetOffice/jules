@@ -111,38 +111,48 @@ END DO
 
 ! Adjustments to wt_ext from soil layers 2 to nshyd
 DO k = 2,nshyd
-!$OMP DO SCHEDULE(STATIC)
   IF (irrig_tile /= 1) THEN
+!$OMP DO SCHEDULE(STATIC)
     DO j = 1,surft_pts
       l = surft_index(j)
         wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
     END DO
+!$OMP END DO NOWAIT
   END IF
   IF (l_irrig_dmd) THEN
+!$OMP DO SCHEDULE(STATIC)
     DO j = 1,surft_pts
       l = surft_index(j)
         wt_ext_irr(l,k) = gs_irr(l) * wt_ext_irr(l,k)                          &
                / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
     END DO
-  END IF
 !$OMP END DO NOWAIT
+  END IF
 END DO
 
 ! Adjustments to wt_ext from soil layer 1
+IF (irrig_tile /= 1) THEN
 !$OMP DO SCHEDULE(STATIC)
 !CDIR NODEP
-
-IF (irrig_tile /= 1) THEN
   DO j = 1,surft_pts
     l = surft_index(j)
       wt_ext(l,1) = (gs(l) * wt_ext(l,1) + fsoil(l) * gsoil(l))                &
                      / (gs(l) + fsoil(l) * gsoil(l))
   END DO
+!$OMP END DO NOWAIT
 END IF
 
-gs(l) = gs(l) + fsoil(l) * gsoil(l)
+!$OMP DO SCHEDULE(STATIC)
+!CDIR NODEP
+DO j = 1,surft_pts
+  l = surft_index(j)
+  gs(l) = gs(l) + fsoil(l) * gsoil(l)
+END DO
+!$OMP END DO NOWAIT
 
 IF (l_irrig_dmd) THEN
+!$OMP DO SCHEDULE(STATIC)
+!CDIR NODEP
   DO j = 1,surft_pts
     l = surft_index(j)
       wt_ext_irr(l,1) = (gs_irr(l) * wt_ext_irr(l,1)                           &
@@ -154,8 +164,8 @@ IF (l_irrig_dmd) THEN
       ! Assume soil evaporation uses grid box mean soil moisture:
       gs_irr(l) = gs_irr(l) + fsoil(l) * gsoil_irr(l)
   END DO
-END IF
 !$OMP END DO NOWAIT
+END IF
 
 !$OMP END PARALLEL
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
