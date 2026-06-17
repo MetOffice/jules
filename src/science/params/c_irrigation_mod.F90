@@ -127,6 +127,24 @@ END IF
 
 RETURN
 END SUBROUTINE check_irrigation
+
+SUBROUTINE c_irrigation_print()
+
+USE jules_print_mgr, ONLY: jules_print
+
+IMPLICIT NONE
+CHARACTER(LEN=50000) :: lineBuffer
+CHARACTER(LEN=*), PARAMETER :: RoutineName='C_IRRIGATION_PRINT'
+
+CALL jules_print(RoutineName, 'Contents of c_irrigation_mod')
+
+WRITE(lineBuffer,*)' irrig_tile = ', irrig_tile(:)
+CALL jules_print(RoutineName,lineBuffer)
+
+CALL jules_print(RoutineName,                                                  &
+    '- - - - - - end of c_irrigation_mod - - - - - -')
+
+END SUBROUTINE c_irrigation_print
 #endif
 
 
