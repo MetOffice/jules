@@ -53,22 +53,6 @@ class vn81_t70(MacroUpgrade):
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
-        lsm_id = int(
-            self.get_setting_value(
-                config, ["namelist:jules_model_environment", "lsm_id"]
-            )
-        )
-        if lsm_id != 3:
-            npft = int(
-                self.get_setting_value(
-                    config, ["namelist:jules_surface_types", "npft"]
-                )
-            )
-            self.add_setting(
-                config,
-                ["namelist:jules_pftparm", "pft_name_io"],
-                ",".join(["''"] * npft),
-            )
 
         """Add cs_decomp_soil_moist_func to namelist jules_soil_biogeochem"""
         self.add_setting(config, ["namelist:jules_soil_biogeochem", "cs_decomp_soil_moist_func"], "0")
@@ -116,35 +100,6 @@ class vn81_t59(MacroUpgrade):
 
     def upgrade(self,config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
-
-        """
-        1. Add switches to indicate whether a JULES surface tile is irrigated (pft)
-        2. Add the surface types, c3_irrig and c4_irrig with a value of zero
-        """
-        lsm_id = int(
-            self.get_setting_value(
-                config, ["namelist:jules_model_environment", "lsm_id"]
-            )
-        )
-        if lsm_id != 3:
-
-            # Add the pft size
-            npft = int(
-                self.get_setting_value(config, ["namelist:jules_surface_types", "npft"])
-            )
-
-            # Add new setting
-            self.add_setting(
-                config,
-                ["namelist:jules_pftparm", "irrig_pft_io"],
-                ",".join(["0"] * npft),
-                False,
-            )
-
-            self.add_setting(config, ["namelist:jules_surface_types", "c3_irrig"], "0")
-            self.add_setting(config, ["namelist:jules_surface_types", "c4_irrig"], "0")
-            self.add_setting(config, ["namelist:jules_irrig", "irrig_option"], "0")
-
 
         # Adding logical and real to the jules biogeochemical namelist
         self.add_setting(config,
