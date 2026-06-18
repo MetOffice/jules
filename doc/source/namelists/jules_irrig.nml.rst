@@ -14,7 +14,7 @@ This namelist specifies the different options available for setting up the irrig
 
 .. note::
 
-  Irrigation can be applied at a constant rate in three ways:
+  If using :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, irrigation can be applied at a constant rate in 3 ways
    * 1. To apply a constant irrigation to all surface tiles the irrigation settings are as follows: frac_irrig_all_tiles=T, set_irrfrac_on_irrtiles=F and set a value for :nml:mem:`JULES_IRRIG_PROPS::const_frac_irr`.
    * 2. To apply a constant irrigation to only specific surface tiles the irrigation settings are as follows: frac_irrig_all_tiles=F and set_irrfrac_on_irrtiles=T and set a value for :nml:mem:`JULES_IRRIG_PROPS::const_irrfrac_irrtiles`.
    * 3. To apply a constant irrigation to specific surface tiles as an average across the gridbox, which is the way irrigation on specific tiles was done prior to vn5.7, the irrigation settings are as follows: frac_irrig_all_tiles=F, set_irrfrac_on_irrtiles=F and set a value for :nml:mem:`JULES_IRRIG_PROPS::const_frac_irr`.
@@ -26,7 +26,7 @@ This namelist specifies the different options available for setting up the irrig
    :type: logical
    :default: F
 
-   Switch controlling the implementation of irrigation demand code.
+   Switch controlling the implementation of fraction-based irrigation demand code.
 
    TRUE
       Tiles are irrigated.
@@ -35,7 +35,22 @@ This namelist specifies the different options available for setting up the irrig
       No effect.
 
    This must be set to TRUE if :nml:mem:`JULES_WATER_RESOURCES::l_water_irrigation` = TRUE.
+   This must be set to FALSE if :nml:mem:`JULES_IRRIG::irrig_option` > 0.
 
+
+.. nml:member:: irrig_option
+
+   :type: integer
+   :permitted: 0 or 2
+   :default: 0
+
+   Options for applying irrigation
+
+   0. No irrigation applied.
+   1. Not available yet. In a future release this will replace :nml:mem:`l_irrig_dmd`.
+   2. Apply irrigation to irrigated surface types C3_irrig and/or C4_irrig. This option requires :nml:mem:`JULES_IRRIG::l_irrig_dmd` = FALSE and :nml:mem:`JULES_PFTPARM::irrig_pft_io` = 0 or 1.
+
+  When :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, :nml:mem:`JULES_IRRIG::irrig_option` is not available.
 
 .. nml:member:: l_irrig_limit
 

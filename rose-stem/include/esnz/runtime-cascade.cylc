@@ -110,6 +110,12 @@
             ROSE_TASK_APP = loobos_gl4
             ROSE_APP_OPT_CONF_KEYS = cable
 
+    [[esnz_cascade_ifx_loobos<loobos_single=gl8_irrigon_5050irrigtiles>]]
+        inherit = ESNZ_CASCADE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+            ROSE_APP_OPT_CONF_KEYS = irrigon_5050irrigtiles
+
     [[esnz_cascade_ifx_loobos<loobos_with_spinup>_spinup]]
         inherit = ESNZ_CASCADE_LOOBOS
         [[[environment]]]

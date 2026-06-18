@@ -100,6 +100,12 @@
         [[[environment]]]
             ROSE_TASK_APP = loobos_gl8_medlyn
 
+    [[meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = METO_EX1A_CCE_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+            ROSE_APP_OPT_CONF_KEYS=irrigon_5050irrigtiles
+
     [[meto_ex1a_cce_loobos_vegdrag]]
         inherit = METO_EX1A_CCE_LOOBOS
         [[[environment]]]
@@ -636,6 +642,11 @@
         [[[environment]]]
             OUTPUT_DIR = ../meto_ex1a_cce_loobos_gl8_medlyn/output
 
+    [[nccmp_meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = METO_EX1A_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles/output
+
     [[nccmp_meto_ex1a_cce_loobos_vegdrag]]
         inherit = METO_EX1A_NETCDF_COMPARISON
         [[[environment]]]
@@ -1008,6 +1019,11 @@
         inherit = METO_EX1A_HOUSEKEEPING
         [[[environment]]]
             DIR1 = ../meto_ex1a_cce_loobos_gl8_medlyn
+
+    [[housekeep_meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = METO_EX1A_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles
 
     [[housekeep_meto_ex1a_cce_loobos_vegdrag]]
         inherit = METO_EX1A_HOUSEKEEPING
