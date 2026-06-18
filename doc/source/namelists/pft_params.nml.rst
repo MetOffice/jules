@@ -395,7 +395,7 @@ ease the direct links to these documents are:
    :type: integer(npft)
    :default: None
 
-   Surface tile irrigation flag 
+   Surface tile irrigation flag
 
    Flag to indicate whether the vegetated surface tile is irrigated or not, where 0 = Not irrigated and 1 = Irrigated. Can only be set if :nml:mem:`JULES_IRRIG::irrig_option` = 2 and :nml:mem:`JULES_IRRIG::l_irrig_dmd` = FALSE, else it should be untriggered and initialised to imdi.
 
