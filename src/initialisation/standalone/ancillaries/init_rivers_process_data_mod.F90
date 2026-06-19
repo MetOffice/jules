@@ -2454,10 +2454,6 @@ DO ix = 1,nx_rivers
 
         rivers%minor_res_capacity(ip)  = minor_res_capacity_grid(irx,iry)
         rivers%minor_res_frac(ip)      = minor_res_frac_grid(irx,iry)
-        IF ( rivers%minor_res_capacity(ip) /= rivers%minor_res_capacity(ip).OR.&
-             rivers%minor_res_frac(ip) /= rivers%minor_res_frac(ip) ) THEN
-          print*,'ISSUE ',ip,rivers%minor_res_capacity(ip),rivers%minor_res_frac(ip)
-        END IF
 
       END IF  !  l_minor_reservoirs
 
@@ -2465,11 +2461,6 @@ DO ix = 1,nx_rivers
 
   END DO  !  iy
 END DO  !  ix
-
-print*,'SET range minor_res_capacity=',MINVAL(rivers%minor_res_capacity(:)),   &
-                                       MAXVAL(rivers%minor_res_capacity(:))
-print*,'SET range minor_res_frac=',MINVAL(rivers%minor_res_frac(:)),           &
-                                   MAXVAL(rivers%minor_res_frac(:))
 
 END SUBROUTINE set_river_point_values
 

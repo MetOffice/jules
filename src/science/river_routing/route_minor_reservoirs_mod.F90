@@ -92,8 +92,6 @@ DO i = 1, np_rivers
 
 END DO
 
-!print*,'bottom RES_ROUTE range storage=',minval(minor_res_storage),maxval(minor_res_storage)
-
 RETURN
 END SUBROUTINE route_minor_reservoirs
 

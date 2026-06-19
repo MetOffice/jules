@@ -1073,7 +1073,7 @@ ELSE
   IF ( ALLOCATED(river_storage_global) )  DEALLOCATE(river_storage_global)
   IF ( ALLOCATED(return_flow_gw_global) ) DEALLOCATE(return_flow_gw_global)
   IF ( ALLOCATED(return_flow_river_global) ) THEN
-   DEALLOCATE(return_flow_river_global)
+    DEALLOCATE(return_flow_river_global)
   END IF
   IF ( ALLOCATED(priority_order_global) ) DEALLOCATE(priority_order_global)
   IF ( ALLOCATED(minor_res_storage_global) ) THEN
@@ -1290,13 +1290,13 @@ IF ( l_have_surface_water ) THEN
 
   ! Save diagnostic of abstraction from minor reservoirs.
   IF ( l_minor_reservoirs ) THEN
-    CALL scatter_land_field( sw_abstracted_global(:,sw_minor_res_source),     &
+    CALL scatter_land_field( sw_abstracted_global(:,sw_minor_res_source),      &
                              abstracted_minor_res )
   END IF
 
   ! Save diagnostic of abstraction from rivers.
   IF ( sw_river_source > 0 ) THEN
-    CALL scatter_land_field( sw_abstracted_global(:,sw_river_source),     &
+    CALL scatter_land_field( sw_abstracted_global(:,sw_river_source),          &
                              abstracted_river )
   END IF
 
@@ -1325,7 +1325,7 @@ SUBROUTINE regrid_to_land( global_land_index, map_river_to_land_points,        &
 
 USE ereport_mod, ONLY: ereport
 
-USE jules_rivers_mod, ONLY: i_river_vn, l_minor_reservoirs, l_rivers,         &
+USE jules_rivers_mod, ONLY: i_river_vn, l_minor_reservoirs, l_rivers,          &
                             np_rivers, rivers_rfm, rivers_trip
 
 USE model_grid_mod, ONLY: global_land_pts

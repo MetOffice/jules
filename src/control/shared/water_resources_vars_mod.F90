@@ -318,10 +318,8 @@ END IF
 ! Allocated space for all (global) land points because both the water resource
 ! and river codes operate globally.
 !------------------------------------------------------------------------------
-print*,'alloc l_minor_reservoirs=',l_minor_reservoirs
 ALLOCATE( water_resources_data                                                 &
             %abstracted_minor_res_global(global_land_pts_minor_res) )
-print*,'Alloc size=',size( water_resources_data%abstracted_minor_res_global )
 
 !------------------------------------------------------------------------------
 ! Coupling to rivers.

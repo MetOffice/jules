@@ -1103,7 +1103,7 @@ rivers%tot_abstracted_minor_res_global                                         &
                                => rivers_data%tot_abstracted_minor_res_global
 
 ! Further variables to couple to water resources.
-rivers%tot_net_abstracted_river_global                                        &
+rivers%tot_net_abstracted_river_global                                         &
                                => rivers_data%tot_net_abstracted_river_global
 
 RETURN

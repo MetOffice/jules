@@ -126,8 +126,8 @@ LOGICAL ::                                                                     &
                             ! Control rerouting of inland basin water
    ,l_minor_reservoirs = .FALSE.                                               &
                             ! Switch for minor_reservoirs.
-                            ! .TRUE.  = consider minor reservoirs 
-                            ! .FALSE. = do not consider  minor reservoirs 
+                            ! .TRUE.  = consider minor reservoirs
+                            ! .FALSE. = do not consider  minor reservoirs
    ,l_riv_overbank = .FALSE.                                                   &
                             ! Logical to control overbank inundation
    ,l_outflow_per_river = .FALSE.                                              &
@@ -711,9 +711,9 @@ IMPLICIT NONE
 
 !Arguments
 INTEGER, INTENT(IN) :: land_pts, t_i_length, t_j_length
-INTEGER, INTENT(in) :: sw_river_source
+INTEGER, INTENT(IN) :: sw_river_source
   ! Index of river water in surface water source arrays.
-LOGICAL, INTENT(in) :: l_water_resources
+LOGICAL, INTENT(IN) :: l_water_resources
     ! Switch to select water resource management modelling.
 TYPE(rivers_data_type), INTENT(IN OUT) :: rivers_data
 

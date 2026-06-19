@@ -421,7 +421,7 @@ ELSE
     CALL accumulate_abstraction( global_land_pts, abstracted_minor_res_global, &
                                  tot_abstracted_minor_res_global )
   END IF
-  
+
 
 END IF  !  l_oasis_rivers)
 
