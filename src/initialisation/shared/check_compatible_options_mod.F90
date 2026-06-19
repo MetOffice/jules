@@ -25,7 +25,8 @@ SUBROUTINE check_compatible_options(call_type)
 
 USE jules_deposition_mod,          ONLY: l_deposition
 USE jules_irrig_mod,               ONLY: l_irrig_dmd, l_irrig_limit,           &
-                                         nstep_irrig
+                                         nstep_irrig, irrig_option,            &
+                                         tile_based_irrigation
 USE jules_hydrology_mod,           ONLY: l_inland
 USE jules_model_environment_mod,   ONLY: lsm_id, cable
 USE jules_radiation_mod,           ONLY: l_albedo_obs, l_snow_albedo,          &
@@ -44,6 +45,11 @@ USE jules_water_resources_mod,     ONLY: l_water_environment,                  &
 USE land_tile_ids_mod,             ONLY: surface_type_ids, ml_snow_type_ids
 USE nvegparm,                      ONLY: vf_nvg, albsnc_nvg, albsnf_nvgl,      &
                                          albsnf_nvgu
+USE c_irrigation_mod,              ONLY: irrig_tile
+USE overbank_inundation_mod,       ONLY: overbank_hypsometric, overbank_model, &
+                                         overbank_quantiles, overbank_simple,  &
+                                         overbank_simple_rosgen
+
 USE missing_data_mod,              ONLY: imdi, rmdi
 
 USE ereport_mod,                   ONLY: ereport
@@ -78,7 +84,7 @@ CALL check_unavailable_options()
 ERROR = 0
 
 ! Check for compatibility with soil tiling. At present it is not allowed for
-! TRIFFID, INFERNO, and l_albedo_obs
+! TRIFFID, INFERNO, l_albedo_obs or tile-based irrigation.
 
 IF ( l_triffid .AND. l_tile_soil ) THEN
   ERROR = 1
@@ -96,6 +102,12 @@ IF ( l_albedo_obs .AND. l_tile_soil ) THEN
   ERROR = 1
   CALL jules_print(routinename,                                                &
                  "l_albedo_obs not presently compatible with soil tiling")
+END IF
+
+IF ( irrig_option == tile_based_irrigation .AND. l_tile_soil ) THEN
+  ERROR = 1
+  CALL jules_print(routinename,                                                &
+                 "Tile-based irrigation is not compatible with soil tiling")
 END IF
 
 IF (l_irrig_dmd .AND. l_holdwater) THEN
@@ -177,6 +189,15 @@ IF ( lsm_id == cable ) check_tiles_namelists = .FALSE.
 ! These checks are not to be carried out when called from UM RECON or when the
 ! land surface model is CABLE, which has its own namelists.
 IF (check_tiles_namelists) THEN
+  ! Check to make sure that if l_irrig_dmd is TRUE then irrig_option related
+  ! variables are not set
+  IF (l_irrig_dmd) THEN
+    IF ( ANY( irrig_tile(1:ntype) > 0.0 ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, 'irrig_pft cannot be set if l_irrig_dmd=T')
+    END IF
+  END IF
+
   IF ( l_moruses_storage ) THEN
     ! The roof surface needs to be either 0 (meaning "uncoupled"
     ! in this case)

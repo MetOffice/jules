@@ -121,7 +121,13 @@
         [[[environment]]]
             ROSE_TASK_APP = loobos_gl8_medlyn
 
-    [[meto_azspice_gnu_loobos_vegdrag]]
+    [[meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+            ROSE_APP_OPT_CONF_KEYS=irrigon_5050irrigtiles
+
+     [[meto_azspice_gnu_loobos_vegdrag]]
         inherit = METO_AZSPICE_GNU_LOOBOS
         [[[environment]]]
             ROSE_TASK_APP = loobos_vegdrag
@@ -669,6 +675,11 @@ codecov -prj JULES -dpi $CYLC_SUITE_SHARE_DIR/coverage/pgopti.dpi -spi $CYLC_SUI
         [[[environment]]]
             OUTPUT_DIR = ../meto_azspice_gnu_loobos_gl8_medlyn/output
 
+    [[nccmp_meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles/output
+
     [[nccmp_meto_azspice_gnu_loobos_vegdrag]]
         inherit = METO_AZSPICE_GNU_NETCDF_COMPARISON
         [[[environment]]]
@@ -1024,6 +1035,11 @@ codecov -prj JULES -dpi $CYLC_SUITE_SHARE_DIR/coverage/pgopti.dpi -spi $CYLC_SUI
         inherit = METO_AZSPICE_GNU_HOUSEKEEPING
         [[[environment]]]
             DIR1 = ../meto_azspice_gnu_loobos_gl8_medlyn
+
+    [[housekeep_meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles
 
     [[housekeep_meto_azspice_gnu_loobos_vegdrag]]
         inherit = METO_AZSPICE_GNU_HOUSEKEEPING

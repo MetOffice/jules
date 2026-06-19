@@ -600,7 +600,8 @@ CASE ( jules )
     trif_vars%n_leaf_pft,trif_vars%n_root_pft,trif_vars%n_stem_pft,            &
     trif_vars%lai_bal_pft,                                                     &
     progs%gc_surft,canhc_surft,wt_ext_surft,flake,                             &
-    ainfo%surft_index,surft_pts,tile_frac,fluxes%fsmc_pft,emis_soil,           &
+    ainfo%surft_index,surft_pts,tile_frac,ainfo%non_irrig_frac,                &
+    fluxes%fsmc_pft,emis_soil,                                                 &
     trifctltype%growth_sug_pft,trifctltype%growth_sug_gb,progs%f_nsc_pft,      &
     trifctltype%lwp_c_pft, trifctltype%psi_root_zone_pft,                      &
     ! OUT required for classic aerosols
@@ -812,6 +813,7 @@ CASE ( cable )
   flake(:,:) = 0.0
   hcons_soilt(:,:) = 0.0
   tile_frac(:,:) = 0.0
+  ainfo%non_irrig_frac(:) = 1.0
 
   progs_cbl%SoilTemp_CABLE(:,:,:) = 0.0
   progs_cbl%SoilMoisture_CABLE(:,:,:) = 0.0

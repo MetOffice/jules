@@ -8,6 +8,8 @@
 | yaswant         | Yaswant Pradhan  | Met Office  | 2026-02-11 |
 | ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
 | t00sa           | Sam Clarke-Green | Met Office  | 2026-02-27 |
+| hsrumbold       | Heather Rumbold  | Met Office  | 2026-04-28 |
+| caroduro | Carolina Duran Rojas | University of Exeter | 2026-04-21 |
 | eleanorgb       | Eleanor Burke    | Met Office  | 2026-03-06 |
 | Pierre-siddall  | Pierre Siddall| Met Office | 2026-02-06 |
 | tinyendian | Wolfgang Hayek | Earth Sciences New Zealand | 2026-04-24 |

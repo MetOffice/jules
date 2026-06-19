@@ -129,6 +129,12 @@
     [[loobos_gl8_medlyn]]
         inherit = LOOBOS, JASMIN_LOOBOS
 
+    [[loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = LOOBOS, JASMIN_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+            ROSE_APP_OPT_CONF_KEYS = irrigon_5050irrigtiles
+
     [[loobos_vegdrag]]
         inherit = LOOBOS, JASMIN_LOOBOS
 
@@ -485,6 +491,11 @@
         [[[environment]]]
             OUTPUT_DIR = ../loobos_gl8_medlyn/output
 
+    [[nccmp_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = KGO_CHECK, JASMIN_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../loobos_gl8_irrigon_5050irrigtiles/output
+
     [[nccmp_loobos_vegdrag]]
         inherit = KGO_CHECK, JASMIN_NETCDF_COMPARISON
         [[[environment]]]
@@ -777,6 +788,11 @@
         inherit = HOUSEKEEPING, JASMIN_LOTUS
         [[[environment]]]
             DIR1 = ../loobos_gl8_medlyn
+        
+    [[housekeep_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = HOUSEKEEPING, JASMIN_LOTUS
+        [[[environment]]]
+            DIR1 = ../loobos_gl8_irrigon_5050irrigtiles
 
     [[housekeep_loobos_vegdrag]]
         inherit = HOUSEKEEPING, JASMIN_LOTUS

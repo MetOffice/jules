@@ -52,6 +52,7 @@
         inherit = NCI_GFORTRAN_LOOBOS
         [[[environment]]]
             ROSE_TASK_APP = loobos_gl7
+
     [[nci_gfortran_loobos_gl4_cable]]
         inherit = NCI_GFORTRAN_LOOBOS
         [[[environment]]]
@@ -67,6 +68,12 @@
         inherit = NCI_GFORTRAN_LOOBOS
         [[[environment]]]
             ROSE_TASK_APP = loobos_gl8_medlyn
+
+    [[nci_gfortran_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = NCI_GFORTRAN_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+            ROSE_APP_OPT_CONF_KEYS=irrigon_5050irrigtiles
 
     [[nci_gfortran_loobos_vegdrag]]
         inherit = NCI_GFORTRAN_LOOBOS
@@ -455,6 +462,11 @@
         [[[environment]]]
             OUTPUT_DIR = ../nci_gfortran_loobos_gl8_medlyn/output
 
+   [[nccmp_nci_gfortran_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = NCI_GFORTRAN_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_gfortran_loobos_gl8_irrigon_5050irrigtiles/output
+
      [[nccmp_nci_gfortran_loobos_vegdrag]]
         inherit = NCI_GFORTRAN_NETCDF_COMPARISON
         [[[environment]]]
@@ -727,6 +739,11 @@
         inherit = NCI_GFORTRAN_HOUSEKEEPING
         [[[environment]]]
             DIR1 = ../nci_gfortran_loobos_gl8_medlyn
+
+    [[housekeep_nci_gfortran_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = NCI_GFORTRAN_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_gfortran_loobos_gl8_irrigon_5050irrigtiles
 
     [[housekeep_nci_gfortran_loobos_vegdrag]]
         inherit = NCI_GFORTRAN_HOUSEKEEPING

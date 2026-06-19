@@ -38,6 +38,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 
 INTEGER ::                                                                     &
   c3_io(npft_max) = imdi,                                                      &
+  irrig_pft_io(npft_max) = imdi,                                               &
   orient_io(npft_max) = imdi
 
 REAL(KIND=real_jlslsm) ::                                                      &
@@ -181,20 +182,20 @@ NAMELIST  / jules_pftparm/                                                     &
   sug_g0_io,       g1_stomata_io,    g_leaf_0_io,                              &
   glmin_io,        gpp_st_io,        sug_grec_io,                              &
   gsoil_f_io,      hw_sw_io,         ief_io,                                   &
-  infil_f_io,      jv25_ratio_io,    kext_io,                                  &
-  kn_io,           knl_io,           kpar_io,                                  &
-  lai_alb_lim_io,  lma_io,           mef_io,                                   &
-  neff_io,         nl0_io,           nmass_io,                                 &
-  nr_io,           nr_nl_io,         ns_nl_io,                                 &
-  nsw_io,          omega_io,         omegal_io,                                &
-  omegau_io,       omnir_io,         omnirl_io,                                &
-  omniru_io,       orient_io,        q10_leaf_io,                              &
-  r_grow_io,       rootd_ft_io,      sigl_io,                                  &
-  tef_io,          tleaf_of_io,      tlow_io,                                  &
-  tupp_io,         vint_io,          vsl_io,                                   &
-  sug_yg_io,       z0hm_pft_io,      z0hm_classic_pft_io,                      &
-  z0v_io,          sox_a_io,         sox_p50_io,                               &
-  sox_rp_min_io
+  infil_f_io,      irrig_pft_io,     jv25_ratio_io,                            &
+  kext_io,         kn_io,            knl_io,                                   &
+  kpar_io,         lai_alb_lim_io,   lma_io,                                   &
+  mef_io,          neff_io,          nl0_io,                                   &
+  nmass_io,        nr_io,            nr_nl_io,                                 &
+  ns_nl_io,        nsw_io,           omega_io,                                 &
+  omegal_io,       omegau_io,        omnir_io,                                 &
+  omnirl_io,       omniru_io,        orient_io,                                &
+  q10_leaf_io,     r_grow_io,        rootd_ft_io,                              &
+  sigl_io,         tef_io,           tleaf_of_io,                              &
+  tlow_io,         tupp_io,          vint_io,                                  &
+  vsl_io,          sug_yg_io,        z0hm_pft_io,                              &
+  z0hm_classic_pft_io, z0v_io,       sox_a_io,                                 &
+  sox_p50_io,      sox_rp_min_io
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='PFTPARM_IO'
 
@@ -229,12 +230,13 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 2
-INTEGER, PARAMETER :: n_int = 2 * npft_max
+INTEGER, PARAMETER :: n_int = 3 * npft_max
 INTEGER, PARAMETER :: n_real = 108 * npft_max
 
 TYPE :: my_namelist
   SEQUENCE
   INTEGER :: c3_io(npft_max)
+  INTEGER :: irrig_pft_io(npft_max)
   INTEGER :: orient_io(npft_max)
   REAL(KIND=real_jlslsm) :: a_wl_io(npft_max)
   REAL(KIND=real_jlslsm) :: a_ws_io(npft_max)
@@ -433,6 +435,7 @@ IF (mype == 0) THEN
   my_nml % hw_sw_io       = hw_sw_io
   my_nml % ief_io         = ief_io
   my_nml % infil_f_io     = infil_f_io
+  my_nml % irrig_pft_io   = irrig_pft_io
   my_nml % jv25_ratio_io  = jv25_ratio_io
   my_nml % kext_io        = kext_io
   my_nml % kn_io          = kn_io
@@ -549,6 +552,7 @@ IF (mype /= 0) THEN
   hw_sw_io        = my_nml % hw_sw_io
   ief_io          = my_nml % ief_io
   infil_f_io      = my_nml % infil_f_io
+  irrig_pft_io    = my_nml % irrig_pft_io
   jv25_ratio_io   = my_nml % jv25_ratio_io
   kext_io         = my_nml % kext_io
   kn_io           = my_nml % kn_io
@@ -647,7 +651,8 @@ USE pftparm, ONLY:                                                             &
   sug_yg,          z0v,              sox_a,                                    &
   sox_p50,         sox_rp_min
 
-USE c_z0h_z0m, ONLY: z0h_z0m,  z0h_z0m_classic
+USE c_irrigation_mod, ONLY: irrig_tile
+USE c_z0h_z0m,    ONLY: z0h_z0m,  z0h_z0m_classic
 
 USE jules_surface_types_mod, ONLY: npft
 
@@ -751,6 +756,7 @@ fsmc_p0(:)      = fsmc_p0_io(1:npft)
 glmin(:)        = glmin_io(1:npft)
 gsoil_f(:)      = gsoil_f_io(1:npft)
 infil_f(:)      = infil_f_io(1:npft)
+irrig_tile(1:npft)      = irrig_pft_io(1:npft)
 rootd_ft(:)     = rootd_ft_io(1:npft)
 z0v(:)          = z0v_io(1:npft)
 z0h_z0m(1:npft) = z0hm_pft_io(1:npft)
