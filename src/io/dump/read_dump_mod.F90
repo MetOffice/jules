@@ -984,7 +984,8 @@ DO i = 1,nvars
 
     ! River routing variables
   CASE ( 'flood_flow', 'flood_flow_prev', 'flood_storage',                     &
-         'flood_storage_prev', 'rfm_bflowin_rp', 'rfm_flowin_rp',              &
+         'flood_storage_prev', 'minor_res_storage',                            &
+         'rfm_bflowin_rp', 'rfm_flowin_rp',                                    &
          'rfm_substore_rp', 'rfm_surfstore_rp', 'river_channel_storage',       &
          'river_channel_flow', 'river_depth_prev', 'river_flow_prev',          &
          'rivers_outflow_rp', 'rivers_sto_rp' )
