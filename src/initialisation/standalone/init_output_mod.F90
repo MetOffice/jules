@@ -344,7 +344,8 @@ USE jules_vegetation_mod, ONLY: l_fapar_diag, l_fao_ref_evapotranspiration,    &
 USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_renew_gwater,  &
     l_have_surface_water, l_water_domestic, l_water_environment,               &
     l_water_industry, l_water_irrigation, l_water_livestock,                   &
-    l_water_resources, l_water_transfers, no_model, nr_gwater_model
+    l_water_resources, l_water_transfers, no_model, nr_gwater_model,           &
+    sw_river_source
 
 USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_outflow_per_river, l_rivers, &
     l_riv_overbank, i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip
@@ -810,11 +811,12 @@ DO j = 1,nvars_in
     END SELECT
   END IF
 
-  IF ( .NOT. l_water_resources .OR. .NOT. l_rivers ) THEN
+  IF ( .NOT. l_water_resources .OR. sw_river_source == 0 ) THEN
+    ! Rivers aren't being used as a source of water for abstraction.
     SELECT CASE ( var(j) )
     CASE ( 'river_abstracted' )
       remove_var = .TRUE.
-      message    = 'Water resources + rivers not used.'
+      message    = 'Rivers not used for abstractions.'
     END SELECT
   END IF
 

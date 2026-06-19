@@ -47,7 +47,7 @@ SUBROUTINE water_resources_drive( global_land_pts, priority_order,             &
                                   gw_nr_abstracted, sfc_water_frac,            &
                                   sw_abstracted, sw_avail, water_removed,      &
                                   conveyance_loss, return_flow_gw,             &
-                                  return_flow_sw, supply_irrig )
+                                  return_flow_river, supply_irrig )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -118,7 +118,7 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Water that is lost during conveyance (kg).
   return_flow_gw(global_land_pts),                                             &
     ! Water that is returned to renewable groundwater after use (kg).
-  return_flow_sw(global_land_pts),                                             &
+  return_flow_river(global_land_pts),                                          &
     ! Water that is returned to rivers after use (kg).
   supply_irrig(global_land_pts)
     ! Water supplied for irrigation (kg).
@@ -232,7 +232,7 @@ CALL calc_conveyance_loss( global_land_pts, abstracted_per_use, conv_loss_frac,&
 ! Calculate return flows.
 !------------------------------------------------------------------------------
 CALL calc_return_flow( global_land_pts, abstracted_per_use,                    &
-                       conveyance_loss_use, return_flow_gw, return_flow_sw,    &
+                       conveyance_loss_use, return_flow_gw, return_flow_river, &
                        water_removed )
 
 !------------------------------------------------------------------------------
@@ -585,7 +585,7 @@ END SUBROUTINE calc_conveyance_loss
 
 SUBROUTINE calc_return_flow( global_land_pts, abstracted_per_use,              &
                              conveyance_loss_use, return_flow_gw,              &
-                             return_flow_sw, water_removed )
+                             return_flow_river, water_removed )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -626,7 +626,7 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Water that is returned to renewable groundwater after use (kg).
     ! If there is no renewable groundwater, this water is later added to
     ! the runoff flux.
-  return_flow_sw(global_land_pts),                                             &
+  return_flow_river(global_land_pts),                                          &
     ! Water that is returned to rivers after use (kg).
   water_removed(global_land_pts)
     ! Water that is removed from the system during use, e.g. incorporated into
@@ -648,7 +648,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
   return_flow_frac_gw,                                                         &
     ! Fraction of the water delivered that is then returned to renewable
     ! groundwater.
-  return_flow_frac_sw
+  return_flow_frac_river
     ! Fraction of the water delivered that is then returned to rivers.
 
 !------------------------------------------------------------------------------
@@ -666,53 +666,57 @@ REAL(KIND=jprb)               :: zhook_handle
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 ! Initialise return flows and water removed.
-return_flow_gw(:) = 0.0
-return_flow_sw(:) = 0.0
-water_removed(:)  = 0.0
+return_flow_gw(:)    = 0.0
+return_flow_river(:) = 0.0
+water_removed(:)     = 0.0
 
 DO i = 1, nwater_use
 
   !---------------------------------------------------------------------------
   ! Set fraction of flow that is returned for this water use. Each use returns
-  ! water to either renewable groundwater or river water; if the preferred sink
-  ! is not modelled the other is used. We know that at least one of l_rivers
-  ! and l_have_groundwater is TRUE when water resources are modelled. If the
-  ! only groundwater is "non-renewable", any groundwater return is instead
-  ! later added to runoff (not groundwater). 
+  ! water to either groundwater or river water; if the preferred sink
+  ! is not modelled the other is used if available. If neither is available
+  ! the default is to add to the groundwater variable because later code will
+  ! divert that return flow to runoff.
   !---------------------------------------------------------------------------
   IF ( i == use_domestic ) THEN
     ! Domestic water is returned to rivers, if those are modelled, otherwise to
-    ! groundwater.
+    ! groundwater (in which case there is no need to check whether groundwater
+    ! is included because the return flow will be added to runoff in that
+    ! configuration).
     IF ( l_rivers ) THEN
-      return_flow_frac_gw  = 0.0
-      return_flow_frac_sw = rf_domestic
+      return_flow_frac_gw    = 0.0
+      return_flow_frac_river = rf_domestic
     ELSE
-      return_flow_frac_gw  = rf_domestic
-      return_flow_frac_sw = 0.0
+      return_flow_frac_gw    = rf_domestic
+      return_flow_frac_river = 0.0
     END IF
-    removed_frac     = 1.0 - rf_domestic
+    removed_frac = 1.0 - rf_domestic
   ELSE IF ( i == use_industry ) THEN
     ! Industrial water is returned to rivers, if those are modelled, otherwise
     ! to groundwater.
     IF ( l_rivers ) THEN
-      return_flow_frac_gw  = 0.0
-      return_flow_frac_sw = rf_industry
+      return_flow_frac_gw    = 0.0
+      return_flow_frac_river = rf_industry
     ELSE
-      return_flow_frac_gw  = rf_industry
-      return_flow_frac_sw = 0.0
+      return_flow_frac_gw    = rf_industry
+      return_flow_frac_river = 0.0
     END IF
-    removed_frac     = 1.0 - rf_industry
+    removed_frac = 1.0 - rf_industry
   ELSE IF ( i == use_livestock ) THEN
-    ! Livestock water is returned to groundwater, if that is modelled,
-    ! otherwise to rivers.
-    IF ( l_have_groundwater ) THEN
-      return_flow_frac_gw  = rf_livestock
-      return_flow_frac_sw = 0.0
+    ! Livestock water is returned to groundwater, otherwise to
+    ! rivers. If neither is available we add to the groundwater return flow
+    ! which is later added to runoff.
+    IF ( l_have_groundwater                                                    &
+         .OR. ( .NOT. l_have_groundwater .AND. .NOT. l_rivers ) ) THEN
+      return_flow_frac_gw    = rf_livestock
+      return_flow_frac_river = 0.0
     ELSE
-      return_flow_frac_gw  = 0.0
-      return_flow_frac_sw = rf_livestock
+      ! No groundwater but rivers.
+      return_flow_frac_gw    = 0.0
+      return_flow_frac_river = rf_livestock
     END IF
-    removed_frac     = 1.0 - rf_livestock
+    removed_frac = 1.0 - rf_livestock
   ELSE
     ! For all other uses no water is returned and none is removed (in that the
     ! water remains in the system and is accounted for). There is nothing more
@@ -732,7 +736,8 @@ DO i = 1, nwater_use
     ! Add to totals. Both GW and SW return flows are always calculated, though
     ! either can be zero if those sources are not represented.
     return_flow_gw(l) = return_flow_gw(l) + return_flow_frac_gw * delivered
-    return_flow_sw(l) = return_flow_sw(l) + return_flow_frac_sw * delivered
+    return_flow_river(l) = return_flow_river(l)                                &
+                             + return_flow_frac_river * delivered
     water_removed(l)  = water_removed(l) + removed_frac * delivered
 
   END DO

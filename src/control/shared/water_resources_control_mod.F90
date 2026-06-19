@@ -76,7 +76,7 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
     ! Water stored in minor reservoirs, on land points (kg).
   return_flow_gw_global(:),                                                    &
     ! Water that is returned to renewable groundwater after use (kg).
-  return_flow_sw_global(:),                                                    &
+  return_flow_river_global(:),                                                 &
     ! Water that is returned to rivers after use (kg).
   river_storage_global(:),                                                     &
     ! Water in rivers, on land points (kg).
@@ -145,7 +145,7 @@ USE irrigation_water_mod, ONLY: calc_irrigation_demand
 
 USE jules_irrig_mod, ONLY: irr_crop_doell, irr_crop
 
-USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_rivers, np_rivers
+USE jules_rivers_mod, ONLY: l_minor_reservoirs, np_rivers
 
 USE jules_soil_mod, ONLY: sm_levels
 
@@ -322,7 +322,6 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! resources code.
   abstracted_minor_res(land_pts),                                              &
     ! Water abstracted from minor reservoirs (kg). Diagnostic only.
-    !cxyz Perhaps don't specify size?
   abstracted_river(land_pts),                                                  &
     ! Water abstracted from rivers (kg). Diagnostic only.
   conveyance_loss(land_pts),                                                   &
@@ -381,7 +380,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Area of land in gridbox (m2).
   return_flow_gw(land_pts),                                                    &
     ! Water that is returned to renewable groundwater after use (kg).
-  return_flow_sw(land_pts),                                                    &
+  return_flow_river(land_pts),                                                 &
     ! Water that is returned to rivers after use (kg).
   supply_irrig(land_pts)
     ! Water supplied for irrigation (kg).
@@ -556,7 +555,7 @@ IF ( l_water_res_call ) THEN
            gw_nr_abstracted_global, sfc_water_frac_global,                     &
            sw_abstracted_global, sw_avail_global, water_removed_global,        &
            conveyance_loss_global, return_flow_gw_global,                      &
-           return_flow_sw_global, supply_irrig_global )
+           return_flow_river_global, supply_irrig_global )
 
     ! If minor reservoirs are modelled, save abstraction in a new variable.
     IF ( sw_minor_res_source > 0 ) THEN
@@ -569,7 +568,7 @@ IF ( l_water_res_call ) THEN
     !------------<--------------------------------------------------------------
     IF ( sw_river_source > 0 ) THEN
       CALL calc_river_flux( global_land_pts, grid_area_global,                 &
-                            return_flow_sw_global,                             &
+                            return_flow_river_global,                          &
                             sw_abstracted_global(:,sw_river_source),           &
                             net_abstracted_river_global )
     END IF
@@ -584,7 +583,7 @@ IF ( l_water_res_call ) THEN
   CALL scatter_global_water( conveyance_loss, demand_unmet, gw_abstracted,     &
                              abstracted_minor_res, abstracted_river,           &
                              gw_nr_abstracted, return_flow_gw,                 &
-                             return_flow_sw, sfc_water_frac, supply_irrig,     &
+                             return_flow_river, sfc_water_frac, supply_irrig,  &
                              sw_abstracted, sw_avail_total, water_removed )
 
   !----------------------------------------------------------------------------
@@ -1001,11 +1000,11 @@ IF ( l_allocate ) THEN
   ALLOCATE(river_storage_global(land_size_rivers), STAT = ERROR)
   error_sum = error_sum + ERROR
 
-  ! Both SW and GW return flows are needed at full size, even if either
-  ! source is not active.
+  ! Return flows to groundater and rivers are both needed at full size, even
+  ! if either source is not active.
   ALLOCATE(return_flow_gw_global(land_size), STAT = ERROR)
   error_sum = error_sum + ERROR
-  ALLOCATE(return_flow_sw_global(land_size), STAT = ERROR)
+  ALLOCATE(return_flow_river_global(land_size), STAT = ERROR)
   error_sum = error_sum + ERROR
 
   IF ( l_have_groundwater .AND. l_have_surface_water ) THEN
@@ -1026,7 +1025,6 @@ IF ( l_allocate ) THEN
   ALLOCATE(water_removed_global(land_size), STAT = ERROR)
   error_sum = error_sum + ERROR
 
-  !cxyz Using river size - which I think is OK.
   ALLOCATE(grid_area_global(land_size_rivers), STAT = ERROR)
   error_sum = error_sum + ERROR
 
@@ -1042,7 +1040,7 @@ IF ( l_allocate ) THEN
     minor_res_storage_global(:) = 0.0
     priority_order_global(:,:) = 0
     return_flow_gw_global(:)   = 0.0
-    return_flow_sw_global(:)   = 0.0
+    return_flow_river_global(:) = 0.0
     river_storage_global(:)    = 0.0
     sfc_water_frac_global(:)   = 0.0
     supply_irrig_global(:)     = 0.0
@@ -1074,7 +1072,9 @@ ELSE
   IF ( ALLOCATED(sfc_water_frac_global) ) DEALLOCATE(sfc_water_frac_global)
   IF ( ALLOCATED(river_storage_global) )  DEALLOCATE(river_storage_global)
   IF ( ALLOCATED(return_flow_gw_global) ) DEALLOCATE(return_flow_gw_global)
-  IF ( ALLOCATED(return_flow_sw_global) ) DEALLOCATE(return_flow_sw_global)
+  IF ( ALLOCATED(return_flow_river_global) ) THEN
+   DEALLOCATE(return_flow_river_global)
+  END IF
   IF ( ALLOCATED(priority_order_global) ) DEALLOCATE(priority_order_global)
   IF ( ALLOCATED(minor_res_storage_global) ) THEN
     DEALLOCATE(minor_res_storage_global)
@@ -1187,8 +1187,9 @@ END SUBROUTINE gather_global_water
 SUBROUTINE scatter_global_water( conveyance_loss, demand_unmet, gw_abstracted, &
                                  abstracted_minor_res, abstracted_river,       &
                                  gw_nr_abstracted, return_flow_gw,             &
-                                 return_flow_sw, sfc_water_frac, supply_irrig, &
-                                 sw_abstracted, sw_avail_total, water_removed )
+                                 return_flow_river, sfc_water_frac,            &
+                                 supply_irrig, sw_abstracted, sw_avail_total,  &
+                                 water_removed )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -1197,7 +1198,7 @@ SUBROUTINE scatter_global_water( conveyance_loss, demand_unmet, gw_abstracted, &
 
 USE ancil_info, ONLY: land_pts  ! for the current task
 
-USE jules_rivers_mod, ONLY: l_minor_reservoirs 
+USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_rivers
 
 USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_surface_water, &
       l_water_irrigation, n_sw_source, nwater_use,                             &
@@ -1228,7 +1229,7 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Water abstracted from rivers (kg).
   return_flow_gw(land_pts),                                                    &
     ! Water that is returned to renewable groundwater after use (kg).
-  return_flow_sw(land_pts),                                                    &
+  return_flow_river(land_pts),                                                 &
     ! Water that is returned to rivers after use (kg).
   sfc_water_frac(land_pts),                                                    &
     ! Target fraction of demand to be met by surface water.
@@ -1264,8 +1265,14 @@ IF ( l_have_groundwater ) THEN
   CALL scatter_land_field( gw_nr_abstracted_global, gw_nr_abstracted )
 END IF
 ! Note that return_flow_gw is always used, even if groundwater is not
-! modelled.
+! modelled (in that case it is added to runoff).
 CALL scatter_land_field( return_flow_gw_global, return_flow_gw )
+
+! Return flow to rivers is always calculated (but can be zero). However
+! it is only required further if we have rivers.
+IF ( l_rivers ) THEN
+  CALL scatter_land_field( return_flow_river_global, return_flow_river )
+END IF
 
 ! Fields that are only required if we are modelling surface water sources.
 IF ( l_have_surface_water ) THEN
@@ -1276,9 +1283,6 @@ IF ( l_have_surface_water ) THEN
     CALL scatter_land_field( sfc_water_frac_global, sfc_water_frac )
   END IF
 
-  ! Surface water always includes rivers, so we always calculate return flow.
-  !cxyz No longer true.
-  CALL scatter_land_field( return_flow_sw_global, return_flow_sw )
   DO i = 1, n_sw_source
     CALL scatter_land_field( sw_abstracted_global(:,i), sw_abstracted(:,i) )
   END DO
@@ -1291,7 +1295,7 @@ IF ( l_have_surface_water ) THEN
   END IF
 
   ! Save diagnostic of abstraction from rivers.
-  IF ( l_minor_reservoirs ) THEN
+  IF ( sw_river_source > 0 ) THEN
     CALL scatter_land_field( sw_abstracted_global(:,sw_river_source),     &
                              abstracted_river )
   END IF
@@ -1440,7 +1444,7 @@ END SUBROUTINE regrid_to_land
 !##############################################################################
 
 SUBROUTINE calc_river_flux( global_land_pts, grid_area_global,                 &
-                            return_flow_sw_global,                             &
+                            return_flow_river_global,                          &
                             sw_abstracted_river_global,                        &
                             net_abstracted_river_global )
 
@@ -1464,7 +1468,7 @@ INTEGER, INTENT(IN) ::                                                         &
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   grid_area_global(global_land_pts),                                           &
     ! Area of gridbox (m2).
-  return_flow_sw_global(global_land_pts),                                      &
+  return_flow_river_global(global_land_pts),                                   &
     ! Water that is returned to surface waters after use (kg).
   sw_abstracted_river_global(global_land_pts)
     ! Water abstracted from river (kg).
@@ -1488,7 +1492,7 @@ INTEGER ::                                                                     &
 ! Calculate net abstraction and change units from kg to kg m-2.
 DO l=1,global_land_pts
   net_abstracted_river_global(l) = ( sw_abstracted_river_global(l)             &
-                                      - return_flow_sw_global(l) )             &
+                                      - return_flow_river_global(l) )          &
                                    / grid_area_global(l)
 END DO
 

@@ -9,8 +9,7 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
-!cxyz Note annoying variations of line length for "-----".
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Description:
 !   Contains variables and field types for water resource modelling.
 !
@@ -19,7 +18,7 @@
 !
 ! Code Description:
 !   Language: Fortran 90.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 
 MODULE water_resources_vars_mod
 
@@ -231,10 +230,10 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='WATER_RESOURCES_ALLOC'
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Arrays are always allocated, but with minimal size if the science is not
 ! selected. Decide on sizes.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Set default sizes that are used if water resources (or a particular part of
 ! the parameterisation) are not selected.
 global_land_pts_minor_res = 1
@@ -276,19 +275,19 @@ END IF  !  l_water_resources
 !-----------------------------------------------------------------------------
 ALLOCATE( water_resources_data%priority_order(land_pts_dim,nwater_use_dim) )
 
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Ancillary fields on land points.
 ! Although these are not required for every configuration that includes water
 ! resources they are commonly required and hence for convenience we always
 ! allocate them.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ALLOCATE( water_resources_data%conv_loss_frac(land_pts_dim) )
 ALLOCATE( water_resources_data%sfc_water_frac(land_pts_dim) )
 
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Individual demands (which can be prescibed).
 ! We allocate a minimum size if a sector is not being used.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 IF ( l_water_domestic ) THEN
   ALLOCATE( water_resources_data%demand_rate_domestic(land_pts_dim) )
 ELSE
@@ -313,7 +312,7 @@ ELSE
   ALLOCATE( water_resources_data%demand_rate_transfers(1) )
 END IF
 
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Coupling to minor reservoirs.
 ! Only allocated at full size if minor reservoirs are modelled.
 ! Allocated space for all (global) land points because both the water resource
@@ -324,18 +323,18 @@ ALLOCATE( water_resources_data                                                 &
             %abstracted_minor_res_global(global_land_pts_minor_res) )
 print*,'Alloc size=',size( water_resources_data%abstracted_minor_res_global )
 
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Coupling to rivers.
 ! Only allocated at full size if rivers are modelled.
 ! Allocated space for all (global) land points because both the water resource
 ! and river codes operate globally.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ALLOCATE( water_resources_data                                                 &
             %net_abstracted_river_global(global_land_pts_rivers) )
 
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Other variables.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ALLOCATE( water_resources_data%demand_accum(land_pts_dim,nwater_use_dim) )
 ALLOCATE( water_resources_data%demand_unmet(land_pts_dim,nwater_use_dim) )
 ! Groundwater variables.
@@ -351,9 +350,9 @@ ALLOCATE( water_resources_data%abstracted_river(land_pts_rivers) )
 ALLOCATE( water_resources_data%conveyance_loss(land_pts_dim) )
 ALLOCATE( water_resources_data%water_removed(land_pts_dim) )
 
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 ! Initialise arrays.
-!-----------------------------------------------------------------------------
+!------------------------------------------------------------------------------
 water_resources_data%priority_order(:,:)      = 0
 water_resources_data%conv_loss_frac(:)        = 0.0
 water_resources_data%sfc_water_frac(:)        = 0.0

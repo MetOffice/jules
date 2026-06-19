@@ -207,12 +207,12 @@ INTEGER ::                                                                     &
 
 LOGICAL ::                                                                     &
   l_have_groundwater = .FALSE.,                                                &
-    ! Flag indicating if we have a model of groundwater (renewable or
-    ! non-renewable).
+    ! Flag indicating if groundwater sources (renewable or non-renewable) are
+    ! represented.
   l_have_renew_gwater = .FALSE.,                                               &
     ! Flag indicating if we have a model of renewable groundwater.
   l_have_surface_water = .FALSE.
-    ! Flag indicating if we have surface water represented (e.g. rivers).
+    ! Flag indicating if surface water sources (e.g. rivers) are represented.
     ! TRUE means n_sw_source > 0.
 
 CONTAINS
@@ -551,26 +551,6 @@ IF ( l_water_resources ) THEN
 
   END IF  !  l_have_surface_water .AND. l_have_groundwater
 
-  ! If any water use would potentially include return flow to rivers (as coded
-  ! in SUBROUTINE calc_return_flow), check that rivers are modelled.
-  ! The domestic and industrial uses return water to rivers in preference to
-  ! groundwater, while the livestock use returns water to groundwater in
-  ! preference to rivers; in all cases we need either rivers or groundwater.
-  ! Note that by testing on l_rivers rather than l_have_surface_water we cater
-  ! for a potential future extension in which we might have rivers (l_rivers=T)
-  ! that are not used as a water source (likely as part of a counter-factual
-  ! experiment).
-  IF ( .NOT. l_have_groundwater .AND. .NOT. l_rivers ) THEN
-    ! We have neither groundwater nor rivers.
-    ! Check if a return flow would potentially go to rivers.
-    IF ( use_domestic > 0 .OR. use_industry > 0 .OR. use_livestock > 0 ) THEN
-      ! This would potentially return to rivers.
-      error_status = 101  !  a fatal error
-      CALL ereport ( RoutineName, error_status,                                &
-                     "Rivers must be included to allow return flow." )
-    END IF
-  END IF
-
 END IF  !  l_water_resources
 
 END SUBROUTINE check_jules_water_resources
@@ -649,7 +629,7 @@ IF ( l_water_resources ) THEN
 
   !----------------------------------------------------------------------------
   ! Set index for each available surface water source to show position in
-  ! surface water arrays.
+  ! surface water arrays. If a source exists, it is used.
   !----------------------------------------------------------------------------
   ! Initialise as no surface water sources.
   n_sw_source = 0

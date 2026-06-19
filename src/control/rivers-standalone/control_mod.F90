@@ -121,7 +121,6 @@ REAL ::                                                                        &
   flowin(row_length, rows),                                                    &
   bflowin(row_length, rows),                                                   &
   twatstor(river_row_length, river_rows),                                      &
-!cxyz Do we need global_landpts here?
   abstracted_minor_res_global(land_pts),                                       &
     ! Water abstracted from minor reservoirs (kg).
   net_abstracted_river_global(land_pts),                                       &
