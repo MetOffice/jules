@@ -16,7 +16,7 @@ USE io_constants, ONLY: max_sdf_name_len, max_file_name_len, namelist_unit
 
 USE string_utils_mod, ONLY: to_string
 
-USE coastal, ONLY: flandg
+USE coastal, ONLY: flandg, l_use_land_fraction
 
 USE input_mod, ONLY: input_grid => grid
 
@@ -49,7 +49,8 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 !-----------------------------------------------------------------------------
 CHARACTER(LEN=max_file_name_len) :: FILE
 CHARACTER(LEN=max_sdf_name_len) :: land_frac_name
-NAMELIST  / jules_land_frac/ FILE, land_frac_name
+
+NAMELIST /jules_land_frac/ FILE, land_frac_name, l_use_land_fraction
 
 !-----------------------------------------------------------------------------
 ! Initialise
@@ -97,13 +98,15 @@ ELSE
                                       is_climatology = [ .FALSE. ])
 END IF
 
-! For now, make sure that land fraction is either 1.0 or 0.0 - until JULES
-! can deal with coastal tiling
-WHERE ( flandg > EPSILON(1.0) )
-  flandg = 1.0
-ELSE WHERE
-  flandg = 0.0
-END WHERE
+IF ( .NOT. l_use_land_fraction ) THEN
+  ! For now, make sure that land fraction is either 1.0 or 0.0 - until JULES
+  ! can deal with coastal tiling
+  WHERE ( flandg > EPSILON(1.0) )
+    flandg = 1.0
+  ELSE WHERE
+    flandg = 0.0
+  END WHERE
+END IF
 
 RETURN
 

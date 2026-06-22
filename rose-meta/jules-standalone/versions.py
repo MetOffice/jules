@@ -149,3 +149,36 @@ class vn81_t23(MacroUpgrade):
             self.add_setting(config, ["namelist:jules_irrig", "irrig_option"], "0")
 
         return config, self.reports
+
+
+class vn81_t34(MacroUpgrade):
+    """Upgrade macro from JULES #34 by Dan Copsey"""
+
+    BEFORE_TAG = "vn8.1_t23"
+    AFTER_TAG = "vn8.1_t34"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Move the l_inland switch from the rivers namelist to the hydrology
+        # namelist. l_inland should always be false as it is only used
+        # in um-jules and lfric-jules (not jules-standalone).
+        # Also add l_use_land_fraction as false.
+
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            self.add_setting(
+                config, ["namelist:jules_hydrology", "l_inland"], ".false."
+            )
+        self.remove_setting(config, ["namelist:jules_rivers", "l_inland"])
+
+        self.add_setting(
+            config,
+            ["namelist:jules_land_frac", "l_use_land_fraction"],
+            ".false.",
+        )
+        return config, self.reports

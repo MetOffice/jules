@@ -987,7 +987,7 @@ DO i = 1,nvars
          'flood_storage_prev', 'rfm_bflowin_rp', 'rfm_flowin_rp',              &
          'rfm_substore_rp', 'rfm_surfstore_rp', 'river_channel_storage',       &
          'river_channel_flow', 'river_depth_prev', 'river_flow_prev',          &
-         'rivers_outflow_rp', 'rivers_sto_rp' )
+         'rivers_outflow_rp', 'rivers_sto_rp', 'inland_outflow_rp' )
     ! nothing to do
 
     !-------------------------------------------------------------------------

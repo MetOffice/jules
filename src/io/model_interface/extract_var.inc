@@ -2683,6 +2683,9 @@ CASE ( 'rfm_surfstore_rp' )
 CASE ( 'rivers_outflow_rp' )
   cube = cube_from_array(rivers%rivers_outflow_rp)
 
+CASE ( 'inland_outflow_rp' )
+  cube = cube_from_array(rivers%inland_outflow_rp)
+
 CASE ( 'river_elevation' )
   cube = cube_from_array(rivers%river_elevation)
 
