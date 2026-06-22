@@ -462,9 +462,21 @@ Rivers
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::i_river_vn` = 2.                                                      |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
-| ``rivers_sto_rp``             | River routing gridbox river storage (kg)                                                      | np_rivers  |
+| ``rivers_sto_rp``             | River routing gridbox river storage (kg).                                                     | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::i_river_vn` = 3.                                                      |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``minor_res_capacity``        | Storage capacity of minor reservoirs (kg).                                                    | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``minor_res_frac``            | Catchment area of minor reservoirs as fraction of area of gridbox                             | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``minor_res_storage``         | Water stored in minor reservoirs (kg).                                                        | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``frac_fplain_rp``            | Overbank inundation area as a fraction of river routing gridcell area.                        | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_riv_overbank` = TRUE.                             |            |
@@ -1292,10 +1304,7 @@ These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_r
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | Name                      | Description                                                                    | Dimensions |
 +===========================+================================================================================+============+
-| ``conv_loss_frac``        | Fraction of abstracted water that is lost during conveyance from source to     |            |
-|                           | user.                                                                          |            |
-+---------------------------+--------------------------------------------------------------------------------+------------+
-| ``sfc_water_frac``        | Target for the fraction of demand to be met from surface water.                |            |
+| Variables that quantify the demand for water:                                                                           |
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``demand_rate_domestic``  | Demand rate for water for domestic use (kg s\ :sup:`-1`).                      |            |
 |                           | Only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_domestic` = TRUE.   |            |
@@ -1308,9 +1317,6 @@ These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_r
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``demand_rate_transfers`` | Demand rate for water for transfers (kg s\ :sup:`-1`).                         |            |
 |                           | Only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_transfers` = TRUE.  |            |
-+---------------------------+--------------------------------------------------------------------------------+------------+
-| ``water_demand``          | Demand for water across all water resource sectors (kg s\ :sup:`-1`), including|            |
-|                           | any allowance for conveyance loss.                                             |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``demand_domestic``       | Demand for water for domestic use (kg s\ :sup:`-1`), including any allowance   |            |
 |                           | for conveyance loss.                                                           |            |
@@ -1336,7 +1342,10 @@ These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_r
 |                           | conveyance loss.                                                               |            |
 |                           | Only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_transfers` = TRUE.  |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
-| ``water_demand_unmet``    | The part of the total demand for water that is not satisfied (kg s\ :sup:`-1`).|            |
+| ``water_demand``          | Demand for water across all water resource sectors (kg s\ :sup:`-1`), including|            |
+|                           | any allowance for conveyance loss.                                             |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| Variables that quantify how much of the demand for water cannot be met:                                                 |
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``unmet_domestic``        | The part of the demand for water for domestic use that is not satisfied        |            |
 |                           | (kg s\ :sup:`-1`).                                                             |            |
@@ -1362,18 +1371,42 @@ These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_r
 |                           | (kg s\ :sup:`-1`).                                                             |            |
 |                           | Only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_transfers` = TRUE.  |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
+| ``water_demand_unmet``    | The part of the total demand for water that is not satisfied (kg s\ :sup:`-1`).|            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| Variables that quantify how much water is available and abstracted:                                                     |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``gw_avail``              | Groundwater that is available for abstraction at start of timestep (kg) .      |            |
+|                           | Only available if groundwater sources are modelled.                            |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``sw_avail``              | Surface water that is available for abstraction at start of timestep (kg).     |            |
+|                           | Only available if surface water sources are modelled.                          |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``gw_abstracted``         | Water abstracted from renewable groundwater sources (kg s\ :sup:`-1`).         |            |
+|                           | Only available if a suitable groundwater model is used.                        |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``gw_nr_abstracted``      | Water abstracted from non-renewable groundwater sources (kg s\ :sup:`-1`).     |            |
+|                           | Only available if a suitable groundwater model is used.                        |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``minor_res_abstracted``  | Water abstracted from minor reservoirs (kg s\ :sup:`-1`).                      |            |
+|                           | Only available if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.          |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``river_abstracted``      | Water abstracted from rivers (kg s\ :sup:`-1`).                                |            |
+|                           | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE.                    |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``sw_abstracted``         | Water abstracted from surface water sources (kg s\ :sup:`-1`).                 |            |
+|                           | Only available if surface water sources are modelled.                          |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
 | ``irrig_water``           | Water applied as irrigation (kg m\ :sup:`-2` s\ :sup:`-1`).                    |            |
 |                           | Only available if :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE.                  |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
-| ``gw_avail``              | Groundwater that is available for abstraction at start of timestep (kg) .      |            |
+| Miscellaneous water resource variables:                                                                                 |
 +---------------------------+--------------------------------------------------------------------------------+------------+
-| ``sw_avail``              | Surface water that is available for abstraction at start of timestep (kg).     |            |
+| ``conv_loss_frac``        | Fraction of abstracted water that is lost during conveyance from source to     |            |
+|                           | user (an input to the model).                                                  |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
-| ``gw_abstracted``         | Water abstracted from renewable groundwater sources (kg s\ :sup:`-1`).         |            |
+| ``conveyance_loss``       | Water that is lost during conveyance (kg s\ :sup:`-1`).                        |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
-| ``gw_nr_abstracted``      | Water abstracted from non-renewable groundwater sources (kg s\ :sup:`-1`).     |            |
-+---------------------------+--------------------------------------------------------------------------------+------------+
-| ``sw_abstracted``         | Water abstracted from surface water sources (kg s\ :sup:`-1`).                 |            |
+| ``sfc_water_frac``        | Target for the fraction of demand to be met from surface water.                |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``water_removed``         | Water that is removed from the system during use (kg s\ :sup:`-1`).            |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
