@@ -95,6 +95,11 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
     ! Water that is removed from the system during use, e.g. incorporated into
     ! manufactured goods (kg).
 
+! Dr Hook variables
+INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
+INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
+REAL(KIND=jprb)               :: zhook_handle
+
 CONTAINS
 
 !##############################################################################
@@ -385,11 +390,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
   supply_irrig(land_pts)
     ! Water supplied for irrigation (kg).
 
-! Dr Hook variables
-INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
-INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
-REAL(KIND=jprb)               :: zhook_handle
-
 !------------------------------------------------------------------------------
 !end of header
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
@@ -564,8 +564,17 @@ IF ( l_water_res_call ) THEN
     END IF
 
     !--------------------------------------------------------------------------
+    ! Decide where return flows should go.
+    ! This is essentially part of coupling to other parts of the model but the
+    ! current code structure requires this bit to be done now (before net
+    ! abstraction from rivers is calculated).
+    !--------------------------------------------------------------------------
+    CALL redirect_return_flows( global_land_pts, return_flow_gw_global,        &
+                                return_flow_river_global )
+
+    !--------------------------------------------------------------------------
     ! Calculate the net abstraction from rivers.
-    !------------<--------------------------------------------------------------
+    !--------------------------------------------------------------------------
     IF ( sw_river_source > 0 ) THEN
       CALL calc_river_flux( global_land_pts, grid_area_global,                 &
                             return_flow_river_global,                          &
@@ -669,15 +678,9 @@ INTEGER ::                                                                     &
   i
     ! Loop counter.
 
-! Dr Hook variables
-INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
-INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
-REAL(KIND=jprb)               :: zhook_handle
-
 !------------------------------------------------------------------------------
 !end of header
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
-
 
 IF ( l_prioritise ) THEN
   ! Set sector priorities at each location.
@@ -765,11 +768,6 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
 !------------------------------------------------------------------------------
 CHARACTER(LEN=*), PARAMETER :: RoutineName = 'ACCUMULATE_DEMAND'
 
-! Dr Hook variables
-INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
-INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
-REAL(KIND=jprb)               :: zhook_handle
-
 !------------------------------------------------------------------------------
 !end of header
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
@@ -839,11 +837,6 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName = 'ADD_CONVEYANCE_LOSS'
 !------------------------------------------------------------------------------
 INTEGER :: i
   !  Loop counter.
-
-! Dr Hook variables
-INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
-INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
-REAL(KIND=jprb)               :: zhook_handle
 
 !------------------------------------------------------------------------------
 !end of header
@@ -927,6 +920,7 @@ INTEGER ::                                                                     &
 
 !------------------------------------------------------------------------------
 !end of header
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 IF ( l_allocate ) THEN
 
@@ -1089,6 +1083,7 @@ ELSE
 
 END IF  !  l_allocate
 
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE allocate_global_water
 
@@ -1135,6 +1130,11 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Fraction of demand to be met from surface water.
 
 !------------------------------------------------------------------------------
+! Local parameters
+!------------------------------------------------------------------------------
+CHARACTER(LEN=*), PARAMETER :: RoutineName = 'GATHER_GLOBAL_WATER'
+
+!------------------------------------------------------------------------------
 ! Local variables.
 !------------------------------------------------------------------------------
 INTEGER ::                                                                     &
@@ -1148,6 +1148,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 
 !------------------------------------------------------------------------------
 !end of header
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 CALL gather_land_field( conv_loss_frac, conv_loss_frac_global )
 
@@ -1178,6 +1179,7 @@ IF ( sw_river_source > 0 ) THEN
   CALL gather_land_field( grid_area_lp, grid_area_global )
 END IF
 
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE gather_global_water
 
@@ -1245,12 +1247,18 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! manufactured goods (kg).
 
 !------------------------------------------------------------------------------
+! Local parameters
+!------------------------------------------------------------------------------
+CHARACTER(LEN=*), PARAMETER :: RoutineName = 'SCATTER_GLOBAL_WATER'
+
+!------------------------------------------------------------------------------
 ! Local scalar variables
 !------------------------------------------------------------------------------
 INTEGER :: i  !  loop counter
 
 !------------------------------------------------------------------------------
 !end of header
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 ! Fields that are always required.
 CALL scatter_land_field( conveyance_loss_global, conveyance_loss )
@@ -1307,6 +1315,7 @@ IF ( l_water_irrigation ) THEN
   CALL scatter_land_field( supply_irrig_global, supply_irrig )
 END IF
 
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE scatter_global_water
 
@@ -1377,11 +1386,6 @@ INTEGER ::                                                                     &
   errorstatus
     ! Error value.
 
-! Dr Hook variables
-INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
-INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
-REAL(KIND=jprb)               :: zhook_handle
-
 !------------------------------------------------------------------------------
 !end of header
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
@@ -1443,6 +1447,88 @@ END SUBROUTINE regrid_to_land
 !##############################################################################
 !##############################################################################
 
+SUBROUTINE redirect_return_flows( global_land_pts,                             &
+                                  return_flow_gw_global,                       &
+                                  return_flow_river_global )
+
+!------------------------------------------------------------------------------
+! Description:
+!   Change the destination of return flows depending on what sinks are
+!   available.
+!------------------------------------------------------------------------------
+
+USE jules_rivers_mod, ONLY: l_rivers
+USE jules_water_resources_mod, ONLY: l_have_renew_gwater
+
+IMPLICIT NONE
+
+!------------------------------------------------------------------------------
+! Scalar arguments with INTENT(IN)
+!------------------------------------------------------------------------------
+INTEGER, INTENT(IN) ::                                                         &
+  global_land_pts
+    ! The number of land points.
+
+!------------------------------------------------------------------------------
+! Array arguments with INTENT(IN OUT)
+!------------------------------------------------------------------------------
+REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
+  return_flow_gw_global(global_land_pts),                                      &
+    ! Water that is returned to renewable groundwater after use (kg).
+  return_flow_river_global(global_land_pts)
+    ! Water that is returned to rivers after use (kg).
+
+!------------------------------------------------------------------------------
+! Local parameters
+!------------------------------------------------------------------------------
+CHARACTER(LEN=*), PARAMETER :: RoutineName = 'REDIRECT_RETURN_FLOWS'
+
+!------------------------------------------------------------------------------
+! Local variables.
+!------------------------------------------------------------------------------
+INTEGER ::                                                                     &
+  l ! Loop counter.
+
+!------------------------------------------------------------------------------
+!end of header
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
+
+!------------------------------------------------------------------------------
+! Return flows to groundwater and rivers have been calculated assuming those
+! sinks are available. If the preferred sink is not modelled the other is used
+! (if available). If neither is available we add to the groundwater return flow
+! because later code will divert that to runoff.
+! Note that if both rivers and renewable groundwater are modelled nothing is
+! changed in this subroutine.
+!------------------------------------------------------------------------------
+IF ( l_rivers .AND. .NOT. l_have_renew_gwater ) THEN
+
+  ! River are modelled but renewable groundwater is not.
+  ! Direct all return flows to rivers.
+  DO l=1,global_land_pts
+    return_flow_river_global(l) = return_flow_river_global(l)                  &
+                                  +  return_flow_gw_global(l)
+    return_flow_gw_global(l)    = 0.0
+  END DO
+
+ELSE IF ( .NOT. l_rivers ) THEN
+
+  ! Rivers are not modelled. Groundwater might or might not be modelled.
+  ! Direct all return flows to groundwater (for now).
+  DO l=1,global_land_pts
+    return_flow_gw_global(l)    = return_flow_gw_global(l)                     &
+                                  +  return_flow_river_global(l)
+    return_flow_river_global(l) = 0.0
+  END DO
+
+END IF
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
+RETURN
+END SUBROUTINE redirect_return_flows
+
+!##############################################################################
+!##############################################################################
 SUBROUTINE calc_river_flux( global_land_pts, grid_area_global,                 &
                             return_flow_river_global,                          &
                             sw_abstracted_river_global,                        &
@@ -1469,7 +1555,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   grid_area_global(global_land_pts),                                           &
     ! Area of gridbox (m2).
   return_flow_river_global(global_land_pts),                                   &
-    ! Water that is returned to surface waters after use (kg).
+    ! Water that is returned to rivers after use (kg).
   sw_abstracted_river_global(global_land_pts)
     ! Water abstracted from river (kg).
 
@@ -1481,6 +1567,11 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Net abstraction from river (kg m-2).
 
 !------------------------------------------------------------------------------
+! Local parameters
+!------------------------------------------------------------------------------
+CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CALC_RIVER_FLUX'
+
+!------------------------------------------------------------------------------
 ! Local variables.
 !------------------------------------------------------------------------------
 INTEGER ::                                                                     &
@@ -1488,6 +1579,7 @@ INTEGER ::                                                                     &
 
 !------------------------------------------------------------------------------
 !end of header
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 ! Calculate net abstraction and change units from kg to kg m-2.
 DO l=1,global_land_pts
@@ -1496,6 +1588,7 @@ DO l=1,global_land_pts
                                    / grid_area_global(l)
 END DO
 
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE calc_river_flux
 

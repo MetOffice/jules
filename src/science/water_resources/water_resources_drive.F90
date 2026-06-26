@@ -34,7 +34,7 @@ PRIVATE  !  private scope by default
 PUBLIC water_resources_drive
 
 ! Module parameters.
-CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
+CHARACTER(LEN=*), PARAMETER ::                                                 &
   ModuleName = 'WATER_RESOURCES_DRIVE_MOD'
 
 CONTAINS
@@ -293,22 +293,6 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Fraction of demand to be met from surface water.
 
 !------------------------------------------------------------------------------
-! Local scalar variables.
-!------------------------------------------------------------------------------
-INTEGER ::                                                                     &
-  l
-    ! Loop counter.
-
-!------------------------------------------------------------------------------
-! Local scalar variables.
-!------------------------------------------------------------------------------
-REAL(KIND=real_jlslsm) ::                                                      &
-  denom,                                                                       &
-    ! Denominator (kg).
-  surface_water
-    ! Available surface water, multiplied by weighting factor (kg).
-
-!------------------------------------------------------------------------------
 ! Local parameters.
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), PARAMETER ::                                           &
@@ -317,6 +301,19 @@ REAL(KIND=real_jlslsm), PARAMETER ::                                           &
     ! (kg).
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CALC_TARGET_SPLIT'
+
+!------------------------------------------------------------------------------
+! Local scalar variables.
+!------------------------------------------------------------------------------
+INTEGER ::                                                                     &
+  l
+    ! Loop counter.
+
+REAL(KIND=real_jlslsm) ::                                                      &
+  denom,                                                                       &
+    ! Denominator (kg).
+  surface_water
+    ! Available surface water, multiplied by weighting factor (kg).
 
 ! Dr Hook variables
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
@@ -388,6 +385,11 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Demand for water from groundwater, for each water use (kg).
 
 !------------------------------------------------------------------------------
+! Local parameters.
+!------------------------------------------------------------------------------
+CHARACTER(LEN=*), PARAMETER :: RoutineName = 'SPLIT_DEMANDS'
+
+!------------------------------------------------------------------------------
 ! Local scalar variables.
 !------------------------------------------------------------------------------
 INTEGER ::                                                                     &
@@ -400,11 +402,6 @@ INTEGER ::                                                                     &
 REAL(KIND=real_jlslsm) ::                                                      &
   sw_frac(global_land_pts,nwater_use)
     ! Surface water fraction for each water use.
-
-!------------------------------------------------------------------------------
-! Local parameters.
-!------------------------------------------------------------------------------
-CHARACTER(LEN=*), PARAMETER :: RoutineName = 'SPLIT_DEMANDS'
 
 ! Dr Hook variables
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
@@ -521,6 +518,11 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! Water that is lost during conveyance, for each water use (kg).
 
 !------------------------------------------------------------------------------
+! Local parameters.
+!------------------------------------------------------------------------------
+CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CALC_CONVEYANCE_LOSS'
+
+!------------------------------------------------------------------------------
 ! Local scalar variables.
 !------------------------------------------------------------------------------
 INTEGER ::                                                                     &
@@ -533,11 +535,6 @@ INTEGER ::                                                                     &
 REAL(KIND=real_jlslsm) ::                                                      &
   loss_frac(global_land_pts)
     ! Fraction of water that is lost during conveyance.
-
-!------------------------------------------------------------------------------
-! Local parameters.
-!------------------------------------------------------------------------------
-CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CALC_CONVEYANCE_LOSS'
 
 ! Dr Hook variables
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
@@ -589,14 +586,12 @@ SUBROUTINE calc_return_flow( global_land_pts, abstracted_per_use,              &
 
 !------------------------------------------------------------------------------
 ! Description:
-!   Calculate return flows (i.e. water that is returned after use) and water
-!   that is removed from the system during use.
+!   Partition the water delivered for each use into a return flow and water
+!   removed through that use.
 !------------------------------------------------------------------------------
 
-USE jules_rivers_mod, ONLY: l_rivers
-
 USE jules_water_resources_mod, ONLY:                                           &
-  l_have_groundwater, nwater_use, rf_domestic,                                 &
+  nwater_use, rf_domestic,                                                     &
   rf_livestock, rf_industry, use_environment, use_domestic, use_industry,      &
   use_irrigation, use_livestock, use_transfers
 
@@ -624,13 +619,16 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   return_flow_gw(global_land_pts),                                             &
     ! Water that is returned to renewable groundwater after use (kg).
-    ! If there is no renewable groundwater, this water is later added to
-    ! the runoff flux.
   return_flow_river(global_land_pts),                                          &
     ! Water that is returned to rivers after use (kg).
   water_removed(global_land_pts)
     ! Water that is removed from the system during use, e.g. incorporated into
     ! manufactured goods (kg).
+
+!------------------------------------------------------------------------------
+! Local parameters.
+!------------------------------------------------------------------------------
+CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CALC_RETURN_FLOW'
 
 !------------------------------------------------------------------------------
 ! Local scalar variables.
@@ -651,11 +649,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
   return_flow_frac_river
     ! Fraction of the water delivered that is then returned to rivers.
 
-!------------------------------------------------------------------------------
-! Local parameters.
-!------------------------------------------------------------------------------
-CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CALC_RETURN_FLOW'
-
 ! Dr Hook variables
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
@@ -673,50 +666,25 @@ water_removed(:)     = 0.0
 DO i = 1, nwater_use
 
   !---------------------------------------------------------------------------
-  ! Set fraction of flow that is returned for this water use. Each use returns
-  ! water to either groundwater or river water; if the preferred sink
-  ! is not modelled the other is used if available. If neither is available
-  ! the default is to add to the groundwater variable because later code will
-  ! divert that return flow to runoff.
+  ! Set the fraction of flow that is returned for this water use. Each use
+  ! returns water to either groundwater or rivers. The complementary fraction
+  ! is removed from the system (e.g. by being incorporated into a product).
   !---------------------------------------------------------------------------
   IF ( i == use_domestic ) THEN
-    ! Domestic water is returned to rivers, if those are modelled, otherwise to
-    ! groundwater (in which case there is no need to check whether groundwater
-    ! is included because the return flow will be added to runoff in that
-    ! configuration).
-    IF ( l_rivers ) THEN
-      return_flow_frac_gw    = 0.0
-      return_flow_frac_river = rf_domestic
-    ELSE
-      return_flow_frac_gw    = rf_domestic
-      return_flow_frac_river = 0.0
-    END IF
-    removed_frac = 1.0 - rf_domestic
+    ! Domestic water is returned to rivers.
+    return_flow_frac_gw    = 0.0
+    return_flow_frac_river = rf_domestic
+    removed_frac           = 1.0 - rf_domestic
   ELSE IF ( i == use_industry ) THEN
-    ! Industrial water is returned to rivers, if those are modelled, otherwise
-    ! to groundwater.
-    IF ( l_rivers ) THEN
-      return_flow_frac_gw    = 0.0
-      return_flow_frac_river = rf_industry
-    ELSE
-      return_flow_frac_gw    = rf_industry
-      return_flow_frac_river = 0.0
-    END IF
-    removed_frac = 1.0 - rf_industry
+    ! Industrial water is returned to rivers.
+    return_flow_frac_gw    = 0.0
+    return_flow_frac_river = rf_industry
+    removed_frac           = 1.0 - rf_industry
   ELSE IF ( i == use_livestock ) THEN
-    ! Livestock water is returned to groundwater, otherwise to
-    ! rivers. If neither is available we add to the groundwater return flow
-    ! which is later added to runoff.
-    IF ( l_have_groundwater                                                    &
-         .OR. ( .NOT. l_have_groundwater .AND. .NOT. l_rivers ) ) THEN
-      return_flow_frac_gw    = rf_livestock
-      return_flow_frac_river = 0.0
-    ELSE
-      ! No groundwater but rivers.
-      return_flow_frac_gw    = 0.0
-      return_flow_frac_river = rf_livestock
-    END IF
-    removed_frac = 1.0 - rf_livestock
+    ! Livestock water is returned to renewable groundwater.
+    return_flow_frac_gw    = rf_livestock
+    return_flow_frac_river = 0.0
+    removed_frac           = 1.0 - rf_livestock
   ELSE
     ! For all other uses no water is returned and none is removed (in that the
     ! water remains in the system and is accounted for). There is nothing more
@@ -733,8 +701,7 @@ DO i = 1, nwater_use
     ! This is the water abstracted, minus conveyance loss.
     delivered = abstracted_per_use(l,i) - conveyance_loss_use(l,i)
 
-    ! Add to totals. Both GW and SW return flows are always calculated, though
-    ! either can be zero if those sources are not represented.
+    ! Add to totals
     return_flow_gw(l) = return_flow_gw(l) + return_flow_frac_gw * delivered
     return_flow_river(l) = return_flow_river(l)                                &
                              + return_flow_frac_river * delivered
