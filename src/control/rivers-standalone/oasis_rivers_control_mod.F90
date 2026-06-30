@@ -330,7 +330,9 @@ USE mod_oasis,        ONLY: oasis_put, oasis_sent, oasis_loctrans,             &
                             oasis_torestout, oasis_waitgroup, oasis_ok
 USE oasis_rivers_mod, ONLY: np_send, cpl_send
 USE jules_rivers_mod, ONLY: rivers_type, n_rivers,                             &
-                            l_outflow_per_river, calc_outflow_per_river
+                            l_outflow_per_river, calc_outflow_per_river,       &
+                            nx_rivers, ny_rivers, l_inland_outflow
+USE rivers_regrid_mod, ONLY: rp_to_twod
 USE missing_data_mod, ONLY: imdi
 !
 IMPLICIT NONE
@@ -353,6 +355,7 @@ INTEGER, INTENT(IN) :: TIME
 ! Local variables
 REAL, ALLOCATABLE :: outflow_per_river(:)
 INTEGER :: i, ip, ierror, ERROR
+REAL    :: inland_outflow(nx_rivers, ny_rivers)
 
 CHARACTER(LEN=*), PARAMETER  :: RoutineName = 'OASIS_SEND'
 
@@ -366,12 +369,19 @@ IF (l_outflow_per_river) THEN
   outflow_per_river = calc_outflow_per_river(rivers)
 END IF
 
+! Convert inland basin flow from river points grid to 2D rivers grid
+IF (l_inland_outflow) THEN
+  CALL rp_to_twod(rivers%inland_outflow_rp, inland_outflow, rivers)
+END IF
+
 ! Loop in all variables that are sent via coupling
 DO i = 1, np_send
   SELECT CASE(TRIM(cpl_send(i)%field_name))
     ! send the right field
   CASE ('outflow_per_river')
     CALL oasis_put(cpl_send(i)%field_id,TIME,outflow_per_river,ierror)
+  CASE ('inland_outflow')
+    CALL oasis_put(cpl_send(i)%field_id,TIME,inland_outflow,ierror)
   END SELECT
 
   IF (ierror /= oasis_sent .AND. ierror /= oasis_loctrans .AND.                &

@@ -282,6 +282,14 @@ and removed in the GUI window as described in the table below. To:
 
    Index of C3 pasture PFT surface type (#302).
 
+.. nml:member:: c3_irrig
+
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
+
+   Index of C3 irrigated PFT surface type (#303). Can only be used if :nml:mem:`JULES_IRRIG::irrig_option` = 2.
+
 .. nml:member:: c4_grass
 
    :type: integer
@@ -305,6 +313,14 @@ and removed in the GUI window as described in the table below. To:
    :default: -32768
 
    Index of C4 pasture PFT surface type (#402).
+
+.. nml:member:: c4_irrig
+
+   :type: integer
+   :permitted: 1:npft
+   :default: -32768
+
+   Index of C4 irrigated PFT surface type (#403). Can only be used if :nml:mem:`JULES_IRRIG::irrig_option` = 2.
 
 .. nml:member:: shrub
 

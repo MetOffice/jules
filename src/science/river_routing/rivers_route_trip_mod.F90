@@ -44,11 +44,13 @@ SUBROUTINE rivers_route_trip( sfc_runoff, sub_sfc_runoff, outflow, baseflow,   &
                               rivers_outflow_rp, rivers_next_rp,               &
                               rivers_seq_rp, rivers_sto_rp ,                   &
                               rivers_boxareas_rp,                              &
-                              rivers_lat_rp, rivers_lon_rp )
+                              rivers_lat_rp, rivers_lon_rp,                    &
+                              inland_outflow_rp, land_fraction_rp )
 
 USE jules_rivers_mod, ONLY:                                                    &
 !  imported scalars with intent(in)
-     np_rivers,nstep_rivers,nseqmax,river_mouth,rivers_meander,rivers_speed
+     np_rivers,nstep_rivers,nseqmax,river_mouth,rivers_meander,rivers_speed,   &
+     inland_drainage, l_inland_outflow
 
 USE rivers_utils, ONLY:                                                        &
 !  imported procedures
@@ -56,6 +58,8 @@ USE rivers_utils, ONLY:                                                        &
 
 USE timestep_mod, ONLY:                                                        &
    timestep
+
+USE missing_data_mod, ONLY: imdi
 
 USE um_types, ONLY: real_jlslsm
 
@@ -80,8 +84,10 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
      ,baseflow(np_rivers)                                                      &
      !  rate of channel base flow leaving gridbox (kg m-2 s-1)
      !  At present this is set to zero.
-    ,rivers_outflow_rp(np_rivers)
+    ,rivers_outflow_rp(np_rivers)                                              &
      ! River outflow into the ocean (kg s-1)
+    ,inland_outflow_rp(np_rivers)
+     ! Inland basin flow into the soil on river grid (kg m-2 s-1)
 
 ! Rivers Arrays
 INTEGER, INTENT(IN)     :: rivers_next_rp(:)
@@ -90,10 +96,13 @@ REAL,    INTENT(IN)     :: rivers_boxareas_rp(:)
 REAL,    INTENT(IN)     :: rivers_lat_rp(:)
 REAL,    INTENT(IN)     :: rivers_lon_rp(:)
 REAL,    INTENT(IN OUT) :: rivers_sto_rp(:)
+REAL,    INTENT(IN)     :: land_fraction_rp(:)
 
 INTEGER ::                                                                     &
 !  local scalars (work/loop counters)
-     ip, iseq
+     ip, iseq                                                                  &
+!  local arrays
+     ,coastal_mask_rp(np_rivers)
 
 REAL(KIND=real_jlslsm) ::                                                      &
 !  local scalars
@@ -118,16 +127,46 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='RIVERS_ROUTE_TRIP'
 
 dt = REAL(nstep_rivers) * timestep
 
-! Initialise inflow with total runoff generated over each gridbox.
-! Convert runoff to kg s-1 flux
-DO ip = 1, np_rivers
-  inflow(ip) = ( sfc_runoff(ip) + sub_sfc_runoff(ip) ) *                       &
-                                  rivers_boxareas_rp(ip)
+coastal_mask_rp(:) = imdi
+IF ( l_inland_outflow ) THEN
+  ! Set coastal mask; used to direct inland water flow either to soil moisture
+  ! or ocean for water conservation purposes.
+  WHERE ( ( 1.0 - land_fraction_rp(:) ) > EPSILON(1.0) )
+    coastal_mask_rp(:) = 1
+  ELSE WHERE
+    coastal_mask_rp(:) = 0
+  END WHERE
+END IF
 
+DO ip = 1, np_rivers
   ! Initialise outflows.
   outflow(ip)           = 0.0
   baseflow(ip)          = 0.0
   rivers_outflow_rp(ip) = 0.0
+  inland_outflow_rp(ip) = 0.0
+
+  ! Initialise inflow with total runoff generated over each gridbox.
+  ! Convert runoff to kg s-1 flux
+  inflow(ip) = ( sfc_runoff(ip) + sub_sfc_runoff(ip) ) *                       &
+                                  rivers_boxareas_rp(ip)
+
+  IF ( l_inland_outflow ) THEN
+    ! Inland basin flow is passed to the soil moisture to conserve water in
+    ! coupled models.
+    ! To avoid the scenario where the soil becomes super-saturated, runs off
+    ! to the rivers only to be returned to the inland basin, then back to the
+    ! soil again creating a loop, we send the inflow to the ocean via the
+    ! closest large river favouring those with larger climatological outflows
+    ! (defined by river number ancillary).
+    ! Coastal inland water basins are treated in the same way as river mouths.
+    IF ( rivers_next_rp(ip) == inland_drainage .AND.                           &
+       coastal_mask_rp(ip) == 0 ) THEN
+      ! Non-coast inland basin send the inflow to the ocean
+      rivers_outflow_rp(ip) = inflow(ip)
+      inflow(ip)            = 0.0
+    END IF
+  END IF
+
 END DO
 
 !-----------------------------------------------------------------------------
@@ -188,13 +227,24 @@ END DO !river sequences
 ! End main TRIP algorithm routine
 
 !-----------------------------------------------------------------------------
-! Catch all outflow going into the sea and save it in rivers_outflow_rp.
+! Catch all outflow and either save it in rivers_outflow_rp (for outflow to
+! the ocean) or inland_outflow_rp (for inland basin flow back to the soil).
 ! Also return flows in flux density units kg/m2/s.
 !-----------------------------------------------------------------------------
 DO ip = 1,np_rivers
 
   IF ( rivers_next_rp(ip) == river_mouth ) THEN
     rivers_outflow_rp(ip) = outflow(ip)
+  ELSE IF ( l_inland_outflow .AND. rivers_next_rp(ip) == inland_drainage ) THEN
+    SELECT CASE ( coastal_mask_rp(ip) )
+    CASE ( 1 )
+      ! Coastal inland basins, direct outflow to ocean (as for river mouth)
+      rivers_outflow_rp(ip) = outflow(ip)
+    CASE ( 0 )
+      ! Non-coastal inland basins, direct flow in flux density units
+      ! kg/m2/s to soil moisture
+      inland_outflow_rp(ip) = outflow(ip) / rivers_boxareas_rp(ip)
+    END SELECT
   END IF
 
   ! Return flows in flux density units kg/m2/s

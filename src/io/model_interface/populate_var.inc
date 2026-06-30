@@ -2439,6 +2439,14 @@ CASE ( 'rivers_outflow_rp' )
     rivers%rivers_outflow_rp(:) = const_val
   END IF
 
+CASE ( 'inland_outflow_rp' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = cube_create([ SIZE(cube%values) ])
+    CALL cube_get_data(cube_land, rivers%inland_outflow_rp)
+  ELSE
+    rivers%inland_outflow_rp(:) = const_val
+  END IF
+
 CASE ( 'rfm_surfstore_rp' )
   IF ( PRESENT(cube) ) THEN
     cube_land = cube_create([ SIZE(cube%values) ])

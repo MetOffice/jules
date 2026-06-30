@@ -32,7 +32,8 @@ CONTAINS
 SUBROUTINE jules_land_sf_implicit (                                            &
 ! IN values defining field dimensions and subset to be processed :
  land_pts,land_index,nsurft,surft_index,surft_pts,sm_levels,                   &
- canhc_surft,canopy,flake,smc_soilt,tile_frac,wt_ext_surft,fland,flandg,       &
+ canhc_surft,canopy,flake,smc_soilt,tile_frac,                                 &
+ non_irrig_frac,wt_ext_surft,fland,flandg,                                     &
 ! IN values defining water tracer field dimensions
  n_wtrac_jls, n_evap_srce,                                                     &
 ! IN everything not covered so far :
@@ -161,6 +162,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 ,tile_frac(land_pts,nsurft)                                                    &
                              ! IN Tile fractions including
                              !    snow cover in the ice tile.
+,non_irrig_frac(land_pts)                                                      &
+                             ! IN Fraction of non-irrigated tiles.
 ,wt_ext_surft(land_pts,sm_levels,nsurft)                                       &
                              ! IN Fraction of evapotranspiration
                              !    extracted from each soil layer
@@ -567,7 +570,8 @@ CALL sf_evap (                                                                 &
   land_pts,nsurft,                                                             &
   land_index,surft_index,surft_pts,sm_levels,fland,                            &
   ashtf_prime_surft,canopy,dtrdz_charney_grid_1,flake,fracaero_t,fracaero_s,   &
-  snow_surft,resfs,resft,rhokh_surft,tile_frac,smc_soilt,wt_ext_surft,         &
+  snow_surft,resfs,resft,rhokh_surft,tile_frac,non_irrig_frac,                 &
+  smc_soilt,wt_ext_surft,                                                      &
   timestep,r_gamma,fqw_1,fqw_surft,ftl_1,ftl_surft,tstar_surft,                &
   ecan,ecan_surft,elake_surft,esoil_soilt,esoil_surft,ei_surft,ext_soilt,      &
   sf_diag, non_lake_frac,                                                      &

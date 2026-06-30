@@ -177,6 +177,8 @@ TYPE :: ainfo_data_type
   REAL(KIND=real_jlslsm), ALLOCATABLE :: longitude(:,:)
     ! longitude (degree)
     ! hard-coded to 0 if l_local_solar_time=T to get local diagnostics
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: non_irrig_frac(:)
+    ! Fraction of non-irrigated tiles.
 END TYPE
 
 !================================
@@ -216,6 +218,8 @@ TYPE :: ainfo_type
   REAL(KIND=real_jlslsm), POINTER :: sstfrz_ij(:,:)
   REAL(KIND=real_jlslsm), POINTER :: latitude(:,:)
   REAL(KIND=real_jlslsm), POINTER :: longitude(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: non_irrig_frac(:)
+
 END TYPE
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='ANCIL_INFO'
@@ -281,6 +285,7 @@ ALLOCATE(ainfo_data%z1_tq_ij(t_i_length,t_j_length))
 ALLOCATE(ainfo_data%frac_surft(land_pts,ntype))
 ALLOCATE(ainfo_data%latitude(t_i_length,t_j_length))
 ALLOCATE(ainfo_data%longitude(t_i_length,t_j_length))
+ALLOCATE(ainfo_data%non_irrig_frac(land_pts))
 
 ainfo_data%l_lice_surft(:)             = .FALSE.
 ainfo_data%soilt_pts(:)                = 0
@@ -312,6 +317,7 @@ ainfo_data%z1_tq_ij(:,:)               = 0.0
 ainfo_data%frac_surft(:,:)             = 0.0
 ainfo_data%latitude(:,:)               = 0.0
 ainfo_data%longitude(:,:)              = 0.0
+ainfo_data%non_irrig_frac(:)           = 1.0
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -373,6 +379,7 @@ DEALLOCATE(ainfo_data%z1_tq_ij)
 DEALLOCATE(ainfo_data%frac_surft)
 DEALLOCATE(ainfo_data%latitude)
 DEALLOCATE(ainfo_data%longitude)
+DEALLOCATE(ainfo_data%non_irrig_frac)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 END SUBROUTINE ancil_info_dealloc
@@ -438,6 +445,7 @@ ainfo%z1_tq_ij => ainfo_data%z1_tq_ij
 ainfo%frac_surft => ainfo_data%frac_surft
 ainfo%latitude => ainfo_data%latitude
 ainfo%longitude => ainfo_data%longitude
+ainfo%non_irrig_frac => ainfo_data%non_irrig_frac
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -500,6 +508,7 @@ NULLIFY(ainfo%z1_tq_ij)
 NULLIFY(ainfo%frac_surft)
 NULLIFY(ainfo%latitude)
 NULLIFY(ainfo%longitude)
+NULLIFY(ainfo%non_irrig_frac)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN

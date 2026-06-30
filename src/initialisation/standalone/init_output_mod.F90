@@ -347,7 +347,7 @@ USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_renew_gwater,  &
     l_water_resources, l_water_transfers, no_model, nr_gwater_model
 
 USE jules_rivers_mod, ONLY: l_rivers, l_riv_overbank, l_outflow_per_river,     &
-    i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip
+    i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip, l_inland_outflow
 
 USE jules_deposition_mod, ONLY: l_deposition, l_deposition_flux
 
@@ -430,6 +430,25 @@ IF ( is_master_task() ) THEN
     WRITE(jules_message,*)                                                     &
        'outflow_per_river requested without a river number ancillary specified.'
     CALL log_fatal(RoutineName, jules_message)
+  END IF
+
+  IF ( ANY( var(:) == 'inland_outflow_rp' ) ) THEN
+    ! The inland basin flow is used for water conservation purposes
+    ! and as such alters the calculation of river flow. To avoid
+    ! super-saturation, inflow (surface & sub-surface runoff) is sent
+    ! to the ocean via the closest large river favouring those with
+    ! larger climatological outflows. This diagnostic when coupled
+    ! is passed to the soil moisture. When uncoupled, ensure its
+    ! affect on river flow calculations is known via a warning.
+    IF (.NOT. l_inland_outflow) THEN
+      CALL log_warn( RoutineName,                                              &
+                     "Adding the inland_outflow_rp diagnostic " //             &
+                     "will alter the flow going into inland basin flow " //    &
+                     "points, changing the calculation of river flow and " //  &
+                     "its associated diagnostics." )
+    END IF
+
+    l_inland_outflow = .TRUE.
   END IF
 END IF
 

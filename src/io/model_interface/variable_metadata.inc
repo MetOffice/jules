@@ -9354,4 +9354,17 @@ DATA metadata(722) / var_metadata(                                             &
 ! Units
     "kg s-1"                                                                   &
   ) /
+!-----------------------------------------------------------------------------
+! Metadata for inland_outflow_rp
+!-----------------------------------------------------------------------------
+DATA metadata(723) / var_metadata(                                             &
+! String identifier
+    'inland_outflow_rp',                                                       &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Inland basin flow on river routing grid",                                 &
+! Units
+    "kg m-2 s-1"                                                               &
+  ) /
 #endif

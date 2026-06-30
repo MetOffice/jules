@@ -25,12 +25,14 @@ SUBROUTINE check_compatible_options(call_type)
 
 USE jules_deposition_mod,          ONLY: l_deposition
 USE jules_irrig_mod,               ONLY: l_irrig_dmd, l_irrig_limit,           &
-                                         nstep_irrig
+                                         nstep_irrig, irrig_option,            &
+                                         tile_based_irrigation
+USE jules_hydrology_mod,           ONLY: l_inland
 USE jules_model_environment_mod,   ONLY: lsm_id, cable
 USE jules_radiation_mod,           ONLY: l_albedo_obs, l_snow_albedo,          &
                                          l_albedo_obs
-USE jules_rivers_mod,              ONLY: i_river_vn, l_rivers, l_riv_overbank, &
-                                         rivers_camaflood, rivers_rfm
+USE jules_rivers_mod,              ONLY: i_river_vn, l_rivers, rivers_um_trip, &
+                                         l_inland_outflow
 USE jules_soil_biogeochem_mod,     ONLY: l_layeredc, z_burn_max
 USE jules_soil_mod,                ONLY: l_tile_soil, l_holdwater
 USE jules_surface_mod,             ONLY: l_flake_model, l_aggregate
@@ -43,6 +45,7 @@ USE jules_water_resources_mod,     ONLY: l_water_environment,                  &
 USE land_tile_ids_mod,             ONLY: surface_type_ids, ml_snow_type_ids
 USE nvegparm,                      ONLY: vf_nvg, albsnc_nvg, albsnf_nvgl,      &
                                          albsnf_nvgu
+USE c_irrigation_mod,              ONLY: irrig_tile
 USE overbank_inundation_mod,       ONLY: overbank_hypsometric, overbank_model, &
                                          overbank_quantiles, overbank_simple,  &
                                          overbank_simple_rosgen
@@ -54,6 +57,7 @@ USE jules_print_mgr,               ONLY: jules_print, jules_message,           &
                                          jules_format, newline
 USE errormessagelength_mod,        ONLY: errormessagelength
 
+USE check_compatible_options_rivers_mod, ONLY: check_compatible_options_rivers
 USE check_unavailable_options_mod, ONLY: check_unavailable_options
 USE jules_water_tracers_mod,       ONLY: l_wtrac_jls
 USE wtrac_check_options_mod,       ONLY: wtrac_check_options
@@ -80,7 +84,7 @@ CALL check_unavailable_options()
 ERROR = 0
 
 ! Check for compatibility with soil tiling. At present it is not allowed for
-! TRIFFID, INFERNO, and l_albedo_obs
+! TRIFFID, INFERNO, l_albedo_obs or tile-based irrigation.
 
 IF ( l_triffid .AND. l_tile_soil ) THEN
   ERROR = 1
@@ -98,6 +102,12 @@ IF ( l_albedo_obs .AND. l_tile_soil ) THEN
   ERROR = 1
   CALL jules_print(routinename,                                                &
                  "l_albedo_obs not presently compatible with soil tiling")
+END IF
+
+IF ( irrig_option == tile_based_irrigation .AND. l_tile_soil ) THEN
+  ERROR = 1
+  CALL jules_print(routinename,                                                &
+                 "Tile-based irrigation is not compatible with soil tiling")
 END IF
 
 IF (l_irrig_dmd .AND. l_holdwater) THEN
@@ -179,6 +189,15 @@ IF ( lsm_id == cable ) check_tiles_namelists = .FALSE.
 ! These checks are not to be carried out when called from UM RECON or when the
 ! land surface model is CABLE, which has its own namelists.
 IF (check_tiles_namelists) THEN
+  ! Check to make sure that if l_irrig_dmd is TRUE then irrig_option related
+  ! variables are not set
+  IF (l_irrig_dmd) THEN
+    IF ( ANY( irrig_tile(1:ntype) > 0.0 ) ) THEN
+      ERROR = 1
+      CALL jules_print(routinename, 'irrig_pft cannot be set if l_irrig_dmd=T')
+    END IF
+  END IF
+
   IF ( l_moruses_storage ) THEN
     ! The roof surface needs to be either 0 (meaning "uncoupled"
     ! in this case)
@@ -278,44 +297,14 @@ IF (l_wtrac_jls) THEN
   CALL wtrac_check_options(ERROR)
 END IF
 
-! Overbank inundation can only be used if rivers are modelled.
-IF ( l_riv_overbank .AND. .NOT. l_rivers ) THEN
-  ERROR = 1
-  CALL jules_print(routinename,                                                &
-    "Overbank inundation can only be used if river routing is modelled.")
+! UM-TRIP inland outflow soil moisture correction (l_inland) requires
+! inland outflow to be calculated. Internal switch needs to be set.
+IF ( i_river_vn == rivers_um_trip .AND. l_inland ) THEN
+  l_inland_outflow = .TRUE.
 END IF
 
-! Check that a suitable combination of river routing and overbank models is
-! selected.
-SELECT CASE ( overbank_model )
-CASE ( overbank_simple, overbank_simple_rosgen, overbank_hypsometric )
-  ! Diagnostic overbank inundation can currently only be used with RFM river
-  ! routing.
-  IF ( i_river_vn /= rivers_rfm ) THEN
-    ERROR = 1
-    CALL jules_print(routinename,                                              &
-                     "Diagnostic overbank inundation can only be used "     // &
-                     "with RFM river routing.")
-  END IF
-CASE ( overbank_quantiles )
-  ! Only CaMa-Flood can use elevation quantiles.
-  IF ( i_river_vn /= rivers_camaflood ) THEN
-    ERROR = 1
-    CALL jules_print(routinename,                                              &
-         "Elevation quantiles can only be used with CaMa-Flood routing.")
-  END IF
-END SELECT
-
-! While CaMa-Flood routing is in development it can only be used with overbank
-! inundation using quantiles.
-IF ( l_rivers .AND. i_river_vn == rivers_camaflood .AND.                       &
-     ( .NOT. l_riv_overbank .OR. .NOT. overbank_model == overbank_quantiles )  &
-   ) THEN
-  ERROR = 1
-  CALL jules_print(routinename,                                                &
-                   "CaMa-Flood routing can only be used with overbank "     // &
-                   "inundation using quantiles.")
-END IF
+! Call rivers compatible options routine
+CALL check_compatible_options_rivers(ERROR)
 
 IF ( ERROR /= 0 ) THEN
   CALL ereport(routinename, ERROR,                                             &

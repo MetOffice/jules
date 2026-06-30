@@ -389,6 +389,19 @@ ease the direct links to these documents are:
 
    See HCTN30 p14 for full details.
 
+
+.. nml:member:: irrig_pft_io
+
+   :type: integer(npft)
+   :default: None
+
+   Surface tile irrigation flag
+
+   Flag to indicate whether the vegetated surface tile is irrigated or not, where 0 = Not irrigated and 1 = Irrigated. Can only be set if :nml:mem:`JULES_IRRIG::irrig_option` = 2 and :nml:mem:`JULES_IRRIG::l_irrig_dmd` = FALSE, else it should be untriggered and initialised to imdi.
+
+   This is an alternative scheme to the fraction-based irrigation demand code initiated using :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE. Please refer to the instructions in the :nml:lst:`JULES_IRRIG` namelist for setting up this scheme.
+
+
 .. nml:member:: gsoil_f_io
 
    :type: real(npft)
