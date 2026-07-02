@@ -902,7 +902,7 @@ CALL jules_print('pftparm',                                                    &
 END SUBROUTINE print_nlist_jules_pftparm
 
 
-SUBROUTINE check_jules_pftparm(npft,nnpft)
+SUBROUTINE check_jules_pftparm()
 
 USE jules_soil_biogeochem_mod, ONLY: l_layeredC, soil_bgc_model,               &
                                       soil_model_4pool
@@ -918,15 +918,14 @@ USE jules_vegetation_mod, ONLY: can_rad_mod, l_crop, l_trait_phys,             &
 
 USE jules_radiation_mod, ONLY: l_spec_albedo, l_albedo_obs, l_snow_albedo
 
+USE jules_surface_types_mod, ONLY: npft, nnpft
+
 USE missing_data_mod, ONLY: rmdi
 
 USE ereport_mod,     ONLY: ereport
 USE jules_print_mgr, ONLY: jules_print
 
 IMPLICIT NONE
-
-!Arguments
-INTEGER, INTENT(IN) :: npft, nnpft
 
 ! Work variables
 INTEGER :: ERROR  ! Error indicator
@@ -1555,5 +1554,389 @@ IF ( stomata_model == stomata_sox ) THEN ! SOX
 END IF
 
 END SUBROUTINE check_jules_pftparm
+
+
+#if defined(UM_JULES)
+SUBROUTINE bcast_jules_pftparm(npft)
+
+USE setup_namelist, ONLY: setup_nml_type
+USE UM_parcore,     ONLY: mype
+USE parkind1, ONLY: jprb, jpim
+USE yomhook, ONLY: lhook, dr_hook
+USE errormessagelength_mod, ONLY: errormessagelength
+USE max_dimensions, ONLY: npft_max
+
+IMPLICIT NONE
+
+!Arguments
+INTEGER, INTENT(IN) :: npft
+
+! Local variables
+INTEGER :: my_comm
+INTEGER :: mpl_nml_type
+INTEGER :: icode
+
+CHARACTER(LEN=*), PARAMETER :: RoutineName='BCAST_JULES_PFTPARM'
+INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
+INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
+REAL(KIND=jprb)               :: zhook_handle
+CHARACTER(LEN=errormessagelength) :: iomessage
+
+! set number of each type of variable in my_namelist type
+INTEGER, PARAMETER :: no_of_types = 2
+INTEGER, PARAMETER :: n_int = 2 * npft_max
+INTEGER, PARAMETER :: n_real = 106 * npft_max
+
+TYPE :: my_namelist
+   SEQUENCE
+   INTEGER :: c3(npft_max)
+   INTEGER :: orient(npft_max)
+   REAL(KIND=real_jlslsm) :: a_wl(npft_max)
+   REAL(KIND=real_jlslsm) :: a_ws(npft_max)
+   REAL(KIND=real_jlslsm) :: act_jmax(npft_max)
+   REAL(KIND=real_jlslsm) :: act_vcmax(npft_max)
+   REAL(KIND=real_jlslsm) :: aef(npft_max)
+   REAL(KIND=real_jlslsm) :: albsnc_max(npft_max)
+   REAL(KIND=real_jlslsm) :: albsnc_min(npft_max)
+   REAL(KIND=real_jlslsm) :: albsnf_max(npft_max)
+   REAL(KIND=real_jlslsm) :: albsnf_maxl(npft_max)
+   REAL(KIND=real_jlslsm) :: albsnf_maxu(npft_max)
+   REAL(KIND=real_jlslsm) :: alpha(npft_max)
+   REAL(KIND=real_jlslsm) :: alpha_elec(npft_max)
+   REAL(KIND=real_jlslsm) :: alnir(npft_max)
+   REAL(KIND=real_jlslsm) :: alnirl(npft_max)
+   REAL(KIND=real_jlslsm) :: alniru(npft_max)
+   REAL(KIND=real_jlslsm) :: alpar(npft_max)
+   REAL(KIND=real_jlslsm) :: alparl(npft_max)
+   REAL(KIND=real_jlslsm) :: alparu(npft_max)
+   REAL(KIND=real_jlslsm) :: avg_ba(npft_max)
+   REAL(KIND=real_jlslsm) :: b_wl(npft_max)
+   REAL(KIND=real_jlslsm) :: can_struct_a(npft_max)
+   REAL(KIND=real_jlslsm) :: catch0(npft_max)
+   REAL(KIND=real_jlslsm) :: ccleaf_min(npft_max)
+   REAL(KIND=real_jlslsm) :: ccleaf_max(npft_max)
+   REAL(KIND=real_jlslsm) :: ccwood_min(npft_max)
+   REAL(KIND=real_jlslsm) :: ccwood_max(npft_max)
+   REAL(KIND=real_jlslsm) :: ci_st(npft_max)
+   REAL(KIND=real_jlslsm) :: dcatch_dlai(npft_max)
+   REAL(KIND=real_jlslsm) :: deact_jmax(npft_max)
+   REAL(KIND=real_jlslsm) :: deact_vcmax(npft_max)
+   REAL(KIND=real_jlslsm) :: dfp_dcuo(npft_max)
+   REAL(KIND=real_jlslsm) :: dgl_dm(npft_max)
+   REAL(KIND=real_jlslsm) :: dgl_dt(npft_max)
+   REAL(KIND=real_jlslsm) :: dqcrit(npft_max)
+   REAL(KIND=real_jlslsm) :: ds_jmax(npft_max)
+   REAL(KIND=real_jlslsm) :: ds_vcmax(npft_max)
+   REAL(KIND=real_jlslsm) :: dust_veg_scj(npft_max)
+   REAL(KIND=real_jlslsm) :: dz0v_dh(npft_max)
+   REAL(KIND=real_jlslsm) :: emis_pft(npft_max)
+   REAL(KIND=real_jlslsm) :: eta_sl(npft_max)
+   REAL(KIND=real_jlslsm) :: f0(npft_max)
+   REAL(KIND=real_jlslsm) :: fd(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_bc(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_ch4(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_co(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_co2(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_nox(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_oc(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_so2(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_c2h4(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_c2h6(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_c3h8(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_hcho(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_mecho(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_nh3(npft_max)
+   REAL(KIND=real_jlslsm) :: fef_dms(npft_max)
+   REAL(KIND=real_jlslsm) :: fire_mort(npft_max)
+   REAL(KIND=real_jlslsm) :: fl_o3_ct(npft_max)
+   REAL(KIND=real_jlslsm) :: fsmc_of(npft_max)
+   REAL(KIND=real_jlslsm) :: fsmc_p0(npft_max)
+   REAL(KIND=real_jlslsm) :: sug_g0(npft_max)
+   REAL(KIND=real_jlslsm) :: g1_stomata(npft_max)
+   REAL(KIND=real_jlslsm) :: g_leaf_0(npft_max)
+   REAL(KIND=real_jlslsm) :: glmin(npft_max)
+   REAL(KIND=real_jlslsm) :: gpp_st(npft_max)
+   REAL(KIND=real_jlslsm) :: sug_grec(npft_max)
+   REAL(KIND=real_jlslsm) :: gsoil_f(npft_max)
+   REAL(KIND=real_jlslsm) :: hw_sw(npft_max)
+   REAL(KIND=real_jlslsm) :: ief(npft_max)
+   REAL(KIND=real_jlslsm) :: infil_f(npft_max)
+   REAL(KIND=real_jlslsm) :: jv25_ratio(npft_max)
+   REAL(KIND=real_jlslsm) :: kext(npft_max)
+   REAL(KIND=real_jlslsm) :: kn(npft_max)
+   REAL(KIND=real_jlslsm) :: knl(npft_max)
+   REAL(KIND=real_jlslsm) :: kpar(npft_max)
+   REAL(KIND=real_jlslsm) :: lai_alb_lim(npft_max)
+   REAL(KIND=real_jlslsm) :: lma(npft_max)
+   REAL(KIND=real_jlslsm) :: mef(npft_max)
+   REAL(KIND=real_jlslsm) :: neff(npft_max)
+   REAL(KIND=real_jlslsm) :: nl0(npft_max)
+   REAL(KIND=real_jlslsm) :: nmass(npft_max)
+   REAL(KIND=real_jlslsm) :: nr(npft_max)
+   REAL(KIND=real_jlslsm) :: nr_nl(npft_max)
+   REAL(KIND=real_jlslsm) :: ns_nl(npft_max)
+   REAL(KIND=real_jlslsm) :: nsw(npft_max)
+   REAL(KIND=real_jlslsm) :: omega(npft_max)
+   REAL(KIND=real_jlslsm) :: omegal(npft_max)
+   REAL(KIND=real_jlslsm) :: omegau(npft_max)
+   REAL(KIND=real_jlslsm) :: omnir(npft_max)
+   REAL(KIND=real_jlslsm) :: omnirl(npft_max)
+   REAL(KIND=real_jlslsm) :: omniru(npft_max)
+   REAL(KIND=real_jlslsm) :: q10_leaf(npft_max)
+   REAL(KIND=real_jlslsm) :: r_grow(npft_max)
+   REAL(KIND=real_jlslsm) :: rootd_ft(npft_max)
+   REAL(KIND=real_jlslsm) :: sigl(npft_max)
+   REAL(KIND=real_jlslsm) :: tef(npft_max)
+   REAL(KIND=real_jlslsm) :: tleaf_of(npft_max)
+   REAL(KIND=real_jlslsm) :: tlow(npft_max)
+   REAL(KIND=real_jlslsm) :: tupp(npft_max)
+   REAL(KIND=real_jlslsm) :: vint(npft_max)
+   REAL(KIND=real_jlslsm) :: vsl(npft_max)
+   REAL(KIND=real_jlslsm) :: sug_yg(npft_max)
+   REAL(KIND=real_jlslsm) :: z0v(npft_max)
+   REAL(KIND=real_jlslsm) :: sox_a(npft_max)
+   REAL(KIND=real_jlslsm) :: sox_p50(npft_max)
+   REAL(KIND=real_jlslsm) :: sox_rp_min(npft_max)
+END TYPE my_namelist
+
+TYPE (my_namelist) :: my_nml
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
+
+CALL gc_get_communicator(my_comm, icode)
+
+CALL setup_nml_type(no_of_types, mpl_nml_type, n_int_in = n_int,             &
+                    n_real_in = n_real)
+
+IF ( mype == 0 ) THEN
+  my_nml % a_wl(1:npft)         = a_wl(:)
+  my_nml % a_ws(1:npft)         = a_ws(:)
+  my_nml % act_jmax(1:npft)     = act_jmax(:)
+  my_nml % act_vcmax(1:npft)    = act_vcmax(:)
+  my_nml % aef(1:npft)          = aef(:)
+  my_nml % albsnc_max(1:npft)   = albsnc_max(:)
+  my_nml % albsnc_min(1:npft)   = albsnc_min(:)
+  my_nml % albsnf_max(1:npft)   = albsnf_max(:)
+  my_nml % albsnf_maxl(1:npft)  = albsnf_maxl(:)
+  my_nml % albsnf_maxu(1:npft)  = albsnf_maxu(:)
+  my_nml % alpha(1:npft)        = alpha(:)
+  my_nml % alpha_elec(1:npft)   = alpha_elec(:)
+  my_nml % alnir(1:npft)        = alnir(:)
+  my_nml % alnirl(1:npft)       = alnirl(:)
+  my_nml % alniru(1:npft)       = alniru(:)
+  my_nml % alpar(1:npft)        = alpar(:)
+  my_nml % alparl(1:npft)       = alparl(:)
+  my_nml % alparu(1:npft)       = alparu(:)
+  my_nml % avg_ba(1:npft)       = avg_ba(:)
+  my_nml % b_wl(1:npft)         = b_wl(:)
+  my_nml % c3(1:npft)           = c3(:)
+  my_nml % can_struct_a(1:npft) = can_struct_a(:)
+  my_nml % catch0(1:npft)       = catch0(:)
+  my_nml % ccleaf_min(1:npft)   = ccleaf_min(:)
+  my_nml % ccleaf_max(1:npft)   = ccleaf_max(:)
+  my_nml % ccwood_min(1:npft)   = ccwood_min(:)
+  my_nml % ccwood_max(1:npft)   = ccwood_max(:)
+  my_nml % ci_st(1:npft)        = ci_st(:)
+  my_nml % dcatch_dlai(1:npft)  = dcatch_dlai(:)
+  my_nml % deact_jmax(1:npft)   = deact_jmax(:)
+  my_nml % deact_vcmax(1:npft)  = deact_vcmax(:)
+  my_nml % dfp_dcuo(1:npft)     = dfp_dcuo(:)
+  my_nml % dgl_dm(1:npft)       = dgl_dm(:)
+  my_nml % dgl_dt(1:npft)       = dgl_dt(:)
+  my_nml % dqcrit(1:npft)       = dqcrit(:)
+  my_nml % ds_jmax(1:npft)      = ds_jmax(:)
+  my_nml % ds_vcmax(1:npft)     = ds_vcmax(:)
+  my_nml % dust_veg_scj(1:npft) = dust_veg_scj(:)
+  my_nml % dz0v_dh(1:npft)      = dz0v_dh(:)
+  my_nml % emis_pft(1:npft)     = emis_pft(:)
+  my_nml % eta_sl(1:npft)       = eta_sl(:)
+  my_nml % f0(1:npft)           = f0(:)
+  my_nml % fd(1:npft)           = fd(:)
+  my_nml % fef_bc(1:npft)       = fef_bc(:)
+  my_nml % fef_ch4(1:npft)      = fef_ch4(:)
+  my_nml % fef_co(1:npft)       = fef_co(:)
+  my_nml % fef_co2(1:npft)      = fef_co2(:)
+  my_nml % fef_nox(1:npft)      = fef_nox(:)
+  my_nml % fef_oc(1:npft)       = fef_oc(:)
+  my_nml % fef_so2(1:npft)      = fef_so2(:)
+  my_nml % fef_c2h4(1:npft)     = fef_c2h4(:)
+  my_nml % fef_c2h6(1:npft)     = fef_c2h6(:)
+  my_nml % fef_c3h8(1:npft)     = fef_c3h8(:)
+  my_nml % fef_hcho(1:npft)     = fef_hcho(:)
+  my_nml % fef_mecho(1:npft)    = fef_mecho(:)
+  my_nml % fef_nh3(1:npft)      = fef_nh3(:)
+  my_nml % fef_dms(1:npft)      = fef_dms(:)
+  my_nml % fire_mort(1:npft)    = fire_mort(:)
+  my_nml % fl_o3_ct(1:npft)     = fl_o3_ct(:)
+  my_nml % fsmc_of(1:npft)      = fsmc_of(:)
+  my_nml % fsmc_p0(1:npft)      = fsmc_p0(:)
+  my_nml % sug_g0(1:npft)       = sug_g0(:)
+  my_nml % g1_stomata(1:npft)   = g1_stomata(:)
+  my_nml % g_leaf_0(1:npft)     = g_leaf_0(:)
+  my_nml % glmin(1:npft)        = glmin(:)
+  my_nml % gpp_st(1:npft)       = gpp_st(:)
+  my_nml % sug_grec(1:npft)     = sug_grec(:)
+  my_nml % gsoil_f(1:npft)      = gsoil_f(:)
+  my_nml % hw_sw(1:npft)        = hw_sw(:)
+  my_nml % ief(1:npft)          = ief(:)
+  my_nml % infil_f(1:npft)      = infil_f(:)
+  my_nml % jv25_ratio(1:npft)   = jv25_ratio(:)
+  my_nml % kext(1:npft)         = kext(:)
+  my_nml % kn(1:npft)           = kn(:)
+  my_nml % knl(1:npft)          = knl(:)
+  my_nml % kpar(1:npft)         = kpar(:)
+  my_nml % lai_alb_lim(1:npft)  = lai_alb_lim(:)
+  my_nml % lma(1:npft)          = lma(:)
+  my_nml % mef(1:npft)          = mef(:)
+  my_nml % neff(1:npft)         = neff(:)
+  my_nml % nl0(1:npft)          = nl0(:)
+  my_nml % nmass(1:npft)        = nmass(:)
+  my_nml % nr(1:npft)           = nr(:)
+  my_nml % nr_nl(1:npft)        = nr_nl(:)
+  my_nml % ns_nl(1:npft)        = ns_nl(:)
+  my_nml % nsw(1:npft)          = nsw(:)
+  my_nml % omega(1:npft)        = omega(:)
+  my_nml % omegal(1:npft)       = omegal(:)
+  my_nml % omegau(1:npft)       = omegau(:)
+  my_nml % omnir(1:npft)        = omnir(:)
+  my_nml % omnirl(1:npft)       = omnirl(:)
+  my_nml % omniru(1:npft)       = omniru(:)
+  my_nml % orient(1:npft)       = orient(:)
+  my_nml % q10_leaf(1:npft)     = q10_leaf(:)
+  my_nml % r_grow(1:npft)       = r_grow(:)
+  my_nml % rootd_ft(1:npft)     = rootd_ft(:)
+  my_nml % sigl(1:npft)         = sigl(:)
+  my_nml % tef(1:npft)          = tef(:)
+  my_nml % tleaf_of(1:npft)     = tleaf_of(:)
+  my_nml % tlow(1:npft)         = tlow(:)
+  my_nml % tupp(1:npft)         = tupp(:)
+  my_nml % vint(1:npft)         = vint(:)
+  my_nml % vsl(1:npft)          = vsl(:)
+  my_nml % sug_yg(1:npft)       = sug_yg(:)
+  my_nml % z0v(1:npft)          = z0v(:)
+  my_nml % sox_a(1:npft)        = sox_a(:)
+  my_nml % sox_p50(1:npft)      = sox_p50(:)
+  my_nml % sox_rp_min(1:npft)   = sox_rp_min(:)
+END IF
+
+CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
+
+IF (mype /= 0) THEN
+  a_wl(:)        = my_nml % a_wl(1:npft)
+  a_ws(:)        = my_nml % a_ws(1:npft)
+  act_jmax(:)    = my_nml % act_jmax(1:npft)
+  act_vcmax(:)   = my_nml % act_vcmax(1:npft)
+  aef(:)         = my_nml % aef(1:npft)
+  albsnc_max(:)  = my_nml % albsnc_max(1:npft)
+  albsnc_min(:)  = my_nml % albsnc_min(1:npft)
+  albsnf_max(:)  = my_nml % albsnf_max(1:npft)
+  albsnf_maxl(:) = my_nml % albsnf_maxl(1:npft)
+  albsnf_maxu(:) = my_nml % albsnf_maxu(1:npft)
+  alpha(:)       = my_nml % alpha(1:npft)
+  alpha_elec(:)  = my_nml % alpha_elec(1:npft)
+  alnir(:)       = my_nml % alnir(1:npft)
+  alnirl(:)      = my_nml % alnirl(1:npft)
+  alniru(:)      = my_nml % alniru(1:npft)
+  alpar(:)       = my_nml % alpar(1:npft)
+  alparl(:)      = my_nml % alparl(1:npft)
+  alparu(:)      = my_nml % alparu(1:npft)
+  avg_ba(:)      = my_nml % avg_ba(1:npft)
+  b_wl(:)        = my_nml % b_wl(1:npft)
+  c3(:)          = my_nml % c3(1:npft)
+  can_struct_a(:)= my_nml % can_struct_a(1:npft)
+  catch0(:)      = my_nml % catch0(1:npft)
+  ccleaf_min(:)  = my_nml % ccleaf_min(1:npft)
+  ccleaf_max(:)  = my_nml % ccleaf_max(1:npft)
+  ccwood_min(:)  = my_nml % ccwood_min(1:npft)
+  ccwood_max(:)  = my_nml % ccwood_max(1:npft)
+  ci_st(:)       = my_nml % ci_st(1:npft)
+  dcatch_dlai(:) = my_nml % dcatch_dlai(1:npft)
+  deact_jmax(:)  = my_nml % deact_jmax(1:npft)
+  deact_vcmax(:) = my_nml % deact_vcmax(1:npft)
+  dfp_dcuo(:)    = my_nml % dfp_dcuo(1:npft)
+  dgl_dm(:)      = my_nml % dgl_dm(1:npft)
+  dgl_dt(:)      = my_nml % dgl_dt(1:npft)
+  dqcrit(:)      = my_nml % dqcrit(1:npft)
+  ds_jmax(:)     = my_nml % ds_jmax(1:npft)
+  ds_vcmax(:)    = my_nml % ds_vcmax(1:npft)
+  dust_veg_scj(:)= my_nml % dust_veg_scj(1:npft)
+  dz0v_dh(:)     = my_nml % dz0v_dh(1:npft)
+  emis_pft(:)    = my_nml % emis_pft(1:npft)
+  eta_sl(:)      = my_nml % eta_sl(1:npft)
+  f0(:)          = my_nml % f0(1:npft)
+  fd(:)          = my_nml % fd(1:npft)
+  fef_bc(:)      = my_nml % fef_bc(1:npft)
+  fef_ch4(:)     = my_nml % fef_ch4(1:npft)
+  fef_co(:)      = my_nml % fef_co(1:npft)
+  fef_co2(:)     = my_nml % fef_co2(1:npft)
+  fef_nox(:)     = my_nml % fef_nox(1:npft)
+  fef_oc(:)      = my_nml % fef_oc(1:npft)
+  fef_so2(:)     = my_nml % fef_so2(1:npft)
+  fef_c2h4(:)    = my_nml % fef_c2h4(1:npft)
+  fef_c2h6(:)    = my_nml % fef_c2h6(1:npft)
+  fef_c3h8(:)    = my_nml % fef_c3h8(1:npft)
+  fef_hcho(:)    = my_nml % fef_hcho(1:npft)
+  fef_mecho(:)   = my_nml % fef_mecho(1:npft)
+  fef_nh3(:)     = my_nml % fef_nh3(1:npft)
+  fef_dms(:)     = my_nml % fef_dms(1:npft)
+  fire_mort(:)   = my_nml % fire_mort(1:npft)
+  fl_o3_ct(:)    = my_nml % fl_o3_ct(1:npft)
+  fsmc_of(:)     = my_nml % fsmc_of(1:npft)
+  fsmc_p0(:)     = my_nml % fsmc_p0(1:npft)
+  sug_g0(:)      = my_nml % sug_g0(1:npft)
+  g1_stomata(:)  = my_nml % g1_stomata(1:npft)
+  g_leaf_0(:)    = my_nml % g_leaf_0(1:npft)
+  glmin(:)       = my_nml % glmin(1:npft)
+  gpp_st(:)      = my_nml % gpp_st(1:npft)
+  sug_grec(:)    = my_nml % sug_grec(1:npft)
+  gsoil_f(:)     = my_nml % gsoil_f(1:npft)
+  hw_sw(:)       = my_nml % hw_sw(1:npft)
+  ief(:)         = my_nml % ief(1:npft)
+  infil_f(:)     = my_nml % infil_f(1:npft)
+  jv25_ratio(:)  = my_nml % jv25_ratio(1:npft)
+  kext(:)        = my_nml % kext(1:npft)
+  kn(:)          = my_nml % kn(1:npft)
+  knl(:)         = my_nml % knl(1:npft)
+  kpar(:)        = my_nml % kpar(1:npft)
+  lai_alb_lim(:) = my_nml % lai_alb_lim(1:npft)
+  lma(:)         = my_nml % lma(1:npft)
+  mef(:)         = my_nml % mef(1:npft)
+  neff(:)        = my_nml % neff(1:npft)
+  nl0(:)         = my_nml % nl0(1:npft)
+  nmass(:)       = my_nml % nmass(1:npft)
+  nr(:)          = my_nml % nr(1:npft)
+  nr_nl(:)       = my_nml % nr_nl(1:npft)
+  ns_nl(:)       = my_nml % ns_nl(1:npft)
+  nsw(:)         = my_nml % nsw(1:npft)
+  omega(:)       = my_nml % omega(1:npft)
+  omegal(:)      = my_nml % omegal(1:npft)
+  omegau(:)      = my_nml % omegau(1:npft)
+  omnir(:)       = my_nml % omnir(1:npft)
+  omnirl(:)      = my_nml % omnirl(1:npft)
+  omniru(:)      = my_nml % omniru(1:npft)
+  orient(:)      = my_nml % orient(1:npft)
+  q10_leaf(:)    = my_nml % q10_leaf(1:npft)
+  r_grow(:)      = my_nml % r_grow(1:npft)
+  rootd_ft(:)    = my_nml % rootd_ft(1:npft)
+  sigl(:)        = my_nml % sigl(1:npft)
+  tef(:)         = my_nml % tef(1:npft)
+  tleaf_of(:)    = my_nml % tleaf_of(1:npft)
+  tlow(:)        = my_nml % tlow(1:npft)
+  tupp(:)        = my_nml % tupp(1:npft)
+  vint(:)        = my_nml % vint(1:npft)
+  vsl(:)         = my_nml % vsl(1:npft)
+  sug_yg(:)      = my_nml % sug_yg(1:npft)
+  z0v(:)         = my_nml % z0v(1:npft)
+  sox_a(:)       = my_nml % sox_a(1:npft)
+  sox_p50(:)     = my_nml % sox_p50(1:npft)
+  sox_rp_min(:)  = my_nml % sox_rp_min(1:npft)
+END IF
+
+CALL mpl_type_free(mpl_nml_type,icode)
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
+RETURN
+END SUBROUTINE bcast_jules_pftparm
+#endif
 
 END MODULE pftparm

@@ -229,10 +229,10 @@ class vn81_t115(MacroUpgrade):
                         ["namelist:jules_pftparm", item],
                         ",".join([RMDI] * npft),
                     )
-                    msg = """
-                    Non-standard number of npft, setting dust_veg_scj_io values
-                    to missing data
-                    """
+                    msg = (
+                        f"Non-standard number of npft, setting "               +
+                        f"dust_veg_scj_io values to missing data."
+                    )
                     self.add_report(info=msg, is_warning=True)
             # fire_mort_io; original prone to error
             # (l_trif_fire; vn5.3_t872)
@@ -443,12 +443,11 @@ class vn81_t115(MacroUpgrade):
                                 if item == "usr_type":
                                     # usr_type is also used by non-veg varieties
                                     # so need to prevent going out of bounds
-                                    msg = """
-    usr_type detected; currently only dealing with vegetation varieties
-                                    """
-                                    self.add_report(
-                                        info=msg, is_warning=True
+                                    msg = (
+                                        f"'usr_type' detected; dealing with "  +
+                                        f"vegetation varieties only."
                                     )
+                                    self.add_report(info=msg, is_warning=True)
                                 else:
                                     raise UpgradeError (
                                         f"{item} is greater than npft"
@@ -464,15 +463,14 @@ class vn81_t115(MacroUpgrade):
                                         )
                                 pft_name[n-1] = "'{}'".format(pft_name[n-1])
             if None in pft_name:
-                print(f"*************************************************" +
-                      f"*************************************************"
-                      )
-                print(f"* ERROR: Surface type not recognised by macro. "       +
-                      f"Please correct this, then reapply macro."
-                      )
-                print(f"*************************************************" +
-                      f"*************************************************"
-                      )
+                    raise UpgradeError (
+                        f"\n*************************************************" +
+                        f"******************************"
+                        f"\nSurface type is not a known type. "                +
+                        f"Please correct this, then reapply macro."
+                        f"\n*************************************************" +
+                        f"******************************"
+                    )
             jules_pftparm["pft_name_io"] = pft_name
 
             for i in range(npft):

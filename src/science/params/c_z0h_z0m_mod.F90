@@ -79,12 +79,12 @@ INTEGER, INTENT(IN) :: ntype
 INTEGER :: errorstatus = 0
 CHARACTER(LEN=*), PARAMETER :: RoutineName='C_Z0H_Z0M_CHECK'
 
-IF ( SIZE( z0h_z0m(:) ) > 0 )                                                  &
-   CALL check_jules_nml_values ( z0h_z0m(:), 'z0h_z0m', ntype,                 &
-   0.0, HUGE(1.0), RoutineName, errorstatus )
 IF ( SIZE( z0h_z0m_classic(:) ) > 0 )                                          &
    CALL check_jules_nml_values ( z0h_z0m_classic(:),                           &
    'z0h_z0m_classic', ntype, 0.0, HUGE(1.0), RoutineName, errorstatus )
+IF ( SIZE( z0h_z0m(:) ) > 0 )                                                  &
+   CALL check_jules_nml_values ( z0h_z0m(:), 'z0h_z0m', ntype,                 &
+   0.0, HUGE(1.0), RoutineName, errorstatus )
 
 IF ( errorstatus > 0 )                                                         &
    CALL ereport(RoutineName, errorstatus,                                      &
@@ -112,6 +112,69 @@ CALL jules_print(RoutineName,                                                  &
     '- - - - - - end of c_z0h_z0m - - - - - -')
 
 END SUBROUTINE c_z0h_z0m_print
+
+
+SUBROUTINE c_z0h_z0m_bcast(ntype)
+
+USE setup_namelist, ONLY: setup_nml_type
+USE UM_parcore,     ONLY: mype
+USE parkind1, ONLY: jprb, jpim
+USE yomhook, ONLY: lhook, dr_hook
+USE errormessagelength_mod, ONLY: errormessagelength
+USE max_dimensions, ONLY: ntype_max
+
+IMPLICIT NONE
+
+!Arguments
+INTEGER, INTENT(IN) :: ntype
+
+! Local variables
+INTEGER :: my_comm
+INTEGER :: mpl_nml_type
+INTEGER :: icode
+
+CHARACTER(LEN=*), PARAMETER :: RoutineName='C_Z0H_Z0M_BCAST'
+INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
+INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
+REAL(KIND=jprb)               :: zhook_handle
+CHARACTER(LEN=errormessagelength) :: iomessage
+
+! set number of each type of variable in my_namelist type
+INTEGER, PARAMETER :: no_of_types = 1
+INTEGER, PARAMETER :: n_real = 2 * ntype_max
+
+TYPE :: my_namelist
+   SEQUENCE
+   REAL(KIND=real_jlslsm) :: z0h_z0m_classic(ntype_max)
+   REAL(KIND=real_jlslsm) :: z0h_z0m(ntype_max)
+END TYPE my_namelist
+
+TYPE (my_namelist) :: my_nml
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
+
+CALL gc_get_communicator(my_comm, icode)
+
+CALL setup_nml_type(no_of_types, mpl_nml_type, n_real_in = n_real)
+
+IF ( mype == 0 ) THEN
+  my_nml % z0h_z0m_classic(1:ntype) = z0h_z0m_classic(:)
+  my_nml % z0h_z0m(1:ntype)         = z0h_z0m(:)
+END IF
+
+CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
+
+IF (mype /= 0) THEN
+  z0h_z0m_classic(:) = my_nml % z0h_z0m_classic(1:ntype)
+  z0h_z0m(:)         = my_nml % z0h_z0m(1:ntype)
+END IF
+
+CALL mpl_type_free(mpl_nml_type,icode)
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
+RETURN
+
+ END SUBROUTINE c_z0h_z0m_bcast
 #endif
 
 END MODULE c_z0h_z0m
