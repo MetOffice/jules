@@ -18,7 +18,7 @@ Science changes
 Bug fixes
 ---------
  *  Fixed a bug (which previously would result in a segmentation fault) related to metstats when running JULES standalone with :nml:mem:`FIRE_SWITCHES::l_fire` = TRUE and more than one and point. (#85)
- *  Fixed issues in the daily weather disaggregator (see :nml:mem:`JULES_DRIVE::l_daily_disagg`) which previously would invert the diurnal cycle in high latitude regions under polar day/night. (#83)
+ *  Fixed issues in the daily weather disaggregator (see :nml:mem:`JULES_DRIVE::l_daily_disagg`) which previously would invert the diurnal cycle in high latitude regions under polar day/night. This will change existing results. (#83)
 
 
 General/Technical changes
