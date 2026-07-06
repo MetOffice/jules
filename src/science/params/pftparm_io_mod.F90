@@ -314,7 +314,7 @@ IF (mype == 0) THEN
       i = i + 1
       IF ( i > npft ) THEN
         errcode = 101
-        WRITE(iomessage,*)                                                 &
+        WRITE(iomessage,*)                                                     &
            "Number of instances of jules_pftparm exceeds npft."
         CALL ereport(RoutineName, errcode, iomessage)
       END IF

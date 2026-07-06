@@ -112,8 +112,9 @@ CALL jules_print(RoutineName,                                                  &
     '- - - - - - end of c_z0h_z0m - - - - - -')
 
 END SUBROUTINE c_z0h_z0m_print
+#endif
 
-
+#if defined(UM_JULES)
 SUBROUTINE c_z0h_z0m_bcast(ntype)
 
 USE setup_namelist, ONLY: setup_nml_type
@@ -144,9 +145,9 @@ INTEGER, PARAMETER :: no_of_types = 1
 INTEGER, PARAMETER :: n_real = 2 * ntype_max
 
 TYPE :: my_namelist
-   SEQUENCE
-   REAL(KIND=real_jlslsm) :: z0h_z0m_classic(ntype_max)
-   REAL(KIND=real_jlslsm) :: z0h_z0m(ntype_max)
+  SEQUENCE
+  REAL(KIND=real_jlslsm) :: z0h_z0m_classic(ntype_max)
+  REAL(KIND=real_jlslsm) :: z0h_z0m(ntype_max)
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -174,7 +175,7 @@ CALL mpl_type_free(mpl_nml_type,icode)
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 
- END SUBROUTINE c_z0h_z0m_bcast
+END SUBROUTINE c_z0h_z0m_bcast
 #endif
 
 END MODULE c_z0h_z0m

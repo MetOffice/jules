@@ -60,7 +60,7 @@ CALL read_nml_jules_pftparm (nml_dir)
 ! Process the namelist values
 !-----------------------------------------------------------------------------
 CALL print_nlist_jules_pftparm()
-CALL check_jules_pftparm(npft,nnpft)
+CALL check_jules_pftparm()
 
 ! Spread over land_pts array
 progs%canht_pft(:,:)   = SPREAD(canht_pft(:), 1, land_pts)
