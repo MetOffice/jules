@@ -269,6 +269,105 @@ class vn81_t115a(MacroUpgrade):
                         ",".join(["0.0"] * npft),
                     )
 
+            # Add the unique descriptor used to identify instances of duplicate
+            # namelist.
+            # IGNORED VALUES STILL GET PROCESSED. THERE ARE LEGITIMATE REASONS
+            # FOR THESE IN OPT FILES SO A WARNING IS ISSUED TO CHECK THE RESULT.
+            pft_name = [None] * npft
+            # Define known vegetation types in jules_surface_types
+            jules_surface_types = {}
+            jules_surface_types["brd_leaf"] = ""
+            jules_surface_types["brd_leaf_dec"] = ""
+            jules_surface_types["brd_leaf_eg_temp"] = ""
+            jules_surface_types["brd_leaf_eg_trop"] = ""
+            jules_surface_types["c3_crop"] = ""
+            jules_surface_types["c3_grass"] = ""
+            jules_surface_types["c3_pasture"] = ""
+            jules_surface_types["c4_crop"] = ""
+            jules_surface_types["c4_grass"] = ""
+            jules_surface_types["c4_pasture"] = ""
+            jules_surface_types["ndl_leaf"] = ""
+            jules_surface_types["ndl_leaf_dec"] = ""
+            jules_surface_types["ndl_leaf_eg"] = ""
+            jules_surface_types["shrub"] = ""
+            jules_surface_types["shrub_dec"] = ""
+            jules_surface_types["shrub_eg"] = ""
+            jules_surface_types["usr_type"] = ""
+            # Read jules_surface_types into dictionary
+            nlist = []
+            for item, values in jules_surface_types.items():
+                levels = self.get_setting_value(
+                    config, ["namelist:jules_surface_types", item]
+                )
+                if levels is not None:
+                    levels = levels.split(",")
+                    for l in range(len(levels)):
+                        n = int(levels[l])
+                        if n > 0:
+                            if n > npft:
+                                if item == "usr_type":
+                                    # usr_type is also used by non-veg varieties
+                                    # so need to prevent going out of bounds
+                                    msg = (
+                                        f"'usr_type' detected; dealing with "
+                                        f"vegetation varieties only."
+                                    )
+                                    self.add_report(info=msg, is_warning=True)
+                                else:
+                                    raise UpgradeError(
+                                        f"{item} is greater than npft"
+                                    )
+                            else:
+                                if n in nlist:
+                                    msg = (
+                                        f"\n**********************************"
+                                        f"************************************"
+                                        f"*********"
+                                        f"\nAlready allocated tile number {n} "
+                                        f"found in jules_surface_types "
+                                        f"'{item}'.\nThis may result in the "
+                                        f"incorrect 'pft_name_io', which will "
+                                        f"be used to label the\n"
+                                        f"'jules_pftparm' instance. Please "
+                                        f"check these values against "
+                                        f"jules_surface_types\nand manually "
+                                        f"correct if required. These are "
+                                        f"checked at runtime to ensure\n"
+                                        f"compatibility.\nNB. This may result "
+                                        f"from user ignored values as the "
+                                        f"macro cannot identify them."
+                                        f"\n**********************************"
+                                        f"************************************"
+                                        f"*********"
+                                    )
+                                    self.add_report(info=msg, is_warning=True)
+                                nlist.append(n)
+                                pft_name[n - 1] = item
+                                if item == "usr_type":
+                                    pft_name[n - 1] += "#" + str(l + 1)
+                                else:
+                                    if len(levels) > 1:
+                                        raise UpgradeError(
+                                            f"{item} cannot be a list"
+                                        )
+                                pft_name[n - 1] = "'{}'".format(
+                                    pft_name[n - 1]
+                                )
+            if None in pft_name:
+                raise UpgradeError(
+                    f"\n*************************************************"
+                    f"******************************"
+                    f"\nSurface type is not a known type. "
+                    f"Please correct this, then reapply macro."
+                    f"\n*************************************************"
+                    f"******************************"
+                )
+            self.change_setting_value(
+                config,
+                ["namelist:jules_pftparm", "pft_name_io"],
+                ",".join(pft_name)
+            )
+
         return config, self.reports
 
 
@@ -293,7 +392,7 @@ class vn81_t115(MacroUpgrade):
             )
             # The previous macro corrected known errors in jules_pftparm.
             # We can now process it into separate instances labelled with
-            # pft_name created from jules_surface_types.
+            # pft_name previously created from jules_surface_types.
             # This macro will fail with an error message for any remaining
             # errors for user intervention. CABLE does not use this namelist
             # so any incorrect entries are set to missing data.
@@ -393,6 +492,7 @@ class vn81_t115(MacroUpgrade):
             jules_pftparm["omnirl_io"] = ""
             jules_pftparm["omniru_io"] = ""
             jules_pftparm["orient_io"] = ""
+            jules_pftparm["pft_name_io"] = ""
             jules_pftparm["psi_close_io"] = ""
             jules_pftparm["psi_open_io"] = ""
             jules_pftparm["q10_leaf_io"] = ""
@@ -442,100 +542,7 @@ class vn81_t115(MacroUpgrade):
                     )
             self.remove_setting(config, ["namelist:jules_pftparm"])
 
-            # Add the unique descriptor used to identify instances of duplicate
-            # namelist.
-            # IGNORED VALUES STILL GET PROCESSED. THERE ARE LEGITIMATE REASONS
-            # FOR THESE IN OPT FILES SO A WARNING IS ISSUED TO CHECK THE RESULT.
-            pft_name = [None] * npft
-            # Define known vegetation types in jules_surface_types
-            jules_surface_types = {}
-            jules_surface_types["brd_leaf"] = ""
-            jules_surface_types["brd_leaf_dec"] = ""
-            jules_surface_types["brd_leaf_eg_temp"] = ""
-            jules_surface_types["brd_leaf_eg_trop"] = ""
-            jules_surface_types["c3_crop"] = ""
-            jules_surface_types["c3_grass"] = ""
-            jules_surface_types["c3_pasture"] = ""
-            jules_surface_types["c4_crop"] = ""
-            jules_surface_types["c4_grass"] = ""
-            jules_surface_types["c4_pasture"] = ""
-            jules_surface_types["ndl_leaf"] = ""
-            jules_surface_types["ndl_leaf_dec"] = ""
-            jules_surface_types["ndl_leaf_eg"] = ""
-            jules_surface_types["shrub"] = ""
-            jules_surface_types["shrub_dec"] = ""
-            jules_surface_types["shrub_eg"] = ""
-            jules_surface_types["usr_type"] = ""
-            # Read jules_surface_types into dictionary
-            nlist = []
-            for item, values in jules_surface_types.items():
-                levels = self.get_setting_value(
-                    config, ["namelist:jules_surface_types", item]
-                )
-                if levels is not None:
-                    levels = levels.split(",")
-                    for l in range(len(levels)):
-                        n = int(levels[l])
-                        if n > 0:
-                            if n > npft:
-                                if item == "usr_type":
-                                    # usr_type is also used by non-veg varieties
-                                    # so need to prevent going out of bounds
-                                    msg = (
-                                        f"'usr_type' detected; dealing with "
-                                        f"vegetation varieties only."
-                                    )
-                                    self.add_report(info=msg, is_warning=True)
-                                else:
-                                    raise UpgradeError(
-                                        f"{item} is greater than npft"
-                                    )
-                            else:
-                                if n in nlist:
-                                    msg = (
-                                        f"\n**********************************"
-                                        f"************************************"
-                                        f"*********"
-                                        f"\nAlready allocated tile number {n} "
-                                        f"found in jules_surface_types "
-                                        f"'{item}'.\nThis may result in the "
-                                        f"incorrect 'pft_name_io', which is "
-                                        f"used to label the\n'jules_pftparm' "
-                                        f"instance. Please check these values "
-                                        f"against jules_surface_types\nand "
-                                        f"manually correct if required. These "
-                                        f"are checked at runtime to ensure\n"
-                                        f"compatibility.\nNB. This may result "
-                                        f"from user ignored values as the "
-                                        f"macro cannot identify them."
-                                        f"\n**********************************"
-                                        f"************************************"
-                                        f"*********"
-                                    )
-                                    self.add_report(info=msg, is_warning=True)
-                                nlist.append(n)
-                                pft_name[n - 1] = item
-                                if item == "usr_type":
-                                    pft_name[n - 1] += "#" + str(l + 1)
-                                else:
-                                    if len(levels) > 1:
-                                        raise UpgradeError(
-                                            f"{item} cannot be a list"
-                                        )
-                                pft_name[n - 1] = "'{}'".format(
-                                    pft_name[n - 1]
-                                )
-            if None in pft_name:
-                raise UpgradeError(
-                    f"\n*************************************************"
-                    f"******************************"
-                    f"\nSurface type is not a known type. "
-                    f"Please correct this, then reapply macro."
-                    f"\n*************************************************"
-                    f"******************************"
-                )
-            jules_pftparm["pft_name_io"] = pft_name
-
+            pft_name = jules_pftparm["pft_name_io"]
             for i in range(npft):
                 nml = "namelist:jules_pftparm({})".format(
                     pft_name[i].strip("'")
