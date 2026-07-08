@@ -26,7 +26,7 @@ General/Technical changes
 Bugs fixed
 ----------
 
- *  An upgrade macro that was missied from the previous release has been added. (#1619)
+ *  An upgrade macro that was missed from the previous release has been added. (#1619)
  *  Removed default diagnostic flags used for LFRic. (#1627)
 
 
