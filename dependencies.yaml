@@ -23,4 +23,4 @@ jules:
 
 SimSys_Scripts:
     source: git@github.com:MetOffice/SimSys_Scripts.git
-    ref: 87bd2f5d9a25b7cafd695cdddc478b012d00774d
+    ref: 2026.07.1
