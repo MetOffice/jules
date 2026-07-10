@@ -97,6 +97,9 @@ CASE ( 'rivers_outflow_rp' )
 CASE ( 'rivers_sto_rp' )
   CALL file_read_var(FILE, var_id, rivers%rivers_sto_rp)
 
+CASE ( 'inland_outflow_rp' )
+  CALL file_read_var(FILE, var_id, rivers%inland_outflow_rp)
+
 CASE DEFAULT
   CALL log_fatal( RoutineName,                                                 &
                  "Unexpected variable in dump - " // TRIM(identifier) )

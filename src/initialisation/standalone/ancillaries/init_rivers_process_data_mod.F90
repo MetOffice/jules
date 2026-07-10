@@ -19,6 +19,7 @@ MODULE init_rivers_process_data_mod
 USE jules_rivers_mod, ONLY: inland_drainage, river_mouth, sea
 
 USE logging_mod, ONLY: log_fatal, log_info, log_warn
+USE jules_print_mgr,  ONLY: jules_message
 
 USE string_utils_mod, ONLY: to_string
 
@@ -138,6 +139,8 @@ USE planet_constants_mod, ONLY: planet_radius
 USE rivers_regrid_mod, ONLY: calc_map_river_to_land_points
 
 USE rivers_utils, ONLY: rivers_earth_area
+
+USE coastal, ONLY: flandg, l_use_land_fraction
 
 IMPLICIT NONE
 
@@ -270,6 +273,14 @@ IF ( is_master_task() ) THEN
              global_proj_x_land_work, river_xbound, river_ybound )
 
   !----------------------------------------------------------------------------
+  ! Copy the land fraction from the land grid to the rivers grid.
+  ! We have already checked that the two grids have the same size.
+  !----------------------------------------------------------------------------
+  IF ( l_use_land_fraction ) THEN
+    rivers%land_fraction_2d(:,:) = flandg(:,:)
+  END IF
+
+  !----------------------------------------------------------------------------
   ! If necessary remap from river input grid to river grid. This handles river
   ! routing and overbank inundation variables.
   !----------------------------------------------------------------------------
@@ -355,7 +366,7 @@ IF ( is_master_task() ) THEN
   IF ( l_outflow_per_river .OR. l_init_storage ) THEN
     CALL check_ancil_rivers( dir_mouth, dir_inland_drainage,                   &
                              direction_grid, rivers%rivers_outflow_number,     &
-                             rivers%rivers_storage )
+                             rivers%rivers_storage, rivers%land_fraction_2d )
   END IF
 
 END IF  ! is_master
@@ -1137,6 +1148,10 @@ CASE ( 'rivers_outflow_number' )
 CASE ( 'rivers_storage' )
   CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
                     rivers%rivers_xgrid, rivers%rivers_storage )
+
+CASE ( 'land_fraction_2d' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, rivers%land_fraction_2d )
 
 CASE ( 'sequence' )
   CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
@@ -2219,6 +2234,8 @@ USE overbank_inundation_mod, ONLY:                                             &
   logn_mean_rp, logn_stdev_rp, overbank_hypsometric,                           &
   overbank_model, overbank_quantiles
 
+USE coastal, ONLY: l_use_land_fraction
+
 IMPLICIT NONE
 
 !------------------------------------------------------------------------------
@@ -2267,8 +2284,11 @@ INTEGER ::                                                                     &
   irx, iry, ix, iy
     ! Index variables.
 
+LOGICAL ::                                                                     &
+  frac_chck(np_rivers)
+    ! Flag indicating coastal river points i.e. land fraction < 1.0.
+
 !end of header
-!------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
 ! Scan the river grid for river points and add these to the 1-D river point
@@ -2421,6 +2441,14 @@ DO ix = 1,nx_rivers
       END IF
 
       !------------------------------------------------------------------------
+      ! If the grids are compatible then copy across the land fraction into
+      ! the rivers grid and test whether the model is using fractional land.
+      !------------------------------------------------------------------------
+      IF ( l_use_land_fraction ) THEN
+        rivers%land_fraction_rp(ip) = rivers%land_fraction_2d(ix,iy)
+      END IF
+
+      !------------------------------------------------------------------------
       ! Set overbank inundation ancillary variables, if required.
       !------------------------------------------------------------------------
       IF ( l_riv_overbank ) THEN
@@ -2438,6 +2466,18 @@ DO ix = 1,nx_rivers
 
   END DO  !  iy
 END DO  !  ix
+
+! Confirm that land fractions are being used
+IF ( l_use_land_fraction ) THEN
+  frac_chck(:) = ( ( 1.0 - rivers%land_fraction_rp(:) ) > EPSILON(1.0) )
+  IF ( ANY ( frac_chck(:) ) ) THEN
+    WRITE(jules_message,*) COUNT ( frac_chck(:) ),                             &
+       " coastal points have been detected."
+    CALL log_info(RoutineName, jules_message)
+  END IF
+ELSE
+  CALL log_info(RoutineName, "Land fractions are not being used")
+END IF
 
 
 END SUBROUTINE set_river_point_values

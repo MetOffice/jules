@@ -425,6 +425,11 @@ The required variables for a particular configuration, along with their 'type' a
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | ``rivers_outflow_rp``            | River outflow on river routing points (kg s\ :sup:`-1`)                                 | none    |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
+| Required if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::i_river_vn` = '3',                                     |
+| :nml:mem:`JULES_INITIAL::dump_file` = TRUE and :nml:mem:`OASIS_RIVERS::send_fields` contains ``inland_outflow``.                     |
++----------------------------------+-----------------------------------------------------------------------------------------+---------+
+| ``inland_outflow_rp``            | Inland basin flow on river routing points (kg m\ :sup:`-2` s\ :sup:`-1`).               | none    |
++----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | Required if :nml:mem:`JULES_VEGETATION::photo_acclim_model` = 2 or 3                                                                 |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | ``t_growth_gb``                  | Running mean air temperature (K)                                                        | none    |

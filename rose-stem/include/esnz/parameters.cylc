@@ -1,0 +1,17 @@
+[task parameters]
+    # Compilers
+    compiler_cascade = ifx
+    # Loobos test variants
+    loobos_single = gl4, gl4_cable, gl7, gl8, gl8_irrigon_5050irrigtiles, \
+                    vegdrag, euro4, forecast, ukv, crops, \
+                    prescribe_sthuf, irrig, daily_disagg, crm1_traitF, crm4_traitF, \
+                    crm5_traitF, crm6_traitF, crm6_traitT, crm6_traitF_srfT
+    loobos_with_spinup = trif, julesc, jules_layeredcn, jules_cn, jules_es_1p0, jules_es_1p0_biocrop, fire
+    loobos_jules_c1p1 = jules_c1p1, jules_c1p1_fire
+    # GSWP2 test variants
+    gswp2_single = closures, euro4, gl4, gl7, ukv
+    gswp2_es_1p1 = 1p1, curr, beta
+    gswp2_with_spinup = trip
+    gswp2_irrig = low, high
+    # Eraint test variants
+    eraint_tests = rfm_2ddata, trip_2ddata

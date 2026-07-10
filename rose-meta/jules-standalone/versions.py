@@ -42,6 +42,8 @@ from .version77_78 import *
 from .version78_79 import *
 from .version79_80 import *
 from .version80_81 import *
+from .version81_82 import *
+
 
 class vnYY_txxxx(MacroUpgrade):
 

@@ -37,6 +37,11 @@
                                         nccmp_nci_intel_loobos_gl8_medlyn =>                              \
                                         housekeep_nci_intel_loobos_gl8_medlyn",
 
+        "nci_intel_loobos_gl8_irrigon_5050irrigtiles" : debug_build + " => \
+                                      nci_intel_loobos_gl8_irrigon_5050irrigtiles => \
+                                      nccmp_nci_intel_loobos_gl8_irrigon_5050irrigtiles =>                \
+                                      housekeep_nci_intel_loobos_gl8_irrigon_5050irrigtiles",
+
         "nci_intel_loobos_vegdrag" : debug_build + " => \
                                         nci_intel_loobos_vegdrag =>                                    \
                                         nccmp_nci_intel_loobos_vegdrag =>                              \
@@ -302,7 +307,9 @@
 
         "intel_loobos" : ["nci_intel_loobos_gl4", "nci_intel_loobos_gl4_cable",
                     "nci_intel_loobos_gl7", "nci_intel_loobos_gl8",
-                    "nci_intel_loobos_gl8_medlyn", "nci_intel_loobos_vegdrag",
+                    "nci_intel_loobos_gl8_medlyn", 
+                    "nci_intel_loobos_gl8_irrigon_5050irrigtiles",
+                    "nci_intel_loobos_vegdrag",
                     "nci_intel_loobos_euro4", "nci_intel_loobos_forecast",
                     "nci_intel_loobos_ukv", "nci_intel_loobos_trif",
                     "nci_intel_loobos_crops", "nci_intel_loobos_prescribe_sthuf",

@@ -819,6 +819,7 @@ END SUBROUTINE check_jules_vegetation
 SUBROUTINE print_nlist_jules_vegetation()
 
 USE jules_print_mgr, ONLY: jules_print
+USE jules_surface_types_mod, ONLY: npft
 
 IMPLICIT NONE
 
@@ -893,7 +894,7 @@ CALL jules_print('jules_vegetation_mod',lineBuffer)
 WRITE(lineBuffer,*) ' l_o3_damage = ',l_o3_damage
 CALL jules_print('jules_vegetation_mod',lineBuffer)
 
-WRITE(lineBuffer,*) ' l_vegdrag_pft = ',l_vegdrag_pft
+WRITE(lineBuffer,*) ' l_vegdrag_pft = ',l_vegdrag_pft(1:npft)
 CALL jules_print('jules_vegetation_mod',lineBuffer)
 
 WRITE(lineBuffer,*) ' l_rsl_scalar = ',l_rsl_scalar

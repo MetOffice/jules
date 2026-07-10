@@ -110,6 +110,9 @@ CASE ( 'rivers_x_coord_rp' )
 CASE ( 'rivers_y_coord_rp' )
   CALL file_write_var(FILE, var_id, rivers%rivers_y_coord_rp)
 
+CASE ( 'inland_outflow_rp' )
+  CALL file_write_var(FILE, var_id, rivers%inland_outflow_rp)
+
 CASE DEFAULT
   CALL log_fatal( RoutineName,                                                 &
                  "Unrecognised variable for dump - " // TRIM(identifier) )

@@ -45,8 +45,10 @@ LOGICAL ::                                                                     &
   l_wetland_unfrozen = .FALSE.,                                                &
       ! Switch for TOPMODEL-based hydrology with unfrozen wetland inundation
       ! Only used if l_top=.T.
-  l_limit_gsoil = .FALSE.
+  l_limit_gsoil = .FALSE.,                                                     &
       ! Switch for limiting gsoil above theta_crit
+  l_inland = .FALSE.
+      ! Switch for putting inland water from from rivers into soil moisture
 
 !-----------------------------------------------------------------------------
 ! PDM parameters
@@ -83,7 +85,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !------------------------------------------------------------------------------
 NAMELIST  / jules_hydrology/                                                   &
   l_hydrology, l_top, l_pdm, l_spdmvar, l_baseflow_corr, l_var_rainfrac,       &
-  l_wetland_unfrozen, l_limit_gsoil,                                           &
+  l_wetland_unfrozen, l_limit_gsoil, l_inland,                                 &
   dz_pdm, b_pdm, s_pdm, slope_pdm_max, ti_max, ti_wetl, zw_max, nfita
 
 
@@ -231,6 +233,9 @@ CALL jules_print('jules_hydrology', lineBuffer)
 WRITE(lineBuffer, *) '  l_limit_gsoil = ', l_limit_gsoil
 CALL jules_print('jules_hydrology', lineBuffer)
 
+WRITE(lineBuffer, *) '  l_inland = ', l_inland
+CALL jules_print('jules_hydrology', lineBuffer)
+
 WRITE(lineBuffer, *) '  dz_pdm = ', dz_pdm
 CALL jules_print('jules_hydrology', lineBuffer)
 
@@ -297,7 +302,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 1
 INTEGER, PARAMETER :: n_real = 7
-INTEGER, PARAMETER :: n_log = 8
+INTEGER, PARAMETER :: n_log = 9
 
 TYPE :: my_namelist
   SEQUENCE
@@ -317,6 +322,7 @@ TYPE :: my_namelist
   LOGICAL :: l_var_rainfrac
   LOGICAL :: l_wetland_unfrozen
   LOGICAL :: l_limit_gsoil
+  LOGICAL :: l_inland
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -352,6 +358,7 @@ IF (mype == 0) THEN
   my_nml % l_var_rainfrac  = l_var_rainfrac
   my_nml % l_wetland_unfrozen  = l_wetland_unfrozen
   my_nml % l_limit_gsoil   = l_limit_gsoil
+  my_nml % l_inland        = l_inland
 
 END IF
 
@@ -377,6 +384,7 @@ IF (mype /= 0) THEN
   l_var_rainfrac  = my_nml % l_var_rainfrac
   l_wetland_unfrozen  = my_nml % l_wetland_unfrozen
   l_limit_gsoil   = my_nml % l_limit_gsoil
+  l_inland        = my_nml % l_inland
 
 END IF
 

@@ -26,7 +26,7 @@ General/Technical changes
 Bugs fixed
 ----------
 
- *  An upgrade macro that was missied from the previous release has been added. (#1619)
+ *  An upgrade macro that was missed from the previous release has been added. (#1619)
  *  Removed default diagnostic flags used for LFRic. (#1627)
 
 
@@ -43,7 +43,7 @@ Documentation updates
  *  Updates associated with many of the above changes, and release notes. (#1638)
 
 
-Documentation can be viewed on the github page `<http://jules-lsm.github.io/>`_.
+Documentation can be viewed on the github page `<https://metoffice.github.io/jules/>`_.
 
 After migrating to GitHub, the JULES code repository is now available at
 `https://github.com/MetOffice/jules <https://github.com/MetOffice/jules>`_.
