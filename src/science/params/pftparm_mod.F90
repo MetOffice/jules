@@ -1556,7 +1556,7 @@ END IF
 END SUBROUTINE check_jules_pftparm
 
 
-#if defined(UM_JULES)
+#if defined(UM_JULES) && !defined(LFRIC)
 SUBROUTINE bcast_jules_pftparm(npft)
 
 USE setup_namelist, ONLY: setup_nml_type

@@ -114,7 +114,7 @@ CALL jules_print(RoutineName,                                                  &
 END SUBROUTINE c_z0h_z0m_print
 #endif
 
-#if defined(UM_JULES)
+#if defined(UM_JULES) && !defined(LFRIC)
 SUBROUTINE c_z0h_z0m_bcast(ntype)
 
 USE setup_namelist, ONLY: setup_nml_type
