@@ -24,7 +24,8 @@ USE jules_irrig_mod, ONLY: l_irrig_limit
 USE jules_urban_mod, ONLY: l_urban_empirical
 USE jules_rivers_mod, ONLY: l_riv_overbank, l_rivers, i_river_vn,              &
     rivers_um_trip, rivers_rfm
-USE jules_soil_biogeochem_mod, ONLY: l_ch4_microbe, l_label_frac_cs
+USE jules_soil_biogeochem_mod, ONLY: l_ch4_microbe, l_label_frac_cs,           &
+                                     l_bgc_heat
 USE jules_soil_mod, ONLY: l_tile_soil, l_bedrock
 USE jules_surface_types_mod, ONLY: ncpft
 USE jules_water_resources_mod, ONLY: l_water_resources
@@ -68,6 +69,15 @@ IF ( l_rivers ) THEN
        "i_river_vn = ", i_river_vn
     CALL jules_print(RoutineName, jules_message, level = PrNorm)
   END IF
+END IF
+
+! jules_soil_biogeochem_mod
+IF ( l_bgc_heat ) THEN
+  error_sum = error_sum + 1
+  WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
+     ": Biogenic heating scheme is only available to standalone JULES. " //    &
+     "l_bgc_heat = ", l_bgc_heat
+  CALL jules_print(RoutineName, jules_message, level = PrNorm)
 END IF
 
 ! jules_soil_biogeochem_mod

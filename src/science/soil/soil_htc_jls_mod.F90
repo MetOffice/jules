@@ -21,7 +21,8 @@ SUBROUTINE soil_htc ( npnts, nshyd, nsurft, soil_pts, timestep, soil_index,    &
                       non_lake_frac, hcap, hcon,                               &
                       sathh, smcl, snowdepth,                                  &
                       surf_ht_flux, v_sat, w_flux,                             &
-                      sthf, sthu, sthu_irr, tsoil, tsoil_deep_gb )
+                      sthf, sthu, sthu_irr, tsoil, tsoil_deep_gb,              &
+                      dim_cs1, resp_s_soilt )
 
 !Use in relevant subroutines
 USE bedrock_mod,  ONLY: bedrock
@@ -34,6 +35,7 @@ USE water_constants_mod,    ONLY: dpsidt, hcapi, hcapw, lf, rho_water
 USE jules_snow_mod,         ONLY: snow_hcon
 USE jules_soil_mod,         ONLY: facur, gamma_t, mmax, tacur, l_bedrock,      &
                                   ns_deep
+USE jules_soil_biogeochem_mod, ONLY: heat_of_respiration, l_bgc_heat
 USE jules_surface_mod,      ONLY: l_flake_model
 USE jules_surface_types_mod, ONLY: lake
 USE jules_irrig_mod,   ONLY: l_irrig_dmd
@@ -72,8 +74,10 @@ INTEGER, INTENT(IN) ::                                                         &
     ! Number of tile points.
   surft_index(npnts,nsurft),                                                   &
     ! Index of tile points.
-  nsnow(npnts,nsurft)
-    ! Number of snow layerss
+  nsnow(npnts,nsurft),                                                         &
+    ! Number of snow layers
+  dim_cs1
+    ! Number of soil carbon pools
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   bexp(npnts,nshyd),                                                           &
@@ -98,7 +102,10 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Net downward surface heat flux (W/m2).
   v_sat(npnts,nshyd),                                                          &
     ! Volumetric soil moisture concentration at saturation (m3 H2O/m3 soil).
-  w_flux(npnts,0:nshyd)
+  w_flux(npnts,0:nshyd),                                                       &
+    ! The fluxes of water between layers (kg/m2/s).
+  resp_s_soilt(npnts,nshyd,dim_cs1)
+    ! Soil respiration in pools (kg C/m2/s) in each layer
     ! The fluxes of water between layers (kg/m2/s).
 
 !-----------------------------------------------------------------------------
@@ -131,7 +138,7 @@ LOGICAL, PARAMETER :: use_lims_gauss = .TRUE.
 ! Local scalar variables:
 !-----------------------------------------------------------------------------
 INTEGER ::                                                                     &
-  i, j, jj, m, n,                                                              &
+  i, j, jj, m, n, p,                                                           &
     ! Loop counters.
   iter_pts
     ! Number of soil points which require iteration.
@@ -371,12 +378,13 @@ ELSE
   hflux_base(:) = 0.0
 END IF
 
-!$OMP PARALLEL DEFAULT(NONE) PRIVATE(j, i, n)                                  &
+!$OMP PARALLEL DEFAULT(NONE) PRIVATE(j, i, n, p)                               &
 !$OMP SHARED(soil_pts, nshyd, soil_index, h_flux, hc, tsl, dz, dhflux_dtsl1,   &
 !$OMP        dhflux_dtsl2, hflux_base, surf_ht_flux, sifact, hadv,             &
 !$OMP        w_flux, dhadv_dtsl0, dhadv_dtsl1, dhadv_dtsl2, v_sat,             &
 !$OMP        tiny_0, smcl, small_value, work1, smclsat, bexp, tmax, sathh,     &
-!$OMP        dhsl0, timestep, dhsl)
+!$OMP        dhsl0, timestep, dhsl, resp_s_soilt, l_bgc_heat, dim_cs1,         &
+!$OMP        heat_of_respiration)
 
 ! Blocking is needed as the nshyd dimension has a spatial
 ! dependence (n +/-1). Blocking enables parallelising over the
@@ -477,6 +485,22 @@ DO j = 1, soil_pts
   END DO  !  n (layers)
 END DO  !  j (points)
 !$OMP END DO
+
+! Add in biogeochemical heating if enabled.
+IF (l_bgc_heat) THEN
+!$OMP DO SCHEDULE(STATIC)
+  DO j = 1, soil_pts
+    DO n = 1, nshyd
+!DIR$ IVDEP
+      !CDIR NODEP
+      i = soil_index(j)
+      DO p = 1, dim_cs1
+        dhsl(i, n) = dhsl(i, n) + timestep * heat_of_respiration *             &
+                                                          resp_s_soilt(i, n, p)
+      END DO ! p (carbon pools)
+    END DO ! n (layers)
+  END DO ! j (points)
+END IF
 
 !$OMP END PARALLEL
 !-----------------------------------------------------------------------------

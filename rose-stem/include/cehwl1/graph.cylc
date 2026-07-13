@@ -16,6 +16,11 @@
 
         "loobos_gl8_medlyn" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_gl8_medlyn => nccmp_loobos_gl8_medlyn => housekeep_loobos_gl8_medlyn",
+        
+        "loobos_gl8_irrigon_5050irrigtiles" : "remote_init_ceh => fcm_make_debug => \
+                           loobos_gl8_irrigon_5050irrigtiles => \
+                           nccmp_loobos_gl8_irrigon_5050irrigtiles => \
+                           housekeep_loobos_gl8_irrigon_5050irrigtiles",
 
         "loobos_vegdrag" : "remote_init_ceh => extract_source => fcm_make_debug => \
                           loobos_vegdrag => nccmp_loobos_vegdrag => housekeep_loobos_vegdrag",
@@ -213,6 +218,7 @@
         "all" : ["loobos", "gswp2", "eraint", "gswp2_es", "imogen"],
 
         "loobos" : ["loobos_gl4","loobos_gl4_cable", "loobos_gl7", "loobos_gl8",  "loobos_gl8_medlyn",
+                    "loobos_gl8_irrigon_5050irrigtiles",
                     "loobos_vegdrag", "loobos_euro4", "loobos_forecast", "loobos_ukv",
                     "loobos_trif", "loobos_crops", "loobos_prescribe_sthuf", "loobos_fire",
                     "loobos_daily_disagg","loobos_julesc","loobos_jules_layeredcn",

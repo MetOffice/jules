@@ -18,11 +18,11 @@ USE ereport_mod, ONLY: ereport
 USE jules_print_mgr, ONLY: jules_message, jules_print, jules_format,           &
                            PrNorm, newline
 USE missing_data_mod, ONLY: imdi
-USE jules_hydrology_mod, ONLY: l_var_rainfrac
+USE jules_hydrology_mod, ONLY: l_var_rainfrac, l_inland
 USE jules_surface_mod, ONLY: formdrag, no_drag, i_modiscopt, iscrntdiag,       &
                              srf_ex_cnv_gust, l_vary_z0m_soil
 USE jules_surface_types_mod, ONLY: tile_map_ids, ntype
-USE jules_rivers_mod,  ONLY: i_river_vn, l_inland, rivers_um_trip,             &
+USE jules_rivers_mod,  ONLY: i_river_vn, rivers_um_trip,                       &
                              trip_globe_shape
 USE jules_radiation_mod, ONLY: l_sea_alb_var_chl, l_dolr_land_black
 USE jules_vegetation_mod, ONLY: l_nrun_mid_trif, l_trif_init_accum
@@ -37,6 +37,15 @@ INTEGER :: errcode, error_sum
 CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_UNAVAILABLE_OPTIONS'
 
 error_sum = 0
+
+! jules_hydrology
+IF ( l_inland ) THEN
+  error_sum = error_sum + 1
+  WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
+     ": Re-routing inland basin water back to soil moisture is not " //        &
+     " required (must not be selected) by standalone. l_inland = ", l_inland
+  CALL jules_print(RoutineName, jules_message, level = PrNorm)
+END IF
 
 ! jules_surface
 IF ( formdrag /= no_drag ) THEN
@@ -99,14 +108,6 @@ IF ( i_river_vn == rivers_um_trip ) THEN
   WRITE(jules_message,'(I0,A,I0)') error_sum,                                  &
      ": Rivers UM trip (1) can only be run in UM-JULES. i_river_vn = ",        &
      i_river_vn
-  CALL jules_print(RoutineName, jules_message, level = PrNorm)
-END IF
-
-IF ( l_inland ) THEN
-  error_sum = error_sum + 1
-  WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
-     ": Re-routing inland basin water back to soil moisture is not " //        &
-     " required (must not be selected) by standalone. l_inland = ", l_inland
   CALL jules_print(RoutineName, jules_message, level = PrNorm)
 END IF
 

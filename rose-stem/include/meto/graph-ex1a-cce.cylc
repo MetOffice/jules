@@ -27,7 +27,12 @@
                                         nccmp_meto_ex1a_cce_loobos_gl8_medlyn => \
                                         housekeep_meto_ex1a_cce_loobos_gl8_medlyn",
 
-        "meto_ex1a_cce_loobos_vegdrag" : "remote_init_ex1a & extract_source => extract_source_ex1a => fcm_make_meto_ex1a_cce_debug=> \
+        "meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles" : "remote_init_ex1a & extract_source => extract_source_ex1a => fcm_make_meto_ex1a_cce_debug => \
+                                      meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles => \
+                                      nccmp_meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles =>                            \
+                                      housekeep_meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles",
+
+        "meto_ex1a_cce_loobos_vegdrag" : "remote_init_ex1a & extract_source => extract_source_ex1a => fcm_make_meto_ex1a_cce_debug => \
                                         meto_ex1a_cce_loobos_vegdrag =>        \
                                         nccmp_meto_ex1a_cce_loobos_vegdrag =>  \
                                         housekeep_meto_ex1a_cce_loobos_vegdrag",
@@ -397,6 +402,7 @@
         "ex1a_cce" : ["ex1a_cce_loobos", "ex1a_cce_gswp2", "ex1a_cce_gswp2_es", "ex1a_cce_eraint", "ex1a_cce_imogen", "ex1a_cce_surf"],
 
         "ex1a_cce_loobos" : ["meto_ex1a_cce_loobos_gl7", "meto_ex1a_cce_loobos_gl8", "meto_ex1a_cce_loobos_gl8_medlyn",
+                             "meto_ex1a_cce_loobos_gl8_irrigon_5050irrigtiles",
                              "meto_ex1a_cce_loobos_vegdrag", "meto_ex1a_cce_loobos_euro4",
                              "meto_ex1a_cce_loobos_forecast", "meto_ex1a_cce_loobos_ukv",
                              "meto_ex1a_cce_loobos_trif", "meto_ex1a_cce_loobos_crops",

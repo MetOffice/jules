@@ -26,7 +26,8 @@ SUBROUTINE sf_evap (                                                           &
  land_pts,nsurft,                                                              &
  land_index,surft_index,surft_pts,sm_levels,fland,                             &
  ashtf_prime_surft,canopy,dtrdz_1,flake,fracaero_t,fracaero_s,snow_surft,resfs,&
- resft,rhokh_1,tile_frac,smc_soilt,wt_ext_surft,timestep,r_gamma,              &
+ resft,rhokh_1,tile_frac,non_irrig_frac,                                       &
+ smc_soilt,wt_ext_surft,timestep,r_gamma,                                      &
  fqw_1,fqw_surft,ftl_1,ftl_surft,tstar_surft,                                  &
  ecan,ecan_surft,elake_surft,esoil_soilt,esoil_surft,ei_surft,ext_soilt,       &
  sf_diag, non_lake_frac,                                                       &
@@ -48,7 +49,7 @@ USE ancil_info, ONLY: nsoilt
 
 USE jules_irrig_mod, ONLY: l_irrig_dmd
 
-USE jules_surface_mod, ONLY: l_flake_model
+USE jules_surface_mod, ONLY: l_aggregate, l_flake_model
 USE jules_surface_types_mod, ONLY: lake
 
 USE jules_science_fixes_mod, ONLY: l_fix_neg_snow
@@ -107,6 +108,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                            ! IN Surface exchange coefficients.
 ,tile_frac(land_pts,nsurft)                                                    &
 !                            ! IN Tile fractions.
+,non_irrig_frac(land_pts)                                                      &
+                             ! IN Fraction of non-irrigated tiles.
 ,smc_soilt(land_pts,nsoilt)                                                    &
                        ! IN Available soil moisture (kg/m2).
 ,wt_ext_surft(land_pts,sm_levels,nsurft)                                       &
@@ -722,15 +725,27 @@ DO m = 1,sm_levels
 !$OMP END DO
     END IF !nsoilt
   END DO !nsurft
-  IF ((nsoilt == 1) .AND. (l_flake_model)) THEN
-    ! Normalise ext_soilt, excluding the lake tile fraction.
+  IF (nsoilt == 1) THEN
+    ! Normalise ext_soilt, excluding irrigated fraction.
+    IF (.NOT. l_aggregate) THEN
 !$OMP DO SCHEDULE(STATIC)
-    DO l = 1,land_pts
-      IF (non_lake_frac(l) > EPSILON(0.0)) THEN
-        ext_soilt(l,1,m) = ext_soilt(l,1,m) / non_lake_frac(l)
-      END IF
-    END DO
+      DO l = 1,land_pts
+        IF (non_irrig_frac(l) > EPSILON(0.0)) THEN
+          ext_soilt(l,1,m) = ext_soilt(l,1,m) / non_irrig_frac(l)
+        END IF
+      END DO
 !$OMP END DO
+    END IF
+    IF (l_flake_model) THEN
+      ! Normalise ext_soilt, excluding the lake tile fraction.
+!$OMP DO SCHEDULE(STATIC)
+      DO l = 1,land_pts
+        IF (non_lake_frac(l) > EPSILON(0.0)) THEN
+          ext_soilt(l,1,m) = ext_soilt(l,1,m) / non_lake_frac(l)
+        END IF
+      END DO
+!$OMP END DO
+    END IF
   END IF
 END DO !sm_levels
 

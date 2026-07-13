@@ -85,12 +85,16 @@ INTEGER ::                                                                     &
                   ! Index of surface type 'C3 crop'
     c3_pasture       = imdi,                                                   &
                   ! Index of surface type 'C3 pasture'
+    c3_irrig         = imdi,                                                   &
+                  ! Index of surface type 'C3 irrig'
     c4_grass         = imdi,                                                   &
                   ! Index of surface type 'C4 grass'
     c4_crop          = imdi,                                                   &
                   ! Index of surface type 'C4 crop'
     c4_pasture       = imdi,                                                   &
                   ! Index of surface type 'C4 pasture'
+    c4_irrig         = imdi,                                                   &
+                  ! Index of surface type 'C4 irrig'
     shrub            = imdi,                                                   &
                   ! Index of surface type 'shrub'
     shrub_dec        = imdi,                                                   &
@@ -111,9 +115,9 @@ INTEGER ::                                                                     &
 NAMELIST  / jules_surface_types/                                               &
   npft, ncpft, nnvg, brd_leaf, brd_leaf_dec, brd_leaf_eg_trop,                 &
   brd_leaf_eg_temp, ndl_leaf, ndl_leaf_dec, ndl_leaf_eg, c3_grass,             &
-  c3_crop, c3_pasture, c4_grass, c4_crop, c4_pasture, shrub, shrub_dec,        &
-  shrub_eg, urban, urban_canyon, urban_roof, lake, soil, ice,                  &
-  elev_ice, elev_rock, usr_type, tile_map_ids
+  c3_crop, c3_pasture, c3_irrig, c4_grass, c4_crop, c4_pasture, c4_irrig,      &
+  shrub, shrub_dec, shrub_eg, urban, urban_canyon, urban_roof, lake, soil,     &
+  ice, elev_ice, elev_rock, usr_type, tile_map_ids
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_SURFACE_TYPES_MOD'
 
@@ -201,11 +205,15 @@ CALL check_surface_type_value ( c3_crop, "c3_crop", 1, npft,                   &
    RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( c3_pasture, "c3_pasture", 1, npft,             &
    RoutineName, errorstatus, nchecks )
+CALL check_surface_type_value ( c3_irrig, "c3_irrig", 1, npft,                 &
+   RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( c4_grass, "c4_grass", 1, npft,                 &
    RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( c4_crop, "c4_crop", 1, npft,                   &
    RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( c4_pasture, "c4_pasture", 1, npft,             &
+   RoutineName, errorstatus, nchecks )
+CALL check_surface_type_value ( c4_irrig, "c4_irrig", 1, npft,                 &
    RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( shrub, "shrub", 1, npft,                       &
    RoutineName, errorstatus, nchecks )
@@ -355,6 +363,11 @@ IF ( c3_pasture > 0 ) THEN
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
+IF ( c3_irrig > 0 ) THEN
+  WRITE(lineBuffer, *) '  c3_irrig = ', c3_irrig
+  CALL jules_print('jules_surface_types', lineBuffer)
+END IF
+
 IF ( c4_grass > 0 ) THEN
   WRITE(lineBuffer, *) '  c4_grass = ', c4_grass
   CALL jules_print('jules_surface_types', lineBuffer)
@@ -367,6 +380,11 @@ END IF
 
 IF ( c4_pasture > 0 ) THEN
   WRITE(lineBuffer, *) '  c4_pasture = ', c4_pasture
+  CALL jules_print('jules_surface_types', lineBuffer)
+END IF
+
+IF ( c4_irrig > 0 ) THEN
+  WRITE(lineBuffer, *) '  c4_irrig = ', c4_irrig
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
@@ -476,7 +494,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 1
-INTEGER, PARAMETER :: n_int = 25 + (2 * ntype_max) + (2 * elev_tile_max)
+INTEGER, PARAMETER :: n_int = 27 + (2 * ntype_max) + (2 * elev_tile_max)
 
 TYPE :: my_namelist
   SEQUENCE
@@ -493,9 +511,11 @@ TYPE :: my_namelist
   INTEGER :: c3_grass
   INTEGER :: c3_crop
   INTEGER :: c3_pasture
+  INTEGER :: c3_irrig
   INTEGER :: c4_grass
   INTEGER :: c4_crop
   INTEGER :: c4_pasture
+  INTEGER :: c4_irrig
   INTEGER :: shrub
   INTEGER :: shrub_dec
   INTEGER :: shrub_eg
@@ -538,9 +558,11 @@ IF (mype == 0) THEN
   my_nml % c3_grass         = c3_grass
   my_nml % c3_crop          = c3_crop
   my_nml % c3_pasture       = c3_pasture
+  my_nml % c3_irrig         = c3_irrig
   my_nml % c4_grass         = c4_grass
   my_nml % c4_crop          = c4_crop
   my_nml % c4_pasture       = c4_pasture
+  my_nml % c4_irrig         = c4_irrig
   my_nml % shrub            = shrub
   my_nml % shrub_dec        = shrub_dec
   my_nml % shrub_eg         = shrub_eg
@@ -573,9 +595,11 @@ IF (mype /= 0) THEN
   c3_grass         = my_nml % c3_grass
   c3_crop          = my_nml % c3_crop
   c3_pasture       = my_nml % c3_pasture
+  c3_irrig         = my_nml % c3_irrig
   c4_grass         = my_nml % c4_grass
   c4_crop          = my_nml % c4_crop
   c4_pasture       = my_nml % c4_pasture
+  c4_irrig         = my_nml % c4_irrig
   shrub            = my_nml % shrub
   shrub_dec        = my_nml % shrub_dec
   shrub_eg         = my_nml % shrub_eg

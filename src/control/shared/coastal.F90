@@ -17,6 +17,10 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='COASTAL'
 REAL, DIMENSION(:,:), ALLOCATABLE :: flandg
 ! Land fraction on all tiles.
 
+LOGICAL :: l_use_land_fraction = .FALSE.
+! Switch to indicate that land fractions should be used instead of all land
+! fractions being set to 1.0 by standalone.
+
 !-----------------------------------------------------------------------------
 ! Implementation for field variables
 ! Each variable is declared in both the 'data' TYPE and the 'pointer' type.

@@ -21,7 +21,7 @@ CONTAINS
 ! *********************************************************************
 
 SUBROUTINE soil_evap (npnts,nshyd,surft_pts,surft_index,                       &
-                      gsoil,lai,gs,wt_ext,fsoil                                &
+                      irrig_tile,gsoil,lai,gs,wt_ext,fsoil                     &
                       ,gsoil_irr,gs_irr,wt_ext_irr                             &
                       )
 
@@ -38,9 +38,12 @@ INTEGER, INTENT(IN) ::                                                         &
 ,surft_pts                                                                     &
                       ! IN Number of points containing the
 !                           !    given surface type.
-,surft_index(npnts)    ! IN Indices on the land grid of the
+,surft_index(npnts)                                                            &
+                      ! IN Indices on the land grid of the
 !                           !    points containing the given
 !                           !    surface type.
+,irrig_tile
+                      ! IN irrigation switch for surface tile
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
  gsoil(npnts)                                                                  &
@@ -89,7 +92,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP DEFAULT(NONE)                                                            &
 !$OMP PRIVATE(l,j,k)                                                           &
 !$OMP SHARED(npnts,fsoil,surft_pts,surft_index,lai,nshyd,wt_ext,gs,gsoil,      &
-!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd)
+!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,irrig_tile)
 
 ! Initialisations
 
@@ -106,28 +109,52 @@ DO j = 1,surft_pts
 END DO
 !$OMP END DO NOWAIT
 
+! Adjustments to wt_ext from soil layers 2 to nshyd
 DO k = 2,nshyd
+  IF (irrig_tile /= 1) THEN
 !$OMP DO SCHEDULE(STATIC)
-  DO j = 1,surft_pts
-    l = surft_index(j)
-    wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
-    IF (l_irrig_dmd) THEN
+    DO j = 1,surft_pts
+      l = surft_index(j)
+      wt_ext(l,k) = gs(l) * wt_ext(l,k) / (gs(l) + fsoil(l) * gsoil(l))
+    END DO
+!$OMP END DO NOWAIT
+  END IF
+  IF (l_irrig_dmd) THEN
+!$OMP DO SCHEDULE(STATIC)
+    DO j = 1,surft_pts
+      l = surft_index(j)
       wt_ext_irr(l,k) = gs_irr(l) * wt_ext_irr(l,k)                            &
              / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
-    END IF
+    END DO
+!$OMP END DO NOWAIT
+  END IF
+END DO
+
+! Adjustments to wt_ext from soil layer 1
+IF (irrig_tile /= 1) THEN
+!$OMP DO SCHEDULE(STATIC)
+  !CDIR NODEP
+  DO j = 1,surft_pts
+    l = surft_index(j)
+    wt_ext(l,1) = (gs(l) * wt_ext(l,1) + fsoil(l) * gsoil(l))                  &
+                   / (gs(l) + fsoil(l) * gsoil(l))
   END DO
 !$OMP END DO NOWAIT
-END DO
+END IF
 
 !$OMP DO SCHEDULE(STATIC)
 !CDIR NODEP
 DO j = 1,surft_pts
   l = surft_index(j)
-  wt_ext(l,1) = (gs(l) * wt_ext(l,1) + fsoil(l) * gsoil(l))                    &
-                 / (gs(l) + fsoil(l) * gsoil(l))
   gs(l) = gs(l) + fsoil(l) * gsoil(l)
+END DO
+!$OMP END DO NOWAIT
 
-  IF (l_irrig_dmd) THEN
+IF (l_irrig_dmd) THEN
+!$OMP DO SCHEDULE(STATIC)
+  !CDIR NODEP
+  DO j = 1,surft_pts
+    l = surft_index(j)
     wt_ext_irr(l,1) = (gs_irr(l) * wt_ext_irr(l,1)                             &
                         + fsoil(l) * gsoil_irr(l))                             &
                         / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
@@ -136,9 +163,9 @@ DO j = 1,surft_pts
     ! relative to tile mean conductance (scaled by relative area later).
     ! Assume soil evaporation uses grid box mean soil moisture:
     gs_irr(l) = gs_irr(l) + fsoil(l) * gsoil_irr(l)
-  END IF
-END DO
+  END DO
 !$OMP END DO NOWAIT
+END IF
 
 !$OMP END PARALLEL
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)

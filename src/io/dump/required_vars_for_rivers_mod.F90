@@ -16,7 +16,8 @@ SUBROUTINE required_vars_for_rivers( nvars, identifiers,                       &
                                      read_or_write_dump )
 
 USE jules_rivers_mod, ONLY: l_outflow_per_river, i_river_vn, rivers_camaflood, &
-                            rivers_rfm, rivers_trip, l_init_storage
+                            rivers_rfm, rivers_trip, l_init_storage,           &
+                            l_inland_outflow
 
 USE logging_mod, ONLY: log_warn
 
@@ -84,7 +85,16 @@ IF ( l_outflow_per_river ) THEN
     CALL add_to_list( 'rivers_outflow_rp', nvars, identifiers )
   ELSE
     CALL log_warn( RoutineName,                                                &
-                  "rivers_outflow_rp will be initialised to zero.")
+                  "rivers_outflow_rp will be initialised to rmdi.")
+  END IF
+END IF
+
+IF ( l_inland_outflow ) THEN
+  IF ( read_or_write_dump_local ) THEN
+    CALL add_to_list( 'inland_outflow_rp', nvars, identifiers )
+  ELSE
+    CALL log_warn( RoutineName,                                                &
+                  "inland_outflow_rp will be initialised to rmdi.")
   END IF
 END IF
 

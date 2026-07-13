@@ -39,9 +39,11 @@ IMPLICIT NONE
 !       3 - C3 Grass
 !     301 - C3 Crop
 !     302 - C3 Pasture
+!     303 - C3 Irrig
 !       4 - C4 Grass
 !     401 - C4 Crop
 !     402 - C4 Pasture
+!     403 - C4 Irrig
 !       5 - Shrub
 !     501 - Shrub deciduous
 !     502 - Shrub evergreen
@@ -81,12 +83,16 @@ INTEGER, PARAMETER ::                                                          &
                 ! ID number of surface type 'C3 Crop'
    ,id_C3pasture         =  302                                                &
                 ! ID number of surface type 'C3 Pasture'
+   ,id_C3irrig           =  303                                                &
+                ! ID number of surface type 'C3 Irrig'
    ,id_C4grass           =  4                                                  &
                 ! ID number of surface type 'C4 Grass'
    ,id_C4crop            =  401                                                &
                 ! ID number of surface type 'C4 Crop'
    ,id_C4pasture         =  402                                                &
                 ! ID number of surface type 'C4 Pasture'
+   ,id_C4irrig           =  403                                                &
+                ! ID number of surface type 'C4 Irrig'
    ,id_shrub             =  5                                                  &
                 ! ID number of surface type 'Shrub'
    ,id_shrub_dec         =  501                                                &
@@ -161,9 +167,11 @@ USE jules_surface_types_mod, ONLY:                                             &
     c3_grass,                                                                  &
     c3_crop,                                                                   &
     c3_pasture,                                                                &
+    c3_irrig,                                                                  &
     c4_grass,                                                                  &
     c4_crop,                                                                   &
     c4_pasture,                                                                &
+    c4_irrig,                                                                  &
     shrub,                                                                     &
     shrub_dec,                                                                 &
     shrub_eg,                                                                  &
@@ -215,12 +223,16 @@ IF (c3_crop          > 0)                                                      &
                 surface_type_ids(c3_crop          ) = id_c3crop
 IF (c3_pasture       > 0)                                                      &
                 surface_type_ids(c3_pasture       ) = id_c3pasture
+IF (c3_irrig         > 0)                                                      &
+                surface_type_ids(c3_irrig         ) = id_c3irrig
 IF (c4_grass         > 0)                                                      &
                 surface_type_ids(c4_grass         ) = id_c4grass
 IF (c4_crop          > 0)                                                      &
                 surface_type_ids(c4_crop          ) = id_c4crop
 IF (c4_pasture       > 0)                                                      &
                 surface_type_ids(c4_pasture       ) = id_c4pasture
+IF (c4_irrig         > 0)                                                      &
+                surface_type_ids(c4_irrig         ) = id_c4irrig
 IF (shrub            > 0)                                                      &
                 surface_type_ids(shrub            ) = id_shrub
 IF (shrub_dec        > 0)                                                      &

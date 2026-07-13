@@ -24,7 +24,7 @@ SUBROUTINE check_compatible_options()
 !-----------------------------------------------------------------------------
 
 USE model_time_mod,  ONLY: max_spinup_cycles
-
+USE check_compatible_options_rivers_mod, ONLY: check_compatible_options_rivers
 
 USE ereport_mod,     ONLY: ereport
 USE jules_print_mgr, ONLY: jules_print, jules_message
@@ -46,6 +46,9 @@ IF ( max_spinup_cycles > 0 ) THEN
      max_spinup_cycles
   CALL jules_print(routinename, jules_message)
 END IF
+
+! Call rivers compatible options routine
+CALL check_compatible_options_rivers(ERROR)
 
 IF ( ERROR /= 0 )                                                              &
    CALL ereport(routinename, ERROR,                                            &

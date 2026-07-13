@@ -99,6 +99,12 @@
         [[[environment]]]
             ROSE_TASK_APP = loobos_gl8_medlyn
 
+    [[nci_intel_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = NCI_INTEL_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8
+            ROSE_APP_OPT_CONF_KEYS=irrigon_5050irrigtiles
+
      [[nci_intel_loobos_vegdrag]]
         inherit = NCI_INTEL_LOOBOS
         [[[environment]]]
@@ -545,6 +551,11 @@
         [[[environment]]]
             OUTPUT_DIR = ../nci_intel_loobos_gl8_medlyn/output
 
+   [[nccmp_nci_intel_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = NCI_INTEL_NETCDF_COMPARISON
+        [[[environment]]]
+            OUTPUT_DIR = ../nci_intel_loobos_gl8_irrigon_5050irrigtiles/output
+
     [[nccmp_nci_intel_loobos_vegdrag]]
         inherit = NCI_INTEL_NETCDF_COMPARISON
         [[[environment]]]
@@ -827,6 +838,11 @@
         inherit = NCI_INTEL_HOUSEKEEPING
         [[[environment]]]
             DIR1 = ../nci_intel_loobos_gl8_medlyn
+
+    [[housekeep_nci_intel_loobos_gl8_irrigon_5050irrigtiles]]
+        inherit = NCI_INTEL_HOUSEKEEPING
+        [[[environment]]]
+            DIR1 = ../nci_intel_loobos_gl8_irrigon_5050irrigtiles
 
     [[housekeep_nci_intel_loobos_vegdrag]]
         inherit = NCI_INTEL_HOUSEKEEPING

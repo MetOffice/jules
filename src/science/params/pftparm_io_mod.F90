@@ -36,6 +36,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 
 INTEGER ::                                                                     &
   c3_io = imdi,                                                                &
+  irrig_pft_io = imdi,                                                         &
   orient_io = imdi
 
 REAL(KIND=real_jlslsm) ::                                                      &
@@ -181,9 +182,9 @@ NAMELIST  / jules_pftparm/                                                     &
   fsmc_p0_io,      g1_stomata_io,          g_leaf_0_io,                        &
   glmin_io,        gpp_st_io,              gsoil_f_io,                         &
   hw_sw_io,        ief_io,                 infil_f_io,                         &
-  jv25_ratio_io,   kext_io,                kn_io,                              &
-  knl_io,          kpar_io,                lai_alb_lim_io,                     &
-  lma_io,          mef_io,                                                     &
+  irrig_pft_io,    jv25_ratio_io,          kext_io,                            &
+  kn_io,           knl_io,                 kpar_io,                            &
+  lai_alb_lim_io,  lma_io,                 mef_io,                             &
   neff_io,         nl0_io,                 nmass_io,                           &
   nr_io,           nr_nl_io,               ns_nl_io,                           &
   nsw_io,          omega_io,               omegal_io,                          &
@@ -388,6 +389,7 @@ USE pftparm, ONLY:                                                             &
   sox_p50,         sox_rp_min
 
 USE c_z0h_z0m, ONLY: z0h_z0m,  z0h_z0m_classic, c_z0h_z0m_alloc
+USE c_irrigation_mod, ONLY: irrig_tile
 
 USE jules_surface_types_mod,  ONLY: map_nml_instance_to_tile_number, ntype
 
@@ -499,6 +501,7 @@ fsmc_p0(i)      = fsmc_p0_io
 glmin(i)        = glmin_io
 gsoil_f(i)      = gsoil_f_io
 infil_f(i)      = infil_f_io
+irrig_tile(i)   = irrig_pft_io
 rootd_ft(i)     = rootd_ft_io
 z0v(i)          = z0v_io
 z0h_z0m(i)      = z0hm_pft_io
@@ -642,6 +645,7 @@ gsoil_f_io = rmdi
 hw_sw_io = rmdi
 ief_io = rmdi
 infil_f_io = rmdi
+irrig_pft_io = rmdi
 jv25_ratio_io = rmdi
 kext_io = rmdi
 kn_io = rmdi
