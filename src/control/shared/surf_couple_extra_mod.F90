@@ -79,7 +79,8 @@ SUBROUTINE surf_couple_extra(                                                  &
    zw_soilt, sthzw_soilt,                                                      &
    ls_rainfrac_gb,                                                             &
    substore, surfstore, flowin, bflowin,                                       &
-   tot_surf_runoff_gb, tot_sub_runoff_gb, acc_lake_evap_gb, twatstor,          &
+   tot_surf_runoff_gb, tot_sub_runoff_gb,                                      &
+   acc_lake_evap_gb, twatstor,                                                 &
    asteps_since_triffid,                                                       &
    inlandout_atm_gb,                                                           &
    !OUT
@@ -122,7 +123,7 @@ USE jules_chemvars_mod, ONLY: chemvars_type
 USE water_resources_vars_mod, ONLY: water_resources_type
 USE jules_wtrac_type_mod, ONLY: jls_wtrac_type
 
-! In general CABLE utilizes a required subset of tbe JULES types, however;
+! In general CABLE utilizes a required subset of the JULES types, however;
 USE work_vars_mod_cbl,  ONLY: work_vars_type      ! and some kept thru timestep
 
 !Import interfaces to subroutines called
@@ -248,7 +249,9 @@ USE ereport_mod,              ONLY: ereport
 #if defined(UM_JULES) && !defined(LFRIC)
 USE atm_fields_mod,      ONLY: disturb_veg_prev
 
-USE atm_step_local,           ONLY:  STASHwork19, STASHwork8, STASHwork26
+USE atm_land_sea_mask,        ONLY: global_land_pts => atmos_number_of_landpts
+
+USE atm_step_local,           ONLY: STASHwork19, STASHwork8, STASHwork26
 
 USE model_domain_mod,         ONLY: model_type, mt_single_column
 
@@ -263,7 +266,7 @@ USE fire_mod,                 ONLY: fire_prog, fire_diag, l_fire
 
 USE metstats_mod,             ONLY: metstats_prog, l_metstats
 
-USE model_grid_mod,           ONLY: grid_area_ij
+USE model_grid_mod,           ONLY: global_land_pts, grid_area_ij
 
 USE model_time_mod,           ONLY: current_time
 #endif
@@ -388,6 +391,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   acc_lake_evap_gb(row_length,rows),                                           &
   tot_surf_runoff_gb(land_pts),                                                &
   tot_sub_runoff_gb(land_pts),                                                 &
+    ! Water abstracted from minor reservoirs over river timestep (kg).
   twatstor(river_row_length, river_rows),                                      &
   inlandout_atm_gb(land_pts)
 
@@ -841,7 +845,7 @@ CASE ( jules )
 #if !defined(UM_JULES)
     ! Water resources (standalone; not yet allowed in UM).
   IF ( l_water_resources ) THEN
-    CALL water_resources_control(                                              &
+    CALL water_resources_control( global_land_pts,                             &
            rivers%global_land_index, ainfo%land_index,                         &
            rivers%map_river_to_land_points, rivers%rivers_index_rp,            &
            forcing%con_rain_ij, forcing%con_snow_ij,                           &
@@ -853,24 +857,29 @@ CASE ( jules )
            flandg, crop_vars%frac_irr_soilt, ainfo%frac_soilt,                 &
            ainfo%frac_surft, grid_area_ij,                                     &
            forcing%ls_rain_ij, forcing%ls_snow_ij, forcing%lw_down_ij,         &
+           rivers%minor_res_storage,                                           &
+           rivers%rfm_surfstore_rp, rivers%rivers_sto_rp,                      &
            psparms%smvccl_soilt,                                               &
            psparms%smvcst_soilt, psparms%smvcwt_soilt, psparms%sthf_soilt,     &
            fluxes%sw_surft, forcing%tl_1_ij, progs%tstar_surft,                &
            crop_vars%icntmax_gb, crop_vars%plant_n_gb,                         &
            water_resources%demand_accum,                                       &
            crop_vars%prec_1_day_av_gb, crop_vars%prec_1_day_av_use_gb,         &
-           rivers%rfm_surfstore_rp, rivers%rivers_sto_rp,                      &
            crop_vars%rn_1_day_av_gb,                                           &
            crop_vars%rn_1_day_av_use_gb, water_resources%sfc_water_frac,       &
            progs%smcl_soilt,                                                   &
            crop_vars%sthu_irr_soilt, psparms%sthu_soilt,                       &
            sthzw_soilt, fluxes%sub_surf_roff_gb, crop_vars%tl_1_day_av_gb,     &
-           crop_vars%tl_1_day_av_use_gb, water_resources%priority_order,       &
-           water_resources%demand_unmet, water_resources%gw_abstracted,        &
-           water_resources%gw_avail, water_resources%gw_nr_abstracted,         &
-           crop_vars%irrig_water_gb, water_resources%net_abstracted_river,     &
-           water_resources%sw_abstracted, water_resources%sw_avail_total,      &
-           water_resources%water_removed )
+           crop_vars%tl_1_day_av_use_gb,                                       &
+           water_resources%priority_order,                                     &
+           water_resources%abstracted_minor_res_global,                        &
+           water_resources%net_abstracted_river_global,                        &
+           water_resources%gw_abstracted, crop_vars%irrig_water_gb,            &
+           water_resources%abstracted_minor_res,                               &
+           water_resources%abstracted_river, water_resources%conveyance_loss,  &
+           water_resources%demand_unmet, water_resources%gw_avail,             &
+           water_resources%gw_nr_abstracted, water_resources%sw_abstracted,    &
+           water_resources%sw_avail_total, water_resources%water_removed )
   END IF
 #endif
 
@@ -879,13 +888,16 @@ CASE ( jules )
       !INTEGER, INTENT(IN)
       land_pts, n_wtrac_jls,                                                   &
       !REAL, INTENT(IN)
-      water_resources%net_abstracted_river,                                    &
+      water_resources%abstracted_minor_res_global,                             &
+      water_resources%net_abstracted_river_global,                             &
       fluxes%sub_surf_roff_gb, fluxes%surf_roff_gb,                            &
       wtrac_jls%sub_surf_roff_gb,  wtrac_jls%surf_roff_gb,                     &
       !INTEGER, INTENT(INOUT)
       a_steps_since_riv,                                                       &
       !REAL, INTENT (INOUT)
-      tot_surf_runoff_gb, tot_sub_runoff_gb, acc_lake_evap_gb,                 &
+      tot_surf_runoff_gb, tot_sub_runoff_gb,                                   &
+      rivers%tot_abstracted_minor_res_global,                                  &
+      rivers%tot_net_abstracted_river_global, acc_lake_evap_gb,                &
       wtrac_jls%tot_surf_runoff_gb, wtrac_jls%tot_sub_runoff_gb,               &
       wtrac_jls%acc_lake_evap_gb,                                              &
       !REAL, INTENT (OUT)

@@ -175,7 +175,7 @@ IF ( l_have_renew_gwater ) THEN
 ELSE
   ! Without renewable groundwater, the water added is added to sub-surface
   ! runoff. It might be better to add to soil moisture, but that has not been
-  ! coded.
+  ! coded. Here we convert units from kg to kg m-2 s-1.
   DO l = 1, land_pts
     sub_surf_roff(l) = sub_surf_roff(l) + water_added(l)                       &
                                           / ( land_area(l) * timestep_len )

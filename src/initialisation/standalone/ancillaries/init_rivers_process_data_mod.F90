@@ -1029,9 +1029,9 @@ SUBROUTINE remap_ancil( nx_rivers, ny_rivers, rivers_dx,                       &
 
 USE jules_rivers_mod, ONLY:                                                    &
   channel_depth_grid, channel_width_grid, mean_sea_level_grid,                 &
-  river_distance_grid, river_elevation_grid,                                   &
-  river_elevation_grid, river_length_grid, river_manning_grid,                 &
-  river_nextx_grid, river_nexty_grid, rivers_type
+  minor_res_capacity_grid, minor_res_frac_grid, river_distance_grid,           &
+  river_elevation_grid, river_elevation_grid, river_length_grid,               &
+  river_manning_grid, river_nextx_grid, river_nexty_grid, rivers_type
 
 USE overbank_inundation_mod, ONLY:                                             &
   hypsometric_quantiles_grid, logn_mean, logn_stdev, nquantile_hypso
@@ -1085,7 +1085,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 SELECT CASE ( var )
 
   !----------------------------------------------------------------------------
-  ! Cases for river (not overbank) variables.
+  ! Cases for river variables.
   !----------------------------------------------------------------------------
 CASE ( 'area' )
   CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
@@ -1174,6 +1174,17 @@ CASE ( 'logn_mean' )
 CASE ( 'logn_stdev' )
   CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
                     rivers%rivers_xgrid, logn_stdev )
+
+  !----------------------------------------------------------------------------
+  ! Cases for minor reservoir variables.
+  !----------------------------------------------------------------------------
+CASE ( 'minor_res_capacity_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, minor_res_capacity_grid )
+
+CASE ( 'minor_res_frac_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, minor_res_frac_grid )
 
   !----------------------------------------------------------------------------
   ! Cases for the 1-D coordinate variables.
@@ -2216,9 +2227,11 @@ SUBROUTINE set_river_point_values( rivers_x1_input,                            &
 USE jules_model_environment_mod, ONLY: l_oasis_rivers
 
 USE jules_rivers_mod, ONLY:                                                    &
-  a_thresh, channel_depth_grid, channel_width_grid, i_river_vn, l_sea_level,   &
-  l_riv_overbank, mean_sea_level_grid, np_rivers, nseqmax, nx_rivers,          &
-  ny_rivers, rfm_land, rfm_river, rivers_camaflood, river_distance_grid,       &
+  a_thresh, channel_depth_grid, channel_width_grid, i_river_vn,                &
+  l_minor_reservoirs, l_sea_level, l_riv_overbank,                             &
+  mean_sea_level_grid, minor_res_capacity_grid, minor_res_frac_grid,           &
+  np_rivers, nseqmax, nx_rivers, ny_rivers, rfm_land, rfm_river,               &
+  rivers_camaflood, river_distance_grid,                                       &
   rivers_dx, rivers_dy, river_elevation_grid, river_length_grid,               &
   river_manning_grid, rivers_rfm, rivers_trip, rivers_x1, l_outflow_per_river, &
   l_init_storage,                                                              &
@@ -2393,8 +2406,8 @@ DO ix = 1,nx_rivers
         rivers%channel_width(ip)    = channel_width_grid(irx,iry)
         rivers%river_distance(ip)   = river_distance_grid(irx,iry)
         rivers%river_elevation(ip)  = river_elevation_grid(irx,iry)
-        rivers% river_length(ip)    = river_length_grid(irx,iry)
-        rivers% river_manning(ip)   = river_manning_grid(irx,iry)
+        rivers%river_length(ip)     = river_length_grid(irx,iry)
+        rivers%river_manning(ip)    = river_manning_grid(irx,iry)
         IF ( l_sea_level ) THEN
           rivers%mean_sea_level(ip) = mean_sea_level_grid(irx,iry)
         END IF
@@ -2461,6 +2474,16 @@ DO ix = 1,nx_rivers
         END IF
 
       END IF  !  l_riv_overbank
+
+      !------------------------------------------------------------------------
+      ! Set minor reservoir ancillary variables, if required.
+      !------------------------------------------------------------------------
+      IF ( l_minor_reservoirs ) THEN
+
+        rivers%minor_res_capacity(ip)  = minor_res_capacity_grid(irx,iry)
+        rivers%minor_res_frac(ip)      = minor_res_frac_grid(irx,iry)
+
+      END IF  !  l_minor_reservoirs
 
     END IF  !  point_mask
 
