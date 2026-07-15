@@ -9366,6 +9366,7 @@ DATA metadata(723) / var_metadata(                                             &
     "Inland basin flow on river routing grid",                                 &
 ! Units
     "kg m-2 s-1"                                                               &
+  ) /
 !-----------------------------------------------------------------------------
 ! Metadata for conveyance_loss
 !-----------------------------------------------------------------------------
