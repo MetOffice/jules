@@ -348,7 +348,8 @@ USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_renew_gwater,  &
     sw_river_source
 
 USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_outflow_per_river, l_rivers, &
-    l_riv_overbank, i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip
+    l_riv_overbank, i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip,     &
+    l_inland_outflow
 
 USE jules_deposition_mod, ONLY: l_deposition, l_deposition_flux
 
