@@ -574,6 +574,7 @@ psi_open_io = rmdi
 #endif
 
 c3_io = imdi
+irrig_pft_io = imdi
 orient_io = imdi
 a_wl_io = rmdi
 a_ws_io = rmdi
@@ -645,7 +646,6 @@ gsoil_f_io = rmdi
 hw_sw_io = rmdi
 ief_io = rmdi
 infil_f_io = rmdi
-irrig_pft_io = rmdi
 jv25_ratio_io = rmdi
 kext_io = rmdi
 kn_io = rmdi

@@ -742,12 +742,16 @@ CASE ( 'c3_crop' )
   tile_number = c3_crop
 CASE ( 'c3_grass' )
   tile_number = c3_grass
+CASE ( 'c3_irrig' )
+  tile_number = c3_irrig
 CASE ( 'c3_pasture' )
   tile_number = c3_pasture
 CASE ( 'c4_crop' )
   tile_number = c4_crop
 CASE ( 'c4_grass' )
   tile_number = c4_grass
+CASE ( 'c4_irrig' )
+  tile_number = c4_irrig
 CASE ( 'c4_pasture' )
   tile_number = c4_pasture
 CASE ( 'ndl_leaf' )

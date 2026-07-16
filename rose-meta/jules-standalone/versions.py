@@ -338,149 +338,36 @@ class vn82_t115(MacroUpgrade):
             # errors for user intervention. CABLE does not use this namelist
             # so any incorrect entries are set to missing data.
             RMDI = str(-(2**30))
-            jules_pftparm = {}
-            jules_pftparm["a_wl_io"] = ""
-            jules_pftparm["a_ws_io"] = ""
-            jules_pftparm["act_jmax_io"] = ""
-            jules_pftparm["act_vcmax_io"] = ""
-            jules_pftparm["aef_io"] = ""
-            jules_pftparm["albsnc_max_io"] = ""
-            jules_pftparm["albsnc_min_io"] = ""
-            jules_pftparm["albsnf_max_io"] = ""
-            jules_pftparm["albsnf_maxl_io"] = ""
-            jules_pftparm["albsnf_maxu_io"] = ""
-            jules_pftparm["alnir_io"] = ""
-            jules_pftparm["alnirl_io"] = ""
-            jules_pftparm["alniru_io"] = ""
-            jules_pftparm["alpar_io"] = ""
-            jules_pftparm["alparl_io"] = ""
-            jules_pftparm["alparu_io"] = ""
-            jules_pftparm["alpha_elec_io"] = ""
-            jules_pftparm["alpha_io"] = ""
-            jules_pftparm["avg_ba_io"] = ""
-            jules_pftparm["b_wl_io"] = ""
-            jules_pftparm["c3_io"] = ""
-            jules_pftparm["can_struct_a_io"] = ""
-            jules_pftparm["canht_ft_io"] = ""
-            jules_pftparm["catch0_io"] = ""
-            jules_pftparm["ccleaf_max_io"] = ""
-            jules_pftparm["ccleaf_min_io"] = ""
-            jules_pftparm["ccwood_max_io"] = ""
-            jules_pftparm["ccwood_min_io"] = ""
-            jules_pftparm["ci_st_io"] = ""
-            jules_pftparm["dcatch_dlai_io"] = ""
-            jules_pftparm["deact_jmax_io"] = ""
-            jules_pftparm["deact_vcmax_io"] = ""
-            jules_pftparm["dfp_dcuo_io"] = ""
-            jules_pftparm["dgl_dm_io"] = ""
-            jules_pftparm["dgl_dt_io"] = ""
-            jules_pftparm["dqcrit_io"] = ""
-            jules_pftparm["ds_jmax_io"] = ""
-            jules_pftparm["ds_vcmax_io"] = ""
-            jules_pftparm["dust_veg_scj_io"] = ""
-            jules_pftparm["dz0v_dh_io"] = ""
-            jules_pftparm["emis_pft_io"] = ""
-            jules_pftparm["eta_sl_io"] = ""
-            jules_pftparm["f0_io"] = ""
-            jules_pftparm["fd_io"] = ""
-            jules_pftparm["fef_bc_io"] = ""
-            jules_pftparm["fef_c2h4_io"] = ""
-            jules_pftparm["fef_c2h6_io"] = ""
-            jules_pftparm["fef_c3h8_io"] = ""
-            jules_pftparm["fef_ch4_io"] = ""
-            jules_pftparm["fef_co_io"] = ""
-            jules_pftparm["fef_co2_io"] = ""
-            jules_pftparm["fef_dms_io"] = ""
-            jules_pftparm["fef_hcho_io"] = ""
-            jules_pftparm["fef_mecho_io"] = ""
-            jules_pftparm["fef_nh3_io"] = ""
-            jules_pftparm["fef_nox_io"] = ""
-            jules_pftparm["fef_oc_io"] = ""
-            jules_pftparm["fef_so2_io"] = ""
-            jules_pftparm["fire_mort_io"] = ""
-            jules_pftparm["fl_o3_ct_io"] = ""
-            jules_pftparm["fsmc_mod_io"] = ""
-            jules_pftparm["fsmc_of_io"] = ""
-            jules_pftparm["fsmc_p0_io"] = ""
-            jules_pftparm["g1_stomata_io"] = ""
-            jules_pftparm["g_leaf_0_io"] = ""
-            jules_pftparm["glmin_io"] = ""
-            jules_pftparm["gpp_st_io"] = ""
-            jules_pftparm["gsoil_f_io"] = ""
-            jules_pftparm["hw_sw_io"] = ""
-            jules_pftparm["ief_io"] = ""
-            jules_pftparm["infil_f_io"] = ""
-            jules_pftparm["jv25_ratio_io"] = ""
-            jules_pftparm["kext_io"] = ""
-            jules_pftparm["kn_io"] = ""
-            jules_pftparm["knl_io"] = ""
-            jules_pftparm["kpar_io"] = ""
-            jules_pftparm["lai_alb_lim_io"] = ""
-            jules_pftparm["lai_io"] = ""
-            jules_pftparm["lma_io"] = ""
-            jules_pftparm["mef_io"] = ""
-            jules_pftparm["neff_io"] = ""
-            jules_pftparm["nl0_io"] = ""
-            jules_pftparm["nmass_io"] = ""
-            jules_pftparm["nr_io"] = ""
-            jules_pftparm["nr_nl_io"] = ""
-            jules_pftparm["ns_nl_io"] = ""
-            jules_pftparm["nsw_io"] = ""
-            jules_pftparm["omega_io"] = ""
-            jules_pftparm["omegal_io"] = ""
-            jules_pftparm["omegau_io"] = ""
-            jules_pftparm["omnir_io"] = ""
-            jules_pftparm["omnirl_io"] = ""
-            jules_pftparm["omniru_io"] = ""
-            jules_pftparm["orient_io"] = ""
-            jules_pftparm["pft_name_io"] = ""
-            jules_pftparm["psi_close_io"] = ""
-            jules_pftparm["psi_open_io"] = ""
-            jules_pftparm["q10_leaf_io"] = ""
-            jules_pftparm["r_grow_io"] = ""
-            jules_pftparm["rootd_ft_io"] = ""
-            jules_pftparm["sigl_io"] = ""
-            jules_pftparm["sox_a_io"] = ""
-            jules_pftparm["sox_p50_io"] = ""
-            jules_pftparm["sox_rp_min_io"] = ""
-            jules_pftparm["sug_g0_io"] = ""
-            jules_pftparm["sug_grec_io"] = ""
-            jules_pftparm["sug_yg_io"] = ""
-            jules_pftparm["tef_io"] = ""
-            jules_pftparm["tleaf_of_io"] = ""
-            jules_pftparm["tlow_io"] = ""
-            jules_pftparm["tupp_io"] = ""
-            jules_pftparm["vint_io"] = ""
-            jules_pftparm["vsl_io"] = ""
-            jules_pftparm["z0hm_classic_pft_io"] = ""
-            jules_pftparm["z0hm_pft_io"] = ""
-            jules_pftparm["z0v_io"] = ""
-            # Read values into dictionary
             error = 0
-            for item, values in jules_pftparm.items():
-                config_value = self.get_setting_value(
-                    config, ["namelist:jules_pftparm", item]
+            jules_pftparm= {}
+            for keys, node in config.walk():
+                section = keys[0]
+                # Skip all entries unless contains jules_pftparm
+                if section.find("namelist:jules_pftparm") > -1:
+                    item  = keys[-1]
+                    if item.find("namelist:jules_pftparm") == -1:
+                        value = str(node.value)
+                        value = value.split(",")
+                        jules_pftparm[item] = value
+                        if len(value) != npft:
+                            if lsm_id == 2:
+                                # jules_pftparm is not required by CABLE. As
+                                # there are too many incorrect items to correct,
+                                # pragmatically set them intead to missing data.
+                                jules_pftparm[item] = [RMDI] * npft
+                            else:
+                                error += 1
+                                print(f"ERROR: Length {item} is not npft.")
+            if error > 0:
+                raise UpgradeError(
+                    f"\n*************************************************"
+                    f"******************************"
+                    f"\n{error} jules_pftparm items do not have the "
+                    f"correct length (see previous messages).\nThese "
+                    f"will need to be corrected before applying macro."
+                    f"\n*************************************************"
+                    f"******************************"
                 )
-                jules_pftparm[item] = config_value.split(",")
-                if len(jules_pftparm[item]) != npft:
-                    if lsm_id == 2:
-                        # jules_pftparm is not required by CABLE. As there are
-                        # too many incorrect items to correct, pragmatically
-                        # set them intead to missing data.
-                        jules_pftparm[item] = [RMDI] * npft
-                    else:
-                        error += 1
-                        print(f"ERROR: Length {item} is not npft.")
-                if error > 0:
-                    raise UpgradeError(
-                        f"\n*************************************************"
-                        f"******************************"
-                        f"\n{error} jules_pftparm items do not have the "
-                        f"correct length (see previous messages).\nThese "
-                        f"will need to be corrected before applying macro."
-                        f"\n*************************************************"
-                        f"******************************"
-                    )
             self.remove_setting(config, ["namelist:jules_pftparm"])
 
             pft_name = jules_pftparm["pft_name_io"]
@@ -488,7 +375,7 @@ class vn82_t115(MacroUpgrade):
                 nml = "namelist:jules_pftparm({})".format(
                     pft_name[i].strip("'")
                 )
-                for item, value in sorted(jules_pftparm.items()):
+                for item, value in jules_pftparm.items():
                     self.add_setting(config, [nml, item], value[i])
 
             # Replace with multiple namelist in file source
@@ -503,4 +390,4 @@ class vn82_t115(MacroUpgrade):
                     config, ["file:pft_params.nml", "source"], source
                 )
 
-        return config, self.reports
+            return config, self.reports
