@@ -1,10 +1,18 @@
+# -----------------------------------------------------------------------------
+# (C) Crown copyright Met Office. All rights reserved.
+# The file LICENCE, distributed with this code, contains details of the terms
+# under which the code may be used.
+# -----------------------------------------------------------------------------
+
 name: umdp3 Fixer
 
 on:
-    pull_request:
-        types: [opened, synchronize, reopened]
-    workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
-    umdp3_fixer:
-        uses: MetOffice/growss/.github/workflows/umdp3_fixer.yaml@main
+  umdp3_fixer:
+    permissions:
+      contents: read
+    uses: MetOffice/growss/.github/workflows/umdp3_fixer.yaml@develop
