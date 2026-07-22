@@ -42,33 +42,33 @@ jobs:
     steps:
       - name: Check deployment conditions
         id: check-deploy
+        env:
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_REF_NAME: ${{ github.ref_name }}
+          GH_EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [[ "${{ github.repository }}" == "MetOffice/jules" && ("${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "stable") && ("${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "release" || "${{ github.event_name }}" == "workflow_dispatch") ]]; then
+          if [[ "$GH_REPOSITORY" == "MetOffice/jules" && ("$GH_REF_NAME" == "main" || "$GH_REF_NAME" == "stable") && ("$GH_EVENT_NAME" == "push" || "$GH_EVENT_NAME" == "merge_group" || "$GH_EVENT_NAME" == "release" || "$GH_EVENT_NAME" == "workflow_dispatch") ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
           else
             echo "should-deploy=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           path: ${{ env.JULES_PATH }}
           # Get all refs to build historic versions
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup uv with Python ${{ env.PYTHON_VRSN }}
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           python-version: ${{ env.PYTHON_VRSN }}
-
-      - name: Cache uv venv
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.VENV_PATH }}
-          key: ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-${{ hashFiles('doc/pyproject.toml', 'doc/uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-
-            ${{ runner.os }}-uv-
+          enable-cache: false
+          cache-dependency-glob: |
+            doc/pyproject.toml
+            doc/uv.lock
 
       - name: Install dependencies
         working-directory: ${{ env.JULES_PATH }}/doc
@@ -119,11 +119,11 @@ jobs:
       # -- Deploy to GitHub Pages only on push to upstream main
       - name: Setup GitHub Pages
         if: steps.check-deploy.outputs.should-deploy == 'true'
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
 
       - name: Upload artifact to GitHub Pages
         if: steps.check-deploy.outputs.should-deploy == 'true'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           name: github-pages
           path: ${{ env.OUTPUT_PATH }}
@@ -133,4 +133,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         if: steps.check-deploy.outputs.should-deploy == 'true'
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128  # v5.0.0
