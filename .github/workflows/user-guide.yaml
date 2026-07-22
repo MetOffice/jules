@@ -70,15 +70,6 @@ jobs:
             doc/pyproject.toml
             doc/uv.lock
 
-      # - name: Cache uv venv
-      #   uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
-      #   with:
-      #     path: ${{ env.VENV_PATH }}
-      #     key: ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-${{ hashFiles('doc/pyproject.toml', 'doc/uv.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-uv-${{ env.PYTHON_VRSN }}-
-      #       ${{ runner.os }}-uv-
-
       - name: Install dependencies
         working-directory: ${{ env.JULES_PATH }}/doc
         run: uv sync

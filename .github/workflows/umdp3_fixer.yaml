@@ -15,4 +15,4 @@ jobs:
   umdp3_fixer:
     permissions:
       contents: read
-    uses: MetOffice/growss/.github/workflows/umdp3_fixer.yaml@develop
+    uses: MetOffice/growss/.github/workflows/umdp3_fixer.yaml@0f9ffe6a138ae9943053621916a850a075997db8 # v1.0.0
