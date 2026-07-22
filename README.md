@@ -1,4 +1,4 @@
-# JULES - Joint UK Land Environment Simulator
+# CHange JULES - Joint UK Land Environment Simulator
 
 [![User Guide](https://github.com/MetOffice/jules/actions/workflows/user-guide.yaml/badge.svg)](https://github.com/MetOffice/jules/actions/workflows/user-guide.yaml)
 
