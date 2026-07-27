@@ -5,7 +5,7 @@
 # (normally found in runtime-common.cylc, Done to enforce loading of
 # Python 3 on JASMIN which is required by UMDP3 checker)
     [[SCRIPTS]]
-            env-script = "module load jaspy/3.7/r20210320"
+            env-script = "module load jaspy"
 
 {% if REMOTE_JASMIN  %}
     [[REMOTE]]
@@ -55,17 +55,18 @@
             execution time limit = PT2M
 
     [[extract_source]]
-        inherit = SOURCE_EXTRACTION, JASMIN_LOTUS
+        inherit = SOURCE_EXTRACTION
 
     [[JASMIN_FCM_MAKE]]
         inherit = None, JASMIN_LOTUS, EXTRACT
         [[[environment]]]
             JULES_PLATFORM = jasmin-lotus-intel
-            {% if REMOTE_JASMIN %}
-                JULES_SOURCE = {{ REMOTE_JULES_SOURCE }}
-            {% else %}
-                JULES_SOURCE = {{ SOURCE_JULES }}
-            {% endif %}
+            JULES_SOURCE = ${CYLC_SUITE_SHARE_DIR}/source/jules
+{#            {% if REMOTE_JASMIN %} #}
+{#                JULES_SOURCE = {{ REMOTE_JULES_SOURCE }} #}
+{#            {% else %} #}
+{#                JULES_SOURCE = {{ SOURCE_JULES }} #}
+{#            {% endif %} #}
         [[[job]]]
             execution time limit = PT20M
         [[[directives]]]
