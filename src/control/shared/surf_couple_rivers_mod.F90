@@ -364,14 +364,18 @@ IF ( a_steps_since_riv == 0 ) THEN
     rivers%rrun_surf_rp(:)     = 0.0
   END IF
 
-  ! Initialise the accumulated abstraction from rivers.
-  IF ( sw_river_source > 0 ) THEN
-    tot_net_abstracted_river_global(:) = 0.0
-  END IF
+  ! These "global" arrays are only allocated at full size on the master task,
+  ! so they must only be accessed there.
+  IF ( is_master_task() ) THEN
+    ! Initialise the accumulated abstraction from rivers.
+    IF ( sw_river_source > 0 ) THEN
+      tot_net_abstracted_river_global(:) = 0.0
+    END IF
 
-  ! Initialise the accumulated abstraction from minor reservoirs.
-  IF ( l_water_resources .AND. l_minor_reservoirs ) THEN
-    tot_abstracted_minor_res_global(:) = 0.0
+    ! Initialise the accumulated abstraction from minor reservoirs.
+    IF ( l_water_resources .AND. l_minor_reservoirs ) THEN
+      tot_abstracted_minor_res_global(:) = 0.0
+    END IF
   END IF
 
 END IF  !  a_steps_since_riv == 0
@@ -411,18 +415,21 @@ ELSE
     END DO
   END IF  ! l_wtrac_jls
 
-  ! Accumulate net abstraction from rivers.
-  IF ( sw_river_source > 0 ) THEN
-    CALL accumulate_abstraction( global_land_pts, net_abstracted_river_global, &
-                                 tot_net_abstracted_river_global )
-  END IF
+  ! These "global" arrays are only allocated at full size on the master task,
+  ! so they must only be accessed there.
+  IF ( is_master_task() ) THEN
+    ! Accumulate net abstraction from rivers.
+    IF ( sw_river_source > 0 ) THEN
+      CALL accumulate_abstraction( global_land_pts, net_abstracted_river_global, &
+                                   tot_net_abstracted_river_global )
+    END IF
 
-  ! Accumulate abstraction from minor reservoirs.
-  IF ( l_water_resources .AND. l_minor_reservoirs ) THEN
-    CALL accumulate_abstraction( global_land_pts, abstracted_minor_res_global, &
-                                 tot_abstracted_minor_res_global )
+    ! Accumulate abstraction from minor reservoirs.
+    IF ( l_water_resources .AND. l_minor_reservoirs ) THEN
+      CALL accumulate_abstraction( global_land_pts, abstracted_minor_res_global, &
+                                   tot_abstracted_minor_res_global )
+    END IF
   END IF
-
 
 END IF  !  l_oasis_rivers)
 

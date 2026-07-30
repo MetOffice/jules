@@ -242,6 +242,7 @@ land_pts_dim       = 1
 land_pts_gw        = 1
 land_pts_rivers    = 1
 land_pts_sw        = 1
+land_pts_minor_res = 1
 n_sw_source_dim    = 1
 nwater_use_dim     = 1
 IF ( l_water_resources ) THEN

@@ -423,11 +423,15 @@ END IF
 ! intermediate timesteps.
 !------------------------------------------------------------------------------
 ! Initialise coupling fluxes.
-IF ( l_minor_reservoirs ) THEN
-  abstracted_minor_res_global(:) = 0.0
-END IF
-IF ( sw_river_source > 0 ) THEN
-  net_abstracted_river_global(:) = 0.0
+! These "global" arrays are only allocated at full size on the master task
+! (see water_resources_alloc), so they must only be accessed there.
+IF ( is_master_task() ) THEN
+  IF ( l_minor_reservoirs ) THEN
+    abstracted_minor_res_global(:) = 0.0
+  END IF
+  IF ( sw_river_source > 0 ) THEN
+    net_abstracted_river_global(:) = 0.0
+  END IF
 END IF
 ! Initialise abstractions.
 gw_abstracted(:)    = 0.0
