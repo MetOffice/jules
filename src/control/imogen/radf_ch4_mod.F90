@@ -131,8 +131,6 @@ REAL, INTENT(OUT) ::                                                           &
 
 ! Local parameters
 REAL ::                                                                        &
-!   overlap,                                                                     &
-!                   ! overlap function.
   olap,                                                                        &
                   ! overlap fn output with modelled ch4 conc
   olap_interp     ! overlap fn output with reference ch4 conc.
