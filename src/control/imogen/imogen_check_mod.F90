@@ -8,6 +8,13 @@
 !
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
+
+MODULE imogen_check_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE imogen_check(                                                       &
   c_emissions, include_co2, include_non_co2_radf, land_feed_co2,               &
   land_feed_ch4, ocean_feed, change_metdata_method, l_change_metdata)
@@ -284,4 +291,5 @@ CALL jules_print(RoutineName, jules_message)
 RETURN
 
 END SUBROUTINE imogen_check
+END MODULE imogen_check_mod
 #endif

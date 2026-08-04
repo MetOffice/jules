@@ -1,5 +1,11 @@
 #if !defined(UM_JULES)
 
+MODULE init_vars_tmp_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE init_vars_tmp(crop_vars,psparms,toppdm,ainfo,trif_vars, aerotype,   &
                          progs, trifctltype, coast, jules_vars,                &
                           !fluxes, &
@@ -323,4 +329,5 @@ END IF
 RETURN
 
 END SUBROUTINE init_vars_tmp
+END MODULE init_vars_tmp_mod
 #endif

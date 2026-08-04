@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE radf_non_co2_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE radf_non_co2(                                                       &
   year,q,nyr_non_co2,file_non_co2_radf)
 
@@ -110,4 +116,5 @@ END IF
 RETURN
 
 END SUBROUTINE radf_non_co2
+END MODULE radf_non_co2_mod
 #endif

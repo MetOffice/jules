@@ -4,6 +4,12 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT*******************************
 
+MODULE sow_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE sow(n, sm_levels, t_soil, sthu, smvcst, smvccl, dphotdt,            &
                sowdate, dvi)
 
@@ -98,3 +104,4 @@ IF ( sow_today ) THEN
 END IF
 
 END SUBROUTINE sow
+END MODULE sow_mod

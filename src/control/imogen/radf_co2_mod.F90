@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE radf_co2_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE radf_co2(co2, co2ref, q2co2, q_co2)
 
 IMPLICIT NONE
@@ -41,4 +47,5 @@ q_co2=(q2co2 / (LOG(2.0))) * LOG(co2 / co2ref)
 
 RETURN
 END SUBROUTINE radf_co2
+END MODULE radf_co2_mod
 #endif

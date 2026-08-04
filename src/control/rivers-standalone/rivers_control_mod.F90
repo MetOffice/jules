@@ -1,4 +1,4 @@
-MODULE control_mod
+MODULE rivers_control_mod
 ! *****************************COPYRIGHT****************************************
 ! (c) Crown copyright, Met Office. All rights reserved.
 !
@@ -14,13 +14,13 @@ IMPLICIT NONE
 
 PRIVATE
 
-PUBLIC :: control
+PUBLIC :: rivers_control
 
-CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='CONTROL_MOD'
+CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='RIVERS_CONTROL_MOD'
 
 CONTAINS
 
-SUBROUTINE control (                                                           &
+SUBROUTINE rivers_control (                                                    &
     !TYPES containing field data (IN OUT)
     psparms, ainfo, progs, fluxes, river, wtrac_jls )
 
@@ -185,6 +185,6 @@ CASE DEFAULT
   CALL jules_print(RoutineName, jules_message)
 END SELECT
 
-END SUBROUTINE control
+END SUBROUTINE rivers_control
 
-END MODULE control_mod
+END MODULE rivers_control_mod

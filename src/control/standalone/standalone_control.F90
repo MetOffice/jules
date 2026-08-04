@@ -1,5 +1,12 @@
 #if !defined(UM_JULES)
-SUBROUTINE control (                                                           &
+
+MODULE standalone_control_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
+SUBROUTINE standalone_control (                                                &
 !   Scalar arguments (INTENT IN)
     timestep_number,                                                           &
     u_1_ij, v_1_ij,                                                            &
@@ -911,5 +918,6 @@ CALL surf_couple_extra(                                                        &
   work_cbl                                                                     &
   )
 
-END SUBROUTINE control
+END SUBROUTINE standalone_control
+END MODULE standalone_control_mod
 #endif

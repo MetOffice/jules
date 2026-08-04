@@ -9,11 +9,19 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE ocean_co2_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE ocean_co2(                                                          &
   iyear,year_co2,co2_atmos_ppmv,co2_atmos_init_ppmv,dt_ocean,                  &
   fa_ocean,ocean_area,grad_co2_atmos_ppmv,year_run,                            &
   t_ocean_init,nfarray,d_ocean_atmos                                           &
 )
+
+USE response_mod, ONLY: response
 
 USE jules_print_mgr, ONLY:                                                     &
   jules_message,                                                               &
@@ -202,4 +210,5 @@ END DO
 RETURN
 
 END SUBROUTINE ocean_co2
+END MODULE ocean_co2_mod
 #endif

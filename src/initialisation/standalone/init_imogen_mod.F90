@@ -5,6 +5,11 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT**************************************
 
+MODULE init_imogen_mod
+
+IMPLICIT NONE
+
+CONTAINS
 
 SUBROUTINE init_imogen(nml_dir, progs_data, trifctltype, imgn_drive,           &
                        imgn_vars, ainfo)
@@ -38,6 +43,8 @@ USE imogen_run, ONLY: imogen_run_list, c_emissions,                            &
 
 USE imogen_anlg_vals, ONLY: imogen_anlg_vals_list, file_clim, file_patt,       &
                             diff_frac_const_imogen
+
+USE imogen_check_mod, ONLY: imogen_check
 
 USE imogen_io_vars, ONLY: nyr_max, yr_emiss, c_emiss
 
@@ -386,4 +393,5 @@ diff_frac_const = diff_frac_const_imogen
 RETURN
 
 END SUBROUTINE init_imogen
+END MODULE init_imogen_mod
 #endif

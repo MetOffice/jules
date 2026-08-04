@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE drdat_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE drdat(iyear)
 
 USE fill_variables_from_file_mod, ONLY: fill_variables_from_file
@@ -82,4 +88,5 @@ CALL fill_variables_from_file(                                                 &
 RETURN
 
 END SUBROUTINE drdat
+END MODULE drdat_mod
 #endif

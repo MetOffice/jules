@@ -5,6 +5,11 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT**************************************
 
+MODULE init_urban_mod
+
+IMPLICIT NONE
+
+CONTAINS
 
 SUBROUTINE init_urban(nml_dir)
 
@@ -39,4 +44,5 @@ CALL check_jules_urban()
 RETURN
 
 END SUBROUTINE init_urban
+END MODULE init_urban_mod
 #endif

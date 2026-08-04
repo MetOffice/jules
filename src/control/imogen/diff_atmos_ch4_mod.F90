@@ -8,6 +8,13 @@
 !
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
+
+MODULE diff_atmos_ch4_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE diff_atmos_ch4(d_land_atmos_ch4, ch4_ppbv)
 
 USE io_constants, ONLY: imogen_unit
@@ -130,6 +137,6 @@ END IF
 
 RETURN
 
-END
-
+END SUBROUTINE diff_atmos_ch4
+END MODULE diff_atmos_ch4_mod
 #endif
