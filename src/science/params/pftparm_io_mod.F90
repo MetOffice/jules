@@ -275,8 +275,10 @@ USE UM_parcore,       ONLY:  mype
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
 USE errormessagelength_mod, ONLY: errormessagelength
-USE pftparm, ONLY: pftparm_alloc, bcast_jules_pftparm
-USE c_z0h_z0m, ONLY: c_z0h_z0m_alloc, c_z0h_z0m_bcast, z0h_z0m
+USE pftparm, ONLY: pftparm_alloc, read_nml_jules_pftparm_bcast
+USE c_z0h_z0m, ONLY: c_z0h_z0m_alloc, read_nml_c_z0h_z0m_bcast, z0h_z0m
+USE c_irrigation_mod, ONLY: c_irrigation_alloc, read_nml_c_irrigation_bcast,   &
+   irrig_tile
 USE jules_surface_types_mod, ONLY: npft, ntype
 USE ereport_mod, ONLY: ereport
 
@@ -297,9 +299,13 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 CALL pftparm_alloc(npft)
-! Not allocated added so this and non-veg routine can be called in any order
+! Not allocated added so this routine and non-veg equivalent can be called in
+! any order
 IF ( .NOT. ALLOCATED(z0h_z0m) ) THEN
   CALL c_z0h_z0m_alloc(ntype)
+END IF
+IF ( .NOT. ALLOCATED(irrig_tile) ) THEN
+  CALL c_irrigation_alloc(ntype)
 END IF
 
 IF (mype == 0) THEN
@@ -329,8 +335,9 @@ IF (mype == 0) THEN
 END IF
 
 ! Now the allocated arrays are filled, broadcast these to other processors
-CALL bcast_jules_pftparm(npft)
-CALL c_z0h_z0m_bcast(ntype)
+CALL read_nml_jules_pftparm_bcast(npft)
+CALL read_nml_c_z0h_z0m_bcast(ntype)
+CALL read_nml_c_irrigation_bcast(ntype)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN

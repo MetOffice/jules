@@ -115,7 +115,7 @@ END SUBROUTINE c_z0h_z0m_print
 #endif
 
 #if defined(UM_JULES) && !defined(LFRIC)
-SUBROUTINE c_z0h_z0m_bcast(ntype)
+SUBROUTINE read_nml_c_z0h_z0m_bcast(ntype)
 
 USE setup_namelist, ONLY: setup_nml_type
 USE UM_parcore,     ONLY: mype
@@ -134,7 +134,7 @@ INTEGER :: my_comm
 INTEGER :: mpl_nml_type
 INTEGER :: icode
 
-CHARACTER(LEN=*), PARAMETER :: RoutineName='C_Z0H_Z0M_BCAST'
+CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_C_Z0H_Z0M_BCAST'
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 REAL(KIND=jprb)               :: zhook_handle
@@ -175,7 +175,7 @@ CALL mpl_type_free(mpl_nml_type,icode)
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 
-END SUBROUTINE c_z0h_z0m_bcast
+END SUBROUTINE read_nml_c_z0h_z0m_bcast
 #endif
 
 END MODULE c_z0h_z0m

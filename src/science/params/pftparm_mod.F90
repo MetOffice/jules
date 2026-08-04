@@ -1557,7 +1557,7 @@ END SUBROUTINE check_jules_pftparm
 
 
 #if defined(UM_JULES) && !defined(LFRIC)
-SUBROUTINE bcast_jules_pftparm(npft)
+SUBROUTINE read_nml_jules_pftparm_bcast(npft)
 
 USE setup_namelist, ONLY: setup_nml_type
 USE UM_parcore,     ONLY: mype
@@ -1576,7 +1576,7 @@ INTEGER :: my_comm
 INTEGER :: mpl_nml_type
 INTEGER :: icode
 
-CHARACTER(LEN=*), PARAMETER :: RoutineName='BCAST_JULES_PFTPARM'
+CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_PFTPARM_BCAST'
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 REAL(KIND=jprb)               :: zhook_handle
@@ -1936,7 +1936,7 @@ CALL mpl_type_free(mpl_nml_type,icode)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
-END SUBROUTINE bcast_jules_pftparm
+END SUBROUTINE read_nml_jules_pftparm_bcast
 #endif
 
 END MODULE pftparm

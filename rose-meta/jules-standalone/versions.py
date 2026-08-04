@@ -339,12 +339,12 @@ class vn82_t115(MacroUpgrade):
             # so any incorrect entries are set to missing data.
             RMDI = str(-(2**30))
             error = 0
-            jules_pftparm= {}
+            jules_pftparm = {}
             for keys, node in config.walk():
                 section = keys[0]
                 # Skip all entries unless contains jules_pftparm
                 if section.find("namelist:jules_pftparm") > -1:
-                    item  = keys[-1]
+                    item = keys[-1]
                     if item.find("namelist:jules_pftparm") == -1:
                         value = str(node.value)
                         value = value.split(",")
@@ -390,4 +390,4 @@ class vn82_t115(MacroUpgrade):
                     config, ["file:pft_params.nml", "source"], source
                 )
 
-            return config, self.reports
+        return config, self.reports
