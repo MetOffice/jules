@@ -2432,6 +2432,14 @@ CASE ( 'rivers_sto_rp' )
     rivers%rivers_sto_rp(:) = const_val
   END IF
 
+CASE ( 'minor_res_storage' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = cube_create([ SIZE(cube%values) ])
+    CALL cube_get_data(cube_land, rivers%minor_res_storage)
+  ELSE
+    rivers%minor_res_storage(:) = const_val
+  END IF
+
 CASE ( 'rivers_outflow_rp' )
   IF ( PRESENT(cube) ) THEN
     cube_land = cube_create([ SIZE(cube%values) ])
