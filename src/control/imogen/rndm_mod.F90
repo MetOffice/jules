@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE rndm_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE rndm(random_num,seed)
 
 IMPLICIT NONE
@@ -64,4 +70,5 @@ random_num = (((REAL(seed(1)) * 0.001 + REAL(seed(2)))                         &
 RETURN
 
 END SUBROUTINE rndm
+END MODULE rndm_mod
 #endif

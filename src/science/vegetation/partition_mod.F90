@@ -4,6 +4,11 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT*******************************
 
+MODULE partition_mod
+
+IMPLICIT NONE
+
+CONTAINS
 
 SUBROUTINE partition(n, npp_ft_acc, dvi, rootc, harvc, reservec,               &
                      nonyield_diag, stemc, leafc, harv_count, harv_trig)
@@ -155,3 +160,4 @@ nonyield_diag = nonyield_diag - extrac
 
 
 END SUBROUTINE partition
+END MODULE partition_mod

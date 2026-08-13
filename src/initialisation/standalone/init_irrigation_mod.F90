@@ -5,6 +5,11 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT**************************************
 
+MODULE init_irrigation_mod
+
+IMPLICIT NONE
+
+CONTAINS
 
 SUBROUTINE init_irrigation(nml_dir)
 
@@ -79,4 +84,5 @@ END IF  !  l_irrig_dmd
 RETURN
 
 END SUBROUTINE init_irrigation
+END MODULE init_irrigation_mod
 #endif

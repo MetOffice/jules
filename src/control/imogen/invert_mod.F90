@@ -8,6 +8,13 @@
 !
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
+
+MODULE invert_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE invert(                                                             &
   u_old,u_new,p,lambda_old,lambda_new,r1,r2,dz_top,n_olevs                     &
 )
@@ -184,4 +191,5 @@ END DO
 
 RETURN
 END SUBROUTINE invert
+END MODULE invert_mod
 #endif

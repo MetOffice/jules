@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE imogen_update_clim_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE imogen_update_clim(progs, imgn_drive, imgn_vars, ainfo)
 
 USE model_time_mod, ONLY: current_time
@@ -33,6 +39,20 @@ USE imogen_anlg_vals, ONLY:                                                    &
   q2co2, f_ocean, kappa_o, lambda_l, lambda_o, mu
 
 USE imogen_constants, ONLY: n_olevs
+
+USE radf_co2_mod, ONLY: radf_co2
+
+USE radf_non_co2_mod, ONLY: radf_non_co2
+
+USE radf_ch4_mod, ONLY: radf_ch4
+
+USE delta_temp_mod, ONLY: delta_temp
+
+USE pattern_scaling_mod, ONLY: pattern_scaling
+
+USE drdat_mod, ONLY: drdat
+
+USE clim_calc_mod, ONLY: clim_calc
 
 USE logging_mod, ONLY: log_fatal
 
@@ -269,4 +289,5 @@ imgn_vars%imogen_radf(:) = q_total
 RETURN
 
 END SUBROUTINE imogen_update_clim
+END MODULE imogen_update_clim_mod
 #endif

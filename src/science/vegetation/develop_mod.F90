@@ -4,6 +4,11 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT*******************************
 
+MODULE develop_mod
+
+IMPLICIT NONE
+
+CONTAINS
 
 SUBROUTINE develop(n, t_surft, phot, tt_veg, tt_rep, dvi)
 
@@ -92,3 +97,4 @@ ELSE
 END IF
 
 END SUBROUTINE develop
+END MODULE develop_mod

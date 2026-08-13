@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE clim_calc_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE clim_calc(land_pts, mm, md, nsdmax, seed_rain, imgn_drive, ainfo)
 
 USE missing_data_mod, ONLY: rmdi
@@ -18,6 +24,7 @@ USE imgn_drive_mod, ONLY: imgn_drive_type
 USE ancil_info, ONLY: ainfo_type
 USE theta_field_sizes, ONLY: t_i_length
 USE imogen_run, ONLY: l_daily_metdata_climatol
+USE day_calc_mod, ONLY: day_calc
 
 IMPLICIT NONE
 
@@ -47,7 +54,7 @@ INTEGER, INTENT(IN) ::                                                         &
            ! Seeding number for subdaily rainfall.
 
 TYPE(imgn_drive_type), INTENT(IN OUT) :: imgn_drive
-TYPE(ainfo_type), INTENT(IN OUT) :: ainfo
+TYPE(ainfo_type), INTENT(IN) :: ainfo
 
 ! Create "subdaily" values of the arrays below using day_calc
 REAL ::                                                                        &
@@ -220,4 +227,5 @@ END DO                    ! End of loop over months
 RETURN
 
 END SUBROUTINE clim_calc
+END MODULE clim_calc_mod
 #endif

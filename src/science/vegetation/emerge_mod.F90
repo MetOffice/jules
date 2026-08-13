@@ -4,6 +4,12 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT*******************************
 
+MODULE emerge_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE emerge(n, t_surft, dvi)
 
 USE conversions_mod, ONLY: rsec_per_day
@@ -58,3 +64,4 @@ teff = teff * ( timestep / rsec_per_day ) ! times fraction of full day
 dvi  = dvi + ( teff / tt_emr(n) )
 
 END SUBROUTINE emerge
+END MODULE emerge_mod

@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE imogen_update_carb_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE imogen_update_carb(progs, imgn_vars)
 
 USE model_grid_mod, ONLY: grid_area_ij
@@ -41,6 +47,14 @@ USE imogen_anlg_vals, ONLY:                                                    &
 
 USE imogen_io_vars, ONLY:                                                      &
   yr_emiss,c_emiss
+
+USE diffcarb_land_co2_mod, ONLY: diffcarb_land_co2
+
+USE ocean_co2_mod, ONLY: ocean_co2
+
+USE diffcarb_land_ch4_mod, ONLY: diffcarb_land_ch4
+
+USE diff_atmos_ch4_mod, ONLY: diff_atmos_ch4
 
 USE logging_mod, ONLY: log_fatal
 
@@ -246,4 +260,5 @@ END IF
 RETURN
 
 END SUBROUTINE imogen_update_carb
+END MODULE imogen_update_carb_mod
 #endif

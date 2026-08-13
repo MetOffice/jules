@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE diffcarb_land_co2_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE diffcarb_land_co2(land_pts, d_land_atmos_co2, darea, dctot_co2)
 
 USE conversions_mod, ONLY: conv_gtc_to_ppm
@@ -66,4 +72,5 @@ d_land_atmos_co2 = -(land_gain / 1.0e12) * conv_gtc_to_ppm
 RETURN
 
 END SUBROUTINE diffcarb_land_co2
+END MODULE diffcarb_land_co2_mod
 #endif

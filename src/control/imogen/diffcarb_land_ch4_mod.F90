@@ -2,6 +2,13 @@
 ! *********************************************************************
 ! Calculates the global change in atmospheric CH4
 ! *********************************************************************
+
+MODULE diffcarb_land_ch4_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE diffcarb_land_ch4(land_pts, d_land_atmos_ch4, darea, dctot_ch4)
 
 USE imogen_run, ONLY: fch4_ref, yr_fch4_ref
@@ -78,4 +85,5 @@ END IF
 RETURN
 
 END SUBROUTINE diffcarb_land_ch4
+END MODULE diffcarb_land_ch4_mod
 #endif

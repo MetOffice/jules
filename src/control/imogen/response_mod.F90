@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE response_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE response(ncallyr,year_run,rs)
 
 IMPLICIT NONE
@@ -60,4 +66,5 @@ END DO
 RETURN
 
 END SUBROUTINE response
+END MODULE response_mod
 #endif
