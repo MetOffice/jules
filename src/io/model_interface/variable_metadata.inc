@@ -9367,4 +9367,17 @@ DATA metadata(723) / var_metadata(                                             &
 ! Units
     "kg m-2 s-1"                                                               &
   ) /
+!-----------------------------------------------------------------------------
+! Metadata for nbp_gb
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
+! String identifier
+    'nbp_gb',                                                                  &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Gridbox net biosphere productivity",                                      &
+! Units
+    "kg/m2/360 days"                                                           &
+  ) /
 #endif
