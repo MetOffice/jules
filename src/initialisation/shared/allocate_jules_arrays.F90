@@ -222,10 +222,6 @@ CALL cropparm_alloc(ncpft,l_crop)
 
 CALL fire_vars_alloc(land_pts,npft, fire_vars_data)
 
-CALL c_z0h_z0m_alloc(ntype)
-
-CALL c_irrigation_alloc(ntype)
-
 CALL jules_vars_alloc(land_pts,ntype,nsurft,rad_nband,nsoilt,sm_levels,        &
                 t_i_length, t_j_length, npft, bl_levels, pdims_s, pdims,       &
                 l_albedo_obs, cansnowtile, l_deposition,                       &
@@ -233,7 +229,14 @@ CALL jules_vars_alloc(land_pts,ntype,nsurft,rad_nband,nsoilt,sm_levels,        &
 
 CALL nvegparm_alloc(nnvg)
 
+#if !defined(UM_JULES)
+! The call sequence for initialisation differs between UM-JULES & standalone.
+! In standalone, these routines are called when the namelists are read before
+! this routine is called.
 CALL pftparm_alloc(npft)
+CALL c_z0h_z0m_alloc(ntype)
+CALL c_irrigation_alloc(ntype)
+#endif
 
 CALL psparms_alloc(land_pts,t_i_length,t_j_length,                             &
                    nsoilt,sm_levels,dim_cslayer,nsurft,npft,                   &

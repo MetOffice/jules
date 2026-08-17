@@ -45,15 +45,349 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class UpgradeError(Exception):
 
-    """Upgrade macro from JULES by Author"""
+    """Exception created when an upgrade fails."""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __repr__(self):
+        sys.tracebacklimit = 0
+        return self.msg
+
+    __str__ = __repr__
+
+
+class vn82_t115a(MacroUpgrade):
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t115a"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
+        npft = self.get_setting_value(
+                config, ["namelist:jules_surface_types", "npft"]
+        )
+        if npft is not None:
+            npft = int(npft)
+            # Replace all instances of double space delimiter from jules_pftparm
+            for keys, sub_node in config.walk():
+                # Skip all entries unless contains jules_pftparm
+                if keys[0].find("namelist:jules_pftparm") > -1:
+                    config_value = str(sub_node.get_value([]))
+                    if len(config_value.split(",")) != npft:
+                        if len(config_value.split("  ")) == npft:
+                            self.change_setting_value(
+                                config,
+                                keys,
+                                ",".join(config_value.split("  ")),
+                            )
+
+            # Rectify existing incorrect values (there are a lot of them!)
+            RMDI = str(-(2**30))
+            # INFERNO (l_inferno; vn4.4_t136)
+            jules_pftparm = {}
+            jules_pftparm["fef_co2_io"] = ""
+            jules_pftparm["fef_co_io"] = ""
+            jules_pftparm["fef_ch4_io"] = ""
+            jules_pftparm["fef_nox_io"] = ""
+            jules_pftparm["fef_so2_io"] = ""
+            jules_pftparm["fef_oc_io"] = ""
+            jules_pftparm["fef_bc_io"] = ""
+            jules_pftparm["ccleaf_min_io"] = ""
+            jules_pftparm["ccleaf_max_io"] = ""
+            jules_pftparm["ccwood_min_io"] = ""
+            jules_pftparm["ccwood_max_io"] = ""
+            jules_pftparm["avg_ba_io"] = ""
+            # Scale albedos of land-surface tiles to agree with observations
+            # (l_albedo_obs; no macro)
+            jules_pftparm["albsnf_maxl_io"] = ""
+            jules_pftparm["albsnf_maxu_io"] = ""
+            jules_pftparm["alnirl_io"] = ""
+            jules_pftparm["alniru_io"] = ""
+            jules_pftparm["alparl_io"] = ""
+            jules_pftparm["alparu_io"] = ""
+            jules_pftparm["omegal_io"] = ""
+            jules_pftparm["omegau_io"] = ""
+            jules_pftparm["omnirl_io"] = ""
+            jules_pftparm["omniru_io"] = ""
+            # Ozone damage for vegetation (l_o3_damage; no macro)
+            jules_pftparm["dfp_dcuo_io"] = ""
+            jules_pftparm["fl_o3_ct_io"] = ""
+            # Explicit vegetation roughness lengths (l_spec_veg_z0; vn5.4_t903)
+            # Upgrade macro was robust, but some congfigurations of non-standard
+            # PFTs have incorrect incorrect number, so corrected with missing
+            # data as per original macro.
+            jules_pftparm["z0v_io"] = ""
+            for item, values in jules_pftparm.items():
+                config_value = self.get_setting_value(
+                    config, ["namelist:jules_pftparm", item]
+                )
+                if len(config_value.split(",")) != npft:
+                    self.change_setting_value(
+                        config,
+                        ["namelist:jules_pftparm", item],
+                        ",".join([RMDI] * npft),
+                    )
+            # Dust emissions scaling factor for each PFT
+            # (um-atmos dust_veg_emiss; vn6.2_t1206)
+            item = "dust_veg_scj_io"
+            config_value = self.get_setting_value(
+                config, ["namelist:jules_pftparm", item]
+            )
+            if len(config_value.split(",")) != npft:
+                if npft == 5:
+                    # 5 vegetation types
+                    self.change_setting_value(
+                        config,
+                        ["namelist:jules_pftparm", item],
+                        "0.0,0.0,1.0,1.0,0.5",
+                    )
+                elif npft == 9:
+                    # 9 vegetation types
+                    self.change_setting_value(
+                        config,
+                        ["namelist:jules_pftparm", item],
+                        "0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.5,0.5",
+                    )
+                elif npft == 10:
+                    # 10 vegetation types
+                    self.change_setting_value(
+                        config,
+                        ["namelist:jules_pftparm", item],
+                        "0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.5,0.5",
+                    )
+                elif npft == 13:
+                    # 13 vegetation types
+                    self.change_setting_value(
+                        config,
+                        ["namelist:jules_pftparm", item],
+                        "0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,0.5,0.5",
+                    )
+                else:
+                    # non-standard number for npft: Set all values to missing
+                    # data
+                    self.change_setting_value(
+                        config,
+                        ["namelist:jules_pftparm", item],
+                        ",".join([RMDI] * npft),
+                    )
+                    msg = (
+                        f"Non-standard number of npft, setting "
+                        f"dust_veg_scj_io values to missing data."
+                    )
+                    self.add_report(info=msg, is_warning=True)
+            # fire_mort_io; original prone to error
+            # (l_trif_fire; vn5.3_t872)
+            item = "fire_mort_io"
+            config_value = self.get_setting_value(
+                config, ["namelist:jules_pftparm", item]
+            )
+            if len(config_value.split(",")) != npft:
+                self.change_setting_value(
+                    config,
+                    ["namelist:jules_pftparm", item],
+                    ",".join(["1.0"] * npft),
+                )
+            # SOX (stomata_model = 3; vn7.4_t1491)
+            jules_pftparm = {}
+            jules_pftparm["sox_a_io"] = ""
+            jules_pftparm["sox_p50_io"] = ""
+            jules_pftparm["sox_rp_min_io"] = ""
+            for item, values in jules_pftparm.items():
+                config_value = self.get_setting_value(
+                    config, ["namelist:jules_pftparm", item]
+                )
+                if len(config_value.split(",")) != npft:
+                    self.change_setting_value(
+                        config,
+                        ["namelist:jules_pftparm", item],
+                        ",".join(["0.0"] * npft),
+                    )
+
+            # Add the unique descriptor used to identify instances of duplicate
+            # namelist.
+            # IGNORED VALUES STILL GET PROCESSED. THERE ARE LEGITIMATE REASONS
+            # FOR THESE IN OPT FILES SO A WARNING IS ISSUED TO CHECK THE RESULT.
+            pft_name = [None] * npft
+            # Define known vegetation types in jules_surface_types
+            jules_surface_types = {}
+            jules_surface_types["brd_leaf"] = ""
+            jules_surface_types["brd_leaf_dec"] = ""
+            jules_surface_types["brd_leaf_eg_temp"] = ""
+            jules_surface_types["brd_leaf_eg_trop"] = ""
+            jules_surface_types["c3_crop"] = ""
+            jules_surface_types["c3_grass"] = ""
+            jules_surface_types["c3_irrig"] = ""
+            jules_surface_types["c3_pasture"] = ""
+            jules_surface_types["c4_crop"] = ""
+            jules_surface_types["c4_grass"] = ""
+            jules_surface_types["c4_irrig"] = ""
+            jules_surface_types["c4_pasture"] = ""
+            jules_surface_types["ndl_leaf"] = ""
+            jules_surface_types["ndl_leaf_dec"] = ""
+            jules_surface_types["ndl_leaf_eg"] = ""
+            jules_surface_types["shrub"] = ""
+            jules_surface_types["shrub_dec"] = ""
+            jules_surface_types["shrub_eg"] = ""
+            jules_surface_types["usr_type"] = ""
+            # Read jules_surface_types into dictionary
+            nlist = []
+            for item, values in jules_surface_types.items():
+                levels = self.get_setting_value(
+                    config, ["namelist:jules_surface_types", item]
+                )
+                if levels is not None:
+                    levels = levels.split(",")
+                    for l in range(len(levels)):
+                        n = int(levels[l])
+                        if n > 0:
+                            if n > npft:
+                                if item == "usr_type":
+                                    # usr_type is also used by non-veg varieties
+                                    # so need to prevent going out of bounds
+                                    msg = (
+                                        f"'usr_type' detected; dealing with "
+                                        f"vegetation varieties only."
+                                    )
+                                    self.add_report(info=msg, is_warning=True)
+                                else:
+                                    raise UpgradeError(
+                                        f"{item} is greater than npft"
+                                    )
+                            else:
+                                if n in nlist:
+                                    msg = (
+                                        f"\n**********************************"
+                                        f"************************************"
+                                        f"*********"
+                                        f"\nAlready allocated tile number {n} "
+                                        f"found in jules_surface_types "
+                                        f"'{item}'.\nThis may result in the "
+                                        f"incorrect 'pft_name_io', which will "
+                                        f"be used to label the\n"
+                                        f"'jules_pftparm' instance. Please "
+                                        f"check these values against "
+                                        f"jules_surface_types\nand manually "
+                                        f"correct if required. These are "
+                                        f"checked at runtime to ensure\n"
+                                        f"compatibility.\nNB. This may result "
+                                        f"from user ignored values as the "
+                                        f"macro cannot identify them."
+                                        f"\n**********************************"
+                                        f"************************************"
+                                        f"*********"
+                                    )
+                                    self.add_report(info=msg, is_warning=True)
+                                nlist.append(n)
+                                pft_name[n - 1] = item
+                                if item == "usr_type":
+                                    pft_name[n - 1] += "#" + str(l + 1)
+                                else:
+                                    if len(levels) > 1:
+                                        raise UpgradeError(
+                                            f"{item} cannot be a list"
+                                        )
+                                pft_name[n - 1] = "'{}'".format(
+                                    pft_name[n - 1]
+                                )
+            if None in pft_name:
+                raise UpgradeError(
+                    f"\n*************************************************"
+                    f"******************************"
+                    f"\nSurface type is not a known type. "
+                    f"Please correct this, then reapply macro."
+                    f"\n*************************************************"
+                    f"******************************"
+                )
+            self.change_setting_value(
+                config,
+                ["namelist:jules_pftparm", "pft_name_io"],
+                ",".join(pft_name)
+            )
+
+        return config, self.reports
+
+
+class vn82_t115(MacroUpgrade):
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2_t115a"
+    AFTER_TAG = "vn8.2_t115"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        npft = self.get_setting_value(
+                config, ["namelist:jules_surface_types", "npft"]
+        )
+        if npft is not None:
+            npft = int(npft)
+            lsm_id = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_model_environment", "lsm_id"]
+                )
+            )
+            # The previous macro corrected known errors in jules_pftparm.
+            # We can now process it into separate instances labelled with
+            # pft_name previously created from jules_surface_types.
+            # This macro will fail with an error message for any remaining
+            # errors for user intervention. CABLE does not use this namelist
+            # so any incorrect entries are set to missing data.
+            RMDI = str(-(2**30))
+            error = 0
+            jules_pftparm = {}
+            for keys, node in config.walk():
+                section = keys[0]
+                # Skip all entries unless contains jules_pftparm
+                if section.find("namelist:jules_pftparm") > -1:
+                    item = keys[-1]
+                    if item.find("namelist:jules_pftparm") == -1:
+                        value = str(node.value)
+                        value = value.split(",")
+                        jules_pftparm[item] = value
+                        if len(value) != npft:
+                            if lsm_id == 2:
+                                # jules_pftparm is not required by CABLE. As
+                                # there are too many incorrect items to correct,
+                                # pragmatically set them intead to missing data.
+                                jules_pftparm[item] = [RMDI] * npft
+                            else:
+                                error += 1
+                                print(f"ERROR: Length {item} is not npft.")
+            if error > 0:
+                raise UpgradeError(
+                    f"\n*************************************************"
+                    f"******************************"
+                    f"\n{error} jules_pftparm items do not have the "
+                    f"correct length (see previous messages).\nThese "
+                    f"will need to be corrected before applying macro."
+                    f"\n*************************************************"
+                    f"******************************"
+                )
+            self.remove_setting(config, ["namelist:jules_pftparm"])
+
+            pft_name = jules_pftparm["pft_name_io"]
+            for i in range(npft):
+                nml = "namelist:jules_pftparm({})".format(
+                    pft_name[i].strip("'")
+                )
+                for item, value in jules_pftparm.items():
+                    self.add_setting(config, [nml, item], value[i])
+
+            # Replace with multiple namelist in file source
+            source = self.get_setting_value(
+                config, ["file:pft_params.nml", "source"]
+            )
+            if "namelist:jules_pftparm(:)" not in source:
+                source = source.replace(
+                    "namelist:jules_pftparm", "namelist:jules_pftparm(:)"
+                )
+                self.change_setting_value(
+                    config, ["file:pft_params.nml", "source"], source
+                )
+
         return config, self.reports

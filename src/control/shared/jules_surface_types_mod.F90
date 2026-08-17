@@ -30,6 +30,8 @@ IMPLICIT NONE
 !-----------------------------------------------------------------------------
 ! Module variables.
 !-----------------------------------------------------------------------------
+INTEGER, PARAMETER :: nml_instance_len = 30
+
 INTEGER ::                                                                     &
   nnpft,                                                                       &
                 ! Number of natural pfts
@@ -703,5 +705,99 @@ IF ( ERROR /= 0 )                                                              &
 
 END SUBROUTINE read_nml_jules_surface_types
 #endif
+
+FUNCTION map_nml_instance_to_tile_number ( NML, nml_instance )                 &
+   RESULT( tile_number )
+
+! Description:
+!  Maps instance of duplicate namelist to tile number in surface configuration
+
+USE ereport_mod, ONLY: ereport
+USE jules_print_mgr, ONLY: jules_message
+
+IMPLICIT NONE
+
+CHARACTER(LEN=*), INTENT(IN) ::                                                &
+   ! Namelist being read
+   NML,                                                                        &
+   ! Identifier of the namelist instance e.g. pft_name_io
+   nml_instance
+INTEGER :: i, p, tile_number
+
+INTEGER :: errorstatus
+
+CHARACTER(LEN=*), PARAMETER ::                                                 &
+   RoutineName = 'map_nml_instance_to_tile_number'
+
+SELECT CASE ( TRIM( nml_instance ) )
+CASE ( 'brd_leaf' )
+  tile_number = brd_leaf
+CASE ( 'brd_leaf_dec' )
+  tile_number = brd_leaf_dec
+CASE ( 'brd_leaf_eg_temp' )
+  tile_number = brd_leaf_eg_temp
+CASE ( 'brd_leaf_eg_trop' )
+  tile_number = brd_leaf_eg_trop
+CASE ( 'c3_crop' )
+  tile_number = c3_crop
+CASE ( 'c3_grass' )
+  tile_number = c3_grass
+CASE ( 'c3_irrig' )
+  tile_number = c3_irrig
+CASE ( 'c3_pasture' )
+  tile_number = c3_pasture
+CASE ( 'c4_crop' )
+  tile_number = c4_crop
+CASE ( 'c4_grass' )
+  tile_number = c4_grass
+CASE ( 'c4_irrig' )
+  tile_number = c4_irrig
+CASE ( 'c4_pasture' )
+  tile_number = c4_pasture
+CASE ( 'ndl_leaf' )
+  tile_number = ndl_leaf
+CASE ( 'ndl_leaf_dec' )
+  tile_number = ndl_leaf_dec
+CASE ( 'ndl_leaf_eg' )
+  tile_number = ndl_leaf_eg
+CASE ( 'shrub' )
+  tile_number = shrub
+CASE ( 'shrub_dec' )
+  tile_number = shrub_dec
+CASE ( 'shrub_eg' )
+  tile_number = shrub_eg
+CASE DEFAULT
+  IF ( INDEX(nml_instance, 'usr_type') > 0 ) THEN
+    p = INDEX(nml_instance, '#')
+    READ(nml_instance(p+1:),'(I2)') i
+    tile_number = usr_type(i)
+    ! For now, only dealing with PFTs so issue an error if a non-PFT is
+    ! encountered
+    IF ( tile_number > npft ) THEN
+      errorstatus = 101
+      WRITE(jules_message,'(2(A,I0))') TRIM( nml_instance ) //                 &
+       ' is a non-veg variety (n > npft); the code requires development' //    &
+       ' to handle non-veg types. npft = ', npft, ', n = ', tile_number
+      CALL ereport(RoutineName, errorstatus, jules_message)
+    END IF
+  ELSE
+    errorstatus = 101
+    WRITE(jules_message,'(A)')                                                 &
+       TRIM( NML ) // ' namelist instance not recognised: ' //                 &
+       TRIM( nml_instance )
+    CALL ereport(RoutineName, errorstatus, jules_message)
+  END IF
+END SELECT
+
+! Range of specified types checked by check_jules_surface_types
+IF ( tile_number < 1 ) THEN
+  errorstatus = 101
+  WRITE(jules_message,'(A)')                                                   &
+     TRIM( NML ) // ' and jules_surface_types inputs are inconsistent; '//     &
+     TRIM( nml_instance ) // ' is not specified in jules_surface_types'
+  CALL ereport(RoutineName, errorstatus, jules_message)
+END IF
+
+END FUNCTION map_nml_instance_to_tile_number
 
 END MODULE jules_surface_types_mod
