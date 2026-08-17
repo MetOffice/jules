@@ -72,22 +72,28 @@ dt = REAL(nstep_rivers) * timestep
 
 DO i = 1, np_rivers
 
-  ! Add a fraction of surface runoff to storage in minor reservoirs and reduce
-  ! the amount of runoff entering rivers by the same amount.
-  minor_res_storage(i) = minor_res_storage(i)                                  &
-                         + surf_runoff(i)                                      &
-                         * minor_res_frac(i) * rivers_boxareas_rp(i) * dt
-  surf_runoff(i) = surf_runoff(i) * ( 1.0 - minor_res_frac(i) )
-  ! Remove water abstracted.
-  minor_res_storage(i) = minor_res_storage(i) - abstracted_minor_res_rp(i)
+  ! Only route through a minor reservoir where the ancillary data are
+  ! physically valid. 
+  IF ( minor_res_frac(i) > 0.0 .AND. minor_res_capacity(i) > 0.0 ) THEN
 
-  ! If reservoir overflows, reduce storage to capacity and add the overflow to
-  ! runoff entering rivers.
-  IF ( minor_res_storage(i) > minor_res_capacity(i) ) THEN
-    surf_runoff(i) = surf_runoff(i)                                            &
-                     + ( minor_res_storage(i) - minor_res_capacity(i) )        &
-                       / ( rivers_boxareas_rp(i) * dt )
-    minor_res_storage(i) = minor_res_capacity(i)
+    ! Add a fraction of surface runoff to storage in minor reservoirs and
+    ! reduce the amount of runoff entering rivers by the same amount.
+    minor_res_storage(i) = minor_res_storage(i)                                &
+                           + surf_runoff(i)                                    &
+                           * minor_res_frac(i) * rivers_boxareas_rp(i) * dt
+    surf_runoff(i) = surf_runoff(i) * ( 1.0 - minor_res_frac(i) )
+    ! Remove water abstracted.
+    minor_res_storage(i) = minor_res_storage(i) - abstracted_minor_res_rp(i)
+
+    ! If reservoir overflows, reduce storage to capacity and add the
+    ! overflow to runoff entering rivers.
+    IF ( minor_res_storage(i) > minor_res_capacity(i) ) THEN
+      surf_runoff(i) = surf_runoff(i)                                          &
+                       + ( minor_res_storage(i) - minor_res_capacity(i) )      &
+                         / ( rivers_boxareas_rp(i) * dt )
+      minor_res_storage(i) = minor_res_capacity(i)
+    END IF
+
   END IF
 
 END DO
