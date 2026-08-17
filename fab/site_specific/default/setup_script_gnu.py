@@ -23,10 +23,6 @@ def setup_script_gnu(build_config: BuildConfig, args: argparse.Namespace):
     :param args: all command line options
     '''
 
-    tb = build_config.tool_box
-    pre_fortran = tb.get_tool(Category.FORTRAN_PREPROCESSOR)
-    pre_fortran.add_flags("-DGNU_FORTRAN")
-
     tr = ToolRepository()
     gfortran = tr.get_tool(Category.FORTRAN_COMPILER, "gfortran")
 

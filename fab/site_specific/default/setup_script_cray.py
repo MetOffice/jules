@@ -24,10 +24,6 @@ def setup_script_cray(build_config: BuildConfig, args: argparse.Namespace):
     :param argparse.Namespace args: all command line options
     '''
 
-    tb = build_config.tool_box
-    pre_fortran = tb.get_tool(Category.FORTRAN_PREPROCESSOR)
-    pre_fortran.add_flags("-DCRAY_FORTRAN")
-
     tr = ToolRepository()
     ftn = tr.get_tool(Category.FORTRAN_COMPILER, "crayftn-ftn")
     ftn = cast(Compiler, ftn)

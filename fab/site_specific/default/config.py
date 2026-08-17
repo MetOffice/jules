@@ -83,6 +83,17 @@ class Config:
         self.setup_nvidia(build_config)
         self.setup_cray(build_config)
 
+        # Define compiler-specific preprocessing flag
+        tb = build_config.tool_box
+        fortran = tb.get_tool(Category.FORTRAN_COMPILER)
+        pre_fortran = tb.get_tool(Category.FORTRAN_PREPROCESSOR)
+        if fortran.suite == "gnu":
+            pre_fortran.add_flags("-DGNU_FORTRAN")
+        elif fortran.suite in ["intel-classic", "intel-llvm"]:
+            pre_fortran.add_flags("-DINTEL_FORTRAN")
+        elif fortran.suite in ["cray"]:
+            pre_fortran.add_flags("-DCRAY_FORTRAN")
+
     def handle_command_line_options(self, args: argparse.Namespace) -> None:
         '''
         Additional callback function executed once all command line

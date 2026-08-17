@@ -15,7 +15,7 @@ from nf_config import NfConfig
 
 
 def setup_script_intel_llvm(build_config: BuildConfig,
-                               args: argparse.Namespace):
+                            args: argparse.Namespace):
     # pylint: disable=unused-argument, too-many-locals
     '''Defines the default flags for all Intel llvm compilers.
 
@@ -23,10 +23,6 @@ def setup_script_intel_llvm(build_config: BuildConfig,
         can be taken.
     :param args: all command line options
     '''
-
-    tb = build_config.tool_box
-    pre_fortran = tb.get_tool(Category.FORTRAN_PREPROCESSOR)
-    pre_fortran.add_flags("-DINTEL_FORTRAN")
 
     tr = ToolRepository()
     ifort = tr.get_tool(Category.FORTRAN_COMPILER, "ifort")
@@ -47,7 +43,6 @@ def setup_script_intel_llvm(build_config: BuildConfig,
     # ==============
     # The following flags will be applied to all modes:
     common = ['-heap-arrays', '-std03', '-fpscomp', 'logicals',
-              # '-diag-disable', '6477',
               '-traceback',
               '-assume nosource_include,protect_parens',
               '-fp-model', 'precise', '-no-vec']
@@ -55,8 +50,6 @@ def setup_script_intel_llvm(build_config: BuildConfig,
 
     # Debug
     # =====
-    # ifort.mk: bad interaction between array shape checking and
-    # the matmul" intrinsic in at least some iterations of v19.
     debug = ['-g', '-C', '-check', 'noarg_temp_created', '-fpe0', '-ftz',
              '-ftrapuv', '-init=arrays']
     ifort.add_flags(debug, "debug")
