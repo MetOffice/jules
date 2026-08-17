@@ -14,10 +14,10 @@ from fab.api import BuildConfig, Category, Compiler, Linker, ToolRepository
 from nf_config import NfConfig
 
 
-def setup_script_intel_classic(build_config: BuildConfig,
+def setup_script_intel_llvm(build_config: BuildConfig,
                                args: argparse.Namespace):
     # pylint: disable=unused-argument, too-many-locals
-    '''Defines the default flags for all Intel classic compilers.
+    '''Defines the default flags for all Intel llvm compilers.
 
     :para build_config: the build config from which required parameters
         can be taken.
@@ -66,7 +66,7 @@ def setup_script_intel_classic(build_config: BuildConfig,
 
     # Fast
     # ====
-    ifort.add_flags(["-O3"], "production")
+    ifort.add_flags(["-O3"], "fast")
 
     # Set up the linker
     # =================

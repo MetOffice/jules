@@ -66,7 +66,7 @@ def setup_script_intel_classic(build_config: BuildConfig,
 
     # Fast
     # ====
-    ifort.add_flags(["-O3"], "production")
+    ifort.add_flags(["-O3"], "fast")
 
     # Set up the linker
     # =================
