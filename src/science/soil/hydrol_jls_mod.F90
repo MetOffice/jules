@@ -58,7 +58,7 @@ SUBROUTINE hydrol (                                                            &
      qbase_l_soilt, qbase_zw_soilt,                                            &
      fch4_wetl_soilt, fch4_wetl_cs_soilt,                                      &
      fch4_wetl_npp_soilt, fch4_wetl_resps_soilt,                               &
-     n_leach_soilt)
+     n_leach_soilt, dtsd_acc_soilt)
 
 !Use in relevant subroutines
 USE ancil_info,               ONLY: dim_cslayer, nsoilt
@@ -316,9 +316,11 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Soil moisture content of each layer (kg/m2).
   sthf_soilt_wtrac(land_pts,nsoilt,sm_levels,n_wtrac_jls),                     &
     ! Frozen soil moisture content of each layer as a fraction of saturation.
-  sthu_soilt_wtrac(land_pts,nsoilt,sm_levels,n_wtrac_jls)
+  sthu_soilt_wtrac(land_pts,nsoilt,sm_levels,n_wtrac_jls),                     &
     ! Unfrozen soil moisture content of each layer as a fraction of
     ! saturation.
+  dtsd_acc_soilt(land_pts,nsoilt,ns_deep)
+    ! Accumulated correction in deep soil (bedrock) temperature (K).
 
 
 ! TOPMODEL variables.
@@ -1126,7 +1128,8 @@ IF (soil_pts /= 0) THEN
       sathh_soilt(:,m,:), smcl_soilt(:,m,:), snowdepth_surft,                  &
       surf_ht_flux_ld, smvcst_soilt(:,m,:), w_flux_soilt(:,m,:),               &
       sthf_soilt(:,m,:), sthu_soilt(:,m,:), sthu_irr_soilt(:,m,:),             &
-      t_soil_soilt(:,m,:), tsoil_deep_gb, dim_cs1, resp_s_soilt )
+      t_soil_soilt(:,m,:), tsoil_deep_gb, dtsd_acc_soilt(:,m,:),               &
+      dim_cs1, resp_s_soilt )
   ELSE
     ! Surface and soil tiles map directly on to each other.
     DO m = 1, nsoilt
@@ -1139,7 +1142,8 @@ IF (soil_pts /= 0) THEN
         sathh_soilt(:,m,:), smcl_soilt(:,m,:), snowdepth_surft,                &
         snow_soil_htf(:,n), smvcst_soilt(:,m,:), w_flux_soilt(:,m,:),          &
         sthf_soilt(:,m,:), sthu_soilt(:,m,:),  sthu_irr_soilt(:,m,:),          &
-        t_soil_soilt(:,m,:), tsoil_deep_gb, dim_cs1, resp_s_soilt )
+        t_soil_soilt(:,m,:), tsoil_deep_gb, dtsd_acc_soilt(:,m,:),             &
+        dim_cs1, resp_s_soilt )
     END DO
   END IF
 
