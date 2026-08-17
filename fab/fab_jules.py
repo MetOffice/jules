@@ -16,7 +16,7 @@ import sys
 from typing import cast, Iterable, Optional, Union
 
 
-from fab.api import (FabBase, fcm_export, Exclude, find_source_files,
+from fab.api import (Category, FabBase, fcm_export, Exclude, find_source_files,
                      git_checkout, Include, root_inc_files)
 
 logger = logging.getLogger(__name__)
@@ -271,6 +271,18 @@ class JulesBuild(FabBase):
         Defines the preprocessor flags.
         '''
         super().define_preprocessor_flags_step()
+
+        # Define compiler-specific preprocessing flag
+        tb = self.config.tool_box
+        fortran = tb.get_tool(Category.FORTRAN_COMPILER)
+        pre_fortran = tb.get_tool(Category.FORTRAN_PREPROCESSOR)
+        if fortran.suite == "gnu":
+            pre_fortran.add_flags("-DGNU_FORTRAN")
+        elif fortran.suite in ["intel-classic", "intel-llvm"]:
+            pre_fortran.add_flags("-DINTEL_FORTRAN")
+        elif fortran.suite in ["cray"]:
+            pre_fortran.add_flags("-DCRAY_FORTRAN")
+
         flags = ["-I$output"]
         if not self.config.mpi:
             flags.append("-DMPI_DUMMY")
