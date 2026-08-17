@@ -9,7 +9,9 @@ This function gets called from the default site-specific config file
 import argparse
 
 from typing import cast
-from fab.api import BuildConfig, Category, Linker, ToolRepository
+from fab.api import BuildConfig, Category, ContainFlags, Linker, ToolRepository
+
+from nf_config import NfConfig
 
 
 def setup_script_gnu(build_config: BuildConfig, args: argparse.Namespace):
@@ -20,6 +22,10 @@ def setup_script_gnu(build_config: BuildConfig, args: argparse.Namespace):
         can be taken.
     :param args: all command line options
     '''
+
+    tb = build_config.tool_box
+    pre_fortran = tb.get_tool(Category.FORTRAN_PREPROCESSOR)
+    pre_fortran.add_flags("-DGNU_FORTRAN")
 
     tr = ToolRepository()
     gfortran = tr.get_tool(Category.FORTRAN_COMPILER, "gfortran")
@@ -32,61 +38,46 @@ def setup_script_gnu(build_config: BuildConfig, args: argparse.Namespace):
     # The base flags
     # ==============
     gfortran.add_flags(
-        ['-ffree-line-length-none', '-Wall',
-         '-g',
-         # TODO: Jules river cannot be compiled with this:
-         # '-Werror=unused-value',
-         # We might either try to fix the sources if possible,
-         # or see if it's worth setting this option only for one
-         # specific file (though that then means compiler-specific
-         # options in the generic fab script :( )
-         '-Werror=tabs',
-         '-std=f2008',
-         ],
+        ['-std=f2003', '-fall-intrinsics', '-fmax-identifier-length=63',
+         '-ffree-line-length-132', '-fimplicit-none',
+         '-Warray-bounds'],
         "base")
 
     if gfortran.get_version() >= (10, 0):
         # Required for certain MPI versions (since gfortran version 10)
-        gfortran.add_flags("-fallow-argument-mismatch", "base")
+        gfortran.add_flags(
+            ContainFlags("/read_dump_mod", "-fallow-argument-mismatch"),
+            "base")
 
-    runtime = ["-fcheck=all", "-ffpe-trap=invalid,zero,overflow"]
-    init = ["-finit-integer=31173",  "-finit-real=snan",
-            "-finit-logical=true", "-finit-character=85"]
-    # Full debug
-    # ==========
-    gfortran.add_flags(runtime + ["-O0"] + init, "full-debug")
+    # Debug
+    # =====
+    gfortran.add_flags(['-g', '-pg', '-ffpe-trap=invalid,zero,overflow',
+                        '-fbacktrace', '-Wall', '-Wextra'], "debug")
 
-    # Fast debug
-    # ==========
-    gfortran.add_flags(runtime + ["-Og"], "fast-debug")
+    # Normal
+    # ======
+    gfortran.add_flags(["-Werror"], "normal")
 
-    # Production
-    # ==========
-    gfortran.add_flags(["-Ofast"], "production")
-
-    # unit-tests
-    # ==========
-    gfortran.add_flags(runtime + ["-O0"] + init, "unit-tests")
+    if gfortran.get_version() >= (10, 0):
+        # The -Werror flags turns the warning for argument mismatch back into
+        # an error, since this flag comes after -fallow-argument-mismatch
+        # (because "normal" in inherits from "base"). So, in case of normal
+        # compilation mode we need to disable -Werror for this one file:
+        gfortran.add_flags(
+            ContainFlags("/read_dump_mod", "-Wno-error"),
+            "normal")
+    # Fast
+    # ====
+    gfortran.add_flags(["-O3"], "fast")
 
     # Set up the linker
     # =================
-    # This will implicitly affect all gfortran based linkers, e.g.
-    # linker-mpif90-gfortran will use these flags as well.
-    linker = tr.get_tool(Category.LINKER, "linker-gfortran")
+    linker = tr.get_tool(Category.LINKER, f"linker-{gfortran.name}")
     linker = cast(Linker, linker)
 
-    # ATM we don't use a shell when running a tool, and as such
-    # we can't directly use "$()" as parameter. So query these values using
-    # Fab's shell tool (doesn't really matter which shell we get, so just
-    # ask for the default):
-    shell = tr.get_default(Category.SHELL)
-
-    try:
-        # We must remove the trailing new line, and create a list:
-        nc_flibs = shell.run(additional_parameters=["-c", "nf-config --flibs"],
-                             capture_output=True).strip().split()
-    except RuntimeError:
-        nc_flibs = []
-
-    linker.add_lib_flags("netcdf", nc_flibs)
-    linker.add_lib_flags("hdf5", ["-lhdf5"])
+    # As default, use nf-config to set NetCDF linker flags. If it's not
+    # available (or not working properly), the site-specific setup must
+    # add netcdf definitions.
+    nf_config = NfConfig()
+    if nf_config.is_available:
+        linker.add_lib_flags("netcdf", nf_config.get_linker_flags())

@@ -11,6 +11,8 @@ from typing import cast
 
 from fab.api import BuildConfig, Category, Compiler, Linker, ToolRepository
 
+from nf_config import NfConfig
+
 
 def setup_script_intel_classic(build_config: BuildConfig,
                                args: argparse.Namespace):
@@ -21,6 +23,10 @@ def setup_script_intel_classic(build_config: BuildConfig,
         can be taken.
     :param args: all command line options
     '''
+
+    tb = build_config.tool_box
+    pre_fortran = tb.get_tool(Category.FORTRAN_PREPROCESSOR)
+    pre_fortran.add_flags("-DINTEL_FORTRAN")
 
     tr = ToolRepository()
     ifort = tr.get_tool(Category.FORTRAN_COMPILER, "ifort")
@@ -40,42 +46,27 @@ def setup_script_intel_classic(build_config: BuildConfig,
     # The base flags
     # ==============
     # The following flags will be applied to all modes:
-    ifort.add_flags(["-stand", "f08"],               "base")
-    ifort.add_flags(["-g", "-traceback"],            "base")
-    # With -warn errors we get externals that are too long. While this
-    # is a (usually safe) warning, the long externals then causes the
-    # build to abort. So for now we cannot use `-warn errors`
-    ifort.add_flags(["-warn", "all"],                "base")
+    common = ['-heap-arrays', '-std03', '-fpscomp', 'logicals',
+              # '-diag-disable', '6477',
+              '-traceback',
+              '-assume nosource_include,protect_parens',
+              '-fp-model', 'precise', '-no-vec']
+    ifort.add_flags(common, "base")
 
-    # By default turning interface warnings on causes "genmod" files to be
-    # created. This adds unnecessary files to the build so we disable that
-    # behaviour.
-    ifort.add_flags(["-gen-interfaces", "nosource"], "base")
-
-    # The "-assume realloc-lhs" switch causes Intel Fortran prior to v17 to
-    # actually implement the Fortran2003 standard. At version 17 it becomes the
-    # default behaviour.
-    if ifort.get_version() < (17, 0):
-        ifort.add_flags(["-assume", "realloc-lhs"], "base")
-
-    # Full debug
-    # ==========
+    # Debug
+    # =====
     # ifort.mk: bad interaction between array shape checking and
     # the matmul" intrinsic in at least some iterations of v19.
-    if (19, 0, 0) <= ifort.get_version() < (19, 1, 0):
-        runtime_flags = ["-check", "all,noshape", "-fpe0"]
-    else:
-        runtime_flags = ["-check", "all", "-fpe0"]
-    ifort.add_flags(runtime_flags,        "full-debug")
-    ifort.add_flags(["-O0", "-ftrapuv"],  "full-debug")
+    debug = ['-g', '-C', '-check', 'noarg_temp_created', '-fpe0', '-ftz',
+             '-ftrapuv', '-init=arrays']
+    ifort.add_flags(debug, "debug")
 
-    # Fast debug
-    # ==========
-    ifort.add_flags(["-O2", "-fp-model=strict"], "fast-debug")
+    # Normal
+    # ======
 
-    # Production
-    # ==========
-    ifort.add_flags(["-O3", "-xhost"], "production")
+    # Fast
+    # ====
+    ifort.add_flags(["-O3"], "production")
 
     # Set up the linker
     # =================
@@ -84,22 +75,9 @@ def setup_script_intel_classic(build_config: BuildConfig,
     linker = tr.get_tool(Category.LINKER, "linker-ifort")
     linker = cast(Linker, linker)
 
-    # ATM we don't use a shell when running a tool, and as such
-    # we can't directly use "$()" as parameter. So query these values using
-    # Fab's shell tool (doesn't really matter which shell we get, so just
-    # ask for the default):
-    shell = tr.get_default(Category.SHELL)
-    try:
-        # We must remove the trailing new line, and create a list:
-        nc_flibs = shell.run(additional_parameters=["-c", "nf-config --flibs"],
-                             capture_output=True).strip().split()
-    except RuntimeError:
-        nc_flibs = []
-
-    linker.add_lib_flags("netcdf", nc_flibs)
-    linker.add_lib_flags("yaxt", ["-lyaxt", "-lyaxt_c"])
-    linker.add_lib_flags("xios", ["-lxios"])
-    linker.add_lib_flags("hdf5", ["-lhdf5"])
-
-    # Always link with C++ libs
-    linker.add_post_lib_flags(["-lstdc++"])
+    # As default, use nf-config to set NetCDF linker flags. If it's not
+    # available (or not working properly), the site-specific setup must
+    # add netcdf definitions.
+    nf_config = NfConfig()
+    if nf_config.is_available:
+        linker.add_lib_flags("netcdf", nf_config.get_linker_flags())

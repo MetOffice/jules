@@ -19,6 +19,8 @@ from typing import cast, Iterable, Optional, Union
 from fab.api import (FabBase, fcm_export, Exclude, find_source_files,
                      git_checkout, Include, root_inc_files)
 
+logger = logging.getLogger(__name__)
+
 
 class JulesBuild(FabBase):
     '''
@@ -284,7 +286,7 @@ class JulesBuild(FabBase):
         '''
         libs = []
         if not self._ascii_out:
-            libs.extend(["netcdf", "hdf5"])
+            libs.extend(["netcdf"])
         return libs
 
 
@@ -298,15 +300,13 @@ if __name__ == "__main__":
         def filter(self, record):
             return not record.name.startswith("fab")
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
+    # root_logger = logging.getLogger()
+    # root_logger.setLevel(logging.DEBUG)
     last_resort_handler = logging.lastResort
     last_resort_handler.setLevel(logging.DEBUG)
 
-    baf_logger = logging.getLogger("baf")
-    baf_logger.setLevel(logging.DEBUG)
     fab_logger = logging.getLogger("fab")
-    fab_logger.setLevel(logging.WARNING)
+    fab_logger.setLevel(logging.DEBUG)
     fab_handlers = fab_logger.handlers
     # fab_handlers[0].addFilter(NoFabFilter())
 

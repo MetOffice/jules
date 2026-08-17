@@ -10,11 +10,13 @@ from typing import List
 
 from fab.api import BuildConfig, Category, ToolRepository
 
-from default.setup_script_cray import setup_script_cray
-from default.setup_script_gnu import setup_script_gnu
-from default.setup_script_intel_classic import setup_script_intel_classic
-from default.setup_script_intel_llvm import setup_script_intel_llvm
-from default.setup_script_nvidia import setup_script_nvidia
+from site_specific.default.setup_script_cray import setup_script_cray
+from site_specific.default.setup_script_gnu import setup_script_gnu
+from site_specific.default.setup_script_intel_classic import (
+    setup_script_intel_classic)
+from site_specific.default.setup_script_intel_llvm import (
+    setup_script_intel_llvm)
+from site_specific.default.setup_script_nvidia import setup_script_nvidia
 
 
 class Config:
@@ -44,7 +46,7 @@ class Config:
 
         :returns List[str]: list of all supported compiler profiles.
         '''
-        return ["full-debug", "fast-debug", "production", "unit-tests"]
+        return ["debug", "normal", "fast"]
 
     def update_toolbox(self, build_config: BuildConfig) -> None:
         '''
@@ -55,13 +57,15 @@ class Config:
         :type build_config: :py:class:`fab.BuildConfig`
         '''
         # First create the default compiler profiles for all available
-        # compilers. While we have a tool box with exactly one compiler
-        # in it, compiler wrappers will require more than one compiler
-        # to be initialised - so we just initialise all of them (including
-        # the linker):
+        # compilers and preprocessor. While we have a tool box with exactly
+        # one compiler in it, compiler wrappers will require more than one
+        # compiler to be initialised - so we just initialise all of them
+        # (including the linker). Similarly, preprocessing might use
+        # profiles as well, so set them up:
         tr = ToolRepository()
         for compiler in (tr[Category.C_COMPILER] +
                          tr[Category.FORTRAN_COMPILER] +
+                         tr[Category.FORTRAN_PREPROCESSOR] +
                          tr[Category.LINKER]):
             if compiler.is_available:
                 # Define a base profile, which contains the common
