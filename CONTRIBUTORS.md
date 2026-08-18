@@ -1,7 +1,8 @@
 # Contributors
 
-| GitHub user     | Real Name        | Affiliation | Date       |
-| --------------- | ---------------- | ----------- | ---------- |
-| yaswant         | Yaswant Pradhan  | Met Office  | 2026-06-30 |
-| doucla          | Douglas Clark    | UKCEH       | 2026-07-03 |
-| james-bruten-mo | James Bruten     | Met Office  | 2026-07-09 |
+| GitHub user     | Real Name        | Affiliation                      | Date       |
+| --------------- | ---------------- | -------------------------------- | ---------- |
+| yaswant         | Yaswant Pradhan  | Met Office                       | 2026-06-30 |
+| doucla          | Douglas Clark    | UKCEH                            | 2026-07-03 |
+| james-bruten-mo | James Bruten     | Met Office                       | 2026-07-09 |
+| hiker           | Joerg Henrichs   | Bureau of Meteorology, Australia | 2026-08-18 |
