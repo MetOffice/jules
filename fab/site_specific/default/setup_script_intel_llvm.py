@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''This file contains a function that sets the default flags for all
-Intel classic based compilers in the ToolRepository (ifort, icc).
+Intel classic based compilers in the ToolRepository (ifx, icx).
 
 This function gets called from the default site-specific config file
 '''
@@ -25,16 +25,16 @@ def setup_script_intel_llvm(build_config: BuildConfig,
     '''
 
     tr = ToolRepository()
-    ifort = tr.get_tool(Category.FORTRAN_COMPILER, "ifort")
-    ifort = cast(Compiler, ifort)
+    ifx = tr.get_tool(Category.FORTRAN_COMPILER, "ifx")
+    ifx = cast(Compiler, ifx)
 
-    if not ifort.is_available:
-        # This can happen if ifort is not in path (in spack environments).
-        # To support this common use case, see if mpif90-ifort is available,
+    if not ifx.is_available:
+        # This can happen if ifx is not in path (in spack environments).
+        # To support this common use case, see if mpif90-ifx is available,
         # and initialise this otherwise.
-        ifort = tr.get_tool(Category.FORTRAN_COMPILER, "mpif90-ifort")
-        ifort = cast(Compiler, ifort)
-        if not ifort.is_available:
+        ifx = tr.get_tool(Category.FORTRAN_COMPILER, "mpif90-ifx")
+        ifx = cast(Compiler, ifx)
+        if not ifx.is_available:
             # Since some flags depends on version, the code below requires
             # that the intel compiler actually works.
             return
@@ -46,26 +46,26 @@ def setup_script_intel_llvm(build_config: BuildConfig,
               '-traceback',
               '-assume nosource_include,protect_parens',
               '-fp-model', 'precise', '-no-vec']
-    ifort.add_flags(common, "base")
+    ifx.add_flags(common, "base")
 
     # Debug
     # =====
     debug = ['-g', '-C', '-check', 'noarg_temp_created', '-fpe0', '-ftz',
              '-ftrapuv', '-init=arrays']
-    ifort.add_flags(debug, "debug")
+    ifx.add_flags(debug, "debug")
 
     # Normal
     # ======
 
     # Fast
     # ====
-    ifort.add_flags(["-O3"], "fast")
+    ifx.add_flags(["-O3"], "fast")
 
     # Set up the linker
     # =================
-    # This will implicitly affect all ifort based linkers, e.g.
-    # linker-mpif90-ifort will use these flags as well.
-    linker = tr.get_tool(Category.LINKER, "linker-ifort")
+    # This will implicitly affect all ifx based linkers, e.g.
+    # linker-mpif90-ifx will use these flags as well.
+    linker = tr.get_tool(Category.LINKER, "linker-ifx")
     linker = cast(Linker, linker)
 
     # As default, use nf-config to set NetCDF linker flags. If it's not
