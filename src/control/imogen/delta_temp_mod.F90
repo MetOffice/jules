@@ -8,8 +8,17 @@
 !
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
+
+MODULE delta_temp_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE delta_temp(                                                         &
   n_olevs,f_ocean,kappa_o,lambda_l,lambda_o,mu,dqradf,dtemp_l,dtemp_o, dtemp_g)
+
+USE invert_mod, ONLY: invert
 
 USE veg_param, ONLY: secs_per_360days
 
@@ -204,4 +213,5 @@ dtemp_g = mu * dtemp_o(1) * (1.0 - f_ocean) + f_ocean * dtemp_o(1)
 RETURN
 
 END SUBROUTINE delta_temp
+END MODULE delta_temp_mod
 #endif

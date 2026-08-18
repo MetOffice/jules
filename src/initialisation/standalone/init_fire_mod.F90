@@ -5,6 +5,12 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT**************************************
 
+MODULE init_fire_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE init_fire(nml_dir,land_index)
 
 USE io_constants,     ONLY: namelist_unit
@@ -100,4 +106,5 @@ l_metstats = .TRUE.
 RETURN
 
 END SUBROUTINE init_fire
+END MODULE init_fire_mod
 #endif

@@ -5,6 +5,11 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT**************************************
 
+MODULE init_prescribed_data_mod
+
+IMPLICIT NONE
+
+CONTAINS
 
 SUBROUTINE init_prescribed_data(nml_dir)
 
@@ -729,4 +734,5 @@ END IF
 RETURN
 
 END SUBROUTINE init_prescribed_data
+END MODULE init_prescribed_data_mod
 #endif

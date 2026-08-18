@@ -9,6 +9,12 @@
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
 
+MODULE pattern_scaling_mod
+
+IMPLICIT NONE
+
+CONTAINS
+
 SUBROUTINE pattern_scaling(land_pts, mm, dtemp_g, imgn_drive, ainfo)
 
 USE imgn_drive_mod, ONLY: imgn_drive_type
@@ -77,4 +83,5 @@ END DO     !End of loop over months
 
 RETURN
 END SUBROUTINE pattern_scaling
+END MODULE pattern_scaling_mod
 #endif

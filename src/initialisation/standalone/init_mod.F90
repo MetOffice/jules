@@ -5,7 +5,11 @@
 ! *****************************COPYRIGHT**************************************
 
 MODULE init_mod
+
+IMPLICIT NONE
+
 CONTAINS
+
 SUBROUTINE init(nml_dir, crop_vars_data, crop_vars,                            &
                    psparms_data, psparms,                                      &
                    toppdm, top_pdm_data,                                       &
@@ -72,6 +76,12 @@ USE init_soil_ecosse_mod,         ONLY: init_soil_ecosse
 USE check_compatible_options_mod, ONLY: check_compatible_options
 USE init_deposition_mod,          ONLY: init_deposition
 USE jules_science_fixes_mod,      ONLY: init_science_fixes
+USE init_irrigation_mod,          ONLY: init_irrigation
+USE init_urban_mod,               ONLY: init_urban
+USE init_fire_mod,                ONLY: init_fire
+USE init_imogen_mod,              ONLY: init_imogen
+USE init_prescribed_data_mod,     ONLY: init_prescribed_data
+USE init_vars_tmp_mod,            ONLY: init_vars_tmp
 
 ! Get fields for veg3_init
 USE jules_surface_types_mod,      ONLY: npft, nnpft, ntype
