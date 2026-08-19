@@ -5,13 +5,13 @@
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT**************************************
 
-MODULE init_fire_mod
+MODULE init_fire_weather_index_mod
 
 IMPLICIT NONE
 
 CONTAINS
 
-SUBROUTINE init_fire(nml_dir,land_index)
+SUBROUTINE init_fire_weather_index(nml_dir,land_index)
 
 USE io_constants,     ONLY: namelist_unit
 
@@ -64,23 +64,23 @@ NAMELIST  / fire_switches/ l_fire, mcarthur_flag, mcarthur_opt,                &
 OPEN(namelist_unit, FILE=(TRIM(nml_dir) // '/' // 'fire.nml'),                 &
     STATUS='old', POSITION='rewind', ACTION='read', IOSTAT = ERROR)
 IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal("init_fire",                                                  &
+  CALL log_fatal("init_fire_weather_index",                                    &
     "Error opening namelist file fire.nml " //                                 &
     "(IOSTAT=" // TRIM(to_string(ERROR)) // ")")
 
 
 ! There is one namelist to read from this file
-CALL log_info("init_fire", "Reading FIRE_SWITCHES namelist...")
+CALL log_info("init_fire_weather_index", "Reading FIRE_SWITCHES namelist...")
 READ(namelist_unit, NML = fire_switches, IOSTAT = ERROR)
 IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal("init_fire",                                                  &
+  CALL log_fatal("init_fire_weather_index",                                    &
     "Error reading namelist fire_SWITCHES " //                                 &
     "(IOSTAT=" // TRIM(to_string(ERROR)) // ")")
 
 ! Close the namelist file
 CLOSE(namelist_unit, IOSTAT = ERROR)
 IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal("init_fire",                                                  &
+  CALL log_fatal("init_fire_weather_index",                                    &
     "Error closing namelist file fire.nml " //                                 &
     "(IOSTAT=" // TRIM(to_string(ERROR)) // ")")
 
@@ -105,6 +105,6 @@ l_metstats = .TRUE.
 
 RETURN
 
-END SUBROUTINE init_fire
-END MODULE init_fire_mod
+END SUBROUTINE init_fire_weather_index
+END MODULE init_fire_weather_index_mod
 #endif
