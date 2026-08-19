@@ -81,6 +81,12 @@ INTEGER ::                                                                     &
                   ! Index of surface type 'C3 grass'
     c3_crop          = imdi,                                                   &
                   ! Index of surface type 'C3 crop'
+    c3_crop_wheat    = imdi,                                                   &
+                  ! Index of surface type 'C3 wheat crop'
+    c3_crop_soybean  = imdi,                                                   &
+                  ! Index of surface type 'C3 soybean crop'
+    c3_crop_rice     = imdi,                                                   &
+                  ! Index of surface type 'C3 rice crop'
     c3_pasture       = imdi,                                                   &
                   ! Index of surface type 'C3 pasture'
     c3_irrig         = imdi,                                                   &
@@ -93,6 +99,8 @@ INTEGER ::                                                                     &
                   ! Index of surface type 'C4 pasture'
     c4_irrig         = imdi,                                                   &
                   ! Index of surface type 'C4 irrig'
+    c4_crop_maize    = imdi,                                                   &
+                  ! Index of surface type 'C4 maize crop'
     shrub            = imdi,                                                   &
                   ! Index of surface type 'shrub'
     shrub_dec        = imdi,                                                   &
@@ -114,6 +122,7 @@ NAMELIST  / jules_surface_types/                                               &
   npft, ncpft, nnvg, brd_leaf, brd_leaf_dec, brd_leaf_eg_trop,                 &
   brd_leaf_eg_temp, ndl_leaf, ndl_leaf_dec, ndl_leaf_eg, c3_grass,             &
   c3_crop, c3_pasture, c3_irrig, c4_grass, c4_crop, c4_pasture, c4_irrig,      &
+  c3_crop_wheat, c3_crop_soybean, c4_crop_maize, c3_crop_rice,                 &
   shrub, shrub_dec, shrub_eg, urban, urban_canyon, urban_roof, lake, soil,     &
   ice, elev_ice, elev_rock, usr_type, tile_map_ids
 
@@ -213,6 +222,14 @@ CALL check_surface_type_value ( c4_pasture, "c4_pasture", 1, npft,             &
    RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( c4_irrig, "c4_irrig", 1, npft,                 &
    RoutineName, errorstatus, nchecks )
+CALL check_surface_type_value ( c3_crop_wheat, "c3_crop_wheat", nnpft + 1,     &
+   npft, RoutineName, errorstatus, nchecks )
+CALL check_surface_type_value ( c3_crop_soybean, "c3_crop_soybean", nnpft + 1, &
+   npft, RoutineName, errorstatus, nchecks )
+CALL check_surface_type_value ( c4_crop_maize, "c4_crop_maize", nnpft + 1,     &
+   npft, RoutineName, errorstatus, nchecks )
+CALL check_surface_type_value ( c3_crop_rice, "c3_crop_rice", nnpft + 1,       &
+   npft, RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( shrub, "shrub", 1, npft,                       &
    RoutineName, errorstatus, nchecks )
 CALL check_surface_type_value ( shrub_dec, "shrub_dec", 1, npft,               &
@@ -394,6 +411,20 @@ IF ( c4_irrig > -1 ) THEN
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
+IF ( ncpft > 0 ) THEN
+  WRITE(lineBuffer, *) '  c3_crop_wheat = ', c3_crop_wheat
+  CALL jules_print('jules_surface_types', lineBuffer)
+
+  WRITE(lineBuffer, *) '  c3_crop_soybean = ', c3_crop_soybean
+  CALL jules_print('jules_surface_types', lineBuffer)
+
+  WRITE(lineBuffer, *) '  c4_crop_maize = ', c4_crop_maize
+  CALL jules_print('jules_surface_types', lineBuffer)
+
+  WRITE(lineBuffer, *) '  c3_crop_rice = ', c3_crop_rice
+  CALL jules_print('jules_surface_types', lineBuffer)
+END IF
+
 IF ( shrub > -1 ) THEN
   WRITE(lineBuffer, *) '  shrub = ', shrub
   CALL jules_print('jules_surface_types', lineBuffer)
@@ -500,7 +531,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 1
-INTEGER, PARAMETER :: n_int = 27 + (2 * ntype_max) + (2 * elev_tile_max)
+INTEGER, PARAMETER :: n_int = 31 + (2 * ntype_max) + (2 * elev_tile_max)
 
 TYPE :: my_namelist
   SEQUENCE
@@ -522,6 +553,10 @@ TYPE :: my_namelist
   INTEGER :: c4_crop
   INTEGER :: c4_pasture
   INTEGER :: c4_irrig
+  INTEGER :: c3_crop_wheat
+  INTEGER :: c3_crop_soybean
+  INTEGER :: c4_crop_maize
+  INTEGER :: c3_crop_rice
   INTEGER :: shrub
   INTEGER :: shrub_dec
   INTEGER :: shrub_eg
@@ -569,6 +604,10 @@ IF (mype == 0) THEN
   my_nml % c4_crop          = c4_crop
   my_nml % c4_pasture       = c4_pasture
   my_nml % c4_irrig         = c4_irrig
+  my_nml % c3_crop_wheat    = c3_crop_wheat
+  my_nml % c3_crop_soybean  = c3_crop_soybean
+  my_nml % c4_crop_maize    = c4_crop_maize
+  my_nml % c3_crop_rice     = c3_crop_rice
   my_nml % shrub            = shrub
   my_nml % shrub_dec        = shrub_dec
   my_nml % shrub_eg         = shrub_eg
@@ -606,6 +645,10 @@ IF (mype /= 0) THEN
   c4_crop          = my_nml % c4_crop
   c4_pasture       = my_nml % c4_pasture
   c4_irrig         = my_nml % c4_irrig
+  c3_crop_wheat    = my_nml % c3_crop_wheat
+  c3_crop_soybean  = my_nml % c3_crop_soybean
+  c4_crop_maize    = my_nml % c4_crop_maize
+  c3_crop_rice     = my_nml % c3_crop_rice
   shrub            = my_nml % shrub
   shrub_dec        = my_nml % shrub_dec
   shrub_eg         = my_nml % shrub_eg
