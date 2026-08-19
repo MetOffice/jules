@@ -126,7 +126,7 @@ SUBROUTINE check_jules_surface_types()
 USE max_dimensions, ONLY: npft_max, ncpft_max, nnvg_max
 
 USE ereport_mod, ONLY: ereport
-USE jules_print_mgr, ONLY: jules_print, jules_message
+USE jules_print_mgr, ONLY: jules_print, jules_message, newline
 
 !-----------------------------------------------------------------------------
 ! Description:
@@ -253,10 +253,15 @@ END DO
 ! This check should also ensure that a check is added for each new surface type
 IF ( nchecks /= ntype ) THEN
   errorstatus = 101
-  CALL jules_print(RoutineName,                                                &
-     "At least one surface type in namelist does not have a range check.")
   WRITE(jules_message,'(A,I0,A,I0)')                                           &
-     "These should be the same; ntype = ", ntype, ", nchecks = ", nchecks
+     "The number of surface types present in namelist is either not " //       &
+     "consistent with the number expected (ntype) or" // newline //            &
+     "       the number of checks completed (nchecks); ntype = ", ntype,       &
+     ", nchecks = ", nchecks
+  CALL jules_print(RoutineName, jules_message)
+  WRITE(jules_message,'(A)')                                                   &
+     "This could indicate that the surface configuration is incorrect or a " //&
+     "new surface type does not have a range check."
   CALL jules_print(RoutineName, jules_message)
 END IF
 
@@ -278,12 +283,12 @@ IMPLICIT NONE
 INTEGER          :: surface_type, min_value, max_value, errorstatus, nchecks
 CHARACTER(LEN=*) :: surface_type_name, RoutineName
 
-IF ( surface_type > 0 ) THEN
+IF ( surface_type > -1 ) THEN
   nchecks = nchecks + 1
   IF ( surface_type < min_value .OR. surface_type > max_value ) THEN
     errorstatus = 101
     CALL jules_print(RoutineName,                                              &
-       TRIM(surface_type_name) // " tile is given but is out of range")
+       TRIM(surface_type_name) // " tile is present but is out of range")
   END IF
 END IF
 
@@ -308,130 +313,133 @@ CALL jules_print('jules_surface_types',                                        &
 WRITE(lineBuffer, *) '  npft = ', npft
 CALL jules_print('jules_surface_types', lineBuffer)
 
+WRITE(lineBuffer, *) '  ncpft = ', ncpft
+CALL jules_print('jules_surface_types', lineBuffer)
+
 WRITE(lineBuffer, *) '  nnvg = ', nnvg
 CALL jules_print('jules_surface_types', lineBuffer)
 
-IF ( brd_leaf > 0 ) THEN
+IF ( brd_leaf > -1 ) THEN
   WRITE(lineBuffer, *) '  brd_leaf = ', brd_leaf
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( brd_leaf_dec > 0 ) THEN
+IF ( brd_leaf_dec > -1 ) THEN
   WRITE(lineBuffer, *) '  brd_leaf_dec = ', brd_leaf_dec
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( brd_leaf_eg_trop > 0 ) THEN
+IF ( brd_leaf_eg_trop > -1 ) THEN
   WRITE(lineBuffer, *) '  brd_leaf_eg_trop = ', brd_leaf_eg_trop
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( brd_leaf_eg_temp > 0 ) THEN
+IF ( brd_leaf_eg_temp > -1 ) THEN
   WRITE(lineBuffer, *) '  brd_leaf_eg_temp = ', brd_leaf_eg_temp
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( ndl_leaf > 0 ) THEN
+IF ( ndl_leaf > -1 ) THEN
   WRITE(lineBuffer, *) '  ndl_leaf = ', ndl_leaf
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( ndl_leaf_dec > 0 ) THEN
+IF ( ndl_leaf_dec > -1 ) THEN
   WRITE(lineBuffer, *) '  ndl_leaf_dec = ', ndl_leaf_dec
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( ndl_leaf_eg > 0 ) THEN
+IF ( ndl_leaf_eg > -1 ) THEN
   WRITE(lineBuffer, *) '  ndl_leaf_eg = ', ndl_leaf_eg
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c3_grass > 0 ) THEN
+IF ( c3_grass > -1 ) THEN
   WRITE(lineBuffer, *) '  c3_grass = ', c3_grass
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c3_crop > 0 ) THEN
+IF ( c3_crop > -1 ) THEN
   WRITE(lineBuffer, *) '  c3_crop = ', c3_crop
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c3_pasture > 0 ) THEN
+IF ( c3_pasture > -1 ) THEN
   WRITE(lineBuffer, *) '  c3_pasture = ', c3_pasture
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c3_irrig > 0 ) THEN
+IF ( c3_irrig > -1 ) THEN
   WRITE(lineBuffer, *) '  c3_irrig = ', c3_irrig
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c4_grass > 0 ) THEN
+IF ( c4_grass > -1 ) THEN
   WRITE(lineBuffer, *) '  c4_grass = ', c4_grass
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c4_crop > 0 ) THEN
+IF ( c4_crop > -1 ) THEN
   WRITE(lineBuffer, *) '  c4_crop = ', c4_crop
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c4_pasture > 0 ) THEN
+IF ( c4_pasture > -1 ) THEN
   WRITE(lineBuffer, *) '  c4_pasture = ', c4_pasture
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( c4_irrig > 0 ) THEN
+IF ( c4_irrig > -1 ) THEN
   WRITE(lineBuffer, *) '  c4_irrig = ', c4_irrig
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( shrub > 0 ) THEN
+IF ( shrub > -1 ) THEN
   WRITE(lineBuffer, *) '  shrub = ', shrub
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( shrub_dec > 0 ) THEN
+IF ( shrub_dec > -1 ) THEN
   WRITE(lineBuffer, *) '  shrub_dec = ', shrub_dec
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( shrub_eg > 0 ) THEN
+IF ( shrub_eg > -1 ) THEN
   WRITE(lineBuffer, *) '  shrub_eg = ', shrub_eg
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( urban > 0 ) THEN
+IF ( urban > -1 ) THEN
   WRITE(lineBuffer, *) '  urban = ', urban
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( lake > 0 ) THEN
+IF ( lake > -1 ) THEN
   WRITE(lineBuffer, *) '  lake = ', lake
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( soil > 0 ) THEN
+IF ( soil > -1 ) THEN
   WRITE(lineBuffer, *) '  soil = ', soil
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( ice > 0 ) THEN
+IF ( ice > -1 ) THEN
   WRITE(lineBuffer, *) '  ice = ', ice
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( urban_canyon > 0 ) THEN
+IF ( urban_canyon > -1 ) THEN
   WRITE(lineBuffer, *) '  urban_canyon = ', urban_canyon
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-IF ( urban_roof > 0 ) THEN
+IF ( urban_roof > -1 ) THEN
   WRITE(lineBuffer, *) '  urban_roof = ', urban_roof
   CALL jules_print('jules_surface_types', lineBuffer)
 END IF
 
-n = COUNT( elev_ice(1:nnvg) > 0 )
+n = COUNT( elev_ice(1:nnvg) > -1 )
 IF ( n > 0 ) THEN
   DO i = 1, n
     WRITE(lineBuffer, *) '  elev_ice(', i, ') = ', elev_ice(i)
@@ -439,7 +447,7 @@ IF ( n > 0 ) THEN
   END DO
 END IF
 
-n = COUNT( elev_rock(1:nnvg) > 0 )
+n = COUNT( elev_rock(1:nnvg) > -1 )
 IF ( n > 0 ) THEN
   DO i = 1, n
     WRITE(lineBuffer, *) '  elev_rock(', i, ') = ', elev_rock(i)
@@ -447,7 +455,7 @@ IF ( n > 0 ) THEN
   END DO
 END IF
 
-n = COUNT( usr_type(1:ntype) > 0 )
+n = COUNT( usr_type(1:ntype) > -1 )
 IF ( n > 0 ) THEN
   WRITE(lineBuffer, *) '  usr_type = ', usr_type(1:n)
   CALL jules_print('jules_surface_types', lineBuffer)
