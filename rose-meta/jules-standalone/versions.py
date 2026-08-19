@@ -45,15 +45,45 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class vn82_t136(MacroUpgrade):
+    """Upgrade macro from JULES by Maggie Hendry"""
 
-    """Upgrade macro from JULES by Author"""
-
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t136"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
+        ncpft = self.get_setting_value(
+            config, ["namelist:jules_surface_types", "ncpft"]
+        )
+        if ncpft is not None:
+            ncpft = int(ncpft)
+            if ncpft > 0:
+                msg = (
+                    f"This configuration contains crop varieties (ncpft > 0). "
+                    f"Previous upgrade macros were incomplete for "
+                    f"configurations with crops. Please see "
+                    f"https://github.com/MetOffice/jules/issues/136 for "
+                    f"guidance."
+                    f"\n        * jules_surface_types: This macro adds the "
+                    f"WSMR crop varieties with an index of 0, rather than "
+                    f"assume the surface types present. This namelist will "
+                    f"need correcting."
+                    f"\n        * jules_pftparm: Please ensure parameters are "
+                    f"correct as upgrade macros may have assumed the wrong "
+                    f"surface types."
+                )
+                self.add_report(info=msg, is_warning=True)
+
+        jules_surface_types = {}
+        jules_surface_types["c3_crop_wheat"] = "0"
+        jules_surface_types["c3_crop_soybean"] = "0"
+        jules_surface_types["c4_crop_maize"] = "0"
+        jules_surface_types["c3_crop_rice"] = "0"
+        for item, value in jules_surface_types.items():
+            self.add_setting(
+                config, ["namelist:jules_surface_types", item], value
+            )
+
         return config, self.reports
