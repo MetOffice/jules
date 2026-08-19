@@ -19,7 +19,7 @@ USE string_utils_mod, ONLY: to_string
 
 USE logging_mod,      ONLY: log_info,log_fatal
 
-USE fire_mod,         ONLY: fire_cntl, l_fire
+USE fire_mod,         ONLY: fire_cntl, l_fire_weather_index
 
 USE fire_allocate_mod,ONLY: fire_allocate
 
@@ -48,11 +48,13 @@ LOGICAL :: nesterov_flag = .FALSE.
 LOGICAL :: canadian_hemi_opt = .FALSE.
 INTEGER :: mcarthur_opt = imdi
 
+CHARACTER(LEN=*), PARAMETER :: RoutineName='INIT_FIRE_WEATHER_INDEX'
+
 !-----------------------------------------------------------------------------
-! Definition of the fire_Switches namelist
+! Definition of the jules_fire_weather_index namelist
 !-----------------------------------------------------------------------------
-NAMELIST  / fire_switches/ l_fire, mcarthur_flag, mcarthur_opt,                &
-                         canadian_flag, canadian_hemi_opt,                     &
+NAMELIST /jules_fire_weather_index/ l_fire_weather_index, mcarthur_flag,       &
+                         mcarthur_opt, canadian_flag, canadian_hemi_opt,       &
                          nesterov_flag
 !-----------------------------------------------------------------------------
 
@@ -60,32 +62,31 @@ NAMELIST  / fire_switches/ l_fire, mcarthur_flag, mcarthur_opt,                &
 ! Read the namelist
 !-----------------------------------------------------------------------------
 
-  ! Open the fire namelist file
+! Open the fire namelist file
 OPEN(namelist_unit, FILE=(TRIM(nml_dir) // '/' // 'fire.nml'),                 &
     STATUS='old', POSITION='rewind', ACTION='read', IOSTAT = ERROR)
 IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal("init_fire_weather_index",                                    &
-    "Error opening namelist file fire.nml " //                                 &
+  CALL log_fatal(RoutineName, "Error opening namelist file fire.nml " //       &
     "(IOSTAT=" // TRIM(to_string(ERROR)) // ")")
 
 
 ! There is one namelist to read from this file
-CALL log_info("init_fire_weather_index", "Reading FIRE_SWITCHES namelist...")
-READ(namelist_unit, NML = fire_switches, IOSTAT = ERROR)
+CALL log_info(RoutineName, "Reading JULES_FIRE_WEATHER_INDEX namelist...")
+READ(namelist_unit, NML = jules_fire_weather_index, IOSTAT = ERROR)
 IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal("init_fire_weather_index",                                    &
-    "Error reading namelist fire_SWITCHES " //                                 &
+  CALL log_fatal(RoutineName,                                                  &
+    "Error reading namelist jules_fire_weather_index " //                      &
     "(IOSTAT=" // TRIM(to_string(ERROR)) // ")")
 
 ! Close the namelist file
 CLOSE(namelist_unit, IOSTAT = ERROR)
 IF ( ERROR /= 0 )                                                              &
-  CALL log_fatal("init_fire_weather_index",                                    &
+  CALL log_fatal(RoutineName,                                                  &
     "Error closing namelist file fire.nml " //                                 &
     "(IOSTAT=" // TRIM(to_string(ERROR)) // ")")
 
 ! If not running fire, we can bail
-IF ( .NOT. l_fire ) RETURN
+IF ( .NOT. l_fire_weather_index ) RETURN
 
 ! Copy across namelist variables to the fire_cntl structure
 fire_cntl%canadian%flag     = canadian_flag
