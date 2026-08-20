@@ -93,6 +93,7 @@ SUBROUTINE jules_land_sf_explicit (                                            &
  resfs_irr_surft,                                                              &
  !crop_vars_mod (OUT)
  gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                  &
+ gs_nir_surft, gc_nir_surft,                                                   &
  !p_s_parms (IN)
  bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                             &
  !urban_param (IN)
@@ -806,12 +807,23 @@ REAL(KIND=real_jlslsm) ::                                                      &
                              ! Areal heat capacity of snow (J/K/m2)
 ,ksnow(land_pts,nsmax)                                                         &
                              ! Thermal conductivity of snow (W/m/K)
+,ashtf_irr_surft(land_pts,nsurft)                                              &
+,ashtf_nir_surft(land_pts,nsurft)                                              &
+,hcons_irr_surf(land_pts,nsurft)                                               &
+,hcons_nir_surf(land_pts,nsurft)                                               &
+,hcons_irr_soilt(land_pts,nsoilt)                                              &
+,hcons_nir_soilt(land_pts,nsoilt)                                              &
+,sthu1_nir_soilt(land_pts)                                                     &
+,sthf1_nir_soilt(land_pts)                                                     &
+,sthf1_irr_soilt(land_pts)                                                     &
 ,hcons_snow(land_pts,nsurft)                                                   &
                              ! Snow thermal conductivity
 ,resp_frac(land_pts,dim_cslayer)                                               &
                              ! respired fraction of RESP_S
 ,gc_stom_surft(land_pts,nsurft)                                                &
                              ! canopy conductance
+,gs_nir_surft(land_pts,nsurft)                                                 &
+,gc_nir_surft(land_pts,nsurft)                                                 &
 ,sice_surft_tmp(land_pts,nsmax)                                                &
                              ! Ice content of snow layers (kg/m2)
 ,sliq_surft_tmp(land_pts,nsmax)                                                &
@@ -1247,6 +1259,7 @@ CALL physiol (                                                                 &
   rootc_cpft, sthu_irr_soilt, frac_irr_soilt, frac_irr_surft, dvi_cpft,        &
   !crop_vars_mod (OUT)
   gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                 &
+  gs_nir_surft, gc_nir_surft,                                                  &
   !p_s_parms (IN)
   bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                            &
   !ancil_info
@@ -2023,9 +2036,13 @@ DO n = 1,nsurft
 
     ! Set up surface soil condictivity
     ashtf_surft(l,n) = 2.0 * hcons_surf(l,n) / dzsurf(l,n)
+    ashtf_nir_surft(l,n) = ashtf_surft(l,n)
+    ashtf_irr_surft(l,n) = ashtf_surft(l,n)
     ! Except when n == urban_canyon when MORUSES is used
     ! scaling_urban(l) = 1.0
     ashtf_surft(l,n) = ashtf_surft(l,n) * scaling_urban(l,n)
+    ashtf_nir_surft(l,n) = ashtf_surft(l,n)
+    ashtf_irr_surft(l,n) = ashtf_surft(l,n)
 
     ! Adjust surface soil condictivity for snow
     IF (snowdepth_surft(l,n) > 0.0 .AND. l_soil_point(l)                       &
@@ -2247,7 +2264,8 @@ DO n = 1,nsurft
   CALL sf_resist (                                                             &
    land_pts,surft_pts(n),land_index,surft_index(:,n),cansnowtile(n),           &
    canopy(:,n),catch(:,n),chn(:,n),dq(:,n),epdt,flake(:,n),gc_surft(:,n),      &
-   gc_stom_surft(:,n),snowdep_surft(:,n),snow_surft(:,n),vshr_land,            &
+   gc_stom_surft(:,n),gc_irr_surft(:,n),frac_irr_surft(:,n),                   &
+   snowdep_surft(:,n),snow_surft(:,n),vshr_land,                               &
    tstar_surft(:,n),fracaero_t(:,n),fracaero_s(:,n),resfs(:,n),resft(:,n),     &
    sf_diag%resfs_stom(:,n_diag),sf_diag%l_et_stom,sf_diag%l_et_stom_surft)
 
@@ -2306,11 +2324,13 @@ DO n = 1,nsurft
     l_vegdrag_surft(n),canht_pft(:,n_veg),lai_pft(:,n_veg),                    &
     nsnow_surft(:,n),n,l_mo_buoyancy_calc,cansnowtile(n),l_soil_point,         &
     canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                           &
+    gc_irr_surft(:,n),frac_irr_surft(:,n),                                     &
     snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                        &
     dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),                &
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
     vfrac_surft(:,n),emis_surft(:,n),emis_soil,anthrop_heat_surft(:,n),        &
     scaling_urban(:,n),alpha1(:,n),hcons_surf(:,n),ashtf_surft(:,n),           &
+    ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                                 &
     rhostar,bq_1,bt_1,                                                         &
     cd_surft(:,n),ch_surft(:,n),cd_std(:,n),                                   &
     v_s_surft(:,n),v_s_std(:,n),recip_l_mo_surft(:,n),                         &
@@ -2409,11 +2429,13 @@ IF ((l_dust .OR. l_dust_diag) .AND. l_aggregate) THEN
     l_vegdrag_active_here,array_zero,array_zero,                               &
     nsnow_surft(:,n),n,.FALSE.,cansnowtile(n),l_soil_point,                    &
     canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                           &
+    gc_irr_surft(:,n),frac_irr_surft(:,n),                                     &
     snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                        &
     dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),                &
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
     vfrac_surft(:,n),emis_surft(:,n),emis_soil,anthrop_heat_surft(:,n),        &
     scaling_urban(:,n),alpha1(:,n),hcons_surf(:,n),ashtf_surft(:,n),           &
+    ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                                 &
     rhostar,bq_1,bt_1,                                                         &
   ! Following tiled outputs (except v_s_std_soil and u_s_iter_soil)
   ! are dummy variables not needed from this call
@@ -2475,11 +2497,13 @@ IF (l_aero_classic) THEN
       l_vegdrag_active_here,array_zero,array_zero,                             &
       nsnow_surft(:,n),n,.FALSE.,cansnowtile(n),l_soil_point,                  &
       canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                         &
+      gc_irr_surft(:,n),frac_irr_surft(:,n),                                   &
       snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                      &
       dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),              &
       snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),   &
       vfrac_surft(:,n),emis_surft(:,n),emis_soil,anthrop_heat_surft(:,n),      &
       scaling_urban(:,n),alpha1(:,n),hcons_surf(:,n),ashtf_surft(:,n),         &
+      ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                               &
       rhostar,bq_1,bt_1,                                                       &
     ! Following tiled outputs (except cd_std_classic and ch_surft_classic)
     ! are dummy variables not needed from this call
@@ -2601,7 +2625,8 @@ DO n = 1,nsurft
   CALL sf_resist (                                                             &
    land_pts,surft_pts(n),land_index,surft_index(:,n),cansnowtile(n),           &
    canopy(:,n),catch(:,n),ch_surft(:,n),dq(:,n),epdt,flake(:,n),gc_surft(:,n), &
-   gc_stom_surft(:,n),snowdep_surft(:,n),snow_surft(:,n),vshr_land,            &
+   gc_stom_surft(:,n),gc_irr_surft(:,n),frac_irr_surft(:,n),                   &
+   snowdep_surft(:,n),snow_surft(:,n),vshr_land,                               &
    tstar_surft(:,n),fracaero_t(:,n),fracaero_s(:,n),resfs(:,n),resft(:,n),     &
    sf_diag%resfs_stom(:,n_diag),sf_diag%l_et_stom,sf_diag%l_et_stom_surft)
 
@@ -2609,7 +2634,8 @@ DO n = 1,nsurft
    land_pts,surft_pts(n),                                                      &
    land_index,surft_index(:,n),                                                &
    nsnow_surft(:,n),n,canhc_surf(:,n),dzsurf(:,n),hcons_surf(:,n),             &
-   ashtf_surft(:,n),qstar_surft(:,n),q_elev(:,n),                              &
+   ashtf_surft(:,n),ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                 &
+   frac_irr_surft(:,n),qstar_surft(:,n),q_elev(:,n),                           &
    radnet_surft(:,n),resft(:,n),fracaero_s(:,n),rhokh_surft(:,n),l_soil_point, &
    snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),                       &
    tstar_surft(:,n),vfrac_surft(:,n),rhokh_can(:,n),z0h_surft(:,n),            &

@@ -19,7 +19,8 @@ CONTAINS
 !    Arguments --------------------------------------------------------
 SUBROUTINE sf_resist (                                                         &
  land_pts,surft_pts,land_index,surft_index,cansnowtile,                        &
- canopy,catch,ch,dq,epdt,flake,gc,gc_stom_surft,snowdep_surft,snow_surft,      &
+ canopy,catch,ch,dq,epdt,flake,gc,gc_stom_surft,gc_irr_surft,frac_irr_surft,   &
+ snowdep_surft,snow_surft,                                                     &
  vshr,tstar,fracaero_t, fracaero_s,resfs,resft,                                &
  resfs_stom,l_et_stom,l_et_stom_surft)
 
@@ -31,6 +32,7 @@ USE jules_science_fixes_mod, ONLY: l_fix_snow_frac, l_fix_neg_snow
 USE water_constants_mod, ONLY: tm, rho_ice
 USE jules_surface_mod, ONLY: l_aggregate
 USE jules_vegetation_mod, ONLY: can_model
+USE jules_irrig_mod, ONLY: l_irrig_dmd
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
 IMPLICIT NONE
@@ -74,6 +76,9 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 ,gc(land_pts)                                                                  &
                      ! IN Interactive canopy conductance
 !                          !    to evaporation (m/s)
+,frac_irr_surft(land_pts)                                                      &
+,gc_irr_surft(land_pts)                                                        &
+                     ! IN canopy conductance over irrigated frac
 ,gc_stom_surft(land_pts)                                                       &
                      ! IN canopy conductance (excluding soil) (m/s)
 ,snowdep_surft(land_pts)                                                       &
@@ -123,6 +128,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 REAL(KIND=jprb)               :: zhook_handle
+REAL(KIND=real_jlslsm)        :: gc_nir_surft(land_pts)
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName='SF_RESIST'
 

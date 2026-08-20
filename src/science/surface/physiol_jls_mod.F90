@@ -54,6 +54,7 @@ SUBROUTINE physiol (                                                           &
   rootc_cpft, sthu_irr_soilt, frac_irr_soilt, frac_irr_surft, dvi_cpft,        &
   !crop_vars_mod (OUT)
   gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                 &
+  gs_nir_surft, gc_nir_surft,                                                  &
   !p_s_parms (IN)
   bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                            &
   !ancil_info (IN)
@@ -358,6 +359,8 @@ REAL(KIND=real_jlslsm), INTENT(OUT) :: smc_irr_soilt(land_pts,nsoilt)
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
         wt_ext_irr_surft(land_pts,sm_levels,nsurft)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_irr_surft(land_pts,nsurft)
+REAL(KIND=real_jlslsm), INTENT(OUT) :: gs_nir_surft(land_pts,nsurft)
+REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_nir_surft(land_pts,nsurft)
 
 !ancil_info (IN)
 LOGICAL, INTENT(IN) :: l_soil_point(land_pts)
@@ -445,22 +448,39 @@ REAL(KIND=real_jlslsm) ::                                                      &
                                   ! was calculated from psi_close for that
                                   ! soil tile and pft.
 REAL(KIND=real_jlslsm) ::                                                      &
-fsmc_irr(land_pts,npft)                                                        &
+fsmc_nir(land_pts,npft)                                                        &
+!                            ! WORK Soil moisture availability
+!                                 !     factor over non-irrigated fraction.
+,fsmc_irr(land_pts,npft)                                                       &
 !                            ! WORK Soil moisture availability
 !                                 !     factor over irrigated fraction.
 ,sthu_nir_soilt(land_pts,nsoilt,sm_levels)                                     &
 ,sthu_surft(land_pts,nsoilt,sm_levels)                                         &
+,wt_ext_nir_soilt(land_pts,nsoilt,sm_levels)                                   &
+!                            ! WORK Fraction of transpiration over
+!                                 !      non-irrigated fraction extracted
+!                                 !      from each soil layer.
 ,wt_ext_irr_soilt(land_pts,nsoilt,sm_levels)                                   &
 !                            ! WORK Fraction of transpiration over
 !                                 !      irrigated fraction extracted
 !                                 !      from each soil layer.
+,wt_ext_nir_type(land_pts,sm_levels,ntype)                                     &
+!                            ! WORK Fraction of transpiration over
+!                                 !     non-irrigated area extracted from
+!                                 !     each soil layer (kg/m2/s).
 ,wt_ext_irr_type(land_pts,sm_levels,ntype)                                     &
 !                            ! WORK Fraction of transpiration over
 !                                 !     irrigated area extracted from
 !                                 !     each soil layer (kg/m2/s).
+,smc_nir_soilt(land_pts,nsoilt)                                                &
+,gs_nir_type(land_pts,ntype)                                                   &
+!                            ! WORK Conductance for non-irrigated surface types
 ,gs_irr_type(land_pts,ntype)                                                   &
 !                            ! WORK Conductance for irrigated surface types
 
+,gsoil_nir_soilt(land_pts,nsoilt)                                              &
+!                                 ! WORK Bare soil conductance over
+!                                 !      non-irrigated fraction.
 ,gsoil_irr_soilt(land_pts,nsoilt)                                              &
 !                                 ! WORK Bare soil conductance over
 !                                 !      irrigated fraction.
@@ -518,6 +538,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
                             ! WORK Fractional canopy coverage.
 ,vf_type(land_pts,ntype)                                                       &
                             ! WORK VFRAC for surface types.
+,sthu_nir_soilt(land_pts,nsoilt,sm_levels)                                     &
+,wt_ext_type_tmp(land_pts,sm_levels,ntype)                                     &
 ,wt_ext_type(land_pts,sm_levels,ntype)                                         &
 !                           ! WORK WT_EXT for surface types.
 ,wt_ext_soilt(land_pts,nsoilt,sm_levels)                                       &
@@ -525,6 +547,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ,fsoil(land_pts,npft)                                                          &
                             ! WORK Fraction of ground below canopy
 !                                 !      contributing to evaporation.
+,fsoil_irr_tot(land_pts)                                                       &
+,fsoil_nir_tot(land_pts)                                                       &
 ,fsoil_tot(land_pts)                                                           &
                             ! WORK Total fraction of soil
 !                                 !      contributing to evaporation

@@ -1436,11 +1436,11 @@ CALL fcdch (                                                                   &
    l_vegdrag_ssi,array_zero,array_zero,                                        &
    array_zero_int,0,.FALSE.,.FALSE.,array_false,                               &
    array_zero,array_zero,array_zero,array_zero,                                &
-   array_zero,array_zero,canhc_sea,                                            &
+   array_zero,array_zero,array_zero,array_zero,canhc_sea,                      &
    dzssi,qstar_sea,qw_1,radnet_sea,                                            &
    array_zero,timestep,tl_1,tstar_sea,tstar_sea,                               &
    array_zero,array_emis,array_one,array_zero,                                 &
-   array_one,alpha1_sea,hcons_sea,ashtf_sea,                                   &
+   array_one,alpha1_sea,hcons_sea,ashtf_sea,ashtf_sea,ashtf_sea,               &
    rhostar,bq_1,bt_1,                                                          &
    cd_sea,ch_sea,cd_std_sea,                                                   &
    v_s_sea,v_s_std_sea,recip_l_mo_sea,                                         &
@@ -1461,11 +1461,12 @@ IF (nice_use >  1) THEN
      l_vegdrag_ssi,array_zero,array_zero,                                      &
      array_zero_int,0,.FALSE.,.FALSE.,array_false,                             &
      array_zero,array_zero,array_zero,array_zero,                              &
-     array_zero,array_zero,array_zero,                                         &
+     array_zero,array_zero,array_zero,array_zero,array_zero,                   &
      dzdummy,qstar_ice_cat(:,:,n),qw_1,radnet_sice(:,:,n),                     &
      array_zero,timestep,tl_1,ti_cat(:,:,n),tstar_sice_cat(:,:,n),             &
      array_zero,array_emis,array_one,array_zero,                               &
      array_one,alpha1_sice(:,:,n),k_sice(:,:,n),ashtf(:,:,n),                  &
+     ashtf(:,:,n),ashtf(:,:,n),                                                &
      rhostar,bq_1,bt_1,                                                        &
      cd_ice(:,:,n),ch_ice(:,:,n),cd_std_ice(:,n),                              &
      v_s_ice(:,:,n),v_s_std_ice(:,n),recip_l_mo_ice(:,:,n),                    &
@@ -1484,11 +1485,12 @@ ELSE
    l_vegdrag_ssi,array_zero,array_zero,                                        &
    array_zero_int,0,.FALSE.,.FALSE.,array_false,                               &
    array_zero,array_zero,array_zero,array_zero,                                &
-   array_zero,array_zero,array_zero,                                           &
+   array_zero,array_zero,array_zero,array_zero,array_zero,                     &
    dzdummy,qstar_ice_cat(:,:,1),qw_1,radnet_sice(:,:,1),                       &
    array_zero,timestep,tl_1,ti_cat(:,:,1),tstar_sice_cat(:,:,1),               &
    array_zero,array_emis,array_one,array_zero,                                 &
    array_one,alpha1_sice(:,:,1),k_sice(:,:,1),ashtf(:,:,1),                    &
+   ashtf(:,:,1),ashtf(:,:,1),                                                  &
    rhostar,bq_1,bt_1,                                                          &
    cd_ice(:,:,1),ch_ice(:,:,1),cd_std_ice(:,1),                                &
    v_s_ice(:,:,1),v_s_std_ice(:,1),recip_l_mo_ice(:,:,1),                      &
@@ -1527,11 +1529,12 @@ IF ( .NOT. l_icerough_prognostic) THEN
       l_vegdrag_ssi,array_zero,array_zero,                                     &
       array_zero_int,0,.FALSE.,.FALSE.,array_false,                            &
       array_zero,array_zero,array_zero,array_zero,                             &
-      array_zero,array_zero,array_zero,                                        &
+      array_zero,array_zero,array_zero,array_zero,array_zero,                  &
       dzdummy,qstar_ice_cat(:,:,1),qw_1,radnet_sice(:,:,1),                    &
       array_zero,timestep,tl_1,ti_cat(:,:,1),tstar_sice_cat(:,:,1),            &
       array_zero,array_emis,array_one,array_zero,                              &
       array_one,alpha1_sice(:,:,1),k_sice(:,:,1),ashtf(:,:,1),                 &
+      ashtf(:,:,1),ashtf(:,:,1),                                               &
       rhostar,bq_1,bt_1,                                                       &
       cd_miz,ch_miz,cd_std_miz,                                                &
       v_s_miz,v_s_std_miz,recip_l_mo_miz,                                      &
@@ -1776,6 +1779,7 @@ IF (nice_use > 1) THEN
      ssi_pts,sea_pts,                                                          &
      ssi_index,sea_index,                                                      &
      array_zero_int,0,canhc_sea,dzssi,hcons_sea,ashtf_sea,                     &
+     ashtf_sea,ashtf_sea,array_zero,                                           &
      qstar_sea,qw_1,radnet_sea,                                                &
      array_one * beta_evap,array_zero,rhokh_sea,array_false,array_zero,        &
      timestep,tl_1,tstar_sea,tstar_sea,                                        &
@@ -1821,6 +1825,7 @@ ELSE
        ssi_pts,sea_pts,                                                        &
        ssi_index,sea_index,                                                    &
        array_zero_int,0,canhc_sea,dzssi,hcons_sea,ashtf_sea,                   &
+       ashtf_sea,ashtf_sea,array_zero,                                         &
        qstar_sea,qw_1,radnet_sea,                                              &
        array_one * beta_evap,array_zero,rhokh_1_sice,array_false,array_zero,   &
        timestep,tl_1,tstar_sea,tstar_sea,                                      &
@@ -1916,6 +1921,7 @@ IF (nice_use >  1) THEN
      ssi_pts,sice_pts_ncat(n),                                                 &
      ssi_index,sice_index_ncat(:,n),                                           &
      array_zero_int,0,array_zero,dzdummy,k_sice(:,:,n),ashtf(:,:,n),           &
+     ashtf(:,:,n),ashtf(:,:,n),array_zero,                                     &
      qstar_ice_cat(:,:,n),qw_1,radnet_sice(:,:,n),array_one,array_one,         &
      rhokh_1_sice_ncats(:,:,n),array_false,array_zero,                         &
      timestep,tl_1,ti_cat(:,:,n),                                              &
@@ -1951,6 +1957,7 @@ ELSE
    ssi_pts,sice_pts_ncat(1),                                                   &
    ssi_index,sice_index_ncat(:,1),                                             &
    array_zero_int,0,array_zero,dzdummy,k_sice(:,:,1),ashtf(:,:,1),             &
+   ashtf(:,:,1),ashtf(:,:,1),array_zero,                                       &
    qstar_ice,qw_1,radnet_sice(:,:,1),array_one,array_one,                      &
    rhokh_1_sice_ncats(:,:,1),array_false,array_zero,                           &
    timestep,tl_1,ti,tstar_sice_cat(:,:,1),                                     &

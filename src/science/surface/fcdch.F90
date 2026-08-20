@@ -33,10 +33,10 @@ SUBROUTINE fcdch (                                                             &
  wind_profile_factor,ddmfx,i_surfalg,charnock,                                 &
  charnock_w,l_vegdrag,canht,lai,                                               &
  nsnow,n,l_mo_buoyancy_calc,cansnowtile,l_soil_point,                          &
- canopy,catch,flake,gc,snowdep,snow,canhc,                                     &
+ canopy,catch,flake,gc,gc_irr_surft,frac_irr_surft,snowdep,snow,canhc,         &
  dzsurf,qstar,q_elev,radnet,snowdepth,timestep,                                &
  t_elev,tsurf,tstar,vfrac,emis,emis_soil,                                      &
- anthrop_heat,scaling_urban,alpha1,hcons,ashtf,                                &
+ anthrop_heat,scaling_urban,alpha1,hcons,ashtf,ashtf_irr,ashtf_nir,            &
  rhostar,bq_1,bt_1,                                                            &
  cdv,chv,cdv_std,v_s,v_s_std,recip_l_mo,u_s_std                                &
 )
@@ -155,6 +155,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 ,gc(points)                                                                    &
                            ! IN Interactive canopy conductance
 !                          !    to evaporation (m/s)
+,gc_irr_surft(points)                                                          &
+,frac_irr_surft(points)                                                        &
 ,snowdep(points)                                                               &
                            ! IN Snow depth (m)
 ,snow(points)                                                                  &
@@ -207,6 +209,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                            ! IN Soil thermal conductivity (W/m/K).
 ,ashtf(points)                                                                 &
                            ! IN Adjusted SEB coefficient
+,ashtf_irr(points)                                                             &
+,ashtf_nir(points)                                                             &
 ,rhostar(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end)                  &
                            ! IN Surface air density
 ,bq_1(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end)                     &
@@ -588,6 +592,7 @@ IF (cor_mo_iter == Improve_Initial_Guess) THEN
     CALL sf_resist (                                                           &
      points,surft_pts,pts_index,surft_index,cansnowtile,                       &
      canopy,catch,chv_dim,dq,epdt,flake,gc,gc_stom_surft,                      &
+     gc_irr_surft,frac_irr_surft,                                              &
      snowdep,snow,vshr,tstar,fracaero_t,fracaero_s,                            &
      resfs,resft,resfs_stom,.FALSE.,.FALSE.)
 
@@ -620,6 +625,7 @@ IF (cor_mo_iter == Improve_Initial_Guess) THEN
        points,surft_pts,                                                       &
        pts_index,surft_index,                                                  &
        nsnow,n,canhc,dzsurf,hcons,ashtf,                                       &
+       ashtf_irr,ashtf_nir,frac_irr_surft,                                     &
        qstemp,q_elev,                                                          &
        radnet,resft,fracaero_s(:),rhokh,l_soil_point,                          &
        snowdepth,timestep,t_elev,tsurf,                                        &
@@ -1009,6 +1015,7 @@ ELSE     ! cor_mo_iter earlier option than Improve_Initial_Guess
     CALL sf_resist (                                                           &
      points,surft_pts,pts_index,surft_index,cansnowtile,                       &
      canopy,catch,chv_dim,dq,epdt,flake,gc,gc_stom_surft,                      &
+     gc_irr_surft,frac_irr_surft,                                              &
      snowdep,snow,vshr,tstar,fracaero_t,fracaero_s,                            &
      resfs,resft,resfs_stom,.FALSE.,.FALSE.)
 
@@ -1041,6 +1048,7 @@ ELSE     ! cor_mo_iter earlier option than Improve_Initial_Guess
        points,surft_pts,                                                       &
        pts_index,surft_index,                                                  &
        nsnow,n,canhc,dzsurf,hcons,ashtf,                                       &
+       ashtf,ashtf,frac_irr_surft,                                             &
        qstemp,q_elev,                                                          &
        radnet,resft,fracaero_s(:),rhokh,l_soil_point,                          &
        snowdepth,timestep,t_elev,tsurf,                                        &

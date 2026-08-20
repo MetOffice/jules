@@ -14,7 +14,8 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='SF_FLUX_MOD'
 CONTAINS
 SUBROUTINE sf_flux (                                                           &
  points,surft_pts,pts_index,surft_index,                                       &
- nsnow,n,canhc,dzsurf,hcons,ashtf,qstar,q_elev,radnet,resft,fracs,             &
+ nsnow,n,canhc,dzsurf,hcons,ashtff,ashtf_irr,ashtf_nir,frac_irr,               &
+ qstar,q_elev,radnet,resft,fracs,                                              &
  rhokh_1,l_soil_point,snowdepth,timestep,                                      &
  t_elev,ts1_elev,tstar,vfrac,rhokh_can,                                        &
  z0h,z0m_eff,zdt,z1_tq,lh0,emis_surft,emis_soil,                               &
@@ -35,6 +36,7 @@ USE jules_urban_mod, ONLY: l_moruses_storage
 USE jules_surface_mod, ONLY: l_aggregate, l_epot_corr
 USE jules_science_fixes_mod, ONLY: l_fix_moruses_roof_rad_coupling,            &
                                    l_fix_neg_snow
+USE jules_irrig_mod, ONLY: l_irrig_dmd
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -70,6 +72,9 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 ,ashtf(points)                                                                 &
                            ! IN Coefficient to calculate surface
                            !    heat flux into soil (W/m2/K).
+,ashtf_irr(points)                                                             &
+,ashtf_nir(points)                                                             &
+,frac_irr(points)                                                              &
 ,qstar(points)                                                                 &
                            ! IN Surface qsat.
 ,q_elev(points)                                                                &
@@ -162,6 +167,14 @@ REAL(KIND=real_jlslsm) ::                                                      &
 dtstar_pot(points)                                                             &
                            ! Change in TSTAR over timestep that is
                            ! appropriate for the potential evaporation
+,ddtstar(points)                                                               &
+,dtstar_nir(points)                                                            &
+,dtstar_irr(points)                                                            &
+,dtstar_new(points)                                                            &
+,ashtf_prime_nir(points)                                                       &
+,ashtf_prime_irr(points)                                                       &
+,surf_ht_flux_nir                                                              &
+,surf_ht_flux_irr                                                              &
 ,surf_ht_flux              ! Flux of heat from surface to sub-surface
 
 ! Scalars

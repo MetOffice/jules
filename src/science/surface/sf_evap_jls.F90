@@ -188,6 +188,9 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                            ! WORK Evapotranspiration from soil
 !                            !     moisture through non-irrigated
 !                            !     fraction of land tiles (kg/m2/s).
+,ext_nir_soilt(land_pts,nsoilt,sm_levels)                                      &
+,wt_ext_nir_surft(land_pts,sm_levels,nsurft)                                   &
+,resfs_nir_surft(land_pts,nsurft)                                              &
 ,smc_nir_soilt(land_pts,nsoilt)
 !                            ! WORK Available soil moisture (kg/m2).
 !                            !     fraction (kg/m2/s).
