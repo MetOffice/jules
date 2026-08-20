@@ -93,7 +93,6 @@ SUBROUTINE jules_land_sf_explicit (                                            &
  resfs_irr_surft,                                                              &
  !crop_vars_mod (OUT)
  gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                  &
- gs_nir_surft, gc_nir_surft,                                                   &
  !p_s_parms (IN)
  bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                             &
  !urban_param (IN)
@@ -1976,7 +1975,7 @@ DO n = 1,nsurft
 !$OMP        n, m, ts1_lake_gb, hcon_lake, l_elev_land_ice, l_lice_point,      &
 !$OMP        tsurf_elev_surft, dzsoil_elev, l_lice_surft, hcondeep,            &
 !$OMP        l_moruses_storage, urban_roof, l_fix_moruses_roof_rad_coupling,   &
-!$OMP        vfrac_surft, ashtf_surft, scaling_urban, l_soil_point)            &
+!$OMP        vfrac_surft, ashtf_surft, ashtf_nir_surft, ashtf_irr_surft,       &!$OMP        scaling_urban, l_soil_point)                                      &
 !$OMP SCHEDULE(STATIC)
   DO l = 1,land_pts
     j = (land_index(l) - 1) / t_i_length + 1

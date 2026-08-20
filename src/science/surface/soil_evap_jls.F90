@@ -21,8 +21,9 @@ CONTAINS
 ! *********************************************************************
 
 SUBROUTINE soil_evap (npnts,nshyd,surft_pts,surft_index,                       &
-                      irrig_tile,gsoil,lai,gs,wt_ext,fsoil                     &
-                      ,gsoil_irr,gs_irr,wt_ext_irr                             &
+                      irrig_tile,gsoil,lai,gs,wt_ext,fsoil,frac_irr,           &
+                       gsoil_nir,gs_nir,wt_ext_nir,                            &
+                       gsoil_irr,gs_irr,wt_ext_irr                             &
                       )
 
 USE jules_irrig_mod, ONLY: l_irrig_dmd
@@ -48,12 +49,16 @@ INTEGER, INTENT(IN) ::                                                         &
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
  gsoil(npnts)                                                                  &
                       ! IN Soil surface conductance (m/s).
+,frac_irr(npnts)                                                               &
 ,lai(npnts)           ! IN Leaf area index.
 
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-gsoil_irr(npnts)     ! IN  Soil surface conductance (m/s) over
+ gsoil_irr(npnts)                                                              &
+!                     ! IN  Soil surface conductance (m/s) over
 !                                 irrigated fraction.
+,gsoil_nir(npnts)     ! IN  Soil surface conductance (m/s) over
+!                                 non-irrigated fraction.
 
 REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
  gs(npnts)                                                                     &
@@ -67,8 +72,15 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
 !                     ! INOUT Fraction of evapotranspiration
 !                           !       extracted from each soil layer
 !                           !       over irrigated area.
-,gs_irr(npnts)
+,wt_ext_nir(npnts,nshyd)                                                       &
+!                     ! INOUT Fraction of evapotranspiration
+!                           !       extracted from each soil layer
+!                           !       over non-irrigated area.
+,gs_irr(npnts)                                                                 &
 !                     ! INOUT Conductance for irrigated
+!                           !     surface fraction.
+,gs_nir(npnts)
+!                     ! INOUT Conductance for non-irrigated
 !                           !     surface fraction.
 
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
