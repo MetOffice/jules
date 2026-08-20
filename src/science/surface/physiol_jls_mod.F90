@@ -487,6 +487,7 @@ fsmc_nir(land_pts,npft)                                                        &
 ,gsoil_under_canopy(land_pts)                                                  &
 !                                 ! WORK Bare soil conductance under
 !                                 !      canopy
+,gsoil_nir_under_canopy(land_pts)                                              &
 ,gsoil_irr_under_canopy(land_pts)
 !                                 ! WORK Bare soil conductance under
 !                                 !      canopy on irrigated fraction.
@@ -538,7 +539,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
                             ! WORK Fractional canopy coverage.
 ,vf_type(land_pts,ntype)                                                       &
                             ! WORK VFRAC for surface types.
-,sthu_nir_soilt(land_pts,nsoilt,sm_levels)                                     &
+!!!,sthu_nir_soilt(land_pts,nsoilt,sm_levels)                                     &
 ,wt_ext_type_tmp(land_pts,sm_levels,ntype)                                     &
 ,wt_ext_type(land_pts,sm_levels,ntype)                                         &
 !                           ! WORK WT_EXT for surface types.
@@ -1091,7 +1092,8 @@ DO n = 1,npft
                   v_open,smvcst_soilt(:,m,:),                                  &
                   v_close,                                                     &
                   bexp_soilt(:,m,:), sathh_soilt(:,m,:),                       &
-                  wt_ext_type(:,:,n),fsmc_pft(:,n),psi_root_zone_pft(:,n))
+                  wt_ext_type(:,:,n),fsmc_pft(:,n),                            &
+                  psi_root_zone_pft(:,n))
   END IF
 
   IF (l_irrig_dmd) THEN
@@ -1252,8 +1254,10 @@ DO n = 1,npft
 
   CALL soil_evap (land_pts,sm_levels,surft_pts(n),surft_index(:,n),            &
                   irrig_tile(n),gsoil_under_canopy(:),lai_pft_soil_evap(:,n),  &
-                  gs_type(:,n), wt_ext_type(:,:,n),                            &
-                  fsoil(:,n),gsoil_irr_under_canopy(:),                        &
+                  gs_type(:,n), wt_ext_type(:,:,n),fsoil(:,n),                 &
+                  frac_irr_surft(:,n),gsoil_nir_under_canopy(:),               &
+                  gs_nir_type(:,n),wt_ext_nir_type(:,:,n),                     &
+                  gsoil_irr_under_canopy(:),                                   &
                   gs_irr_type(:,n),wt_ext_irr_type(:,:,n))
 
   CALL leaf_lit (land_pts,surft_pts(n),surft_index(:,n)                        &
