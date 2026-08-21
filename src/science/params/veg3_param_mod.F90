@@ -8,6 +8,9 @@
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in Veg3 Ecosystem Demography
 ! *****************************COPYRIGHT****************************************
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
 
 MODULE veg3_parm_mod
 
@@ -18,8 +21,9 @@ IMPLICIT NONE
 !Set up object for veg3 control
 
 TYPE :: veg3_ctrl_type
-  INTEGER :: land_pts,nsurft,npft,nnpft,soil,triffid_period,nstep_trif,nmasst
-  REAL    :: timestep,frac_min
+  INTEGER :: land_pts,nsurft,npft,nnpft,soil,triffid_period,nstep_trif,nmasst, &
+             phenol_period,nstep_phen
+  REAL    :: timestep,frac_min,dt_red,dt_phen_360d
 END TYPE veg3_ctrl_type
 
 !Set up objects containing everything we need for litter calculation
@@ -141,7 +145,8 @@ SUBROUTINE veg3_set_parms(land_pts,nsurft,nnpft,npft,nmasst)
 USE pftparm,                  ONLY: g_leaf_0
 USE trif,                     ONLY: g_root, g_wood
 ! Above only allocated if triffid on - needs to be addressed
-USE jules_vegetation_mod,     ONLY: l_triffid, triffid_period,frac_min
+USE jules_vegetation_mod,     ONLY: l_triffid, triffid_period,frac_min,        &
+                                    phenol_period
 
 USE red_io,                   ONLY: alpha_recrt, crwn_area0, dom_order,        &
                                     height0, lai_bal0, mass0, massi, mclass,   &
@@ -174,7 +179,13 @@ IF (l_red .AND. l_triffid) THEN
 
   veg3_ctrl%timestep = REAL(timestep)
   veg3_ctrl%triffid_period = triffid_period
+  veg3_ctrl%dt_red = rsec_per_day * REAL(veg3_ctrl%triffid_period)
   veg3_ctrl%nstep_trif = INT(rsec_per_day * veg3_ctrl%triffid_period           &
+    / veg3_ctrl%timestep)
+
+  veg3_ctrl%phenol_period = phenol_period
+  veg3_ctrl%dt_phen_360d = REAL(veg3_ctrl%phenol_period) / 360.0
+  veg3_ctrl%nstep_phen = INT(rsec_per_day * veg3_ctrl%phenol_period            &
     / veg3_ctrl%timestep)
 
   veg3_ctrl%land_pts = land_pts
@@ -199,18 +210,25 @@ IF (l_red .AND. l_triffid) THEN
   red_parms%mass0(:)            = mass0(1:nnpft)
   red_parms%massi(:)            = massi(1:nnpft)
   red_parms%mclass(:)           = mclass(1:nnpft)
-  red_parms%mort_base(:)        = mort_base(1:nnpft)
+  red_parms%mort_base(:)        = mort_base(1:nnpft) / rsec_per_day / 360.0
   red_parms%phi_a(:)            = phi_a(1:nnpft)
   red_parms%phi_g(:)            = phi_g(1:nnpft)
   red_parms%phi_h(:)            = phi_h(1:nnpft)
   red_parms%phi_l(:)            = phi_l(1:nnpft)
-  red_parms%mclass_geom_mult(:) = 0.0
+  red_parms%mclass_geom_mult(:) = 1.0 ! Default assumes 1 mass class
   red_parms%frac_min(:)         = frac_min
 
   red_parms%comp_coef(:,:)      = 0.0
 
   DO n = 1,nnpft
     ! Cycle through the PFTs
+    ! Update mclass_geom_mult for each PFT
+    IF (red_parms%mclass(n) > 1) THEN
+      red_parms%mclass_geom_mult(n) =                                          &
+        (red_parms%massi(n) / red_parms%mass0(n))**                            &
+        (1.0 / REAL(red_parms%mclass(n)-1))
+    END IF
+
     DO k=1,nnpft
       ! If the n'th PFT is less dominant than k'th PFT, then k shades n.
       IF (dom_order(n)  <=  dom_order(k)) THEN
