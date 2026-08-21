@@ -107,9 +107,9 @@ USE jules_vegetation_mod, ONLY:                                                &
   ! imported variables
   l_crop, l_use_pft_psi, l_triffid
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd
+USE jules_irrig_mod, ONLY: l_irrig_dmd, l_soil_evap_irrig_expl
 
-USE jules_hydrology_mod, ONLY: l_limit_gsoil, l_soil_evap_irrig_expl
+USE jules_hydrology_mod, ONLY: l_limit_gsoil
 
 USE pftparm, ONLY: emis_pft, fsmc_p0, rootd_ft, gsoil_f
 
@@ -2213,6 +2213,7 @@ IF (l_irrig_dmd) THEN
       DO m = 1,nsoilt
 !$OMP PARALLEL DO IF(l_do_omp) DEFAULT(NONE) PRIVATE(l) SHARED(dzsoil,         &
 !$OMP             land_pts, k, n, smc_irr_soilt, sthu_irr_soilt,               &
+!$OMP             l_soil_evap_irrig_expl,                                      &
 !$OMP             smc_nir_soilt, sthu_nir_soilt,smvcst_soilt,                  &
 !$OMP             smvcwt_soilt,wt_ext_irr_soilt,wt_ext_nir_soilt,m,l_do_omp)   &
 !$OMP             SCHEDULE(STATIC)

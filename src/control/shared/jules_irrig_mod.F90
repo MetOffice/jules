@@ -47,8 +47,12 @@ LOGICAL :: set_irrfrac_on_irrtiles = .FALSE.
 LOGICAL ::                                                                     &
   l_irrig_dmd = .FALSE.,                                                       &
     !   Switch for using irrigation demand code
-  l_irrig_limit = .FALSE.
+  l_irrig_limit = .FALSE.,                                                     &
     !   Switch for limiting irrigation supply
+  l_soil_evap_irrig_expl = .FALSE.
+      ! Switch for explcitly calculating bare soil evaporation over the
+      ! separate irrigated and non-irrigated fractions of the grid box.
+      ! (Default used the grid box mean soil moisture).
 
 INTEGER :: nirrtile = imdi
     !  Number of tiles that can have irrigated fraction

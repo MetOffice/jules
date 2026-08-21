@@ -47,7 +47,7 @@ USE water_constants_mod, ONLY: lc, lf, tm
 
 USE ancil_info, ONLY: nsoilt
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd
+USE jules_irrig_mod, ONLY: l_irrig_dmd, l_soil_evap_irrig_expl
 
 USE jules_surface_mod, ONLY: l_aggregate, l_flake_model
 USE jules_surface_types_mod, ONLY: lake
@@ -691,6 +691,9 @@ DO m = 1,sm_levels
   DO l = 1,land_pts
     ext_soilt(l,:,m) = 0.0
     ext_irr_soilt(l,:,m) = 0.0
+    IF ( l_soil_evap_irrig_expl ) THEN
+       ext_nir_soilt(l,:,m) = 0.0
+    END IF
   END DO
 !$OMP END DO
 END DO
@@ -712,6 +715,15 @@ DO m = 1,sm_levels
           ext_soilt(l,mm,m) = ext_soilt(l,mm,m)                                &
                             + tile_frac(l,n) * wt_ext_surft(l,m,n)             &
                             * esoil_surft(l,n)
+          
+          IF ( l_soil_evap_irrig_expl ) THEN
+             wt_ext_nir_surft(l,m,n) =  wt_ext_surft(l,m,n)
+             IF (1.- frac_irr_surft(l,n) > EPSILON(1.0) ) THEN
+                wt_ext_nir_surft(l,m,n) =  (wt_ext_surft(l,m,n) -              &
+                     wt_ext_irr_surft(l,m,n) * frac_irr_surft(l,n)) /          &
+                     (1.- frac_irr_surft(l,n))
+             END IF
+          END IF
         END DO
 !$OMP END DO
       END IF
@@ -764,6 +776,23 @@ IF (l_irrig_dmd) THEN
 !$OMP DO SCHEDULE(STATIC)
         DO k = 1,surft_pts(n)
           l = surft_index(k,n)
+          IF ( l_soil_evap_irrig_expl ) THEN
+             wt_ext_nir_surft(l,m,n) =  wt_ext_surft(l,m,n)
+             IF ((1.- frac_irr_surft(l,n)) > EPSILON(1.0) ) THEN
+                wt_ext_nir_surft(l,m,n) =  (wt_ext_surft(l,m,n) -              &
+                     wt_ext_irr_surft(l,m,n) * frac_irr_surft(l,n)) /          &
+                     (1.- frac_irr_surft(l,n))
+             END IF
+             IF (1. - frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
+                ext_nir_soilt(l,mm,m) = ext_nir_soilt(l,mm,m)                  &
+                     + tile_frac(l,n)                                          &
+                     * wt_ext_nir_surft(l,m,n)                                 &
+                     * esoil_nir_surft(l,n)                                    &
+                     * (1.0 - frac_irr_surft(l,n))                             &
+                     / (1.0 - frac_irr_soilt(l,mm))
+             END IF
+          END IF
+
           IF ( frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
             ext_irr_soilt(l,mm,m) = ext_irr_soilt(l,mm,m)                      &
                                     + tile_frac(l,n)                           &
@@ -783,6 +812,23 @@ IF (l_irrig_dmd) THEN
 !$OMP DO SCHEDULE(STATIC)
         DO k = 1,surft_pts(n)
           l = surft_index(k,n)
+
+          IF ( l_soil_evap_irrig_expl ) THEN
+             wt_ext_nir_surft(l,m,n) =  wt_ext_surft(l,m,n)
+             IF (1.- frac_irr_surft(l,n) > EPSILON(1.0) ) THEN
+                wt_ext_nir_surft(l,m,n) =  (wt_ext_surft(l,m,n) -              &
+                     wt_ext_irr_surft(l,m,n) * frac_irr_surft(l,n)) /          &
+                     (1.- frac_irr_surft(l,n))
+             end if
+             IF (1.- frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
+                ext_nir_soilt(l,mm,m) = ext_nir_soilt(l,mm,m)                  &
+                     + wt_ext_nir_surft(l,m,n)                                 &
+                     * esoil_nir_surft(l,n)                                    &
+                     * (1.0 - frac_irr_surft(l,n))                             &
+                     / (1.0 - frac_irr_soilt(l,mm))
+             END IF
+          END IF
+
           IF ( frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
             ext_irr_soilt(l,mm,m) = ext_irr_soilt(l,mm,m)                      &
                                     + wt_ext_irr_surft(l,m,n)                  &

@@ -26,7 +26,7 @@ SUBROUTINE soil_evap (npnts,nshyd,surft_pts,surft_index,                       &
                        gsoil_irr,gs_irr,wt_ext_irr                             &
                       )
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd
+USE jules_irrig_mod, ONLY: l_irrig_dmd, l_soil_evap_irrig_expl
 USE yomhook, ONLY: lhook, dr_hook
 USE parkind1, ONLY: jprb, jpim
 IMPLICIT NONE
@@ -104,7 +104,8 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP DEFAULT(NONE)                                                            &
 !$OMP PRIVATE(l,j,k)                                                           &
 !$OMP SHARED(npnts,fsoil,surft_pts,surft_index,lai,nshyd,wt_ext,gs,gsoil,      &
-!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,irrig_tile)
+!$OMP        frac_irr,gsoil_nir,gs_nir,wt_ext_nir,irrig_tile,                  &
+!$OMP        wt_ext_irr,gs_irr,gsoil_irr,l_irrig_dmd,l_soil_evap_irrig_expl)
 
 ! Initialisations
 
@@ -137,6 +138,17 @@ DO k = 2,nshyd
       l = surft_index(j)
       wt_ext_irr(l,k) = gs_irr(l) * wt_ext_irr(l,k)                            &
              / (gs_irr(l) + fsoil(l) * gsoil_irr(l))
+    END DO
+!$OMP END DO NOWAIT
+  END IF
+  IF (l_soil_evap_irrig_expl) THEN
+!$OMP DO SCHEDULE(STATIC)
+    DO j = 1,surft_pts
+      l = surft_index(j)
+      wt_ext_nir(l,k) = gs_nir(l) * wt_ext_nir(l,k)                            &
+             / (gs_nir(l) + fsoil(l) * gsoil_nir(l))
+      wt_ext(l,k) = frac_irr(l)*wt_ext_irr(l,k)                                &
+           +(1.0-frac_irr(l))*wt_ext_nir(l,k)
     END DO
 !$OMP END DO NOWAIT
   END IF
@@ -175,6 +187,23 @@ IF (l_irrig_dmd) THEN
     ! relative to tile mean conductance (scaled by relative area later).
     ! Assume soil evaporation uses grid box mean soil moisture:
     gs_irr(l) = gs_irr(l) + fsoil(l) * gsoil_irr(l)
+  END DO
+!$OMP END DO NOWAIT
+END IF
+
+! Transpiration and soil conductances over irrigated fraction of tile
+! relative to tile mean conductance (scaled by relative area later).
+! Soil evaporation does not use grid box mean soil moisture:
+IF (l_soil_evap_irrig_expl) THEN
+!$OMP DO SCHEDULE(STATIC)
+  !CDIR NODEP
+  DO j = 1,surft_pts
+    l = surft_index(j)
+    wt_ext_nir(l,1) = (gs_nir(l) * wt_ext_nir(l,1) + fsoil(l) * gsoil_nir(l))  &
+         / (gs_nir(l) + fsoil(l) * gsoil_nir(l))
+    gs_nir(l) = gs_nir(l) + fsoil(l) * gsoil_nir(l)
+    wt_ext(l,1) = frac_irr(l)*wt_ext_irr(l,1)+(1.0-frac_irr(l))*wt_ext_nir(l,1)
+    gs(l) = frac_irr(l)*gs_irr(l)+(1.0-frac_irr(l))*gs_nir(l)
   END DO
 !$OMP END DO NOWAIT
 END IF
