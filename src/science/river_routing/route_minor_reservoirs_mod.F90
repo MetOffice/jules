@@ -72,8 +72,7 @@ dt = REAL(nstep_rivers) * timestep
 
 DO i = 1, np_rivers
 
-  ! Only route through a minor reservoir where the ancillary data are
-  ! physically valid. 
+  ! Only route through a minor reservoir where such a reservoir exists
   IF ( minor_res_frac(i) > 0.0 .AND. minor_res_capacity(i) > 0.0 ) THEN
 
     ! Add a fraction of surface runoff to storage in minor reservoirs and

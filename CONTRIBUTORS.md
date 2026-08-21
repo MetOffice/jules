@@ -10,3 +10,4 @@
 | ScottWales | Scott Wales | Bureau of Meteorology | 2026-02-16 |
 | t00sa           | Sam Clarke-Green | Met Office  | 2026-02-27 |
 | doucla          | Douglas Clark    | UKCEH       | 2026-06-22 |
+| KatieBlackford  | Katie Blackford  | UKCEH       | 2026-08-21 |
