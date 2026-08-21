@@ -52,6 +52,7 @@ USE logging_mod,                  ONLY: log_info, init_prnt_control
 USE init_output_mod,              ONLY: init_output
 USE init_plant_n_uptake_mod,      ONLY: init_plant_n_uptake
 USE init_vegetation_mod,          ONLY: init_vegetation
+USE init_inferno_mod,             ONLY: init_inferno
 USE init_hydrology_mod,           ONLY: init_hydrology
 USE init_model_environment_mod,   ONLY: init_model_environment
 USE init_radiation_mod,           ONLY: init_radiation
@@ -272,6 +273,8 @@ CALL init_soil(nml_dir)
 ! Initialise vegetation options
 ! Must be called after init_soil to check soil tiling flags
 CALL init_vegetation(nml_dir)
+
+CALL init_inferno(nml_dir)
 
 ! Initialise irrigation options
 CALL init_irrigation(nml_dir)

@@ -180,10 +180,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
   tau_lit = rmdi
     ! Parameter controlling the decay of litter inputs with depth (m-1).
 
-REAL(KIND=real_jlslsm) ::                                                      &
-  z_burn_max = rmdi
-    ! Parameter setting maximum depth of burn
-
 !-----------------------------------------------------------------------------
 ! Namelist variables used in the CH4 Emission Scheme
 !-----------------------------------------------------------------------------
@@ -256,7 +252,7 @@ NAMELIST  / jules_soil_biogeochem/                                             &
     t0_ch4, const_ch4_cs, const_ch4_npp, const_ch4_resps, q10_ch4_cs,          &
     q10_ch4_npp, q10_ch4_resps, tau_ch4, ch4_cpow, k2_ch4, kd_ch4, rho_ch4,    &
     q10_mic_ch4, cue_ch4, mu_ch4, alpha_ch4, frz_ch4, ev_ch4, q10_ev_ch4,      &
-    l_label_frac_cs, z_burn_max, l_bgc_heat, heat_of_respiration,              &
+    l_label_frac_cs, l_bgc_heat, heat_of_respiration,                          &
     fsthsat_cs_decomp_opt1
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
@@ -278,7 +274,9 @@ USE jules_surface_mod, ONLY:                                                   &
 
 USE jules_vegetation_mod, ONLY:                                                &
   ! imported scalars
-  l_triffid, l_trif_fire, l_nitrogen, l_inferno
+  l_triffid, l_nitrogen
+
+USE jules_inferno_mod, ONLY: l_inferno, l_trif_fire
 
 
 USE ereport_mod, ONLY: ereport
@@ -522,15 +520,6 @@ IF ( l_layeredc .AND. l_nitrogen ) THEN
   END IF
 END IF
 
-! check value of z_burn_max with l_layeredc
-IF ( l_layeredc ) THEN
-  IF ( ABS( z_burn_max - rmdi ) > EPSILON(1.0) ) THEN
-    IF ( z_burn_max <= 0.0 .OR. z_burn_max > 10.0 ) THEN
-      CALL ereport(RoutineName, errorstatus,                                   &
-                   "z_burn_max must be positive & less than 10 meters")
-    END IF
-  END IF
-END IF
 
 ! methane q10's - these are always set
 IF ( ABS( q10_ch4_cs - rmdi ) < EPSILON(1.0) ) THEN
@@ -748,9 +737,6 @@ CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 WRITE(lineBuffer, *) ' tau_lit = ', tau_lit
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
-WRITE(lineBuffer, *) ' z_burn_max = ', z_burn_max
-CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
-
 WRITE(lineBuffer, *) ' diff_n_pft = ', diff_n_pft
 CALL jules_print('jules_soil_biogeochem_mod', lineBuffer)
 
@@ -911,7 +897,6 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: ev_ch4
   REAL(KIND=real_jlslsm) :: q10_ev_ch4
   REAL(KIND=real_jlslsm) :: heat_of_respiration
-  REAL(KIND=real_jlslsm) :: z_burn_max
   LOGICAL :: l_layeredC
   LOGICAL :: l_label_frac_cs
   LOGICAL :: l_q10
@@ -979,7 +964,6 @@ IF (mype == 0) THEN
   my_nml % alpha_ch4        = alpha_ch4
   my_nml % ev_ch4           = ev_ch4
   my_nml % q10_ev_ch4       = q10_ev_ch4
-  my_nml % z_burn_max       = z_burn_max
   my_nml % heat_of_respiration = heat_of_respiration
 
 END IF
@@ -1027,7 +1011,6 @@ IF (mype /= 0) THEN
   alpha_ch4        = my_nml % alpha_ch4
   ev_ch4           = my_nml % ev_ch4
   q10_ev_ch4       = my_nml % q10_ev_ch4
-  z_burn_max       = my_nml % z_burn_max
   heat_of_respiration = my_nml % heat_of_respiration
 
 END IF

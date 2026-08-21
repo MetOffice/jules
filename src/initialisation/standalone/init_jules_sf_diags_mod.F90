@@ -40,8 +40,9 @@ SUBROUTINE set_sf_diag_switches
 
 USE jules_radiation_mod, ONLY: i_sea_alb_method
 
-USE jules_vegetation_mod, ONLY: l_crop, l_fao_ref_evapotranspiration,          &
-                                l_inferno
+USE jules_vegetation_mod, ONLY: l_crop, l_fao_ref_evapotranspiration
+
+USE jules_inferno_mod, ONLY: l_inferno
 
 USE sf_diags_mod, ONLY: sf_diag
 

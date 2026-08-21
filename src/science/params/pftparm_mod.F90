@@ -893,13 +893,15 @@ USE jules_soil_biogeochem_mod, ONLY: l_layeredC, soil_bgc_model,               &
                                       soil_model_4pool
 
 USE jules_vegetation_mod, ONLY: can_rad_mod, l_crop, l_trait_phys,             &
-                                 l_use_pft_psi, l_bvoc_emis, l_inferno,        &
-                                 l_o3_damage, l_trif_fire, photo_acclim_model, &
+                                 l_use_pft_psi, l_bvoc_emis,                   &
+                                 l_o3_damage, photo_acclim_model,              &
                                  photo_act_model, photo_act_pft,               &
                                  photo_farquhar, photo_model,                  &
                                  stomata_jacobs, stomata_medlyn, stomata_sox,  &
                                  stomata_model, l_spec_veg_z0, l_sugar,        &
                                  l_scale_resp_pm
+
+USE jules_inferno_mod, ONLY: l_inferno, l_trif_fire
 
 USE jules_radiation_mod, ONLY: l_spec_albedo, l_albedo_obs, l_snow_albedo
 

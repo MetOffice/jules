@@ -45,15 +45,63 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+class vn82_t61(MacroUpgrade):
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    """Upgrade macro from JULES by Eleanor Burke"""
+
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t61"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
+        self.rename_setting(config, ["namelist:fire_switches"],
+                            ["namelist:jules_fire_weather_index"])
+        self.rename_setting(config, ["namelist:jules_fire_weather_index",
+                                      "l_fire"],
+                            ["namelist:jules_fire_weather_index",
+                             "l_fire_weather_index"])
+
+        self.add_setting(config, ["namelist:jules_inferno"])
+
+        source = self.get_setting_value(config, ["file:fire.nml","source"])
+        source = source.replace("namelist:fire_switches",
+                                "namelist:jules_fire_weather_index namelist:jules_inferno")
+        self.change_setting_value(config, ["file:fire.nml","source"], source)
+
+        l_inferno = self.get_setting_value(config, ["namelist:jules_vegetation", "l_inferno"])
+        self.add_setting(config,
+                ["namelist:jules_inferno", "l_inferno"], l_inferno)
+        self.remove_setting(config, ["namelist:jules_vegetation", "l_inferno"])
+
+        l_trif_fire = self.get_setting_value(config, ["namelist:jules_vegetation", "l_trif_fire"])
+        self.add_setting(config,
+                ["namelist:jules_inferno", "l_trif_fire"], l_trif_fire)
+        self.remove_setting(config, ["namelist:jules_vegetation", "l_trif_fire"])
+
+        ignition_method = self.get_setting_value(config, ["namelist:jules_vegetation", "ignition_method"])
+        self.add_setting(config,
+                ["namelist:jules_inferno", "ignition_method"], ignition_method)
+        self.remove_setting(config, ["namelist:jules_vegetation", "ignition_method"])
+        
+        z_burn_max = self.get_setting_value(config, ["namelist:jules_soil_biogeochem", "z_burn_max"])
+        self.add_setting(config,
+                ["namelist:jules_inferno", "z_burn_max"], z_burn_max)
+        self.remove_setting(config, ["namelist:jules_soil_biogeochem", "z_burn_max"])
+        
+        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccdpm_min"], 0.8)
+        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccdpm_max"], 1.0)
+        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccrpm_min"], 0.0)
+        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccrpm_max"], 0.2)
+        
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_low"], 0.1)
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_up"], 0.9)
+        self.add_setting(config, ["namelist:jules_inferno", "flam_sm_low"], 0.0)
+        self.add_setting(config, ["namelist:jules_inferno", "flam_sm_up"], 2.4)
+        self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_low"], 0.02)
+        self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_up"], 0.2)
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], -14929920000.0)
+        self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], 1)
+        
         return config, self.reports
