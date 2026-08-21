@@ -47,8 +47,12 @@ LOGICAL ::                                                                     &
       ! Only used if l_top=.T.
   l_limit_gsoil = .FALSE.,                                                     &
       ! Switch for limiting gsoil above theta_crit
-  l_inland = .FALSE.
+  l_inland = .FALSE.,                                                          &
       ! Switch for putting inland water from from rivers into soil moisture
+  l_soil_evap_irrig_expl = .FALSE.
+      ! Switch for explcitly calculating bare soil evaporation over the
+      ! separate irrigated and non-irrigated fractions of the grid box.
+      ! (Default used the grid box mean soil moisture).
 
 !-----------------------------------------------------------------------------
 ! PDM parameters
