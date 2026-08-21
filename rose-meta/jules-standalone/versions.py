@@ -45,15 +45,17 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class vn81_t32(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Douglas Clark"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.1"
+    AFTER_TAG = "vn8.1_t32"
 
-    def upgrade(self, config, meta_config=None):
+    def upgrade(self,config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
         # Add settings
+        self.add_setting(config, ["namelist:jules_rivers", "l_minor_reservoirs"], ".false.")
         return config, self.reports
+

@@ -7951,7 +7951,7 @@ DATA metadata(614) / var_metadata(                                             &
     "kg m-2 s-1"                                                               &
   ) /
 !-----------------------------------------------------------------------------
-! Metadata for grid_area
+! Metadata for grid_area_rp
 !-----------------------------------------------------------------------------
 DATA metadata(615) / var_metadata(                                             &
 ! String identifier
@@ -9366,5 +9366,107 @@ DATA metadata(723) / var_metadata(                                             &
     "Inland basin flow on river routing grid",                                 &
 ! Units
     "kg m-2 s-1"                                                               &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for conveyance_loss
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
+! String identifier
+    'conveyance_loss',                                                         &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Water that is lost during conveyance",                                    &
+! Units
+    "kg s-1"                                                                   &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for minor_res_capacity_grid
+!-----------------------------------------------------------------------------
+DATA metadata(725) / var_metadata(                                             &
+! String identifier
+    'minor_res_capacity_grid',                                                 &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for minor_res_frac_grid
+!-----------------------------------------------------------------------------
+DATA metadata(726) / var_metadata(                                             &
+! String identifier
+    'minor_res_frac_grid',                                                     &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for minor_res_capacity
+!-----------------------------------------------------------------------------
+DATA metadata(727) / var_metadata(                                             &
+! String identifier
+    'minor_res_capacity',                                                      &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Storage capacity of minor reservoirs",                                    &
+! Units
+    "kg"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for minor_res_frac
+!-----------------------------------------------------------------------------
+DATA metadata(728) / var_metadata(                                             &
+! String identifier
+    'minor_res_frac',                                                          &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Catchment area of minor reservoirs as fraction of area",                  &
+! Units
+    "1"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for minor_res_storage
+!-----------------------------------------------------------------------------
+DATA metadata(729) / var_metadata(                                             &
+! String identifier
+    'minor_res_storage',                                                       &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Water stored in minor reservoirs",                                        &
+! Units
+    "kg"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for minor_res_abstracted
+!-----------------------------------------------------------------------------
+DATA metadata(730) / var_metadata(                                             &
+! String identifier
+    'minor_res_abstracted',                                                    &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Water abstracted from minor_reservoirs",                                  &
+! Units
+    "kg s-1"                                                                   &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for river_abstracted
+!-----------------------------------------------------------------------------
+DATA metadata(731) / var_metadata(                                             &
+! String identifier
+    'river_abstracted',                                                        &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Water abstracted from rivers",                                            &
+! Units
+    "kg s-1"                                                                   &
   ) /
 #endif

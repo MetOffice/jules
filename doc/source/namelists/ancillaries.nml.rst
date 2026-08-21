@@ -1093,7 +1093,7 @@ This namelist specifies the options available for initialising irrigated fractio
 
 .. nml:namelist:: JULES_RIVERS_PROPS
 
-This namelist specifies how spatially varying river routing properties including overbank inundation should be set.
+This namelist specifies how spatially varying river routing properties (including overbank inundation and minor reservirs) should be set.
 
 .. note:: ``read_from_dump`` is not currently implemented for this namelist, meaning that river ancillary variables cannot be read from a dump file. Initial values of river prognostic variables can however be read from a dump file (see :nml:lst:`JULES_INITIAL`).
 
@@ -1455,16 +1455,26 @@ The following table summarises river routing properties required to run RFM or T
 | ``longitude_2d``           | The longitude of each river grid point must be specified. This field is required only if the model        |
 |                            | coordinates are latitude and longitude, i.e. if :nml:mem:`JULES_LATLON::l_coord_latlon` = FALSE.          |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``logn_mean``              | Mean of ln(elevation-elev_min) for each grid cell (in units ln(m))                                        |
+| ``logn_mean``              | Mean of ln(elevation-elev_min) for each grid cell (in units ln(m)).                                       |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_OVERBANK::overbank_model` = 3.                                       |
 |                            |                                                                                                           |
 |                            | Note that elev_min is DEM minimum, not river/lake bed level (therefore large values close to water        |
 |                            | bodies can occur in floodplain gridcells).                                                                |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``logn_stdev``             | Standard deviation of ln(elevation-elev_min) for each grid cell (in units ln(m))                          |
+| ``logn_stdev``             | Standard deviation of ln(elevation-elev_min) for each grid cell (in units ln(m)).                         |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_OVERBANK::overbank_model` = 3.                                       |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``minor_res_capacity_grid``| Storage capacity of minor reservoirs (kg).                                                                |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``minor_res_frac_grid``    | Catchment area of minor reservoirs as fraction of area of gridbox.                                        |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
 |                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
 | ``rivers_outflow_number``  | Number assigned to each river mouth and inland basin on the Rivers grid, to identify the river which      |
@@ -1479,7 +1489,7 @@ The following table summarises river routing properties required to run RFM or T
 |                            | via OASIS the river outflow is distributed over the corresponding river outflow points on the ocean grid. |
 |                            | This is to ensure that water is conserved and rivers discharge into the correct ocean grid points.        |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``rivers_storage``         | Water storage (kg) on the Rivers grid.                                                                    |
+| ``rivers_storage``         | Water storage (kg) on the rivers grid.                                                                    |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_RIVERS::i_river_vn` = 3.                                             |
 |                            |                                                                                                           |
