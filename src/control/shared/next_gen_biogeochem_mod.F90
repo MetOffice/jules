@@ -8,7 +8,6 @@
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in Veg3 Ecosystem Demography
 ! *****************************COPYRIGHT****************************************
-! Testing code ownership file
 
 MODULE next_gen_biogeochem_mod
 

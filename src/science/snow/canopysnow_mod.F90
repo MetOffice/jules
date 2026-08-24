@@ -11,7 +11,6 @@
 
 ! Description:
 !     Partition snowfall into canopy interception, throughfall and unloading.
-! Testing code ownership file
 
 ! Subroutine Interface:
 MODULE canopysnow_mod
