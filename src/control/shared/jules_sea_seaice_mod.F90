@@ -87,8 +87,8 @@ LOGICAL ::                                                                     &
       ! Switch for penetration of SW radiation into sea ice
   l_sice_meltponds = .FALSE.,                                                  &
       ! Sea-ice albedo affected by meltponds (simple parameterisation)
-  l_sice_meltponds_cice = .FALSE.,                                             &
-      ! Sea-ice albedo affected by meltponds (from CICE meltponds scheme)
+  l_zenith_albedo = .FALSE.,                                                   &
+      ! Sea ice and snow on sea ice albedos affected by zenith angle
   l_sice_multilayers = .FALSE.,                                                &
       ! True if coupled to sea ice multilayer model
   l_cice_alb = .FALSE.,                                                        &
@@ -116,9 +116,14 @@ INTEGER ::                                                                     &
   buddy_sea = 0,                                                               &
       ! Switch to use the wind speed from adjacent sea points for the sea
       ! part of coastal grid points
-  i_high_wind_drag = ip_hwdrag_null
+  i_high_wind_drag = ip_hwdrag_null,                                           &
       ! Option to impose a special treatment of drag at high wind speeds.
       ! Set to the null option by default.
+  i_meltpond_alb_vn = 0
+      ! Melt pond albedo scheme version
+      ! 0 = No melt pond albedo scheme (just use temperature dependence)
+      ! 1 = CICE melt pond albedo scheme
+      ! 2 = Malinka melt pond albedo scheme
 
 ! The following setting is needed for setting up (UM-JULES) pseudo level IDs
 ! for water tracer fields on multiple sea ice categories.  It is not used
@@ -252,8 +257,10 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     hcap_sea = 0.0,                                                            &
         ! Value for open sea heat capacity if required to be non-zero
-    beta_evap = 1.0
+    beta_evap = 1.0,                                                           &
         ! availability of surface moisture - 0.0 = none, 1.0 = open sea
+    snow_grain_size_min = 50.0,                                                &
+    snow_grain_size_max = 200.0
 
 !-----------------------------------------------------------------------------
 ! Parameters for the COARE algorithm
@@ -313,7 +320,7 @@ REAL(KIND=real_jlslsm)    ::  ce_floe           = 0.222
 NAMELIST  / jules_sea_seaice/                                                  &
 ! Switches
     nice, nice_use, l_tstar_sice_new, l_ssice_albedo, l_sice_scattering,       &
-    l_sice_swpen, l_sice_meltponds,  l_sice_meltponds_cice,                    &
+    l_sice_swpen, l_sice_meltponds,  i_meltpond_alb_vn, l_zenith_albedo,       &
     l_sice_multilayers, l_cice_alb, l_sice_heatflux, l_saldep_freeze,          &
     l_icerough_prognostic,                                                     &
     l_ctile, l_iceformdrag_lupkes, l_stability_lupkes, iseasurfalg,            &
@@ -330,7 +337,8 @@ NAMELIST  / jules_sea_seaice/                                                  &
     ahmax, dalb_mlt_cice, dalb_mlts_v_cice, dalb_mlts_i_cice, dt_bare_cice,    &
     dt_snow_cice, pen_rad_frac_cice, sw_beta_cice, snowpatch,                  &
     h_freeboard_min, h_freeboard_max, beta_floe, d_floe_min, d_floe_max,       &
-    ss_floe, ce_floe, hcap_sea, beta_evap
+    ss_floe, ce_floe, hcap_sea, beta_evap,                                     &
+    snow_grain_size_min, snow_grain_size_max
 
 
 
@@ -428,7 +436,10 @@ CALL jules_print('jules_sea_seaice', lineBuffer)
 WRITE(lineBuffer, *) '  l_sice_meltponds = ', l_sice_meltponds
 CALL jules_print('jules_sea_seaice', lineBuffer)
 
-WRITE(lineBuffer, *) '  l_sice_meltponds_cice = ', l_sice_meltponds_cice
+WRITE(lineBuffer, *) '  i_meltpond_alb_vn = ', i_meltpond_alb_vn
+CALL jules_print('jules_sea_seaice', lineBuffer)
+
+WRITE(lineBuffer, *) '  l_zenith_albedo = ', l_zenith_albedo
 CALL jules_print('jules_sea_seaice', lineBuffer)
 
 WRITE(lineBuffer, *) '  l_sice_multilayers = ', l_sice_multilayers
@@ -635,6 +646,12 @@ CALL jules_print('jules_sea_seaice', lineBuffer)
 WRITE(lineBuffer, "(A, G11.4E2)") ' beta_evap = ', beta_evap
 CALL jules_print('jules_sea_seaice', lineBuffer)
 
+WRITE(lineBuffer, "(A, G11.4E2)") ' snow_grain_size_min = ', snow_grain_size_min
+CALL jules_print('jules_sea_seaice', lineBuffer)
+
+WRITE(lineBuffer, "(A, G11.4E2)") ' snow_grain_size_max = ', snow_grain_size_max
+CALL jules_print('jules_sea_seaice', lineBuffer)
+
 CALL jules_print('jules_sea_seaice',                                           &
     '- - - - - - end of namelist - - - - - -')
 
@@ -675,8 +692,8 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
-INTEGER, PARAMETER :: n_int = 5
-INTEGER, PARAMETER :: n_real = 55
+INTEGER, PARAMETER :: n_int = 6
+INTEGER, PARAMETER :: n_real = 57
 INTEGER, PARAMETER :: n_log = 16
 
 TYPE :: my_namelist
@@ -686,6 +703,7 @@ TYPE :: my_namelist
   INTEGER :: iseasurfalg
   INTEGER :: buddy_sea
   INTEGER :: i_high_wind_drag
+  INTEGER :: i_meltpond_alb_vn
   REAL(KIND=real_jlslsm) :: z0miz
   REAL(KIND=real_jlslsm) :: z0sice
   REAL(KIND=real_jlslsm) :: z0h_z0m_miz
@@ -741,12 +759,14 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: ce_floe
   REAL(KIND=real_jlslsm) :: hcap_sea
   REAL(KIND=real_jlslsm) :: beta_evap
+  REAL(KIND=real_jlslsm) :: snow_grain_size_min
+  REAL(KIND=real_jlslsm) :: snow_grain_size_max
   LOGICAL :: l_tstar_sice_new
   LOGICAL :: l_ssice_albedo
+  LOGICAL :: l_zenith_albedo
   LOGICAL :: l_sice_scattering
   LOGICAL :: l_sice_swpen
   LOGICAL :: l_sice_meltponds
-  LOGICAL :: l_sice_meltponds_cice
   LOGICAL :: l_sice_multilayers
   LOGICAL :: l_cice_alb
   LOGICAL :: l_saldep_freeze
@@ -779,6 +799,7 @@ IF (mype == 0) THEN
   my_nml % iseasurfalg        = iseasurfalg
   my_nml % buddy_sea          = buddy_sea
   my_nml % i_high_wind_drag   = i_high_wind_drag
+  my_nml % i_meltpond_alb_vn  = i_meltpond_alb_vn
   my_nml % z0miz              = z0miz
   my_nml % z0sice             = z0sice
   my_nml % z0h_z0m_miz        = z0h_z0m_miz
@@ -834,12 +855,14 @@ IF (mype == 0) THEN
   my_nml % ce_floe            = ce_floe
   my_nml % hcap_sea           = hcap_sea
   my_nml % beta_evap          = beta_evap
+  my_nml % snow_grain_size_min = snow_grain_size_min
+  my_nml % snow_grain_size_max = snow_grain_size_max
   my_nml % l_tstar_sice_new   = l_tstar_sice_new
   my_nml % l_ssice_albedo     = l_ssice_albedo
+  my_nml % l_zenith_albedo    = l_zenith_albedo
   my_nml % l_sice_scattering  = l_sice_scattering
   my_nml % l_sice_swpen       = l_sice_swpen
   my_nml % l_sice_meltponds   = l_sice_meltponds
-  my_nml % l_sice_meltponds_cice = l_sice_meltponds_cice
   my_nml % l_sice_multilayers = l_sice_multilayers
   my_nml % l_cice_alb         = l_cice_alb
   my_nml % l_saldep_freeze    = l_saldep_freeze
@@ -861,6 +884,7 @@ IF (mype /= 0) THEN
   iseasurfalg        = my_nml % iseasurfalg
   buddy_sea          = my_nml % buddy_sea
   i_high_wind_drag   = my_nml % i_high_wind_drag
+  i_meltpond_alb_vn  = my_nml % i_meltpond_alb_vn
   z0miz              = my_nml % z0miz
   z0sice             = my_nml % z0sice
   z0h_z0m_miz        = my_nml % z0h_z0m_miz
@@ -916,12 +940,14 @@ IF (mype /= 0) THEN
   ce_floe            = my_nml % ce_floe
   hcap_sea           = my_nml % hcap_sea
   beta_evap          = my_nml % beta_evap
+  snow_grain_size_min = my_nml % snow_grain_size_min
+  snow_grain_size_max = my_nml % snow_grain_size_max
   l_tstar_sice_new   = my_nml % l_tstar_sice_new
   l_ssice_albedo     = my_nml % l_ssice_albedo
+  l_zenith_albedo    = my_nml % l_zenith_albedo
   l_sice_scattering  = my_nml % l_sice_scattering
   l_sice_swpen       = my_nml % l_sice_swpen
   l_sice_meltponds   = my_nml % l_sice_meltponds
-  l_sice_meltponds_cice = my_nml % l_sice_meltponds_cice
   l_sice_multilayers = my_nml % l_sice_multilayers
   l_cice_alb         = my_nml % l_cice_alb
   l_saldep_freeze    = my_nml % l_saldep_freeze
