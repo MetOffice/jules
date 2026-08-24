@@ -50,6 +50,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
  gsoil(npnts)                                                                  &
                       ! IN Soil surface conductance (m/s).
 ,frac_irr(npnts)                                                               &
+                      ! IN Irrigation fraction in tile
 ,lai(npnts)           ! IN Leaf area index.
 
 

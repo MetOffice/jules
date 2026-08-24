@@ -156,7 +156,11 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                            ! IN Interactive canopy conductance
 !                          !    to evaporation (m/s)
 ,gc_irr_surft(points)                                                          &
+                           ! IN Interactive canopy conductance
+!                          !    to evaporation over irrigated
+!                          !    part of tile (m/s)
 ,frac_irr_surft(points)                                                        &
+!                          ! IN Irrigation fraction in tile
 ,snowdep(points)                                                               &
                            ! IN Snow depth (m)
 ,snow(points)                                                                  &

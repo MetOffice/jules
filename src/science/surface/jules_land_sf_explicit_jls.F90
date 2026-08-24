@@ -806,23 +806,17 @@ REAL(KIND=real_jlslsm) ::                                                      &
                              ! Areal heat capacity of snow (J/K/m2)
 ,ksnow(land_pts,nsmax)                                                         &
                              ! Thermal conductivity of snow (W/m/K)
-,ashtf_irr_surft(land_pts,nsurft)                                              &
-,ashtf_nir_surft(land_pts,nsurft)                                              &
-,hcons_irr_surf(land_pts,nsurft)                                               &
-,hcons_nir_surf(land_pts,nsurft)                                               &
-,hcons_irr_soilt(land_pts,nsoilt)                                              &
-,hcons_nir_soilt(land_pts,nsoilt)                                              &
-,sthu1_nir_soilt(land_pts)                                                     &
-,sthf1_nir_soilt(land_pts)                                                     &
-,sthf1_irr_soilt(land_pts)                                                     &
 ,hcons_snow(land_pts,nsurft)                                                   &
                              ! Snow thermal conductivity
 ,resp_frac(land_pts,dim_cslayer)                                               &
                              ! respired fraction of RESP_S
 ,gc_stom_surft(land_pts,nsurft)                                                &
                              ! canopy conductance
-,gs_nir_surft(land_pts,nsurft)                                                 &
 ,gc_nir_surft(land_pts,nsurft)                                                 &
+                             ! canopy conductance over irrigated part
+                             ! of tile
+,gs_nir_surft(land_pts,nsurft)                                                 &
+                            ! Conductance for non-irrigated part of tile
 ,sice_surft_tmp(land_pts,nsmax)                                                &
                              ! Ice content of snow layers (kg/m2)
 ,sliq_surft_tmp(land_pts,nsmax)                                                &
@@ -964,6 +958,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ,ashtf_surft(land_pts,nsurft)                                                  &
                              ! Coefficient to calculate surface
                              ! heat flux into soil (W/m2/K).
+,ashtf_irr_surft(land_pts,nsurft)                                              &
+,ashtf_nir_surft(land_pts,nsurft)                                              &
 ,lw_down_surftsum(land_pts)                                                    &
                              ! Gridbox sum of elevation corrections to
                              ! downward longwave radiation

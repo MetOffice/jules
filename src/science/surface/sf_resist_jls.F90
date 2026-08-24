@@ -77,6 +77,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                      ! IN Interactive canopy conductance
 !                          !    to evaporation (m/s)
 ,frac_irr_surft(land_pts)                                                      &
+                     ! IN Irrigation fraction in tile
 ,gc_irr_surft(land_pts)                                                        &
                      ! IN canopy conductance over irrigated frac
 ,gc_stom_surft(land_pts)                                                       &

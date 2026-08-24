@@ -160,7 +160,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
                              !     soil layer (kg/m2/s).
                              !     of land tiles.
 
-
 !New arguments replacing USE statements
 ! crop_vars_mod (IN)
 REAL(KIND=real_jlslsm), INTENT(IN) :: frac_irr_soilt(land_pts,nsoilt)
@@ -189,8 +188,17 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                            !     moisture through non-irrigated
 !                            !     fraction of land tiles (kg/m2/s).
 ,ext_nir_soilt(land_pts,nsoilt,sm_levels)                                      &
+!                            ! WORK Extraction of water from each
+!                            !     soil layer from non-irrigated
+!                            !     fraction of land tiles (kg/m2/s).
 ,wt_ext_nir_surft(land_pts,sm_levels,nsurft)                                   &
+!                           ! WORK Fraction of transpiration
+!                           !    extracted from each soil layer
+!                           !    by non-irrigated part of each tile.
 ,resfs_nir_surft(land_pts,nsurft)                                              &
+!                           ! WORK Combined soil, stomatal and aerodynam.
+!                           !    resistance factor for fraction 1-fracaero_t
+!                           !    of non-irrigated part of each land tile.
 ,smc_nir_soilt(land_pts,nsoilt)
 !                            ! WORK Available soil moisture (kg/m2).
 !                            !     fraction (kg/m2/s).

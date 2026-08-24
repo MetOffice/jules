@@ -167,14 +167,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
 dtstar_pot(points)                                                             &
                            ! Change in TSTAR over timestep that is
                            ! appropriate for the potential evaporation
-,ddtstar(points)                                                               &
-,dtstar_nir(points)                                                            &
-,dtstar_irr(points)                                                            &
-,dtstar_new(points)                                                            &
-,ashtf_prime_nir(points)                                                       &
-,ashtf_prime_irr(points)                                                       &
-,surf_ht_flux_nir                                                              &
-,surf_ht_flux_irr                                                              &
 ,surf_ht_flux              ! Flux of heat from surface to sub-surface
 
 ! Scalars
