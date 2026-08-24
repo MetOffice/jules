@@ -36,7 +36,7 @@ SUBROUTINE fcdch (                                                             &
  canopy,catch,flake,gc,gc_irr_surft,frac_irr_surft,snowdep,snow,canhc,         &
  dzsurf,qstar,q_elev,radnet,snowdepth,timestep,                                &
  t_elev,tsurf,tstar,vfrac,emis,emis_soil,                                      &
- anthrop_heat,scaling_urban,alpha1,hcons,ashtf,ashtf_irr,ashtf_nir,            &
+ anthrop_heat,scaling_urban,alpha1,hcons,ashtf,                                &
  rhostar,bq_1,bt_1,                                                            &
  cdv,chv,cdv_std,v_s,v_s_std,recip_l_mo,u_s_std                                &
 )
@@ -213,8 +213,6 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                            ! IN Soil thermal conductivity (W/m/K).
 ,ashtf(points)                                                                 &
                            ! IN Adjusted SEB coefficient
-,ashtf_irr(points)                                                             &
-,ashtf_nir(points)                                                             &
 ,rhostar(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end)                  &
                            ! IN Surface air density
 ,bq_1(tdims%i_start:tdims%i_end,tdims%j_start:tdims%j_end)                     &
@@ -629,7 +627,6 @@ IF (cor_mo_iter == Improve_Initial_Guess) THEN
        points,surft_pts,                                                       &
        pts_index,surft_index,                                                  &
        nsnow,n,canhc,dzsurf,hcons,ashtf,                                       &
-       ashtf_irr,ashtf_nir,frac_irr_surft,                                     &
        qstemp,q_elev,                                                          &
        radnet,resft,fracaero_s(:),rhokh,l_soil_point,                          &
        snowdepth,timestep,t_elev,tsurf,                                        &

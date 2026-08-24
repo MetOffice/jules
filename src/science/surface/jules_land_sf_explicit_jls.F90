@@ -958,8 +958,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ,ashtf_surft(land_pts,nsurft)                                                  &
                              ! Coefficient to calculate surface
                              ! heat flux into soil (W/m2/K).
-,ashtf_irr_surft(land_pts,nsurft)                                              &
-,ashtf_nir_surft(land_pts,nsurft)                                              &
 ,lw_down_surftsum(land_pts)                                                    &
                              ! Gridbox sum of elevation corrections to
                              ! downward longwave radiation
@@ -1971,8 +1969,7 @@ DO n = 1,nsurft
 !$OMP        n, m, ts1_lake_gb, hcon_lake, l_elev_land_ice, l_lice_point,      &
 !$OMP        tsurf_elev_surft, dzsoil_elev, l_lice_surft, hcondeep,            &
 !$OMP        l_moruses_storage, urban_roof, l_fix_moruses_roof_rad_coupling,   &
-!$OMP        vfrac_surft, ashtf_surft, ashtf_irr_surft, ashtf_nir_surft,       &
-!$OMP        scaling_urban, l_soil_point)                                      &
+!$OMP        vfrac_surft, ashtf_surft, scaling_urban, l_soil_point)            &
 !$OMP SCHEDULE(STATIC)
   DO l = 1,land_pts
     j = (land_index(l) - 1) / t_i_length + 1
@@ -2032,13 +2029,9 @@ DO n = 1,nsurft
 
     ! Set up surface soil condictivity
     ashtf_surft(l,n) = 2.0 * hcons_surf(l,n) / dzsurf(l,n)
-    ashtf_nir_surft(l,n) = ashtf_surft(l,n)
-    ashtf_irr_surft(l,n) = ashtf_surft(l,n)
     ! Except when n == urban_canyon when MORUSES is used
     ! scaling_urban(l) = 1.0
     ashtf_surft(l,n) = ashtf_surft(l,n) * scaling_urban(l,n)
-    ashtf_nir_surft(l,n) = ashtf_surft(l,n)
-    ashtf_irr_surft(l,n) = ashtf_surft(l,n)
 
     ! Adjust surface soil condictivity for snow
     IF (snowdepth_surft(l,n) > 0.0 .AND. l_soil_point(l)                       &
@@ -2326,7 +2319,6 @@ DO n = 1,nsurft
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
     vfrac_surft(:,n),emis_surft(:,n),emis_soil,anthrop_heat_surft(:,n),        &
     scaling_urban(:,n),alpha1(:,n),hcons_surf(:,n),ashtf_surft(:,n),           &
-    ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                                 &
     rhostar,bq_1,bt_1,                                                         &
     cd_surft(:,n),ch_surft(:,n),cd_std(:,n),                                   &
     v_s_surft(:,n),v_s_std(:,n),recip_l_mo_surft(:,n),                         &
@@ -2431,7 +2423,6 @@ IF ((l_dust .OR. l_dust_diag) .AND. l_aggregate) THEN
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
     vfrac_surft(:,n),emis_surft(:,n),emis_soil,anthrop_heat_surft(:,n),        &
     scaling_urban(:,n),alpha1(:,n),hcons_surf(:,n),ashtf_surft(:,n),           &
-    ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                                 &
     rhostar,bq_1,bt_1,                                                         &
   ! Following tiled outputs (except v_s_std_soil and u_s_iter_soil)
   ! are dummy variables not needed from this call
@@ -2499,7 +2490,6 @@ IF (l_aero_classic) THEN
       snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),   &
       vfrac_surft(:,n),emis_surft(:,n),emis_soil,anthrop_heat_surft(:,n),      &
       scaling_urban(:,n),alpha1(:,n),hcons_surf(:,n),ashtf_surft(:,n),         &
-      ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                               &
       rhostar,bq_1,bt_1,                                                       &
     ! Following tiled outputs (except cd_std_classic and ch_surft_classic)
     ! are dummy variables not needed from this call
@@ -2630,8 +2620,7 @@ DO n = 1,nsurft
    land_pts,surft_pts(n),                                                      &
    land_index,surft_index(:,n),                                                &
    nsnow_surft(:,n),n,canhc_surf(:,n),dzsurf(:,n),hcons_surf(:,n),             &
-   ashtf_surft(:,n),ashtf_irr_surft(:,n),ashtf_nir_surft(:,n),                 &
-   frac_irr_surft(:,n),qstar_surft(:,n),q_elev(:,n),                           &
+   ashtf_surft(:,n),qstar_surft(:,n),q_elev(:,n),                              &
    radnet_surft(:,n),resft(:,n),fracaero_s(:,n),rhokh_surft(:,n),l_soil_point, &
    snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),                       &
    tstar_surft(:,n),vfrac_surft(:,n),rhokh_can(:,n),z0h_surft(:,n),            &
