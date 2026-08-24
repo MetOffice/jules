@@ -35,7 +35,7 @@ IMPLICIT NONE
 ! Items set in namelist jules_inferno.
 
 INTEGER ::                                                                     &
-  ignition_method = 1,                                                         &
+  ignition_method = imdi,                                                      &
       ! Switch for the calculation method of INFERNO fire ignitions
       ! IGNITION_METHOD=1:Constant (1.67 per km2 per s)
       ! IGNITION_METHOD=2:Constant (Human - 1.5 per km2 per s)
@@ -100,7 +100,7 @@ NAMELIST  / jules_inferno/                                                     &
   l_trif_fire,                                                                 &
   l_inferno,                                                                   &
   ignition_method,                                                             &
-  flam_sm_func, &
+  flam_sm_func,                                                                &
   flam_sm_low,                                                                 &
   flam_sm_up,                                                                  &
   flam_rhum_low,                                                               &
@@ -111,7 +111,8 @@ NAMELIST  / jules_inferno/                                                     &
   triffire_ccdpm_min,                                                          &
   triffire_ccdpm_max,                                                          &
   triffire_ccrpm_min,                                                          &
-  triffire_ccrpm_max
+  triffire_ccrpm_max,                                                          &
+  z_burn_max
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_INFERNO_MOD'
 
@@ -296,6 +297,9 @@ WRITE(lineBuffer,*)' l_trif_fire = ',l_trif_fire
 CALL jules_print('jules_inferno_mod',lineBuffer)
 
 WRITE(lineBuffer,*)' l_inferno = ',l_inferno
+CALL jules_print('jules_inferno_mod',lineBuffer)
+
+WRITE(lineBuffer,*)' ignition_method = ',ignition_method
 CALL jules_print('jules_inferno_mod',lineBuffer)
 
 WRITE(lineBuffer,*)' flam_sm_low = ',flam_sm_low

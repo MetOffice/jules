@@ -42,7 +42,7 @@ USE jules_inferno_mod, ONLY: z_burn_max
 USE soilcarb_tracer_age_mod, ONLY: soilcarb_tracer_age
 
 USE jules_vegetation_mod, ONLY: l_nitrogen
-USE jules_inferno_mod, ONLY: triffire_ccdpm_min, triffire_ccdpm_max, &
+USE jules_inferno_mod, ONLY: triffire_ccdpm_min, triffire_ccdpm_max,           &
                 triffire_ccrpm_min, triffire_ccrpm_max
 
 USE jules_soil_mod, ONLY: cs_min, dzsoil, sm_levels
@@ -513,12 +513,12 @@ IF (l_trif_fire) THEN
       END IF
 
       burnt_carbon_layer_dpm(l,n) = prop_cs_burnt * g_burn_gb(l) *             &
-                          (cs(l,n,1) * (triffire_ccdpm_min +               &
-                           (triffire_ccdpm_max - triffire_ccdpm_min)    &
+                          (cs(l,n,1) * (triffire_ccdpm_min +                   &
+                           (triffire_ccdpm_max - triffire_ccdpm_min)           &
                           * (1.0 - (sthu_soilt(l,1,n)))))
       burnt_carbon_layer_rpm(l,n) = prop_cs_burnt * g_burn_gb(l) *             &
                           (cs(l,n,2) * (triffire_ccrpm_min +                   &
-                          (triffire_ccrpm_max - triffire_ccrpm_min)    &
+                          (triffire_ccrpm_max - triffire_ccrpm_min)            &
                           * (1.0 - (sthu_soilt(l,1,n)))))
       ! Need to introduce a check because it is updated before updating soil C
       burnt_carbon_layer_dpm(l,n) = MAX(MIN(burnt_carbon_layer_dpm(l,n),       &

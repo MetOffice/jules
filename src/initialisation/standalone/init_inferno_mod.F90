@@ -24,10 +24,10 @@ CONTAINS
 SUBROUTINE init_inferno(nml_dir)
 
 USE jules_inferno_mod, ONLY: print_nlist_jules_inferno, check_jules_inferno,   &
-  l_inferno, l_trif_fire, flam_sm_up, flam_sm_low, flam_rhum_up,               &
+  l_inferno, l_trif_fire, flam_sm_up, flam_sm_low, flam_sm_func, flam_rhum_up, &
   flam_rhum_low, flam_fuel_up, flam_fuel_low, flam_rain_const,                 &
   triffire_ccdpm_max, triffire_ccdpm_min, triffire_ccrpm_max,                  &
-  triffire_ccrpm_min, ignition_method, ignition_constant,                      &
+  triffire_ccrpm_min, z_burn_max, ignition_method, ignition_constant,          &
   ignition_vary_natural, ignition_vary_natural_human
 
 USE io_constants,     ONLY: namelist_unit
@@ -64,6 +64,7 @@ NAMELIST  / jules_inferno/                                                     &
   ignition_method,                                                             &
   flam_sm_low,                                                                 &
   flam_sm_up,                                                                  &
+  flam_sm_func,                                                                &
   flam_rhum_low,                                                               &
   flam_rhum_up,                                                                &
   flam_rain_const,                                                             &
@@ -72,7 +73,8 @@ NAMELIST  / jules_inferno/                                                     &
   triffire_ccdpm_min,                                                          &
   triffire_ccdpm_max,                                                          &
   triffire_ccrpm_min,                                                          &
-  triffire_ccrpm_max
+  triffire_ccrpm_max,                                                          &
+  z_burn_max
 !-----------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------

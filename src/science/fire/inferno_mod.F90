@@ -165,8 +165,8 @@ END SUBROUTINE  calc_ignitions
 SUBROUTINE calc_flam(                                                          &
   !Point Intent(IN)
   temp_l, rhum_l, fuel_l, sm_l, rain_l,                                        &
-  flam_rhum_low, flam_rhum_up, flam_sm_low, flam_sm_up, &
-  flam_rain_const, flam_sm_func,                                          &
+  flam_rhum_low, flam_rhum_up, flam_sm_low, flam_sm_up,                        &
+  flam_rain_const, flam_sm_func,                                               &
   !Point Intent(INOUT)
   flam_l)
 
@@ -196,22 +196,22 @@ REAL(KIND=real_jlslsm) ,   INTENT(IN)       ::                                 &
     ! Relative Humidity (%)
   sm_l,                                                                        &
     ! The INFERNO soil moisture fraction (sthu's 1st level)
-  rain_l,                                                                      &
+  !rain_l,                                                                      &
     ! The precipitation rate (kg.m-2.s-1)
   fuel_l,                                                                      &
     ! The Fuel Density (0-1)
-  flam_rhum_up,                                                                     &
+  flam_rhum_up,                                                                &
     ! Upper boundary to the relative humidity
-  flam_rhum_low,                                                                    &
+  flam_rhum_low,                                                               &
     ! Lower boundary to the relative humidity
-  flam_sm_low,                                                                      &
+  flam_sm_low,                                                                 &
     ! Lower boundary to the soil moisture
-  flam_sm_up,   &
+  flam_sm_up,                                                                  &
     ! Upper boundary to the soil moisture
   flam_rain_const
     !
 
-INTEGER, INTENT(IN)   ::  &
+INTEGER, INTENT(IN)   ::                                                       &
    flam_sm_func
 
 REAL(KIND=real_jlslsm),    INTENT(IN OUT)    ::                                &
@@ -240,12 +240,23 @@ REAL(KIND=real_jlslsm)                      ::                                 &
   f_sm_l
     ! The factor dependence on soil moisture
 
+REAL(KIND=real_jlslsm)                      ::                                 &
+  rain_l
+    ! The precipitation rate (kg.m-2.s-1)
+
+
+LOGICAL, PARAMETER :: l_cf_old_inferno = .TRUE.
+
 REAL(KIND=jprb)               :: zhook_handle
 CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_FLAM"
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 TsbyT_l   =  Ts / temp_l
+
+PRINT*,"calc_flam"
+PRINT*, flam_rhum_low, flam_rhum_up, flam_sm_low, flam_sm_up, flam_rain_const, flam_sm_func
+PRINT*,temp_l, rhum_l, fuel_l, sm_l, rain_l
 
 Z_l       =  a * (TsbyT_l-1.0) + b * LOG10(TsbyT_l)                            &
            + c * (10.0**( d * (1.0 - TsbyT_l)) - 1.0)                          &
@@ -260,6 +271,12 @@ IF (rhum_l < flam_rhum_low) f_rhum_l = 1.0
 IF (rhum_l > flam_rhum_up)  f_rhum_l = 0.0
   ! No fires for RH > flam_rhum_up
 
+IF (l_cf_old_inferno) THEN
+  f_rhum_l  = (90.0 - rhum_l) / (90.0 - 10.0)
+  IF (rhum_l < 10.0) f_rhum_l = 1.0
+  IF (rhum_l > 90.0)  f_rhum_l = 0.0
+END IF
+
 IF (flam_sm_func == 1) THEN
   f_sm_l    = (1 - sm_l)
   ! The flammability goes down linearly with soil moisture
@@ -273,8 +290,17 @@ ELSE IF (f_sm_l > 1.0) THEN
   f_sm_l = 1.0
 END IF
 
-flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                     &
-                     * EXP( flam_rain_const * rain_l) ,1.0) ,0.0)
+
+IF (l_cf_old_inferno) THEN
+  flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
+                       * EXP( -2.0 * s_in_day * s_in_day * rain_l) ,1.0) ,0.0)
+ELSE
+  flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
+                       * EXP( flam_rain_const * rain_l) ,1.0) ,0.0)
+END IF
+
+
+PRINT*,"calc_flam", temp_l, rhum_l, fuel_l, sm_l, rain_l, flam_l
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -410,7 +436,7 @@ SUBROUTINE calc_emitted_carbon_soil(                                           &
 !   Language: Fortran 90
 !
 
-USE jules_inferno_mod, ONLY: triffire_ccdpm_min, triffire_ccdpm_max, &
+USE jules_inferno_mod, ONLY: triffire_ccdpm_min, triffire_ccdpm_max,           &
                 triffire_ccrpm_min, triffire_ccrpm_max
 
 USE yomhook,      ONLY: lhook, dr_hook
@@ -444,11 +470,18 @@ CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_EMITTED_CARBON_SOIL"
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 DO l = 1,land_pts
-  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (triffire_ccdpm_min +     &
-                              (triffire_ccdpm_max - triffire_ccdpm_min)  * &
+  !  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (triffire_ccdpm_min +     &
+  !                              (triffire_ccdpm_max - triffire_ccdpm_min)  * &
+  !                              (1.0 - sm(l)))) ,0.0)
+  !  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (triffire_ccrpm_min +     &
+  !                          (triffire_ccrpm_max - triffire_ccrpm_min) * &
+  !                           (1.0 - sm(l)))) ,0.0)
+
+  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (0.8 +           &
+                              (1.0 - 0.8)  *                                   &
                               (1.0 - sm(l)))) ,0.0)
-  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (triffire_ccrpm_min +     &
-                          (triffire_ccrpm_max - triffire_ccrpm_min) * &
+  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (0.0 +           &
+                          (0.2 - 0.0) *                                        &
                            (1.0 - sm(l)))) ,0.0)
 END DO
 

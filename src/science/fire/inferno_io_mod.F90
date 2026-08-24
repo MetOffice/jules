@@ -53,9 +53,9 @@ USE pftparm,                  ONLY:                                            &
   avg_ba, fire_mort
     ! Average Burned Area per PFT, and fire mortality rate
 
-USE jules_inferno_mod, ONLY: &
-flam_rhum_low, flam_rhum_up, &
-flam_sm_low, flam_sm_up, flam_fuel_low,       &
+USE jules_inferno_mod, ONLY:                                                   &
+flam_rhum_low, flam_rhum_up,                                                   &
+flam_sm_low, flam_sm_up, flam_fuel_low,                                        &
   flam_fuel_up, flam_rain_const, flam_sm_func
 
 USE qsat_mod, ONLY: qsat_wat
@@ -315,7 +315,7 @@ END DO
 DO i = 1, npft
   ! Calculate the fuel density
   ! We use normalised Leaf Carbon + the available DPM
-  inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - flam_fuel_low)                      &
+  inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - flam_fuel_low)                 &
                     /(flam_fuel_up - flam_fuel_low)
 
   WHERE (inferno_fuel < 0.0) inferno_fuel = 0.0
