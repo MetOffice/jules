@@ -1049,7 +1049,6 @@ ELSE     ! cor_mo_iter earlier option than Improve_Initial_Guess
        points,surft_pts,                                                       &
        pts_index,surft_index,                                                  &
        nsnow,n,canhc,dzsurf,hcons,ashtf,                                       &
-       ashtf,ashtf,frac_irr_surft,                                             &
        qstemp,q_elev,                                                          &
        radnet,resft,fracaero_s(:),rhokh,l_soil_point,                          &
        snowdepth,timestep,t_elev,tsurf,                                        &

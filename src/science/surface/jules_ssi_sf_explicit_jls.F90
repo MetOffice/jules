@@ -1436,7 +1436,7 @@ CALL fcdch (                                                                   &
    l_vegdrag_ssi,array_zero,array_zero,                                        &
    array_zero_int,0,.FALSE.,.FALSE.,array_false,                               &
    array_zero,array_zero,array_zero,array_zero,                                &
-   array_zero,array_zero,array_zero,array_zero,canhc_sea,                      &
+   array_zero,array_zero,canhc_sea,                                            &
    dzssi,qstar_sea,qw_1,radnet_sea,                                            &
    array_zero,timestep,tl_1,tstar_sea,tstar_sea,                               &
    array_zero,array_emis,array_one,array_zero,                                 &
@@ -1461,7 +1461,7 @@ IF (nice_use >  1) THEN
      l_vegdrag_ssi,array_zero,array_zero,                                      &
      array_zero_int,0,.FALSE.,.FALSE.,array_false,                             &
      array_zero,array_zero,array_zero,array_zero,                              &
-     array_zero,array_zero,array_zero,array_zero,array_zero,                   &
+     array_zero,array_zero,array_zero,                                         &
      dzdummy,qstar_ice_cat(:,:,n),qw_1,radnet_sice(:,:,n),                     &
      array_zero,timestep,tl_1,ti_cat(:,:,n),tstar_sice_cat(:,:,n),             &
      array_zero,array_emis,array_one,array_zero,                               &
@@ -1484,7 +1484,7 @@ ELSE
    l_vegdrag_ssi,array_zero,array_zero,                                        &
    array_zero_int,0,.FALSE.,.FALSE.,array_false,                               &
    array_zero,array_zero,array_zero,array_zero,                                &
-   array_zero,array_zero,array_zero,array_zero,array_zero,                     &
+   array_zero,array_zero,array_zero,                                           &
    dzdummy,qstar_ice_cat(:,:,1),qw_1,radnet_sice(:,:,1),                       &
    array_zero,timestep,tl_1,ti_cat(:,:,1),tstar_sice_cat(:,:,1),               &
    array_zero,array_emis,array_one,array_zero,                                 &
@@ -1527,7 +1527,7 @@ IF ( .NOT. l_icerough_prognostic) THEN
       l_vegdrag_ssi,array_zero,array_zero,                                     &
       array_zero_int,0,.FALSE.,.FALSE.,array_false,                            &
       array_zero,array_zero,array_zero,array_zero,                             &
-      array_zero,array_zero,array_zero,array_zero,array_zero,                  &
+      array_zero,array_zero,array_zero,                                        &
       dzdummy,qstar_ice_cat(:,:,1),qw_1,radnet_sice(:,:,1),                    &
       array_zero,timestep,tl_1,ti_cat(:,:,1),tstar_sice_cat(:,:,1),            &
       array_zero,array_emis,array_one,array_zero,                              &
