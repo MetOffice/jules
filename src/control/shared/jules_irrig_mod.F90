@@ -85,7 +85,8 @@ INTEGER, ALLOCATABLE :: irrtiles(:)
 !-----------------------------------------------------------------------------
 NAMELIST  / jules_irrig/  l_irrig_dmd, l_irrig_limit, irr_crop,                &
                           frac_irrig_all_tiles, nirrtile, irrigtiles,          &
-                          set_irrfrac_on_irrtiles, nstep_irrig, irrig_option
+                          set_irrfrac_on_irrtiles, nstep_irrig, irrig_option,  &
+                          l_soil_evap_irrig_expl
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_IRRIG_MOD'
 
