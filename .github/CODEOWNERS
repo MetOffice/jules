@@ -20,15 +20,15 @@
 ###############################################################################
 # Science Module Leaders (informational)
 ###############################################################################
-# Surface:                 John Edwards, Rich Ellis
+# Surface:                 John Edwards
 # Hydrology:               Nic Gedney, Sonja Folwell
-# Vegetation:              Lina Mercado, Karina Williams, Rebecca Oliver
+# Vegetation:              Lina Mercado, Rebecca Oliver
 # Veg3 RED Demography:     Andy Wiltshire, Arthur Argles
 # Biogeochemistry:         Eleanor Burke, Noah Smith
 # Biogenic fluxes:         Garry Hayman, James Weber
 # Fire:                    Doug Kelley, Chantelle Burton
 # Lakes:                   Helen Johnson
-# Evaluation:              Nina Raoult, Siyuan Tian
+# Evaluation:              Heather Rumbold, Siyuan Tian
 # CABLE Science:           Ian Harman, Claire Carouge
 # IMOGEN:                  Chris Huntingford, Eleanor Burke
 #
@@ -59,3 +59,25 @@ etc/                              @MetOffice/ssdteam
 **/control/shared/jules_water_resources_mod.F90     @maggiehendry
 **/control/shared/overbank_inundation_mod.F90       @maggiehendry
 **/io/dump/get_dim_info_mod.F90     @maggiehendry
+**/science/flake/							@HelenRJohnson
+**/control/shared/lake_mod.F90						@HelenRJohnson
+**/initialisation/standalone/initial_conditions/flake_init_mod.F90	@HelenRJohnson
+**/initialisation/standalone/ancillaries/init_flake_ancils_mod.F90	@HelenRJohnson
+**/science/snow/			@JMEdwardsXtr
+**/science/surface/			@JMEdwardsXtr
+rose-meta/jules-shared/jules-snow/	@JMEdwardsXtr
+rose-meta/jules-shared/jules-surface/	@JMEdwardsXtr
+**/control/shared/next_gen_biogeochem_mod.F90		@mo-arthurargles
+**/control/shared/veg3_field_mod.F90			@mo-arthurargles
+**/initialisation/standalone/params/init_red_mod.F90	@mo-arthurargles
+**/science/params/red_io_mod.F90			@mo-arthurargles
+**/science/params/veg3_param_mod.F90			@mo-arthurargles
+**/science/vegetation/veg3_litter_mod.F90		@mo-arthurargles
+**/science/vegetation/veg3_red_dynamic_mod.F90		@mo-arthurargles
+doc/source/namelists/red_parms.nml.rst			@mo-arthurargles
+**/control/shared/jules_soil_biogeochem_mod.F90			@eleanorgb
+**/control/shared/next_gen_biogeochem_mod.F90			@eleanorgb
+**/control/shared/soil_biogeochem_control_mod.F90		@eleanorgb
+**/initialisation/standalone/init_soil_biogeochem_mod.F90	@eleanorgb
+**/science/soil_biogeochem					@eleanorgb
+doc/source/namelists/jules_soil_biogeochem.nml.rst		@eleanorgb
