@@ -18,6 +18,10 @@ When TRIFFID is on, competition between tiles is switched on with
 :nml:mem:`JULES_VEGETATION::l_veg_compete` and the effect of nitrogen on
 vegetation growth is enabled via :nml:mem:`JULES_VEGETATION::l_nitrogen`.
 
+:nml:mem:`JULES_VEGETATION::l_veg_compete`, the effect of nitrogen on
+vegetation growth is enabled via :nml:mem:`JULES_VEGETATION::l_nitrogen`, and the effect of phosphorus on
+vegetation growth is enabled via :nml:mem:`JULES_VEGETATION::l_phosphorus`.
+
 The crop model, which is simulates phenology and carbon stocks in crops, can be
 switched on by setting the number of crop tiles
 :nml:mem:`JULES_SURFACE_TYPES::ncpft` to a non-zero value.

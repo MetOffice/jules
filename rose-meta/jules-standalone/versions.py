@@ -45,15 +45,16 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class vn81_tphos(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Carolina Duran Rojas"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_tphos"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
-        return config, self.reports
+        # Adding logical and real to the jules biogeochemical namelist
+        self.add_setting(config,
+                ["namelist:jules_vegetation", "l_phosphorus"], ".false.")

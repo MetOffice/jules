@@ -115,6 +115,20 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    FALSE
       No Nitrogen limitation. Nitrogen fluxes are calculated as diagnostics only.
 
+.. nml:member:: l_phosphorus
+   :type: logical
+   :default: F
+
+   Only used if :nml:mem:`l_triffid` = TRUE.
+
+   TRUE
+      Enable Phosphorus limitation of carbon uptake. A phosphorus
+      deposition field should be provided otherwise no P deposition is
+      assumed.
+
+   FALSE
+      No Phosphorus limitation. Phosphorus fluxes are calculated as diagnostics only.
+   
 .. nml:member:: l_trif_eq
 
    :type: logical
