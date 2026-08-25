@@ -455,7 +455,13 @@ fsmc_nir(land_pts,npft)                                                        &
 !                            ! WORK Soil moisture availability
 !                                 !     factor over irrigated fraction.
 ,sthu_nir_soilt(land_pts,nsoilt,sm_levels)                                     &
+                             ! WORK Soil moisture content in each layer
+!                                 !     in the non-irrigated soil column
+!                                 !     as a fraction of saturation
 ,sthu_surft(land_pts,nsoilt,sm_levels)                                         &
+                             ! WORK Soil moisture content in each layer
+!                                 !     as a fraction of saturation
+!                                 !     on surface tiles
 ,wt_ext_nir_soilt(land_pts,nsoilt,sm_levels)                                   &
 !                            ! WORK Fraction of transpiration over
 !                                 !      non-irrigated fraction extracted
@@ -539,8 +545,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
                             ! WORK Fractional canopy coverage.
 ,vf_type(land_pts,ntype)                                                       &
                             ! WORK VFRAC for surface types.
-!!!,sthu_nir_soilt(land_pts,nsoilt,sm_levels)                                     &
-,wt_ext_type_tmp(land_pts,sm_levels,ntype)                                     &
 ,wt_ext_type(land_pts,sm_levels,ntype)                                         &
 !                           ! WORK WT_EXT for surface types.
 ,wt_ext_soilt(land_pts,nsoilt,sm_levels)                                       &
@@ -810,7 +814,8 @@ DO n = 1,dim_cs1
   END DO
 END DO
 
-IF (l_soil_evap_irrig_expl) THEN
+!!!***??IF (l_soil_evap_irrig_expl) THEN
+IF ( l_irrig_dmd ) THEN
   DO k = 1,sm_levels
     DO m = 1,nsoilt
       DO l = 1,land_pts
@@ -1096,22 +1101,22 @@ DO n = 1,npft
     IF ( l_irrig_dmd ) THEN
 !$OMP DO SCHEDULE(STATIC)
       DO l = 1,land_pts
-        IF ( l_soil_evap_irrig_expl ) THEN
-          sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)      &
+        !!!IF ( l_soil_evap_irrig_expl ) THEN
+        sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)        &
                + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
-        ELSE
+        !!!ELSE
           ! MAY Be ABLE to remove the following section (calc of sthu_nir done above with l_bare_soil_evap_irr)*** check with rose stem?***
-          sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
-          IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
-            sthu_nir_soilt(l,m,k) = (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)   &
-                 * sthu_irr_soilt(l,m,k))                                      &
-                 / (1.0 - frac_irr_soilt(l,m))
-          ELSE
-            sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
-          END IF
-          sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)      &
-               + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
-        END IF
+          !!!sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
+          !!!IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
+          !!!  sthu_nir_soilt(l,m,k) = (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)   &
+          !!!       * sthu_irr_soilt(l,m,k))                                      &
+          !!!       / (1.0 - frac_irr_soilt(l,m))
+          !!!ELSE
+          !!!  sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
+          !!!END IF
+          !!!sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)      &
+          !!!     + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
+        !!!END IF
       END DO
 !$OMP END DO
     END IF
