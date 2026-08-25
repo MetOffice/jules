@@ -2665,7 +2665,7 @@ CASE ( 'rivers_sto_rp' )
   cube = cube_from_array(rivers%rivers_sto_rp)
 
 CASE ( 'rfm_bflowin_rp' )
-  ! Internal units are m<3/timestep, convert to m3/s
+  ! Internal units are m3/timestep, convert to m3/s
   workspace_rivers = rivers%rfm_bflowin_rp * nstep_rivers * timestep
   cube = cube_from_array(workspace_rivers)
 
