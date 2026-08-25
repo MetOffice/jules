@@ -234,18 +234,18 @@ DO k = 1,surft_pts
   !-----------------------------------------------------------------------
   resfs(l) = gc(l) / ( gc(l) + ch(l) * vshr(i,j) )
   IF ( l_soil_evap_irrig_expl ) THEN
-     gc_nir_surft(l) = gc(l)
-     IF ( frac_irr_surft(l) < 1.0 ) THEN
-        gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                           &
-             * gc_irr_surft(l))                                                &
-             / (1.0 - frac_irr_surft(l))
-     ELSE
-        gc_nir_surft(l) = gc_irr_surft(l)
-     END IF
-     resfs(l) = frac_irr_surft(l)*gc_irr_surft(l)                              &
-          / ( gc_irr_surft(l) + ch(l) * vshr(i,j) )                            &
-          +(1.-frac_irr_surft(l))*gc_nir_surft(l)                              &
-          / ( gc_nir_surft(l) + ch(l) * vshr(i,j) )
+    gc_nir_surft(l) = gc(l)
+    IF ( frac_irr_surft(l) < 1.0 ) THEN
+      gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                             &
+           * gc_irr_surft(l))                                                  &
+           / (1.0 - frac_irr_surft(l))
+    ELSE
+      gc_nir_surft(l) = gc_irr_surft(l)
+    END IF
+    resfs(l) = frac_irr_surft(l)*gc_irr_surft(l)                               &
+         / ( gc_irr_surft(l) + ch(l) * vshr(i,j) )                             &
+         +(1.0-frac_irr_surft(l))*gc_nir_surft(l)                              &
+         / ( gc_nir_surft(l) + ch(l) * vshr(i,j) )
   END IF
   IF (l_et_stom .OR. l_et_stom_surft) THEN
     resfs_stom(l) = gc_stom_surft(l) / ( gc_stom_surft(l) + ch(l) * vshr(i,j) )
@@ -275,18 +275,18 @@ IF ( .NOT. l_aggregate .AND. can_model == 4) THEN
         resfs(l) = gc(l) /                                                     &
                 (gc(l) + ch(l) * vshr(i,j))
         IF ( l_soil_evap_irrig_expl ) THEN
-           gc_nir_surft(l) = gc(l)
-           IF ( frac_irr_surft(l) < 1.0 ) THEN
-              gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                     &
-                   * gc_irr_surft(l))                                          &
-                   / (1.0 - frac_irr_surft(l))
-           ELSE
-              gc_nir_surft(l) = gc_irr_surft(l)
-           END IF
-           resfs(l) = frac_irr_surft(l)*gc_irr_surft(l)                        &
-                / ( gc_irr_surft(l) + ch(l) * vshr(i,j) )                      &
-                +(1.-frac_irr_surft(l))*gc_nir_surft(l)                        &
-                / ( gc_nir_surft(l) + ch(l) * vshr(i,j) )
+          gc_nir_surft(l) = gc(l)
+          IF ( frac_irr_surft(l) < 1.0 ) THEN
+            gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                       &
+                 * gc_irr_surft(l))                                            &
+                 / (1.0 - frac_irr_surft(l))
+          ELSE
+            gc_nir_surft(l) = gc_irr_surft(l)
+          END IF
+          resfs(l) = frac_irr_surft(l)*gc_irr_surft(l)                         &
+               / ( gc_irr_surft(l) + ch(l) * vshr(i,j) )                       &
+               +(1.0-frac_irr_surft(l))*gc_nir_surft(l)                        &
+               / ( gc_nir_surft(l) + ch(l) * vshr(i,j) )
         END IF
         resft(l) = resfs(l)
       END IF

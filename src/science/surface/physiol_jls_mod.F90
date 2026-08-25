@@ -811,24 +811,24 @@ DO n = 1,dim_cs1
 END DO
 
 IF (l_soil_evap_irrig_expl) THEN
-   DO k = 1,sm_levels
-      DO m = 1,nsoilt
-         DO l = 1,land_pts
-            sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
-            IF ( l_irrig_dmd ) THEN
-               sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
-               IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
-                  sthu_nir_soilt(l,m,k) =                                      &
-                       (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)                &
-                       * sthu_irr_soilt(l,m,k))                                &
-                       / (1.0 - frac_irr_soilt(l,m))
-               ELSE
-                  sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
-               END IF
-            END IF
-         END DO
+  DO k = 1,sm_levels
+    DO m = 1,nsoilt
+      DO l = 1,land_pts
+        sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
+        IF ( l_irrig_dmd ) THEN
+          sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
+          IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
+            sthu_nir_soilt(l,m,k) =                                            &
+                 (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)                      &
+                 * sthu_irr_soilt(l,m,k))                                      &
+                 / (1.0 - frac_irr_soilt(l,m))
+          ELSE
+            sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
+          END IF
+        END IF
       END DO
-   END DO
+    END DO
+  END DO
 END IF
 
 DO n = 1,ntype
@@ -838,9 +838,9 @@ DO n = 1,ntype
     IF (l_irrig_dmd) THEN
       gs_irr_type(l,n) = gs(l)
       IF ( l_soil_evap_irrig_expl ) THEN
-         gs_nir_type(l,n) = gs(l)
+        gs_nir_type(l,n) = gs(l)
       END IF
-   END IF
+    END IF
   END DO
 !$OMP END DO NOWAIT
 END DO
@@ -881,14 +881,14 @@ IF (l_irrig_dmd) THEN
       IF ( l_soil_evap_irrig_expl ) THEN
         gsoil_nir_soilt(l,m) = 0.0
         IF (smvccl_soilt(l,m,1) > 0.0 .AND. l_limit_gsoil) THEN
-           gsoil_nir_soilt(l,m) = gs_nvg(soil - npft) *                        &
-                               MIN(1.0, (sthu_nir_soilt(l,m,1)                 &
-                               * smvcst_soilt(l,m,1) / smvccl_soilt(l,m,1))**2)
+          gsoil_nir_soilt(l,m) = gs_nvg(soil - npft) *                         &
+                              MIN(1.0, (sthu_nir_soilt(l,m,1)                  &
+                              * smvcst_soilt(l,m,1) / smvccl_soilt(l,m,1))**2)
         ELSE IF (smvccl_soilt(l,m,1) > 0.0) THEN
-           gsoil_nir_soilt(l,m) = gs_nvg(soil - npft) *                        &
-                               (sthu_nir_soilt(l,m,1)                          &
-                               * smvcst_soilt(l,m,1) / smvccl_soilt(l,m,1))**2
-        ! ELSE Do nothing
+          gsoil_nir_soilt(l,m) = gs_nvg(soil - npft) *                         &
+                              (sthu_nir_soilt(l,m,1)                           &
+                              * smvcst_soilt(l,m,1) / smvccl_soilt(l,m,1))**2
+          ! ELSE Do nothing
         END IF
       END IF
     END DO
@@ -908,8 +908,8 @@ DO l = 1,land_pts
   cosz_gb(l)    = cos_zenith_angle(i,j)
   fsoil_tot(l) = frac(l,soil)
   IF ( l_soil_evap_irrig_expl ) THEN
-     fsoil_irr_tot(l) = frac(l,soil)*frac_irr_surft(l,soil)
-     fsoil_nir_tot(l) = frac(l,soil)*(1.-frac_irr_surft(l,soil))
+    fsoil_irr_tot(l) = frac(l,soil)*frac_irr_surft(l,soil)
+    fsoil_nir_tot(l) = frac(l,soil)*(1.0-frac_irr_surft(l,soil))
   END IF
   gs(l)        = 0.0
 END DO
@@ -1096,22 +1096,22 @@ DO n = 1,npft
     IF ( l_irrig_dmd ) THEN
 !$OMP DO SCHEDULE(STATIC)
       DO l = 1,land_pts
-         IF ( l_soil_evap_irrig_expl ) THEN
-            sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)    &
-                 + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
-         ELSE
-! MAY Be ABLE to remove the following section (calc of sthu_nir done above with l_bare_soil_evap_irr)*** check with rose stem?***
-            sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
-            IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
-               sthu_nir_soilt(l,m,k) = (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)&
-                    * sthu_irr_soilt(l,m,k))                                   &
-                    / (1.0 - frac_irr_soilt(l,m))
-            ELSE
-               sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
-            END IF
-            sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)    &
-                 + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
-         END IF
+        IF ( l_soil_evap_irrig_expl ) THEN
+          sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)      &
+               + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
+        ELSE
+          ! MAY Be ABLE to remove the following section (calc of sthu_nir done above with l_bare_soil_evap_irr)*** check with rose stem?***
+          sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
+          IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
+            sthu_nir_soilt(l,m,k) = (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)   &
+                 * sthu_irr_soilt(l,m,k))                                      &
+                 / (1.0 - frac_irr_soilt(l,m))
+          ELSE
+            sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
+          END IF
+          sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)      &
+               + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
+        END IF
       END DO
 !$OMP END DO
     END IF
@@ -1160,25 +1160,25 @@ DO n = 1,npft
                   psi_root_zone_pft(:,n))
 
     IF ( l_soil_evap_irrig_expl ) THEN
-       CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n,      &
-                     f_root,sthu_nir_soilt(:,m,:),                             &
-                     v_open,smvcst_soilt(:,m,:),                               &
-                     v_close,                                                  &
-                     bexp_soilt(:,m,:), sathh_soilt(:,m,:),                    &
-                     wt_ext_nir_type(:,:,n),fsmc_nir(:,n),                     &
-                     psi_root_zone_pft(:,n))
+      CALL smc_ext (land_pts,sm_levels,surft_pts(n),surft_index(:,n), n,       &
+                    f_root,sthu_nir_soilt(:,m,:),                              &
+                    v_open,smvcst_soilt(:,m,:),                                &
+                    v_close,                                                   &
+                    bexp_soilt(:,m,:), sathh_soilt(:,m,:),                     &
+                    wt_ext_nir_type(:,:,n),fsmc_nir(:,n),                      &
+                    psi_root_zone_pft(:,n))
 
-       DO l = 1,land_pts
-          fsmc_pft(l,n) = fsmc_nir(l,n)*(1.-frac_irr_surft(l,n))               &
-               + fsmc_irr(l,n)*frac_irr_surft(l,n)
-          DO k = 1,sm_levels
-             wt_ext_type(l,k,n) =                                              &
-                  wt_ext_nir_type(l,k,n)*(1.-frac_irr_surft(l,n))              &
-                  + wt_ext_irr_type(l,k,n)*frac_irr_surft(l,n)
-          END DO
-       END DO
+      DO l = 1,land_pts
+        fsmc_pft(l,n) = fsmc_nir(l,n)*(1.0-frac_irr_surft(l,n))                &
+             + fsmc_irr(l,n)*frac_irr_surft(l,n)
+        DO k = 1,sm_levels
+          wt_ext_type(l,k,n) =                                                 &
+               wt_ext_nir_type(l,k,n)*(1.0-frac_irr_surft(l,n))                &
+               + wt_ext_irr_type(l,k,n)*frac_irr_surft(l,n)
+        END DO
+      END DO
     END IF
- END IF
+  END IF
 
   CALL raero (land_pts,land_index,surft_pts(n),surft_index(:,n)                &
 ,             rib,vshr,z0,z0,z1_uv_ij,ra)
@@ -1295,9 +1295,9 @@ DO n = 1,npft
         IF ( fsmc_pft(l,n) > 0.0 ) THEN
           gs_irr_type(l,n) = gs_type(l,n) * fsmc_irr(l,n) / fsmc_pft(l,n)
           IF ( l_soil_evap_irrig_expl ) THEN
-             gs_nir_type(l,n) = gs_type(l,n) * fsmc_nir(l,n) / fsmc_pft(l,n)
+            gs_nir_type(l,n) = gs_type(l,n) * fsmc_nir(l,n) / fsmc_pft(l,n)
           END IF
-          
+
         ELSE
           ! hadrd - this should only happen if sthu is 0.0, see smc_ext
           WRITE (ERRMSG,*) 'tile:', n, 'point:',l, 'fsmc:', fsmc_pft(l,n),     &
@@ -1327,13 +1327,13 @@ DO n = 1,npft
     gsoil_under_canopy(:) = gsoil_soilt(:,m)
     gsoil_irr_under_canopy(:) = gsoil_irr_soilt(:,m)
     IF ( l_soil_evap_irrig_expl ) THEN
-       gsoil_nir_under_canopy(:) = gsoil_nir_soilt(:,m)
+      gsoil_nir_under_canopy(:) = gsoil_nir_soilt(:,m)
     END IF
- ELSE
+  ELSE
     gsoil_under_canopy(:) = gsoil_soilt(:,m) * gsoil_f(n)
     gsoil_irr_under_canopy(:) = gsoil_irr_soilt(:,m) * gsoil_f(n)
     IF ( l_soil_evap_irrig_expl ) THEN
-       gsoil_nir_under_canopy(:) = gsoil_nir_soilt(:,m) * gsoil_f(n)
+      gsoil_nir_under_canopy(:) = gsoil_nir_soilt(:,m) * gsoil_f(n)
     END IF
   END IF
 
@@ -1361,13 +1361,13 @@ DO n = 1,npft
   DO l = 1,land_pts
     fsoil_tot(l) = fsoil_tot(l) + frac(l,n) * fsoil(l,n)
     IF ( l_soil_evap_irrig_expl ) THEN
-       fsoil_irr_tot(l) = fsoil_irr_tot(l) + frac(l,n) * fsoil(l,n) *          &
-            frac_irr_surft(l,n)
-       fsoil_nir_tot(l) = fsoil_nir_tot(l) + frac(l,n) * fsoil(l,n) *          &
-            (1.-frac_irr_surft(l,n))
+      fsoil_irr_tot(l) = fsoil_irr_tot(l) + frac(l,n) * fsoil(l,n) *           &
+           frac_irr_surft(l,n)
+      fsoil_nir_tot(l) = fsoil_nir_tot(l) + frac(l,n) * fsoil(l,n) *           &
+           (1.0-frac_irr_surft(l,n))
 
     END IF
- END DO
+  END DO
 !$OMP END PARALLEL DO
 
 END DO
@@ -1391,7 +1391,7 @@ DO n = npft+1,ntype
     IF (l_irrig_dmd) THEN
       gs_irr_type(l,n) = gs_nvg(n - npft) ! irrigation
       IF (l_soil_evap_irrig_expl ) THEN
-         gs_nir_type(l,n) = gs_nvg(n - npft) ! non-irrigation
+        gs_nir_type(l,n) = gs_nvg(n - npft) ! non-irrigation
       END IF
     END IF
   END DO
@@ -1446,7 +1446,7 @@ DO j = 1,surft_pts(n)
     wt_ext_type(l,1,n) = 1.0
   END IF
   IF (l_irrig_dmd) THEN
-    IF ( l_soil_evap_irrig_expl )THEN
+    IF ( l_soil_evap_irrig_expl ) THEN
       gs_type(l,n) = frac_irr_surft(l,n)*gsoil_irr_soilt(l,m)                  &
            +(1.0-frac_irr_surft(l,n))*gsoil_nir_soilt(l,m)
       gs_nir_type(l,n) = gsoil_nir_soilt(l,m) ! non-irrigation
@@ -1760,18 +1760,18 @@ IF ( l_aggregate ) THEN
                                     * frac(l,n) * wt_ext_irr_type(l,k,n)
           END IF
           IF ( l_soil_evap_irrig_expl) THEN
-            IF ((1.-frac_irr_soilt(l,m)) > EPSILON(1.0)) THEN
+            IF ((1.0-frac_irr_soilt(l,m)) > EPSILON(1.0)) THEN
               wt_ext_nir_soilt(l,m,k) = wt_ext_nir_soilt(l,m,k)                &
-                                      + (1.-frac_irr_surft(l,n))               &
-                                      / (1.-frac_irr_soilt(l,m))               &
+                                      + (1.0-frac_irr_surft(l,n))              &
+                                      / (1.0-frac_irr_soilt(l,m))              &
                                       * frac(l,n) * wt_ext_nir_type(l,k,n)
-           END IF
-           wt_ext_soilt(l,m,k) = frac_irr_soilt(l,m)*wt_ext_irr_soilt(l,m,k)   &
-                               + (1.-frac_irr_soilt(l,m))                      &
-                               * wt_ext_nir_soilt(l,m,k)         
+            END IF
+            wt_ext_soilt(l,m,k) = frac_irr_soilt(l,m)*wt_ext_irr_soilt(l,m,k)  &
+                                + (1.0-frac_irr_soilt(l,m))                    &
+                                * wt_ext_nir_soilt(l,m,k)
 
-         END IF
-       END IF
+          END IF
+        END IF
       END DO
     END DO
 !$OMP END PARALLEL DO
@@ -1882,15 +1882,15 @@ ELSE
           END IF
           wt_ext_irr_surft(l,k,n) = wt_ext_irr_type(l,k,n)
           IF (l_soil_evap_irrig_expl) THEN
-            IF ((1.-frac_irr_soilt(l,m)) > EPSILON(1.0)) THEN
-               wt_ext_nir_soilt(l,m,k) = wt_ext_nir_soilt(l,m,k)               &
-                                       + (1.-frac_irr_surft(l,n))              &
-                                       / (1.-frac_irr_soilt(l,m))              &
-                                       * frac(l,n) * wt_ext_nir_type(l,k,n)
-          END IF
-          wt_ext_soilt(l,m,k) = frac_irr_soilt(l,m)*wt_ext_irr_soilt(l,m,k)    &
-                              + (1.-frac_irr_soilt(l,m))                       &
-                              * wt_ext_nir_soilt(l,m,k)
+            IF ((1.0-frac_irr_soilt(l,m)) > EPSILON(1.0)) THEN
+              wt_ext_nir_soilt(l,m,k) = wt_ext_nir_soilt(l,m,k)                &
+                                      + (1.0-frac_irr_surft(l,n))              &
+                                      / (1.0-frac_irr_soilt(l,m))              &
+                                      * frac(l,n) * wt_ext_nir_type(l,k,n)
+            END IF
+            wt_ext_soilt(l,m,k) = frac_irr_soilt(l,m)*wt_ext_irr_soilt(l,m,k)  &
+                                + (1.0-frac_irr_soilt(l,m))                    &
+                                * wt_ext_nir_soilt(l,m,k)
           END IF
         END IF
       END DO !sm_levels
@@ -2192,10 +2192,10 @@ IF (l_irrig_dmd) THEN
                                  - v_close_pft(l,k,n)))
           END IF
           IF (l_soil_evap_irrig_expl) THEN
-            IF (1. - frac_irr_soilt(l,m) > EPSILON(1.0) ) THEN
+            IF (1.0 - frac_irr_soilt(l,m) > EPSILON(1.0) ) THEN
               smc_nir_soilt(l,m) = smc_nir_soilt(l,m)                          &
-                             + MAX(0.0,(1.-frac_irr_surft(l,n))                &
-                                   / (1.-frac_irr_soilt(l,m))                  &
+                             + MAX(0.0,(1.0-frac_irr_surft(l,n))               &
+                                   / (1.0-frac_irr_soilt(l,m))                 &
                                    * frac(l,n) * wt_ext_nir_type(l,k,n)        &
                                    * rho_water * dzsoil(k)                     &
                                    * (sthu_nir_soilt(l,m,k)                    &
@@ -2249,34 +2249,34 @@ IF (l_irrig_dmd) THEN
 !$OMP             frac_irr_surft, l_soil_evap_irrig_expl)
   DO m = 1,nsoilt
 !$OMP DO SCHEDULE(STATIC)
-     DO l = 1,land_pts
-       IF (l_soil_evap_irrig_expl) THEN
-         IF (frac_irr_soilt(l,m) > 0.0) THEN
-           fsoil_irr_tot(l) = fsoil_irr_tot(l)/frac_irr_soilt(l,m)
-           smc_irr_soilt(l,m) = (1.0 - fsoil_irr_tot(l) ) *                    &
-              smc_irr_soilt(l,m) + fsoil_irr_tot(l) *                          &
-              rho_water * dzsoil(1) *                                          &
-              MAX(0.0,sthu_irr_soilt(l,m,1)) * smvcst_soilt(l,m,1)
-         ELSE
-           smc_irr_soilt(l,m) = 0.0
-         END IF
-         IF (1.0 - frac_irr_soilt(l,m) > 0.0) THEN
-           fsoil_nir_tot(l) = fsoil_nir_tot(l)/(1.-frac_irr_soilt(l,m))
-           smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot(l)) *                     &
-                smc_nir_soilt(l,m) + fsoil_nir_tot(l) *                        &
-                rho_water * dzsoil(1) *                                        &
-               MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
-         ELSE
-           smc_nir_soilt(l,m) = 0.0
-         END IF
-         
-         smc_soilt(l,m) = frac_irr_soilt(l,m) * smc_irr_soilt(l,m) +           &
-             (1.0 - frac_irr_soilt(l,m)) * smc_nir_soilt(l,m)
-       ELSE
-         smc_irr_soilt(l,m) = (1.0 - fsoil_tot(l)) * smc_irr_soilt(l,m) +      &
-                           fsoil_tot(l) * rho_water * dzsoil(1) *              &
-                           MAX(0.0,sthu_irr_soilt(l,m,1)) * smvcst_soilt(l,m,1)
-       END IF
+    DO l = 1,land_pts
+      IF (l_soil_evap_irrig_expl) THEN
+        IF (frac_irr_soilt(l,m) > 0.0) THEN
+          fsoil_irr_tot(l) = fsoil_irr_tot(l)/frac_irr_soilt(l,m)
+          smc_irr_soilt(l,m) = (1.0 - fsoil_irr_tot(l) ) *                     &
+             smc_irr_soilt(l,m) + fsoil_irr_tot(l) *                           &
+             rho_water * dzsoil(1) *                                           &
+             MAX(0.0,sthu_irr_soilt(l,m,1)) * smvcst_soilt(l,m,1)
+        ELSE
+          smc_irr_soilt(l,m) = 0.0
+        END IF
+        IF (1.0 - frac_irr_soilt(l,m) > 0.0) THEN
+          fsoil_nir_tot(l) = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
+          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot(l)) *                      &
+               smc_nir_soilt(l,m) + fsoil_nir_tot(l) *                         &
+               rho_water * dzsoil(1) *                                         &
+              MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
+        ELSE
+          smc_nir_soilt(l,m) = 0.0
+        END IF
+
+        smc_soilt(l,m) = frac_irr_soilt(l,m) * smc_irr_soilt(l,m) +            &
+            (1.0 - frac_irr_soilt(l,m)) * smc_nir_soilt(l,m)
+      ELSE
+        smc_irr_soilt(l,m) = (1.0 - fsoil_tot(l)) * smc_irr_soilt(l,m) +       &
+                          fsoil_tot(l) * rho_water * dzsoil(1) *               &
+                          MAX(0.0,sthu_irr_soilt(l,m,1)) * smvcst_soilt(l,m,1)
+      END IF
     END DO
 !$OMP END DO
   END DO
