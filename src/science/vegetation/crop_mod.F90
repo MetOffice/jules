@@ -58,6 +58,14 @@ USE jules_vegetation_mod, ONLY: l_prescsow
 
 USE ancil_info, ONLY: nsurft, nsoilt
 
+USE sow_mod, ONLY: sow
+
+USE emerge_mod, ONLY: emerge
+
+USE develop_mod, ONLY: develop
+
+USE partition_mod, ONLY: partition
+
 IMPLICIT NONE
 
 !-----------------------------------------------------------------------------
