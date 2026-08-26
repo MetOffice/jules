@@ -814,7 +814,6 @@ DO n = 1,dim_cs1
   END DO
 END DO
 
-!!!***??IF (l_soil_evap_irrig_expl) THEN
 IF ( l_irrig_dmd ) THEN
   DO k = 1,sm_levels
     DO m = 1,nsoilt
@@ -1101,22 +1100,8 @@ DO n = 1,npft
     IF ( l_irrig_dmd ) THEN
 !$OMP DO SCHEDULE(STATIC)
       DO l = 1,land_pts
-        !!!IF ( l_soil_evap_irrig_expl ) THEN
         sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)        &
                + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
-        !!!ELSE
-          ! MAY Be ABLE to remove the following section (calc of sthu_nir done above with l_bare_soil_evap_irr)*** check with rose stem?***
-          !!!sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
-          !!!IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
-          !!!  sthu_nir_soilt(l,m,k) = (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)   &
-          !!!       * sthu_irr_soilt(l,m,k))                                      &
-          !!!       / (1.0 - frac_irr_soilt(l,m))
-          !!!ELSE
-          !!!  sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
-          !!!END IF
-          !!!sthu_surft(l,m,k) = frac_irr_surft(l,n) * sthu_irr_soilt(l,m,k)      &
-          !!!     + (1.0 - frac_irr_surft(l,n)) * sthu_nir_soilt(l,m,k)
-        !!!END IF
       END DO
 !$OMP END DO
     END IF
