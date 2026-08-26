@@ -6,3 +6,4 @@
 | doucla          | Douglas Clark    | UKCEH       | 2026-07-03 |
 | james-bruten-mo | James Bruten     | Met Office  | 2026-07-09 |
 | maggiehendry    | Maggie Hendry    | Met Office  | 2026-08-21 |
+| Pierre-siddall  | Pierre Siddall   | Met Office  | 2026-08-26 |
