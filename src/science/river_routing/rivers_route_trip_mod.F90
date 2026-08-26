@@ -42,15 +42,18 @@ CONTAINS
 
 SUBROUTINE rivers_route_trip( sfc_runoff, sub_sfc_runoff, outflow, baseflow,   &
                               rivers_outflow_rp, rivers_next_rp,               &
-                              rivers_seq_rp, rivers_sto_rp ,                   &
-                              rivers_boxareas_rp,                              &
-                              rivers_lat_rp, rivers_lon_rp,                    &
-                              inland_outflow_rp, land_fraction_rp )
+                              rivers_seq_rp, rivers_sto_rp,                    &
+                              rivers_boxareas_rp, rivers_lat_rp, rivers_lon_rp,&
+                              inland_outflow_rp, land_fraction_rp,             &
+                              abstracted_res_rp,res_cap_current, res_catch,    &
+                              res_critical, res_flood,res_emergency,           &
+                              res_normal_release, res_flood_release,           &
+                              res_storage )
 
 USE jules_rivers_mod, ONLY:                                                    &
 !  imported scalars with intent(in)
      np_rivers,nstep_rivers,nseqmax,river_mouth,rivers_meander,rivers_speed,   &
-     inland_drainage, l_inland_outflow
+     inland_drainage, l_inland_outflow, l_reservoirs
 
 USE rivers_utils, ONLY:                                                        &
 !  imported procedures
@@ -60,6 +63,10 @@ USE timestep_mod, ONLY:                                                        &
    timestep
 
 USE missing_data_mod, ONLY: imdi
+
+USE route_reservoirs_mod, ONLY:                                                &
+! imported procedures
+     route_reservoirs
 
 USE um_types, ONLY: real_jlslsm
 
@@ -97,6 +104,28 @@ REAL,    INTENT(IN)     :: rivers_lat_rp(:)
 REAL,    INTENT(IN)     :: rivers_lon_rp(:)
 REAL,    INTENT(IN OUT) :: rivers_sto_rp(:)
 REAL,    INTENT(IN)     :: land_fraction_rp(:)
+
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  abstracted_res_rp(np_rivers),                                                &
+    ! Water abstracted from reservoirs over river timestep (kg).
+  res_cap_current(np_rivers),                                                  &
+    ! Storage capacity of reservoirs (kg).
+  res_catch(np_rivers),                                                        &
+    ! Upstream catchment area of reservoirs (m2).
+  res_critical(np_rivers),                                                     &
+    ! Critical storage threshold of reservoirs (kg).
+  res_flood(np_rivers),                                                        &
+    ! Flood storage threshold of reservoirs (kg).
+  res_emergency(np_rivers),                                                    &
+    ! Emergency storage threshold of reservoirs (kg).
+  res_normal_release(np_rivers),                                               &
+    ! Normal release rate from reservoirs (kg s-1).
+  res_flood_release(np_rivers)
+    ! Flood release rate from reservoirs (kg s-1).
+
+REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
+  res_storage(np_rivers)
+    ! Water stored in reservoirs (kg).
 
 INTEGER ::                                                                     &
 !  local scalars (work/loop counters)
@@ -186,6 +215,21 @@ DO iseq = 1, nseqmax
     !   Get index (location in rivers vector) of the point to consider.
     IF ( rivers_seq_rp(ip) == iseq ) THEN
 
+      !-------------------------------------------------------------------------------
+      !   If reservoirs are considered and capacity > 0, route through them.
+      !-------------------------------------------------------------------------------
+      IF (l_reservoirs .AND. res_cap_current(ip) > 0.0) THEN
+        CALL route_reservoirs(dt, abstracted_res_rp(ip),                       &
+                                    res_cap_current(ip),                       &
+                                    res_catch(ip),                             &
+                                    res_critical(ip),                          &
+                                    res_flood(ip),                             &
+                                    res_emergency(ip),                         &
+                                    res_normal_release(ip),                    &
+                                    res_flood_release(ip),                     &
+                                    res_storage(ip), inflow(ip))
+      ENDIF
+
       !-----------------------------------------------------------------------
       !   Calculate the coefficient "c" of the model.
       !   c=u/(d*r), where u is effective flow speed,
@@ -210,6 +254,8 @@ DO iseq = 1, nseqmax
       !   Calculate outflow as inflow minus change in storage.
       !-----------------------------------------------------------------------
       outflow(ip) = inflow(ip) + (store_old - rivers_sto_rp(ip)) / dt
+
+
 
       !-----------------------------------------------------------------------
       !   Add outflow to inflow of next downstream point.
