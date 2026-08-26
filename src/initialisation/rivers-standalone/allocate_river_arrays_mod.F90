@@ -95,6 +95,12 @@ INTEGER :: temp_size
 INTEGER, PARAMETER :: river_row_length_dum = 1
 INTEGER, PARAMETER :: river_rows_dum = 1
 
+! Water resources is not available with rivers-standalone. Set values so that
+! water resource variables are not allocated.
+INTEGER, PARAMETER :: tmp_sw_river_source = 0
+LOGICAL, PARAMETER :: tmp_l_water_resources = .FALSE.
+LOGICAL, PARAMETER :: tmp_l_reservoirs = .FALSE.
+
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 REAL(KIND=jprb)               :: zhook_handle
@@ -152,7 +158,9 @@ CALL ancil_info_alloc(temp_size, t_i_length, t_j_length,                       &
                       nice, nsoilt, ntype,                                     &
                       ainfo_data)
 
-CALL jules_rivers_alloc(temp_size, t_i_length, t_j_length, rivers_data)
+CALL jules_rivers_alloc(temp_size, t_i_length, t_j_length,                     &
+                        tmp_sw_river_source, tmp_l_water_resources,            &
+                        rivers_data)
 
 CALL coastal_alloc(temp_size, t_i_length, t_j_length,                          &
                    u_i_length, u_j_length,                                     &

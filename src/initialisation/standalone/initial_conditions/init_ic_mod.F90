@@ -993,6 +993,10 @@ DO i = 1, nvars_required
   CASE ( 'lake_h_ice_gb' )
     CALL dict_set(defaults_dict, 'lake_h_ice_gb'       , lake_H_ice_0)
 
+    !Reservoirs
+  CASE ( 'res_storage' )
+    CALL dict_set(defaults_dict, 'res_storage', 0.0)
+
     !Snow variables
     !      CASE ( 'rho_snow' )
     !      CASE ( 'snow_depth' )

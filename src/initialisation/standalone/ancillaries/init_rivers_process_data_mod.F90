@@ -1029,9 +1029,11 @@ SUBROUTINE remap_ancil( nx_rivers, ny_rivers, rivers_dx,                       &
 
 USE jules_rivers_mod, ONLY:                                                    &
   channel_depth_grid, channel_width_grid, mean_sea_level_grid,                 &
-  river_distance_grid, river_elevation_grid,                                   &
-  river_elevation_grid, river_length_grid, river_manning_grid,                 &
-  river_nextx_grid, river_nexty_grid, rivers_type
+  river_distance_grid, river_elevation_grid, river_length_grid,                &
+  river_manning_grid, river_nextx_grid, river_nexty_grid,                      &
+  res_capacity_grid, res_catch_grid, res_year_grid,                            &
+  res_critical_grid, res_flood_grid, res_emergency_grid,                       &
+  res_normal_release_grid, res_flood_release_grid, rivers_type
 
 USE overbank_inundation_mod, ONLY:                                             &
   hypsometric_quantiles_grid, logn_mean, logn_stdev, nquantile_hypso
@@ -1085,7 +1087,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 SELECT CASE ( var )
 
   !----------------------------------------------------------------------------
-  ! Cases for river (not overbank) variables.
+  ! Cases for river variables.
   !----------------------------------------------------------------------------
 CASE ( 'area' )
   CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
@@ -1196,6 +1198,41 @@ CASE ( 'rivers_ygrid' )
   ! Extract the first column from the 2D field.
   rivers%rivers_ygrid(:) = tmp_2d_coord(1,:)
 
+  !----------------------------------------------------------------------------
+  ! Cases for reservoir variables.
+  !----------------------------------------------------------------------------
+CASE ( 'res_capacity_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_capacity_grid )
+
+CASE ( 'res_catch_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_catch_grid )
+
+CASE ( 'res_year_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_year_grid )
+
+CASE ( 'res_critical_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_critical_grid )
+
+CASE ( 'res_flood_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_flood_grid )
+
+CASE ( 'res_emergency_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_emergency_grid )
+
+CASE ( 'res_normal_release_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_normal_release_grid )
+
+CASE ( 'res_flood_release_grid' )
+  CALL remap_field( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    rivers%rivers_xgrid, res_flood_release_grid )
+
 CASE DEFAULT
   CALL log_fatal( RoutineName,                                                 &
                   "Do not recognise var: " // TRIM(var) )
@@ -1250,7 +1287,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
 !------------------------------------------------------------------------------
 LOGICAL, OPTIONAL, INTENT(IN) ::                                               &
   is_x_index_arg
-    ! Flag indicating if the field is an index of x location on grid.&
+    ! Flag indicating if the field is an index of x location on grid.          &
 
 !------------------------------------------------------------------------------
 ! Local scalar variables.
@@ -2216,12 +2253,16 @@ SUBROUTINE set_river_point_values( rivers_x1_input,                            &
 USE jules_model_environment_mod, ONLY: l_oasis_rivers
 
 USE jules_rivers_mod, ONLY:                                                    &
-  a_thresh, channel_depth_grid, channel_width_grid, i_river_vn, l_sea_level,   &
-  l_riv_overbank, mean_sea_level_grid, np_rivers, nseqmax, nx_rivers,          &
-  ny_rivers, rfm_land, rfm_river, rivers_camaflood, river_distance_grid,       &
+  a_thresh, channel_depth_grid, channel_width_grid, i_river_vn,                &
+  l_sea_level, l_riv_overbank, mean_sea_level_grid,                            &
+  np_rivers, nseqmax, nx_rivers, ny_rivers, rfm_land, rfm_river,               &
+  rivers_camaflood, river_distance_grid,                                       &
   rivers_dx, rivers_dy, river_elevation_grid, river_length_grid,               &
   river_manning_grid, rivers_rfm, rivers_trip, rivers_x1, l_outflow_per_river, &
-  l_init_storage,                                                              &
+  l_init_storage, l_reservoirs,                                                &
+  res_capacity_grid, res_catch_grid, res_year_grid,                            &
+  res_critical_grid, res_flood_grid, res_emergency_grid,                       &
+  res_normal_release_grid, res_flood_release_grid,                             &
   ! types
   rivers_type
 
@@ -2393,8 +2434,8 @@ DO ix = 1,nx_rivers
         rivers%channel_width(ip)    = channel_width_grid(irx,iry)
         rivers%river_distance(ip)   = river_distance_grid(irx,iry)
         rivers%river_elevation(ip)  = river_elevation_grid(irx,iry)
-        rivers% river_length(ip)    = river_length_grid(irx,iry)
-        rivers% river_manning(ip)   = river_manning_grid(irx,iry)
+        rivers%river_length(ip)     = river_length_grid(irx,iry)
+        rivers%river_manning(ip)    = river_manning_grid(irx,iry)
         IF ( l_sea_level ) THEN
           rivers%mean_sea_level(ip) = mean_sea_level_grid(irx,iry)
         END IF
@@ -2461,6 +2502,24 @@ DO ix = 1,nx_rivers
         END IF
 
       END IF  !  l_riv_overbank
+
+      !------------------------------------------------------------------------
+      ! Set reservoir ancillary variables, if required.
+      !------------------------------------------------------------------------
+      IF ( l_reservoirs ) THEN
+
+        rivers%res_capacity(ip)       = res_capacity_grid(irx,iry)
+        rivers%res_catch(ip)          = res_catch_grid(irx,iry)
+        rivers%res_year(ip)           = res_year_grid(irx,iry)
+        rivers%res_critical(ip)       = res_critical_grid(irx,iry)
+        rivers%res_flood(ip)          = res_flood_grid(irx,iry)
+        rivers%res_emergency(ip)      = res_emergency_grid(irx,iry)
+        rivers%res_normal_release(ip) =                                        &
+                                        res_normal_release_grid(irx,iry)
+        rivers%res_flood_release(ip)  =                                        &
+                                        res_flood_release_grid(irx,iry)
+
+      END IF  !  l_reservoirs
 
     END IF  !  point_mask
 

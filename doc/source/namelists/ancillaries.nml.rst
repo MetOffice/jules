@@ -1093,7 +1093,7 @@ This namelist specifies the options available for initialising irrigated fractio
 
 .. nml:namelist:: JULES_RIVERS_PROPS
 
-This namelist specifies how spatially varying river routing properties including overbank inundation should be set.
+This namelist specifies how spatially varying river routing properties (including overbank inundation and reservoirs) should be set.
 
 .. note:: ``read_from_dump`` is not currently implemented for this namelist, meaning that river ancillary variables cannot be read from a dump file. Initial values of river prognostic variables can however be read from a dump file (see :nml:lst:`JULES_INITIAL`).
 
@@ -1455,14 +1455,14 @@ The following table summarises river routing properties required to run RFM or T
 | ``longitude_2d``           | The longitude of each river grid point must be specified. This field is required only if the model        |
 |                            | coordinates are latitude and longitude, i.e. if :nml:mem:`JULES_LATLON::l_coord_latlon` = FALSE.          |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``logn_mean``              | Mean of ln(elevation-elev_min) for each grid cell (in units ln(m))                                        |
+| ``logn_mean``              | Mean of ln(elevation-elev_min) for each grid cell (in units ln(m)).                                       |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_OVERBANK::overbank_model` = 3.                                       |
 |                            |                                                                                                           |
 |                            | Note that elev_min is DEM minimum, not river/lake bed level (therefore large values close to water        |
 |                            | bodies can occur in floodplain gridcells).                                                                |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``logn_stdev``             | Standard deviation of ln(elevation-elev_min) for each grid cell (in units ln(m))                          |
+| ``logn_stdev``             | Standard deviation of ln(elevation-elev_min) for each grid cell (in units ln(m)).                         |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_OVERBANK::overbank_model` = 3.                                       |
 |                            |                                                                                                           |
@@ -1479,13 +1479,53 @@ The following table summarises river routing properties required to run RFM or T
 |                            | via OASIS the river outflow is distributed over the corresponding river outflow points on the ocean grid. |
 |                            | This is to ensure that water is conserved and rivers discharge into the correct ocean grid points.        |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``rivers_storage``         | Water storage (kg) on the Rivers grid.                                                                    |
+| ``rivers_storage``         | Water storage (kg) on the rivers grid.                                                                    |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_RIVERS::i_river_vn` = 3.                                             |
 |                            |                                                                                                           |
 |                            | This is only required if Rivers storage is to be initialised from an ancillary, including a 12-month      |
 |                            | climatology, rather than the dump. If Rivers storage is requested from an ancillary then                  |
 |                            | ``rivers_sto_rp`` should not be requested via :nml:lst:`JULES_INITIAL`.                                   |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_capacity_grid``      | Storage capacity of reservoirs (kg).                                                                      |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_catch_grid``         | Catchment area of reservoirs (m2).                                                                        |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_year_grid``          | Initialisation year of reservoirs.                                                                        |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_critical_grid``      | Critical storage of reservoirs (kg).                                                                      |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_flood_grid``         | Flood storage of reservoirs (kg).                                                                         |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_emergency_grid``     | Emergency storage of reservoirs (kg).                                                                     |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_normal_release_grid``| Normal release rate of reservoirs (kg s-1).                                                               |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_flood_release_grid`` | Flood release rate of reservoirs (kg s-1).                                                                |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
 
 
