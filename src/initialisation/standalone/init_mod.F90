@@ -78,7 +78,7 @@ USE init_deposition_mod,          ONLY: init_deposition
 USE jules_science_fixes_mod,      ONLY: init_science_fixes
 USE init_irrigation_mod,          ONLY: init_irrigation
 USE init_urban_mod,               ONLY: init_urban
-USE init_fire_mod,                ONLY: init_fire
+USE init_fire_weather_index_mod,  ONLY: init_fire_weather_index
 USE init_imogen_mod,              ONLY: init_imogen
 USE init_prescribed_data_mod,     ONLY: init_prescribed_data
 USE init_vars_tmp_mod,            ONLY: init_vars_tmp
@@ -372,7 +372,7 @@ END IF
 CALL init_params(nml_dir,progs,land_pts,nsurft,nnpft,npft,nmasst,ntype)
 
 ! Initialise fire module
-CALL init_fire(nml_dir,ainfo%land_index)
+CALL init_fire_weather_index(nml_dir,ainfo%land_index)
 
 ! Contains allocation of progs_data%seed_rain - hence passing in the data type
 CALL init_drive(nml_dir,ainfo,progs_data)
