@@ -1,8 +1,7 @@
 ``fire.nml``
 ===================
 
-This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` that contains switches used to calculate the different fire weather indices available.
-. The second namelist is for parameters associated with the inferno fire model called :nml:lst:`JULES_INFERNO`
+This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` that sets time-invariant parameters for performing wildfire-related calculations. The second namelist is for parameters associated with the inferno fire model called :nml:lst:`JULES_INFERNO`
 
 ``FIRE_SWITCHES`` namelist members
 -----------------------------------
@@ -127,6 +126,10 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
       :permitted: 1, 2
       :default: 1
 
+      Parameter controlling the relationship between soil moisture and flammability.
+      1 a linear relatonship which has a flammability of 0 at 1 and 1 at 0.
+      2 an exponential relationship controlled by :nml:mem:`flam_sm_low` and :nml:mem:`flam_sm_up`
+
    .. nml:member:: flam_sm_low
 
       :type: real
@@ -138,7 +141,6 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
 
       :type: real
       :default: 2.4
-
 
    Only used if :nml:mem:`flam_sm_func` = 2.
 

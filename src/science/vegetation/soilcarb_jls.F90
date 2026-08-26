@@ -45,8 +45,8 @@ USE jules_vegetation_mod, ONLY: l_nitrogen
 
 USE jules_soil_mod, ONLY: cs_min, sm_levels
 USE ancil_info, ONLY: dim_cslayer, nsoilt, dim_cs1
-USE jules_inferno_mod, ONLY: l_trif_fire, triffire_ccdpm_min, triffire_ccdpm_max, &
-  triffire_ccrpm_min, triffire_ccrpm_max
+USE jules_inferno_mod, ONLY: triffire_ccdpm_min, triffire_ccdpm_max,           &
+                triffire_ccrpm_min, triffire_ccrpm_max, l_trif_fire
 
 USE dpm_rpm_mod, ONLY: dpm_rpm
 USE decay_mod, ONLY: decay

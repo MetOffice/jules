@@ -276,7 +276,7 @@ USE jules_vegetation_mod, ONLY:                                                &
   ! imported scalars
   l_triffid, l_nitrogen
 
-USE jules_inferno_mod, ONLY: l_inferno, l_trif_fire
+USE jules_inferno_mod, ONLY: l_trif_fire
 
 
 USE ereport_mod, ONLY: ereport
@@ -859,7 +859,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
-INTEGER, PARAMETER :: n_real = 30 + 4
+INTEGER, PARAMETER :: n_real = 29 + 4
 INTEGER, PARAMETER :: n_log = 8
 
 TYPE :: my_namelist
