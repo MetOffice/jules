@@ -53,22 +53,22 @@ CALL check_jules_inferno()
 ! Print some human friendly summary information about the selected options.
 !-----------------------------------------------------------------------------
 IF ( l_inferno ) THEN
-  CALL log_info("init_inferno",                                             &
+  CALL log_info("init_inferno",                                                &
                 "Interactive fires and emissions (INFERNO) will be diagnosed")
   IF (ignition_method == ignition_constant ) THEN
-    CALL log_info("init_inferno",                                           &
+    CALL log_info("init_inferno",                                              &
                   "Constant or ubiquitous ignitions (INFERNO)")
   ELSE IF (ignition_method == ignition_vary_natural ) THEN
-    CALL log_info("init_inferno",                                           &
+    CALL log_info("init_inferno",                                              &
                   "Constant human ignitions, varying lightning (INFERNO)")
   ELSE IF (ignition_method == ignition_vary_natural_human ) THEN
-    CALL log_info("init_inferno",                                           &
+    CALL log_info("init_inferno",                                              &
                   "Fully prescribed ignitions (INFERNO)")
   END IF
 END IF
 
 IF ( l_trif_fire ) THEN
-  CALL log_info("init_inferno",                                             &
+  CALL log_info("init_inferno",                                                &
                 "Fires will interact with the carbon cycle in triffid")
 END IF
 

@@ -41,7 +41,7 @@ INTEGER ::                                                                     &
       !                     Varying  (Lightning - see Pechony & Shindell,2009)
       !   IGNITION_METHOD=3:Vary Human and Lightning (Pechony & Shindell,2009)
   flam_sm_func = 1
-      ! Switch for relationship between INFERNO fire 
+      ! Switch for relationship between INFERNO fire
       !      flammability and soil moisture
       ! FLAM_SM_FUNC=1:Linear (doesnt require flam_sm_low / flam_sm_up)
       ! FLAM_SM_FUNC=2:Exponential
@@ -52,7 +52,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Below this soil moisture, flammability is 1.0 (flam_sm_func=2)
     ! Expressed as a fraction of saturation (between 0 and 1)
   flam_sm_up = rmdi,                                                           &
-    ! Exponential decay parameter for relationship between soil moisture 
+    ! Exponential decay parameter for relationship between soil moisture
     ! and flammability (flam_sm_func=2)
   flam_rhum_low = rmdi,                                                        &
     ! Lower boundary to the relative humidity (%,  between 0 and 100 %)
@@ -66,11 +66,11 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Upper boundary to the fuel density (UNITS)
   ccdpm_min = rmdi,                                                            &
     ! Minimum decomposable plant material burn fraction (0 <= fraction <= 1)
-  ccdpm_max = rmdi,                                                   &
+  ccdpm_max = rmdi,                                                            &
     ! Decomposable Plant Material burn fraction (0 <= fraction <= 1)
-  ccrpm_min = rmdi,                                                   &
+  ccrpm_min = rmdi,                                                            &
     ! Minimum resistant plant material urn fraction (0 <= fraction <= 1)
-  ccrpm_max = rmdi,                                                   &
+  ccrpm_max = rmdi,                                                            &
     ! Resistant Plant Material burn fraction (0 <= fraction <= 1)
   z_burn_max = rmdi
     ! Parameter setting maximum depth of burn (m)
@@ -118,11 +118,11 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_INFERNO'
 
 IF ( l_inferno ) THEN
   ! Check a suitable ignition_method was given
-  IF ( ignition_method /= ignition_constant .AND.                                &
-      ignition_method /= ignition_vary_natural .AND.                            &
+  IF ( ignition_method /= ignition_constant .AND.                              &
+      ignition_method /= ignition_vary_natural .AND.                           &
       ignition_method /= ignition_vary_natural_human ) THEN
     errorstatus = 101
-    CALL ereport("check_jules_vegetation", errorstatus,                          &
+    CALL ereport("check_jules_vegetation", errorstatus,                        &
                 'ignition_method must be 1, 2 or 3')
   END IF
 
@@ -145,48 +145,48 @@ IF ( l_inferno ) THEN
   END IF
 
   IF ( ABS(flam_rhum_low - rmdi) < EPSILON(rmdi) ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rhum_low needs to be specified.")
   ELSE IF ( flam_rhum_low < 0.0 ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rhum_low must be >= 0.0.")
   END IF
 
   IF ( ABS(flam_rhum_up - rmdi) < EPSILON(rmdi) ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rhum_up needs to be specified.")
   ELSE IF ( flam_rhum_up <= flam_rhum_low ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rhum_up must be >= flam_rhum_low")
   ELSE IF ( flam_rhum_up > 100.0 ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rhum_up must be <= 100.0.")
   END IF
 
   IF ( ABS(flam_fuel_low - rmdi) < EPSILON(rmdi) ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_fuel_low needs to be specified.")
   ELSE IF ( flam_fuel_low < 0.0 ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_fuel_low must be >= 0.0.")
   END IF
 
   IF ( ABS(flam_fuel_up - rmdi) < EPSILON(rmdi) ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_fuel_up needs to be specified.")
   ELSE IF ( flam_fuel_up < flam_fuel_low ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_fuel_up must be >= flam_fuel_low")
   ELSE IF ( flam_fuel_up > 1.0 ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_fuel_up must be <= 1.0.")
   END IF
 
   IF ( ABS(flam_rain_const - rmdi) < EPSILON(rmdi) ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rain_const needs to be specified.")
   ELSE IF ( flam_rain_const > 0.0 ) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rain_const must be <= 0.0.")
   END IF
 END IF ! end of l_inferno check

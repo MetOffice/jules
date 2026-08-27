@@ -348,20 +348,10 @@ IF (l_trif_fire) THEN
   DO t = 1,trif_pts
     l = trif_index(t)
     burnt_carbon_dpm(l) = MAX(g_burn_gb(l) *                                   &
-                          (cs(l,1,1) * (ccdpm_min +                   &
-                          (ccdpm_max - ccdpm_min)            &
+                          (cs(l,1,1) * (ccdpm_min + (ccdpm_max - ccdpm_min)    &
                           * (1.0 - (sthu_soilt(l,1,1))))) ,0.0)
     burnt_carbon_rpm(l) = MAX(g_burn_gb(l) *                                   &
-                          (cs(l,1,2) * (ccrpm_min +                   &
-                          (ccrpm_max - ccrpm_min)            &
-                          * (1.0 - (sthu_soilt(l,1,1))))) ,0.0)
-    burnt_carbon_dpm(l) = MAX(g_burn_gb(l) *                                   &
-                          (cs(l,1,1) * (0.8 +                                  &
-                          (1.0 - 0.8)                                          &
-                          * (1.0 - (sthu_soilt(l,1,1))))) ,0.0)
-    burnt_carbon_rpm(l) = MAX(g_burn_gb(l) *                                   &
-                          (cs(l,1,2) * (0.0 +                                  &
-                          (0.2 - 0.0)                                          &
+                          (cs(l,1,2) * (ccrpm_min + (ccrpm_max - ccrpm_min)    &
                           * (1.0 - (sthu_soilt(l,1,1))))) ,0.0)
     cs(l,1,1)     = cs(l,1,1) - burnt_carbon_dpm(l) / r_gamma
     cs(l,1,2)     = cs(l,1,2) - burnt_carbon_rpm(l) / r_gamma

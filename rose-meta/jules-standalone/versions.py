@@ -104,15 +104,9 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "-14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
         
-        npft = int(
-        self.get_setting_value(config, ["namelist:jules_surface_types", "npft"])
-        )
+        npft = int(self.get_setting_value(config, ["namelist:jules_surface_types", "npft"]))
         self.add_setting(
-        config,
-        ["namelist:jules_pftparm", "fireveg_c_to_atmos_io"],
-        ",".join(["0.13"] * npft),
-        False,
-        )
+        config, ["namelist:jules_pftparm", "fireveg_c_to_atmos_io"], ",".join(["0.13"] * npft))
 
 
         return config, self.reports

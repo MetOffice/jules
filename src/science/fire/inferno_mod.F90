@@ -196,8 +196,8 @@ REAL(KIND=real_jlslsm) ,   INTENT(IN)       ::                                 &
     ! Relative Humidity (%)
   sm_l,                                                                        &
     ! The INFERNO soil moisture fraction (sthu's 1st level)
-  !rain_l,                                                                      &
-    ! The precipitation rate (kg.m-2.s-1)
+  rain_l,                                                                      &
+    ! The rain rate (kg.m-2.s-1)
   fuel_l,                                                                      &
     ! The Fuel Density (0-1)
   flam_rhum_up,                                                                &
@@ -215,7 +215,7 @@ REAL(KIND=real_jlslsm) ,   INTENT(IN)       ::                                 &
 
 INTEGER, INTENT(IN)   ::                                                       &
    flam_sm_func
-    ! The function used to parameterise the 
+    ! The function used to parameterise the
     !      relationship between soil moisture and flammability
     ! 1 = linear,
     ! 2 = exponential
@@ -233,8 +233,10 @@ REAL(KIND=real_jlslsm),    PARAMETER        ::                                 &
   b = 5.02808,                                                                 &
   f = 8.1328e-03,                                                              &
   h=-3.49149,                                                                  &
-  Ts = 373.16
+  Ts = 373.16,                                                                 &
     ! Water saturation temperature
+  cr=-2.0 * s_in_day
+    ! Precipitation factor (-2(day/mm)*(kg/m2/s))
 
 REAL(KIND=real_jlslsm)                      ::                                 &
   Z_l,                                                                         &
@@ -243,13 +245,9 @@ REAL(KIND=real_jlslsm)                      ::                                 &
     ! Reciprocal of the temperature times ts
   f_rhum_l,                                                                    &
     ! The factor dependence on relative humidity
-  f_sm_l
+  f_sm_l,                                                                      &
     ! The factor dependence on soil moisture
-
-REAL(KIND=real_jlslsm)                      ::                                 &
-  rain_l
-    ! The precipitation rate (kg.m-2.s-1)
-
+  rain_rate
 
 LOGICAL, PARAMETER :: l_cf_old_inferno = .TRUE.
 
@@ -259,10 +257,6 @@ CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_FLAM"
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 TsbyT_l   =  Ts / temp_l
-
-PRINT*,"calc_flam"
-PRINT*, flam_rhum_low, flam_rhum_up, flam_sm_low, flam_sm_up, flam_rain_const, flam_sm_func
-PRINT*,temp_l, rhum_l, fuel_l, sm_l, rain_l
 
 Z_l       =  a * (TsbyT_l-1.0) + b * LOG10(TsbyT_l)                            &
            + c * (10.0**( d * (1.0 - TsbyT_l)) - 1.0)                          &
@@ -283,31 +277,23 @@ IF (l_cf_old_inferno) THEN
   IF (rhum_l > 90.0)  f_rhum_l = 0.0
 END IF
 
-IF ( flam_sm_func == 1 ) THEN
+IF ( flam_sm_func == 1 ) THEN   ! linear
   f_sm_l    = (1 - sm_l)
-  ! The flammability goes down linearly with increasing soil moisture
-ELSE IF ( flam_sm_func == 2 ) THEN
+ELSE IF ( flam_sm_func == 2 ) THEN   ! exponential
   f_sm_l = EXP(-flam_sm_up * (sm_l - flam_sm_low) )
-  ! EJB check this bottom bit
-  ! Flammability goes down exponentially with soil moisture
+  f_sm_l = MAX(MIN(f_sm_l, 1.0), 0.0)
 END IF
-IF (f_sm_l < 0.0) THEN
-  f_sm_l = 0.0
-ELSE IF (f_sm_l > 1.0) THEN
-  f_sm_l = 1.0
-END IF
-
 
 IF (l_cf_old_inferno) THEN
+  rain_rate = rain_l * s_in_day
+  ! convert rain rate from kg/m2/s to mm/day
   flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
-                       * EXP( -2.0 * s_in_day * s_in_day * rain_l) ,1.0) ,0.0)
+                       * EXP( cr * rain_rate) ,1.0) ,0.0)
 ELSE
   flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
-                       * EXP( flam_rain_const * rain_l) ,1.0) ,0.0)
+                       * EXP( -flam_rain_const * rain_l) ,1.0) ,0.0)
+  ! EJB add units here for rain or add rain as a separate function - make flam_rain > 0
 END IF
-
-
-PRINT*,"calc_flam", temp_l, rhum_l, fuel_l, sm_l, rain_l, flam_l
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -443,7 +429,7 @@ SUBROUTINE calc_emitted_carbon_soil(                                           &
 !   Language: Fortran 90
 !
 
-USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,           &
+USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,                             &
                 ccrpm_min, ccrpm_max
 
 USE yomhook,      ONLY: lhook, dr_hook
@@ -477,19 +463,10 @@ CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_EMITTED_CARBON_SOIL"
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 DO l = 1,land_pts
-  !  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (ccdpm_min +     &
-  !                              (ccdpm_max - ccdpm_min)  * &
-  !                              (1.0 - sm(l)))) ,0.0)
-  !  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (ccrpm_min +     &
-  !                          (ccrpm_max - ccrpm_min) * &
-  !                           (1.0 - sm(l)))) ,0.0)
-
-  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (0.8 +           &
-                              (1.0 - 0.8)  *                                   &
-                              (1.0 - sm(l)))) ,0.0)
-  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (0.0 +           &
-                          (0.2 - 0.0) *                                        &
-                           (1.0 - sm(l)))) ,0.0)
+  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (ccdpm_min +     &
+                              (ccdpm_max - ccdpm_min) * (1.0 - sm(l)))) ,0.0)
+  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (ccrpm_min +     &
+                          (ccrpm_max - ccrpm_min) * (1.0 - sm(l)))) ,0.0)
 END DO
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)

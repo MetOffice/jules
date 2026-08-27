@@ -151,10 +151,14 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
    :type: real
    :default: 10.0
 
+   Lower relative humidity threshold for relationship between relative humidity and flammability below which value of function is 1.0. Expressed as a percentage.
+
 .. nml:member:: flam_rhum_up
 
    :type: real
    :default: 90.0
+
+   Upper relative humidity threshold for relationship between relative humidity and flammability above which value of function is 0.0. Expressed as a percentage.
 
 .. nml:member:: flam_rain_const
 

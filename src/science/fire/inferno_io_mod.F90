@@ -54,15 +54,14 @@ USE pftparm,                  ONLY:                                            &
     ! Average Burned Area per PFT, and fire mortality rate
 
 USE jules_inferno_mod, ONLY:                                                   &
-flam_rhum_low, flam_rhum_up,                                                   &
-flam_sm_low, flam_sm_up, flam_fuel_low,                                        &
+  l_trif_fire, flam_rhum_low, flam_rhum_up,                                    &
+  flam_sm_low, flam_sm_up, flam_fuel_low,                                      &
   flam_fuel_up, flam_rain_const, flam_sm_func
 
 USE qsat_mod, ONLY: qsat_wat
 
 USE jules_surface_types_mod,        ONLY: npft
 USE parkind1,                       ONLY: jprb
-USE jules_inferno_mod,           ONLY: l_trif_fire
 USE timestep_mod,                   ONLY: timestep
 USE calc_c_comps_triffid_mod,       ONLY: calc_c_comps_triffid
 
@@ -165,7 +164,7 @@ REAL(KIND=real_jlslsm) ,   PARAMETER      ::                                   &
   fef_c3h8_rpm = 0.0 , fef_hcho_rpm = 0.0,                                     &
   fef_mecho_rpm = 0.0,                                                         &
   fef_nh3_rpm = 0.0 , fef_dms_rpm = 0.0,                                       &
-    ! HARDCODED Emission factors for DPM in g kg-1
+    ! HARDCODED Emission factors for DPM and RPM in g kg-1
   pmtofuel    = 0.7
     ! Plant Material that is available as fuel (on the surface)
 
@@ -315,9 +314,10 @@ END DO
 DO i = 1, npft
   ! Calculate the fuel density
   ! We use normalised Leaf Carbon + the available DPM
-  inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - flam_fuel_low)                 &
-                    /(flam_fuel_up - flam_fuel_low)
-
+  !inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - flam_fuel_low)                 &
+  !                  /(flam_fuel_up - flam_fuel_low)
+  inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - 0.02)                          &
+                    /(0.2 - 0.02)
   WHERE (inferno_fuel < 0.0) inferno_fuel = 0.0
 
   WHERE (inferno_fuel > 1.0) inferno_fuel = 1.0
