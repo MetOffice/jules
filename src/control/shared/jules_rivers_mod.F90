@@ -122,8 +122,6 @@ INTEGER,PARAMETER :: flow_dir_delta(8,2) = RESHAPE( [                          &
 LOGICAL ::                                                                     &
    l_rivers = .FALSE.                                                          &
                             ! Switch for runoff routing
-   ,l_inland = .FALSE.                                                         &
-                            ! Control rerouting of inland basin water
    ,l_minor_reservoirs = .FALSE.                                               &
                             ! Switch for minor_reservoirs.
                             ! .TRUE.  = consider minor reservoirs
@@ -244,7 +242,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ! Single namelist definition for UM and standalone
 !------------------------------------------------------------------------------
 NAMELIST  /jules_rivers/                                                       &
-  l_rivers, l_inland, l_minor_reservoirs, l_riv_overbank,                      &
+  l_rivers, l_minor_reservoirs, l_riv_overbank,                      &
   l_adapt_timestep, l_sea_level,                                               &
   l_vary_sea_level, i_river_vn, nstep_rivers,                                  &
   trip_globe_shape,                                                            &
@@ -1224,8 +1222,6 @@ CALL jules_print('jules_rivers_inputs_mod',                                    &
 
 WRITE(lineBuffer,*)' l_rivers = ',l_rivers
 CALL jules_print('jules_rivers',lineBuffer)
-WRITE(lineBuffer,*)' l_inland = ',l_inland
-CALL jules_print('jules_rivers',lineBuffer)
 WRITE(lineBuffer,*)' l_minor_reservoirs = ',l_minor_reservoirs
 CALL jules_print('jules_rivers',lineBuffer)
 WRITE(lineBuffer,*)' l_riv_overbank = ',l_riv_overbank
@@ -1369,7 +1365,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_RIVERS'
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 5
 INTEGER, PARAMETER :: n_real = 12
-INTEGER, PARAMETER :: n_log = 7
+INTEGER, PARAMETER :: n_log = 6
 
 TYPE :: my_namelist
   SEQUENCE
@@ -1391,7 +1387,6 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: rivers_speed
   REAL(KIND=real_jlslsm) :: runoff_factor
   LOGICAL :: l_adapt_timestep
-  LOGICAL :: l_inland
   LOGICAL :: l_minor_reservoirs
   LOGICAL :: l_riv_overbank
   LOGICAL :: l_rivers
@@ -1431,7 +1426,6 @@ IF (mype == 0) THEN
   my_nml % rivers_speed = rivers_speed
   my_nml % runoff_factor = runoff_factor
   my_nml % l_adapt_timestep = l_adapt_timestep
-  my_nml % l_inland = l_inland
   my_nml % l_minor_reservoirs = l_minor_reservoirs
   my_nml % l_riv_overbank = l_riv_overbank
   my_nml % l_rivers = l_rivers
@@ -1460,7 +1454,6 @@ IF (mype /= 0) THEN
   rivers_speed = my_nml % rivers_speed
   runoff_factor = my_nml % runoff_factor
   l_adapt_timestep = my_nml % l_adapt_timestep
-  l_inland = my_nml % l_inland
   l_minor_reservoirs  = my_nml % l_minor_reservoirs
   l_riv_overbank = my_nml % l_riv_overbank
   l_rivers = my_nml % l_rivers
