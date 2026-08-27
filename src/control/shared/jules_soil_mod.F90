@@ -434,7 +434,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
-INTEGER, PARAMETER :: n_real = 8 + sm_levels_max
+INTEGER, PARAMETER :: n_real = 9 + sm_levels_max
 INTEGER, PARAMETER :: n_log = 6
 
 TYPE :: my_namelist

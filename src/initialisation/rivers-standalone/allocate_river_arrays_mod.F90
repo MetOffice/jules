@@ -146,7 +146,7 @@ CALL fluxes_alloc(temp_size, t_i_length, t_j_length,                           &
 CALL psparms_alloc(temp_size, t_i_length, t_j_length,                          &
                    nsoilt, sm_levels, dim_cslayer, nsurft, npft,               &
                    soil_bgc_model, soil_model_ecosse,  l_use_pft_psi,          &
-                   psparms_data)
+                   psparms_data, l_bedrock, ns_deep)
 
 CALL ancil_info_alloc(temp_size, t_i_length, t_j_length,                       &
                       nice, nsoilt, ntype,                                     &
