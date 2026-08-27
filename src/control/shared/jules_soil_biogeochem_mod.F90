@@ -276,7 +276,7 @@ USE jules_vegetation_mod, ONLY:                                                &
   ! imported scalars
   l_triffid, l_nitrogen
 
-USE jules_inferno_mod, ONLY: l_trif_fire
+USE jules_inferno_mod, ONLY: l_trif_fire, l_inferno, z_burn_max
 
 
 USE ereport_mod, ONLY: ereport
@@ -520,6 +520,16 @@ IF ( l_layeredc .AND. l_nitrogen ) THEN
   END IF
 END IF
 
+! check value of z_burn_max with l_layeredc
+IF ( ( l_layeredc .AND. l_trif_fire ) .OR.                                     &
+               ( l_layeredc .AND. l_inferno ) ) THEN
+  IF ( ABS( z_burn_max - rmdi ) > EPSILON(1.0) ) THEN
+    IF ( z_burn_max <= 0.0 .OR. z_burn_max > 10.0 ) THEN
+      CALL ereport(RoutineName, errorstatus,                                   &
+                   "z_burn_max must be positive & less than 10 meters")
+    END IF
+  END IF
+END IF
 
 ! methane q10's - these are always set
 IF ( ABS( q10_ch4_cs - rmdi ) < EPSILON(1.0) ) THEN

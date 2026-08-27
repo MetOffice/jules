@@ -90,10 +90,10 @@ class vn82_t61(MacroUpgrade):
                 ["namelist:jules_inferno", "z_burn_max"], z_burn_max)
         self.remove_setting(config, ["namelist:jules_soil_biogeochem", "z_burn_max"])
         
-        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccdpm_min"], "0.8")
-        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccdpm_max"], "1.0")
-        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccrpm_min"], "0.0")
-        self.add_setting(config, ["namelist:jules_inferno", "triffire_ccrpm_max"], "0.2")
+        self.add_setting(config, ["namelist:jules_inferno", "ccdpm_min"], "0.8")
+        self.add_setting(config, ["namelist:jules_inferno", "ccdpm_max"], "1.0")
+        self.add_setting(config, ["namelist:jules_inferno", "ccrpm_min"], "0.0")
+        self.add_setting(config, ["namelist:jules_inferno", "ccrpm_max"], "0.2")
         
         self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_low"], "0.1")
         self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_up"], "0.9")
@@ -104,4 +104,15 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "-14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
         
+        npft = int(
+        self.get_setting_value(config, ["namelist:jules_surface_types", "npft"])
+        )
+        self.add_setting(
+        config,
+        ["namelist:jules_pftparm", "fireveg_c_to_atmos_io"],
+        ",".join(["0.13"] * npft),
+        False,
+        )
+
+
         return config, self.reports

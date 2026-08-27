@@ -205,14 +205,20 @@ REAL(KIND=real_jlslsm) ,   INTENT(IN)       ::                                 &
   flam_rhum_low,                                                               &
     ! Lower boundary to the relative humidity
   flam_sm_low,                                                                 &
-    ! Lower boundary to the soil moisture
+    ! Below this soil moisture, flammability is 1.0
+    ! Expressed as a fraction of saturation (between 0 and 1) (flam_sm_func=2)
   flam_sm_up,                                                                  &
-    ! Upper boundary to the soil moisture
+    ! Exponential decay parameter for relationship between soil moisture
+    !    and flammability (> 0.0) (flam_sm_func=2)
   flam_rain_const
     !
 
 INTEGER, INTENT(IN)   ::                                                       &
    flam_sm_func
+    ! The function used to parameterise the 
+    !      relationship between soil moisture and flammability
+    ! 1 = linear,
+    ! 2 = exponential
 
 REAL(KIND=real_jlslsm),    INTENT(IN OUT)    ::                                &
   flam_l
@@ -262,7 +268,7 @@ Z_l       =  a * (TsbyT_l-1.0) + b * LOG10(TsbyT_l)                            &
            + c * (10.0**( d * (1.0 - TsbyT_l)) - 1.0)                          &
            + f * (10.0**( h * (TsbyT_l-1.0)) - 1.0)
 
-f_rhum_l  = (flam_rhum_up - rhum_l/100.0) / (flam_rhum_up - flam_rhum_low)
+f_rhum_l  = (flam_rhum_up - rhum_l) / (flam_rhum_up - flam_rhum_low)
 
 ! Create boundary limits
 ! First for relative humidity
@@ -277,11 +283,12 @@ IF (l_cf_old_inferno) THEN
   IF (rhum_l > 90.0)  f_rhum_l = 0.0
 END IF
 
-IF (flam_sm_func == 1) THEN
+IF ( flam_sm_func == 1 ) THEN
   f_sm_l    = (1 - sm_l)
-  ! The flammability goes down linearly with soil moisture
-ELSE IF ( flam_sm_func == 2) THEN
+  ! The flammability goes down linearly with increasing soil moisture
+ELSE IF ( flam_sm_func == 2 ) THEN
   f_sm_l = EXP(-flam_sm_up * (sm_l - flam_sm_low) )
+  ! EJB check this bottom bit
   ! Flammability goes down exponentially with soil moisture
 END IF
 IF (f_sm_l < 0.0) THEN
@@ -436,8 +443,8 @@ SUBROUTINE calc_emitted_carbon_soil(                                           &
 !   Language: Fortran 90
 !
 
-USE jules_inferno_mod, ONLY: triffire_ccdpm_min, triffire_ccdpm_max,           &
-                triffire_ccrpm_min, triffire_ccrpm_max
+USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,           &
+                ccrpm_min, ccrpm_max
 
 USE yomhook,      ONLY: lhook, dr_hook
 USE parkind1,     ONLY: jprb
@@ -470,11 +477,11 @@ CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_EMITTED_CARBON_SOIL"
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
 DO l = 1,land_pts
-  !  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (triffire_ccdpm_min +     &
-  !                              (triffire_ccdpm_max - triffire_ccdpm_min)  * &
+  !  emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (ccdpm_min +     &
+  !                              (ccdpm_max - ccdpm_min)  * &
   !                              (1.0 - sm(l)))) ,0.0)
-  !  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (triffire_ccrpm_min +     &
-  !                          (triffire_ccrpm_max - triffire_ccrpm_min) * &
+  !  emitted_carbon_RPM(l) = MAX(burnt_area(l) * ( rpm_fuel(l) * (ccrpm_min +     &
+  !                          (ccrpm_max - ccrpm_min) * &
   !                           (1.0 - sm(l)))) ,0.0)
 
   emitted_carbon_DPM(l) = MAX(burnt_area(l) * ( dpm_fuel(l) * (0.8 +           &

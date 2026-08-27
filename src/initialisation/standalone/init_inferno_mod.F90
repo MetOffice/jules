@@ -16,7 +16,9 @@ SUBROUTINE init_inferno(nml_dir)
 USE jules_inferno_mod, ONLY: read_nml_jules_inferno,                           &
                            print_nlist_jules_inferno,                          &
                            check_jules_inferno,                                &
-                           l_inferno, l_trif_fire
+                           l_inferno, l_trif_fire, ignition_method
+
+USE logging_mod, ONLY: log_info
 
 IMPLICIT NONE
 
@@ -32,6 +34,10 @@ IMPLICIT NONE
 !   This code is written to JULES coding standards v1.
 !-----------------------------------------------------------------------------
 
+INTEGER, PARAMETER :: ignition_constant = 1
+INTEGER, PARAMETER :: ignition_vary_natural = 2
+INTEGER, PARAMETER :: ignition_vary_natural_human = 3
+
 CHARACTER(LEN=*), INTENT(IN) :: nml_dir  ! The directory containing the
                                          ! namelists
 
@@ -42,6 +48,29 @@ CALL print_nlist_jules_inferno()
 IF ( .NOT. l_inferno .AND. .NOT. l_trif_fire ) RETURN
 
 CALL check_jules_inferno()
+
+!-----------------------------------------------------------------------------
+! Print some human friendly summary information about the selected options.
+!-----------------------------------------------------------------------------
+IF ( l_inferno ) THEN
+  CALL log_info("init_inferno",                                             &
+                "Interactive fires and emissions (INFERNO) will be diagnosed")
+  IF (ignition_method == ignition_constant ) THEN
+    CALL log_info("init_inferno",                                           &
+                  "Constant or ubiquitous ignitions (INFERNO)")
+  ELSE IF (ignition_method == ignition_vary_natural ) THEN
+    CALL log_info("init_inferno",                                           &
+                  "Constant human ignitions, varying lightning (INFERNO)")
+  ELSE IF (ignition_method == ignition_vary_natural_human ) THEN
+    CALL log_info("init_inferno",                                           &
+                  "Fully prescribed ignitions (INFERNO)")
+  END IF
+END IF
+
+IF ( l_trif_fire ) THEN
+  CALL log_info("init_inferno",                                             &
+                "Fires will interact with the carbon cycle in triffid")
+END IF
 
 RETURN
 

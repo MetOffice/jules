@@ -45,8 +45,8 @@ USE jules_vegetation_mod, ONLY: l_nitrogen
 
 USE jules_soil_mod, ONLY: cs_min, sm_levels
 USE ancil_info, ONLY: dim_cslayer, nsoilt, dim_cs1
-USE jules_inferno_mod, ONLY: triffire_ccdpm_min, triffire_ccdpm_max,           &
-                triffire_ccrpm_min, triffire_ccrpm_max, l_trif_fire
+USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,                             &
+                ccrpm_min, ccrpm_max, l_trif_fire
 
 USE dpm_rpm_mod, ONLY: dpm_rpm
 USE decay_mod, ONLY: decay
@@ -348,12 +348,12 @@ IF (l_trif_fire) THEN
   DO t = 1,trif_pts
     l = trif_index(t)
     burnt_carbon_dpm(l) = MAX(g_burn_gb(l) *                                   &
-                          (cs(l,1,1) * (triffire_ccdpm_min +                   &
-                          (triffire_ccdpm_max - triffire_ccdpm_min)            &
+                          (cs(l,1,1) * (ccdpm_min +                   &
+                          (ccdpm_max - ccdpm_min)            &
                           * (1.0 - (sthu_soilt(l,1,1))))) ,0.0)
     burnt_carbon_rpm(l) = MAX(g_burn_gb(l) *                                   &
-                          (cs(l,1,2) * (triffire_ccrpm_min +                   &
-                          (triffire_ccrpm_max - triffire_ccrpm_min)            &
+                          (cs(l,1,2) * (ccrpm_min +                   &
+                          (ccrpm_max - ccrpm_min)            &
                           * (1.0 - (sthu_soilt(l,1,1))))) ,0.0)
     burnt_carbon_dpm(l) = MAX(g_burn_gb(l) *                                   &
                           (cs(l,1,1) * (0.8 +                                  &

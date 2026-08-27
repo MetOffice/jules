@@ -311,8 +311,10 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
                  ! Wood (or Stem) minimum combustion completeness (kg/kg)
 ,ccwood_max(:)                                                                 &
                  ! Wood (or Stem) maximum combustion completeness (kg/kg)
-,fire_mort(:)
+,fire_mort(:)                                                                  &
                  ! Fire mortality per PFT
+,fireveg_c_to_atmos(:)
+                 ! Burnt vegetation carbon to atmosphere per PFT
 
 !-----------------------------------------------------------------------------
 ! Parameters for INFERNO emissions
@@ -601,6 +603,7 @@ ALLOCATE( ccleaf_max(npft))
 ALLOCATE( ccwood_min(npft))
 ALLOCATE( ccwood_max(npft))
 ALLOCATE( fire_mort(npft))
+ALLOCATE( fireveg_c_to_atmos(npft))
 
 avg_ba(:)     = rmdi
 ccleaf_min(:) = rmdi
@@ -608,6 +611,7 @@ ccleaf_max(:) = rmdi
 ccwood_min(:) = rmdi
 ccwood_max(:) = rmdi
 fire_mort(:)  = rmdi
+fireveg_c_to_atmos(:) = rmdi
 
 ! INFERNO emission parameters
 ALLOCATE( fef_bc(npft))
@@ -787,6 +791,8 @@ CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' fef_dms = ',fef_dms
 CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' fire_mort = ',fire_mort
+CALL jules_print('pftparm',lineBuffer)
+WRITE(lineBuffer,*)' fireveg_c_to_atmos = ',fireveg_c_to_atmos
 CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' fl_o3_ct = ',fl_o3_ct
 CALL jules_print('pftparm',lineBuffer)
@@ -1405,6 +1411,10 @@ IF ( l_trif_fire ) THEN
   IF ( ANY( ABS( fire_mort(:) - rmdi ) < EPSILON(1.0) ) ) THEN
     ERROR = 1
     CALL jules_print(routinename, "No value for fire_mort")
+  END IF
+  IF ( ANY( ABS( fireveg_c_to_atmos(:) - rmdi ) < EPSILON(1.0) ) ) THEN
+    ERROR = 1
+    CALL jules_print(routinename, "No value for fireveg_c_to_atmos")
   END IF
 END IF
 

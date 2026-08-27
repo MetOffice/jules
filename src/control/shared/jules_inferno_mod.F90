@@ -41,35 +41,36 @@ INTEGER ::                                                                     &
       !                     Varying  (Lightning - see Pechony & Shindell,2009)
       !   IGNITION_METHOD=3:Vary Human and Lightning (Pechony & Shindell,2009)
   flam_sm_func = 1
-      ! Switch for the calculation method of INFERNO fire flammability
-      ! FLAM_SM_FUNC=1:Linear (old - doesnt require flam_sm_low / flam_sm_up)
-      ! FLAM_SM_FUNC=2:Exponential (newer)
+      ! Switch for relationship between INFERNO fire 
+      !      flammability and soil moisture
+      ! FLAM_SM_FUNC=1:Linear (doesnt require flam_sm_low / flam_sm_up)
+      ! FLAM_SM_FUNC=2:Exponential
 
 
 REAL(KIND=real_jlslsm) ::                                                      &
   flam_sm_low = rmdi,                                                          &
-    ! Lower boundary to soil moisture for flammability calc (flam_sm_func=2)
-    ! UNITS
+    ! Below this soil moisture, flammability is 1.0 (flam_sm_func=2)
+    ! Expressed as a fraction of saturation (between 0 and 1)
   flam_sm_up = rmdi,                                                           &
-    ! Upper boundary to soil moisture for flammability calc (flam_sm_func=2)
-    ! UNITS
+    ! Exponential decay parameter for relationship between soil moisture 
+    ! and flammability (flam_sm_func=2)
   flam_rhum_low = rmdi,                                                        &
     ! Lower boundary to the relative humidity (%,  between 0 and 100 %)
   flam_rhum_up = rmdi,                                                         &
-    ! Lower boundary to the relative humidity (%,  between 0 and 100 %)
+    ! Upper boundary to the relative humidity (%,  between 0 and 100 %)
   flam_rain_const = rmdi,                                                      &
     ! Precipitation factor (-2(day/mm)*(kg/m2/s))
   flam_fuel_low = rmdi,                                                        &
     ! Lower boundary to the fuel density (UNITS)
   flam_fuel_up = rmdi,                                                         &
     ! Upper boundary to the fuel density (UNITS)
-  triffire_ccdpm_min = rmdi,                                                   &
+  ccdpm_min = rmdi,                                                            &
     ! Minimum decomposable plant material burn fraction (0 <= fraction <= 1)
-  triffire_ccdpm_max = rmdi,                                                   &
+  ccdpm_max = rmdi,                                                   &
     ! Decomposable Plant Material burn fraction (0 <= fraction <= 1)
-  triffire_ccrpm_min = rmdi,                                                   &
+  ccrpm_min = rmdi,                                                   &
     ! Minimum resistant plant material urn fraction (0 <= fraction <= 1)
-  triffire_ccrpm_max = rmdi,                                                   &
+  ccrpm_max = rmdi,                                                   &
     ! Resistant Plant Material burn fraction (0 <= fraction <= 1)
   z_burn_max = rmdi
     ! Parameter setting maximum depth of burn (m)
@@ -85,8 +86,7 @@ NAMELIST  / jules_inferno/                                                     &
   l_trif_fire, l_inferno, ignition_method, flam_sm_func,                       &
   flam_sm_low, flam_sm_up, flam_rhum_low, flam_rhum_up,                        &
   flam_rain_const, flam_fuel_low, flam_fuel_up,                                &
-  triffire_ccdpm_min,triffire_ccdpm_max,  triffire_ccrpm_min,                  &
-  triffire_ccrpm_max, z_burn_max
+  ccdpm_min, ccdpm_max,  ccrpm_min, ccrpm_max, z_burn_max
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_INFERNO_MOD'
 
@@ -116,157 +116,123 @@ INTEGER :: errorstatus
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_INFERNO'
 
-!ejb delete USE jules_surface_types_mod, ONLY: npft
-!ejb delete USE jules_soil_biogeochem_mod, ONLY: l_layeredc !ejb check that it is set or move this trap
-
-! Check options that depend on TRIFFID if it is not enabled
-!if l_triffie
-
-IF ( .NOT. l_inferno .AND. .NOT. l_trif_fire ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "l_inferno needs to be specified if l_trif_fire is true.")
-END IF
-
-IF ( ABS(flam_sm_low - rmdi) < EPSILON(rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_sm_low needs to be specified.")
-ELSE IF ( flam_sm_low < 0.0 ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_sm_low must be >= 0.0.")
-END IF
-
-IF ( ABS(flam_sm_up - rmdi) < EPSILON(rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_sm_up needs to be specified.")
-ELSE IF ( flam_sm_up < flam_sm_low ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_sm_up must be >= flam_sm_low")
-ELSE IF ( flam_sm_up > 10.0 ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_sm_up must be <= 10.0.")
-END IF
-
 IF ( l_inferno ) THEN
-  CALL log_info(RoutineName,                                                   &
-                "Interactive fires and emissions (INFERNO) will be diagnosed")
-  IF (ignition_method == ignition_constant ) THEN
-    CALL log_info(RoutineName,                                                 &
-                  "Constant or ubiquitous ignitions (INFERNO)")
-  ELSE IF (ignition_method == ignition_vary_natural ) THEN
-    CALL log_info(RoutineName,                                                 &
-                  "Constant human ignitions, varying lightning (INFERNO)")
-  ELSE IF (ignition_method == ignition_vary_natural_human ) THEN
-    CALL log_info(RoutineName,                                                 &
-                  "Fully prescribed ignitions (INFERNO)")
+  ! Check a suitable ignition_method was given
+  IF ( ignition_method /= ignition_constant .AND.                                &
+      ignition_method /= ignition_vary_natural .AND.                            &
+      ignition_method /= ignition_vary_natural_human ) THEN
+    errorstatus = 101
+    CALL ereport("check_jules_vegetation", errorstatus,                          &
+                'ignition_method must be 1, 2 or 3')
   END IF
-END IF
 
-IF ( ABS(flam_rhum_low - rmdi) < EPSILON(rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_rhum_low needs to be specified.")
-ELSE IF ( flam_rhum_low < 0.0 ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_rhum_low must be >= 0.0.")
-END IF
+  IF ( flam_sm_func == 2 ) THEN
+    IF ( ABS(flam_sm_low - rmdi) < EPSILON(rmdi) ) THEN
+      CALL ereport( TRIM(RoutineName), errorstatus,                            &
+                  "flam_sm_low needs to be specified.")
+    ELSE IF ( flam_sm_low < 0.0 .OR. flam_sm_low > 1.0 ) THEN
+      CALL ereport( TRIM(RoutineName), errorstatus,                            &
+                  "flam_sm_low must be >= 0.0 and <= 1.0.")
+    END IF
 
-IF ( ABS(flam_rhum_up - rmdi) < EPSILON(rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_rhum_up needs to be specified.")
-ELSE IF ( flam_rhum_up < flam_rhum_low ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_rhum_up must be >= flam_rhum_low")
-ELSE IF ( flam_rhum_up > 1.0 ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_rhum_up must be <= 1.0.")
-END IF
+    IF ( ABS(flam_sm_up - rmdi) < EPSILON(rmdi) ) THEN
+      CALL ereport( TRIM(RoutineName), errorstatus,                            &
+                  "flam_sm_up needs to be specified.")
+    ELSE IF ( flam_sm_up < 0.0 ) THEN
+      CALL ereport( TRIM(RoutineName), errorstatus,                            &
+                  "flam_sm_up must be >= 0.0")
+    END IF
+  END IF
 
-IF ( ABS(flam_fuel_low - rmdi) < EPSILON(rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_fuel_low needs to be specified.")
-ELSE IF ( flam_fuel_low < 0.0 ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_fuel_low must be >= 0.0.")
-END IF
+  IF ( ABS(flam_rhum_low - rmdi) < EPSILON(rmdi) ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_rhum_low needs to be specified.")
+  ELSE IF ( flam_rhum_low < 0.0 ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_rhum_low must be >= 0.0.")
+  END IF
 
-IF ( ABS(flam_fuel_up - rmdi) < EPSILON(rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_fuel_up needs to be specified.")
-ELSE IF ( flam_fuel_up < flam_fuel_low ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_fuel_up must be >= flam_fuel_low")
-ELSE IF ( flam_fuel_up > 1.0 ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_fuel_up must be <= 1.0.")
-END IF
+  IF ( ABS(flam_rhum_up - rmdi) < EPSILON(rmdi) ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_rhum_up needs to be specified.")
+  ELSE IF ( flam_rhum_up <= flam_rhum_low ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_rhum_up must be >= flam_rhum_low")
+  ELSE IF ( flam_rhum_up > 100.0 ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_rhum_up must be <= 100.0.")
+  END IF
 
-IF ( ABS(flam_rain_const - rmdi) < EPSILON(rmdi) ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_rain_const needs to be specified.")
-ELSE IF ( flam_rain_const > 0.0 ) THEN
-  CALL ereport( TRIM(RoutineName), errorstatus,                                &
-               "flam_rain_const must be <= 0.0.")
-END IF
+  IF ( ABS(flam_fuel_low - rmdi) < EPSILON(rmdi) ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_fuel_low needs to be specified.")
+  ELSE IF ( flam_fuel_low < 0.0 ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_fuel_low must be >= 0.0.")
+  END IF
+
+  IF ( ABS(flam_fuel_up - rmdi) < EPSILON(rmdi) ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_fuel_up needs to be specified.")
+  ELSE IF ( flam_fuel_up < flam_fuel_low ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_fuel_up must be >= flam_fuel_low")
+  ELSE IF ( flam_fuel_up > 1.0 ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_fuel_up must be <= 1.0.")
+  END IF
+
+  IF ( ABS(flam_rain_const - rmdi) < EPSILON(rmdi) ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_rain_const needs to be specified.")
+  ELSE IF ( flam_rain_const > 0.0 ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                                &
+                "flam_rain_const must be <= 0.0.")
+  END IF
+END IF ! end of l_inferno check
 
 
 IF ( l_trif_fire ) THEN
-  IF ( ABS(triffire_ccdpm_min - rmdi) < EPSILON(rmdi) ) THEN
+  IF ( ABS(ccdpm_min - rmdi) < EPSILON(rmdi) ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccdpm_min needs to be specified.")
-  ELSE IF ( triffire_ccdpm_min < 0.0 ) THEN
+                "ccdpm_min needs to be specified.")
+  ELSE IF ( ccdpm_min < 0.0 ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccdpm_min must be >= 0.0.")
+                "ccdpm_min must be >= 0.0.")
   END IF
 
-  IF ( ABS(triffire_ccdpm_max - rmdi) < EPSILON(rmdi) ) THEN
+  IF ( ABS(ccdpm_max - rmdi) < EPSILON(rmdi) ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccdpm_max needs to be specified.")
-  ELSE IF ( triffire_ccdpm_max < triffire_ccdpm_min ) THEN
+                "ccdpm_max needs to be specified.")
+  ELSE IF ( ccdpm_max < ccdpm_min ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccdpm_max must be >= triffire_ccdpm_min")
-  ELSE IF ( triffire_ccdpm_max > 1.0 ) THEN
+                "ccdpm_max must be >= ccdpm_min")
+  ELSE IF ( ccdpm_max > 1.0 ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccdpm_max must be < 1.0.")
+                "ccdpm_max must be < 1.0.")
   END IF
 
-  IF ( ABS(triffire_ccrpm_min - rmdi) < EPSILON(rmdi) ) THEN
+  IF ( ABS(ccrpm_min - rmdi) < EPSILON(rmdi) ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccrpm_min needs to be specified.")
-  ELSE IF ( triffire_ccrpm_min < 0.0 ) THEN
+                "ccrpm_min needs to be specified.")
+  ELSE IF ( ccrpm_min < 0.0 ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccrpm_min must be >= 0.0.")
+                "ccrpm_min must be >= 0.0.")
   END IF
 
-  IF ( ABS(triffire_ccrpm_max - rmdi) < EPSILON(rmdi) ) THEN
+  IF ( ABS(ccrpm_max - rmdi) < EPSILON(rmdi) ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccrpm_max needs to be specified.")
-  ELSE IF ( triffire_ccrpm_max < triffire_ccrpm_min ) THEN
+                "ccrpm_max needs to be specified.")
+  ELSE IF ( ccrpm_max < ccrpm_min ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccrpm_max must be >= triffire_ccrpm_min")
-  ELSE IF ( triffire_ccrpm_max > 1.0 ) THEN
+                "ccrpm_max must be >= ccrpm_min")
+  ELSE IF ( ccrpm_max > 1.0 ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "triffire_ccrpm_max must be < 1.0.")
+                "ccrpm_max must be < 1.0.")
   END IF
-END IF
 
+END IF  ! end of l_trif_fire check
 
-! Check a suitable ignition_method was given
-IF ( ignition_method /= ignition_constant .AND.                                &
-     ignition_method /= ignition_vary_natural .AND.                            &
-     ignition_method /= ignition_vary_natural_human ) THEN
-  errorstatus = 101
-  CALL ereport("check_jules_vegetation", errorstatus,                          &
-               'ignition_method must be 1, 2 or 3')
-END IF
-
-! check value of z_burn_max with l_layeredc
-!IF ( l_layeredc ) THEN
-!!  IF ( ABS( z_burn_max - rmdi ) > EPSILON(1.0) ) THEN
- !   IF ( z_burn_max <= 0.0 .OR. z_burn_max > 10.0 ) THEN
- !     CALL ereport(RoutineName, errorstatus,                                   &
- !                  "z_burn_max must be positive & less than 10 meters")
- !   END IF
- ! END IF
-!END IF
 
 END SUBROUTINE check_jules_inferno
 
@@ -294,6 +260,14 @@ IF ( l_inferno ) THEN
   WRITE(lineBuffer,*)' ignition_method = ',ignition_method
   CALL jules_print('jules_inferno_mod',lineBuffer)
 
+  IF (ignition_method == ignition_constant ) THEN
+    WRITE(lineBuffer,*)'Constant or ubiquitous ignitions (l_inferno=T)'
+  ELSE IF (ignition_method == ignition_vary_natural ) THEN
+    WRITE(lineBuffer,*)'Constant human ignitions, varying lightning (l_inferno=T)'
+  ELSE IF (ignition_method == ignition_vary_natural_human ) THEN
+    WRITE(lineBuffer,*)'Fully prescribed ignitions (l_inferno=T)'
+  END IF
+
   WRITE(lineBuffer,*)' flam_sm_func = ',flam_sm_func
   CALL jules_print('jules_inferno_mod',lineBuffer)
 
@@ -320,16 +294,16 @@ IF ( l_inferno ) THEN
 END IF
 
 IF ( l_trif_fire ) THEN
-  WRITE(lineBuffer,*)' triffire_ccdpm_min = ',triffire_ccdpm_min
+  WRITE(lineBuffer,*)' ccdpm_min = ',ccdpm_min
   CALL jules_print('jules_inferno_mod',lineBuffer)
 
-  WRITE(lineBuffer,*)' triffire_ccdpm_max = ',triffire_ccdpm_max
+  WRITE(lineBuffer,*)' ccdpm_max = ',ccdpm_max
   CALL jules_print('jules_inferno_mod',lineBuffer)
 
-  WRITE(lineBuffer,*)' triffire_ccrpm_min = ',triffire_ccrpm_min
+  WRITE(lineBuffer,*)' ccrpm_min = ',ccrpm_min
   CALL jules_print('jules_inferno_mod',lineBuffer)
 
-  WRITE(lineBuffer,*)' triffire_ccrpm_max = ',triffire_ccrpm_max
+  WRITE(lineBuffer,*)' ccrpm_max = ',ccrpm_max
   CALL jules_print('jules_inferno_mod',lineBuffer)
 
   WRITE(lineBuffer, *) ' z_burn_max = ', z_burn_max
@@ -386,10 +360,10 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: flam_rain_const
   REAL(KIND=real_jlslsm) :: flam_fuel_low
   REAL(KIND=real_jlslsm) :: flam_fuel_up
-  REAL(KIND=real_jlslsm) :: triffire_ccdpm_min
-  REAL(KIND=real_jlslsm) :: triffire_ccdpm_max
-  REAL(KIND=real_jlslsm) :: triffire_ccrpm_min
-  REAL(KIND=real_jlslsm) :: triffire_ccrpm_max
+  REAL(KIND=real_jlslsm) :: ccdpm_min
+  REAL(KIND=real_jlslsm) :: ccdpm_max
+  REAL(KIND=real_jlslsm) :: ccrpm_min
+  REAL(KIND=real_jlslsm) :: ccrpm_max
   REAL(KIND=real_jlslsm) :: z_burn_max
   LOGICAL :: l_trif_fire
   LOGICAL :: l_inferno
@@ -423,10 +397,10 @@ IF (mype == 0) THEN
   my_nml % flam_rain_const = flam_rain_const
   my_nml % flam_fuel_low   = flam_fuel_low
   my_nml % flam_fuel_up    = flam_fuel_up
-  my_nml % triffire_ccdpm_min = triffire_ccdpm_min
-  my_nml % triffire_ccdpm_max = triffire_ccdpm_max
-  my_nml % triffire_ccrpm_min = triffire_ccrpm_min
-  my_nml % triffire_ccrpm_max = triffire_ccrpm_max
+  my_nml % ccdpm_min = ccdpm_min
+  my_nml % ccdpm_max = ccdpm_max
+  my_nml % ccrpm_min = ccrpm_min
+  my_nml % ccrpm_max = ccrpm_max
   my_nml % z_burn_max         = z_burn_max
 END IF
 
@@ -445,10 +419,10 @@ IF (mype /= 0) THEN
   flam_rain_const = my_nml % flam_rain_const
   flam_fuel_low   = my_nml % flam_fuel_low
   flam_fuel_up    = my_nml % flam_fuel_up
-  triffire_ccdpm_min = my_nml % triffire_ccdpm_min
-  triffire_ccdpm_max = my_nml % triffire_ccdpm_max
-  triffire_ccrpm_min = my_nml % triffire_ccrpm_min
-  triffire_ccrpm_max = my_nml % triffire_ccrpm_max
+  ccdpm_min = my_nml % ccdpm_min
+  ccdpm_max = my_nml % ccdpm_max
+  ccrpm_min = my_nml % ccrpm_min
+  ccrpm_max = my_nml % ccrpm_max
   z_burn_max         = my_nml % z_burn_max
 END IF
 
