@@ -42,7 +42,7 @@ SUBROUTINE hydrol (                                                            &
      fexp_soilt, ti_mean_soilt,                                                &
      npp_soilt, inlandout_atm_gb, inlandout_atm_gb_wtrac,                      &
      canopy_surft, canopy_surft_wtrac, smcl_soilt, sthf_soilt,                 &
-     sthu_soilt,  sthu_irr_soilt, tsoil_deep_gb,                               &
+     sthu_soilt,  sthu_irr_soilt, tsoil_deep_gb, dtsd_acc_gb,                  &
      t_soil_soilt, t_soil_soilt_acc, tsurf_elev_surft,                         &
      smcl_soilt_wtrac, sthf_soilt_wtrac, sthu_soilt_wtrac,                     &
      fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, sthzw_soilt_wtrac,        &
@@ -58,7 +58,7 @@ SUBROUTINE hydrol (                                                            &
      qbase_l_soilt, qbase_zw_soilt,                                            &
      fch4_wetl_soilt, fch4_wetl_cs_soilt,                                      &
      fch4_wetl_npp_soilt, fch4_wetl_resps_soilt,                               &
-     n_leach_soilt, dtsd_acc_soilt)
+     n_leach_soilt)
 
 !Use in relevant subroutines
 USE ancil_info,               ONLY: dim_cslayer, nsoilt
@@ -305,6 +305,8 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     !  Unfrozen soil wetness over irrigation.
   tsoil_deep_gb(land_pts,ns_deep),                                             &
     ! Deep soil temperature (K).
+  dtsd_acc_gb(land_pts,ns_deep),                                               &
+    ! Accumulated correction in deep soil (bedrock) temperature (K).
   t_soil_soilt(land_pts,nsoilt,sm_levels),                                     &
     ! Sub-surface temperatures (K).
   t_soil_soilt_acc(land_pts,nsoilt,sm_levels),                                 &
@@ -316,11 +318,9 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Soil moisture content of each layer (kg/m2).
   sthf_soilt_wtrac(land_pts,nsoilt,sm_levels,n_wtrac_jls),                     &
     ! Frozen soil moisture content of each layer as a fraction of saturation.
-  sthu_soilt_wtrac(land_pts,nsoilt,sm_levels,n_wtrac_jls),                     &
+  sthu_soilt_wtrac(land_pts,nsoilt,sm_levels,n_wtrac_jls)
     ! Unfrozen soil moisture content of each layer as a fraction of
     ! saturation.
-  dtsd_acc_soilt(land_pts,nsoilt,ns_deep)
-    ! Accumulated correction in deep soil (bedrock) temperature (K).
 
 
 ! TOPMODEL variables.
@@ -1128,7 +1128,7 @@ IF (soil_pts /= 0) THEN
       sathh_soilt(:,m,:), smcl_soilt(:,m,:), snowdepth_surft,                  &
       surf_ht_flux_ld, smvcst_soilt(:,m,:), w_flux_soilt(:,m,:),               &
       sthf_soilt(:,m,:), sthu_soilt(:,m,:), sthu_irr_soilt(:,m,:),             &
-      t_soil_soilt(:,m,:), tsoil_deep_gb, dtsd_acc_soilt(:,m,:),               &
+      t_soil_soilt(:,m,:), tsoil_deep_gb, dtsd_acc_gb,                      &
       dim_cs1, resp_s_soilt )
   ELSE
     ! Surface and soil tiles map directly on to each other.
@@ -1142,7 +1142,7 @@ IF (soil_pts /= 0) THEN
         sathh_soilt(:,m,:), smcl_soilt(:,m,:), snowdepth_surft,                &
         snow_soil_htf(:,n), smvcst_soilt(:,m,:), w_flux_soilt(:,m,:),          &
         sthf_soilt(:,m,:), sthu_soilt(:,m,:),  sthu_irr_soilt(:,m,:),          &
-        t_soil_soilt(:,m,:), tsoil_deep_gb, dtsd_acc_soilt(:,m,:),             &
+        t_soil_soilt(:,m,:), tsoil_deep_gb, dtsd_acc_gb,                       &
         dim_cs1, resp_s_soilt )
     END DO
   END IF

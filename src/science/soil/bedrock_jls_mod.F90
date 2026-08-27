@@ -7,7 +7,7 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='BEDROCK_MOD'
 CONTAINS
 
 SUBROUTINE bedrock (npnts,soil_pts,dzsoil,timestep,soil_index,                 &
-                    tsoil,hcsoil,tsoil_deep_gb,hflux_in,dtsd_acc)
+                    tsoil,hcsoil,tsoil_deep_gb,hflux_in,dtsd_acc_gb)
 
 USE jules_soil_mod,   ONLY: ns_deep, hcapdeep, hcondeep, dzdeep, hflux_geo
 USE conversions_mod,  ONLY: zerodegc
@@ -53,7 +53,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   tsoil_deep_gb(npnts,ns_deep),                                                &
     ! Deep soil temperature (K).
-  dtsd_acc(npnts,ns_deep)
+  dtsd_acc_gb(npnts,ns_deep)
     ! Accumulated correction in deep soil (bedrock) temperature (K).
 
 !-----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! and top of bedrock.
   tsoil_k,                                                                     &
     ! temperature of base soil layer in Kelvin
-  tsoil_deep_0,                                                                &
+  tsoil_deep_prev,                                                                &
     ! Previous value of deep soil temperature (K).
   dtsh_applied
     ! Change in value of deep soil temperature in this timestep (K).
@@ -141,12 +141,13 @@ DO j = 1,soil_pts
   ! Update the layer temperatures
   !---------------------------------------------------------------------------
   DO n = 1,ns_deep
-    tsoil_deep_0 = tsoil_deep_gb(i,n)
-    tsoil_deep_gb(i,n) = MAX(tsoil_deep_gb(i,n)+dtsd(i,n)+dtsd_acc(i,n), 0.0)
-    tsoil_deep_gb(i,n) = MIN(tsoil_deep_gb(i,n),10000.0)
+    tsoil_deep_prev = tsoil_deep_gb(i,n)
+    tsoil_deep_gb(i,n) = MAX(tsoil_deep_gb(i,n) + dtsd(i,n) +       &
+               dtsd_acc_gb(i,n), 0.0)
+    tsoil_deep_gb(i,n) = MIN(tsoil_deep_gb(i,n), 1000.0)
     ! Calculate cumulative numerical correction (avoids rounding error)
-    dtsh_applied = tsoil_deep_gb(i,n) - tsoil_deep_0
-    dtsd_acc(i,n) = dtsd(i,n) + dtsd_acc(i,n) - dtsh_applied
+    dtsh_applied = tsoil_deep_gb(i,n) - tsoil_deep_prev
+    dtsd_acc_gb(i,n) = dtsd(i,n) + dtsd_acc_gb(i,n) - dtsh_applied
   END DO
 
 END DO

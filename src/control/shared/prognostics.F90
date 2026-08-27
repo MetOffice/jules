@@ -48,6 +48,8 @@ TYPE :: progs_data_type
 
   REAL(KIND=real_jlslsm), ALLOCATABLE :: tsoil_deep_gb(:,:)
     ! Deep soil temperatures (K)
+ REAL(KIND=real_jlslsm), ALLOCATABLE :: dtsd_acc_gb(:,:)
+    ! Accumulated correction in deep soil (bedrock) temperature (K).
   REAL(KIND=real_jlslsm), ALLOCATABLE :: sice_surft(:,:,:)
     ! Snow layer ice mass on tiles (kg/m2)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: sliq_surft(:,:,:)
@@ -201,6 +203,7 @@ TYPE :: progs_type
   INTEGER, POINTER :: years_since_harvest(:,:)
 
   REAL(KIND=real_jlslsm), POINTER :: tsoil_deep_gb(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: dtsd_acc_gb(:,:)
   REAL(KIND=real_jlslsm), POINTER :: sice_surft(:,:,:)
   REAL(KIND=real_jlslsm), POINTER ::   sliq_surft(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: snowdepth_surft(:,:)
@@ -410,8 +413,11 @@ END IF
 IF ( l_bedrock ) THEN
   ALLOCATE(progs_data%tsoil_deep_gb(land_pts,ns_deep))
   progs_data%tsoil_deep_gb(:,:) = 0.0
+  ALLOCATE(progs_data%dtsd_acc_gb(land_pts,ns_deep))
+  progs_data%dtsd_acc_gb(:,:) = 0.0
 ELSE
   ALLOCATE(progs_data%tsoil_deep_gb(1,1))
+  ALLOCATE(progs_data%dtsd_acc_gb(1,1))
 END IF
 
 ! Prognostics for microbial methane scheme
@@ -566,6 +572,7 @@ IF ( ALLOCATED(progs_data%years_since_harvest) ) THEN
 END IF
 
 DEALLOCATE(progs_data%tsoil_deep_gb)
+DEALLOCATE(progs_data%dtsd_acc_gb)
 
 IF ( ALLOCATED(progs_data%t_home_gb) ) THEN
   DEALLOCATE(progs_data%t_home_gb)
@@ -662,6 +669,7 @@ progs%frac_past_prev_gb => progs_data%frac_past_prev_gb
 progs%frac_biocrop_prev_gb => progs_data%frac_biocrop_prev_gb
 progs%triffid_co2_gb => progs_data%triffid_co2_gb
 progs%tsoil_deep_gb => progs_data%tsoil_deep_gb
+progs%dtsd_acc_gb => progs_data%dtsd_acc_gb
 progs%lai_pft => progs_data%lai_pft
 progs%canht_pft => progs_data%canht_pft
 progs%smcl_soilt => progs_data%smcl_soilt
@@ -752,6 +760,7 @@ NULLIFY(progs%frac_past_prev_gb)
 NULLIFY(progs%frac_biocrop_prev_gb)
 NULLIFY(progs%triffid_co2_gb)
 NULLIFY(progs%tsoil_deep_gb)
+NULLIFY(progs%dtsd_acc_gb)
 NULLIFY(progs%lai_pft)
 NULLIFY(progs%canht_pft)
 NULLIFY(progs%smcl_soilt)

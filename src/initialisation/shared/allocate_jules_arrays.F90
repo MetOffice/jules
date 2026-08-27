@@ -238,7 +238,7 @@ CALL pftparm_alloc(npft)
 CALL psparms_alloc(land_pts,t_i_length,t_j_length,                             &
                    nsoilt,sm_levels,dim_cslayer,nsurft,npft,                   &
                    soil_bgc_model,soil_model_ecosse,l_use_pft_psi,             &
-                   psparms_data,l_bedrock,ns_deep)
+                   psparms_data)
 
 CALL top_pdm_alloc(land_pts,nsoilt, top_pdm_data)
 

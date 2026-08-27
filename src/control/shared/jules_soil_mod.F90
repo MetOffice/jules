@@ -135,9 +135,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
       ! Thermal conductivity of bedrock (W/m/K)
   dzdeep = rmdi,                                                               &
       ! Thickness of bedrock layers (m)
-  hflux_geo = 0.0
+  hflux_geo = rmdi
       ! Geothermal heat flux (W/m2)
-      ! 0.067 +- 0.031 is areal average for continents (F.Lucazeau, 2019)
 
 !-----------------------------------------------------------------------------
 ! Variable length arrays that can be set using the namelist
@@ -214,7 +213,6 @@ errorstatus = 101
 
 ! Check that sm_levels has been set
 IF ( sm_levels < 1 ) THEN
-  errorstatus = 101
   CALL ereport("check_jules_soil", errorstatus,                                &
                "sm_levels must be between 1 and sm_levels_max")
 END IF
@@ -283,7 +281,7 @@ IF ( l_irrig_dmd .AND. sm_levels < 2 ) THEN
 END IF
 
 IF ( l_bedrock ) THEN
-  ! Check ns_deep, dzdeep, hcondeep. hcapdeep are set and valid
+  ! Check ns_deep, dzdeep, hcondeep. hcapdeep, hflux_geo are set and valid
   IF ( ABS( ns_deep - rmdi ) < EPSILON(1.0) ) THEN
     CALL ereport(RoutineName, errorstatus, 'ns_deep not found')
   ELSE IF ( ns_deep < 1 ) THEN

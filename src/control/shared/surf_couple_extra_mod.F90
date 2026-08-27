@@ -778,6 +778,7 @@ CASE ( jules )
       progs%canopy_surft, wtrac_jls%canopy_surft,                              &
       progs%smcl_soilt, psparms%sthf_soilt,                                    &
       psparms%sthu_soilt, crop_vars%sthu_irr_soilt, progs%tsoil_deep_gb,       &
+      progs%dtsd_acc_gb,                                                       &
       progs%t_soil_soilt, progs%t_soil_soilt_acc, progs%tsurf_elev_surft,      &
       wtrac_jls%smcl_soilt, wtrac_jls%sthf_soilt, wtrac_jls%sthu_soilt,        &
       fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, wtrac_jls%sthzw_soilt,   &
@@ -793,7 +794,7 @@ CASE ( jules )
       toppdm%qbase_soilt, qbase_l_soilt, toppdm%qbase_zw_soilt,                &
       toppdm%fch4_wetl_soilt, toppdm%fch4_wetl_cs_soilt,                       &
       toppdm%fch4_wetl_npp_soilt, toppdm%fch4_wetl_resps_soilt,                &
-      trif_vars%n_leach_soilt, psparms%dtsd_acc_soilt)
+      trif_vars%n_leach_soilt)
 
 
     DEALLOCATE(ls_graup_wtrac)
