@@ -242,7 +242,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ! Single namelist definition for UM and standalone
 !------------------------------------------------------------------------------
 NAMELIST  /jules_rivers/                                                       &
-  l_rivers, l_minor_reservoirs, l_riv_overbank,                      &
+  l_rivers, l_minor_reservoirs, l_riv_overbank,                                &
   l_adapt_timestep, l_sea_level,                                               &
   l_vary_sea_level, i_river_vn, nstep_rivers,                                  &
   trip_globe_shape,                                                            &
