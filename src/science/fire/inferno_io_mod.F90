@@ -314,10 +314,10 @@ END DO
 DO i = 1, npft
   ! Calculate the fuel density
   ! We use normalised Leaf Carbon + the available DPM
-  !inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - flam_fuel_low)                 &
-  !                  /(flam_fuel_up - flam_fuel_low)
-  inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - 0.02)                          &
-                    /(0.2 - 0.02)
+  inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - flam_fuel_low)                 &
+                    /(flam_fuel_up - flam_fuel_low)
+  !inferno_fuel(:) = (leaf_inf(:,i) + dpm_fuel - 0.02)                          &
+  !                  /(0.2 - 0.02)
   WHERE (inferno_fuel < 0.0) inferno_fuel = 0.0
 
   WHERE (inferno_fuel > 1.0) inferno_fuel = 1.0
