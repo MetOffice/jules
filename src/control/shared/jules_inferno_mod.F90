@@ -59,7 +59,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
   flam_rhum_up = rmdi,                                                         &
     ! Upper boundary to the relative humidity (%,  between 0 and 100 %)
   flam_rain_const = rmdi,                                                      &
-    ! Precipitation factor (-2(day/mm)*(kg/m2/s))
+    ! Precipitation factor (2(day/mm)*(kg/m2/s)  WRONG UNITS)
   flam_fuel_low = rmdi,                                                        &
     ! Lower boundary to the fuel density (UNITS)
   flam_fuel_up = rmdi,                                                         &
@@ -116,14 +116,21 @@ INTEGER :: errorstatus
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_INFERNO'
 
+errorstatus = 101
+
 IF ( l_inferno ) THEN
   ! Check a suitable ignition_method was given
   IF ( ignition_method /= ignition_constant .AND.                              &
       ignition_method /= ignition_vary_natural .AND.                           &
       ignition_method /= ignition_vary_natural_human ) THEN
-    errorstatus = 101
-    CALL ereport("check_jules_vegetation", errorstatus,                        &
-                'ignition_method must be 1, 2 or 3')
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
+              'ignition_method must be 1, 2 or 3')
+  END IF
+
+  ! Check a suitable flam_sm_func was given
+  IF ( flam_sm_func /= 1 .AND. flam_sm_func /= 2 ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
+              'flam_sm_func must be 1 or 2')
   END IF
 
   IF ( flam_sm_func == 2 ) THEN
@@ -176,7 +183,7 @@ IF ( l_inferno ) THEN
                 "flam_fuel_up needs to be specified.")
   ELSE IF ( flam_fuel_up < flam_fuel_low ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "flam_fuel_up must be >= flam_fuel_low")
+                "flam_fuel_up must be > flam_fuel_low")
   ELSE IF ( flam_fuel_up > 1.0 ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_fuel_up must be <= 1.0.")
@@ -185,9 +192,9 @@ IF ( l_inferno ) THEN
   IF ( ABS(flam_rain_const - rmdi) < EPSILON(rmdi) ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "flam_rain_const needs to be specified.")
-  ELSE IF ( flam_rain_const > 0.0 ) THEN
+  ELSE IF ( flam_rain_const < 0.0 ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
-                "flam_rain_const must be <= 0.0.")
+                "flam_rain_const must be >= 0.0.")
   END IF
 END IF ! end of l_inferno check
 
@@ -336,7 +343,7 @@ IMPLICIT NONE
 INTEGER, INTENT(IN) :: unitnumber
 INTEGER :: my_comm
 INTEGER :: mpl_nml_type
-INTEGER :: ErrorStatus
+INTEGER :: errorstatus
 INTEGER :: icode
 CHARACTER(LEN=errormessagelength) :: iomessage
 REAL(KIND=jprb) :: zhook_handle
@@ -467,7 +474,7 @@ OPEN(namelist_unit, FILE=(TRIM(nml_dir) // '/' // 'fire.nml'),                 &
                IOMSG = iomessage)
 IF ( ERROR /= 0 )                                                              &
   CALL log_fatal("init_inferno", "Error opening namelist file fire.nml " //    &
-                 "Error opening namelist file inferno.nml " //                 &
+                 "Error opening namelist file fire.nml " //                    &
                  "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
                  TRIM(iomessage) // ")")
 

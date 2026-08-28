@@ -163,10 +163,19 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
 .. nml:member:: flam_rain_const
 
    :type: real
-   :default: -14929920000.0
+   :default: 14929920000.0
 
+   An exponential decay factor that defines the relationship between flammability and rainfall.
+   In order to recreate the relationship hardwired into jules version 8.2 and lower this value 
+    should be set to 14929920000.0. However, this isnt the relationship that
+   was documented by Mangeon et al. (2016). If you want the Mangeon et al. relationship 
+    then this value should be 172800.0.
+   If you want to remove the dependence of flammability on rainfall then this value should be set to 0.0.
 
-buggy
+   .. seealso::
+      References:
+
+      * Mangeon, S., Voulgarakis, A., Gilham, R., Harper, A., Sitch, S., and Folberth, G.: INFERNO: a fire and emissions scheme for the UK Met Office’s Unified Model, Geosci. Model Dev., 9, 2685-2700, https://doi.org/10.5194/gmd-9-2685-2016, 2016.
 
 .. nml:member:: flam_fuel_low
 

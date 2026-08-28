@@ -95,13 +95,13 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "ccrpm_min"], "0.0")
         self.add_setting(config, ["namelist:jules_inferno", "ccrpm_max"], "0.2")
         
-        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_low"], "0.1")
-        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_up"], "0.9")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_low"], "10.0")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_up"], "90.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_low"], "0.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_up"], "2.4")
         self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_low"], "0.02")
         self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_up"], "0.2")
-        self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "-14929920000.0")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
         
         npft = int(self.get_setting_value(config, ["namelist:jules_surface_types", "npft"]))

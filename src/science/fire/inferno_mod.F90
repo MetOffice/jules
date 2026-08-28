@@ -289,11 +289,11 @@ IF (l_cf_old_inferno) THEN
   ! convert rain rate from kg/m2/s to mm/day
   flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
                        * EXP( cr * rain_rate) ,1.0) ,0.0)
-ELSE
-  flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
-                       * EXP( -flam_rain_const * rain_l) ,1.0) ,0.0)
-  ! EJB add units here for rain or add rain as a separate function - make flam_rain > 0
 END IF
+!  flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
+!                       * EXP( -flam_rain_const * rain_l) ,1.0) ,0.0)
+  ! EJB add units here for rain or add rain as a separate function - make flam_rain > 0
+
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
