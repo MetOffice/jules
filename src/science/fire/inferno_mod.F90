@@ -271,12 +271,6 @@ IF (rhum_l < flam_rhum_low) f_rhum_l = 1.0
 IF (rhum_l > flam_rhum_up)  f_rhum_l = 0.0
   ! No fires for RH > flam_rhum_up
 
-IF (l_cf_old_inferno) THEN
-  f_rhum_l  = (90.0 - rhum_l) / (90.0 - 10.0)
-  IF (rhum_l < 10.0) f_rhum_l = 1.0
-  IF (rhum_l > 90.0)  f_rhum_l = 0.0
-END IF
-
 IF ( flam_sm_func == 1 ) THEN   ! linear
   f_sm_l    = (1 - sm_l)
 ELSE IF ( flam_sm_func == 2 ) THEN   ! exponential
