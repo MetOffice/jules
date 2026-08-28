@@ -36,7 +36,7 @@ USE jules_snow_mod, ONLY: nsmax
 
 USE jules_sea_seaice_mod, ONLY: nice, nice_use
 
-USE jules_soil_mod, ONLY: sm_levels, ns_deep, l_tile_soil, l_bedrock
+USE jules_soil_mod, ONLY: sm_levels, ns_deep, l_tile_soil
 
 USE model_interface_mod, ONLY: bl_level_dim_size, bedrock_dim_size,            &
                                pft_dim_size, quantile_dim_size,                &
@@ -145,9 +145,7 @@ ELSE
 END IF
 ch4layer_dim_size = dim_ch4layer
 dep_species_dim_size = ndry_dep_species
-IF ( l_bedrock ) THEN
-  bedrock_dim_size  = ns_deep
-END IF
+bedrock_dim_size  = ns_deep
 nmasst_dim_size    = nmasst
 
 RETURN

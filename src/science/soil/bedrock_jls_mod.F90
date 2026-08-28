@@ -45,7 +45,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   tsoil(npnts),                                                                &
     ! Soil temp at base of column (Celsius)
   hcsoil(npnts)
-    ! Heat conductivity of base soil layer
+    ! Heat conductivity of base soil layer (W/m/K)
 
 !-----------------------------------------------------------------------------
 ! Arguments with INTENT(IN OUT):
@@ -61,7 +61,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
 !-----------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   hflux_in(npnts)
-    ! heat flux from base of soil column into bedrock layers
+    ! heat flux from base of soil column into bedrock layers (W/m2)
 
 !-----------------------------------------------------------------------------
 ! Local scalar variables.
@@ -70,13 +70,13 @@ INTEGER :: i, j, n  ! loop counter
 
 REAL(KIND=real_jlslsm) ::                                                      &
   hctop,                                                                       &
-    ! interpolated heat conductivity where bedrock joins soil
+    ! interpolated heat conductivity where bedrock joins soil (W/m/K)
   dztop,                                                                       &
     ! interpolated layer thickness for heat transfer between base of soil
-    ! and top of bedrock.
+    ! and top of bedrock (m).
   tsoil_k,                                                                     &
     ! temperature of base soil layer in Kelvin
-  tsoil_deep_prev,                                                                &
+  tsoil_deep_prev,                                                             &
     ! Previous value of deep soil temperature (K).
   dtsh_applied
     ! Change in value of deep soil temperature in this timestep (K).

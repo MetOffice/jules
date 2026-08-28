@@ -412,13 +412,13 @@ END IF
 ! Only allocate the bedrock tsoil_deep_gb if bedrock is being used
 IF ( l_bedrock ) THEN
   ALLOCATE(progs_data%tsoil_deep_gb(land_pts,ns_deep))
-  progs_data%tsoil_deep_gb(:,:) = 0.0
   ALLOCATE(progs_data%dtsd_acc_gb(land_pts,ns_deep))
-  progs_data%dtsd_acc_gb(:,:) = 0.0
 ELSE
   ALLOCATE(progs_data%tsoil_deep_gb(1,1))
   ALLOCATE(progs_data%dtsd_acc_gb(1,1))
 END IF
+progs_data%dtsd_acc_gb(:,:) = 0.0
+progs_data%tsoil_deep_gb(:,:) = 0.0
 
 ! Prognostics for microbial methane scheme
 ALLOCATE(progs_data%substr_ch4(land_pts,dim_ch4layer))

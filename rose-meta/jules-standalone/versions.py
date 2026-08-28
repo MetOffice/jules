@@ -57,5 +57,5 @@ class vn82_t76(MacroUpgrade):
 
         # Add settings
         self.add_setting(config, ["namelist:jules_soil", "hflux_geo"], "0.067")
-
+        self.change_setting_value(config, ["namelist:jules_soil", "hcondeep"], "3.0")
         return config, self.reports

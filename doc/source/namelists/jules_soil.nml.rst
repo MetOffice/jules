@@ -113,7 +113,7 @@ This file sets the soil options and parameters. It contains one namelist called 
 
    Switch for using a thermal bedrock column beneath the soil column. The bedrock has no hydrological processes - diffusion of heat is the only process represented.
 
-   Properties of the bedrock can be set using :nml:mem:`ns_deep`, :nml:mem:`hcapdeep`, :nml:mem:`hcondeep`, :nml:mem:`dzdeep` and :nml:mem:`hflux_geo`:.
+   Properties of the bedrock can be set using :nml:mem:`ns_deep`, :nml:mem:`hcapdeep`, :nml:mem:`hcondeep`, :nml:mem:`dzdeep` and :nml:mem:`hflux_geo`.
 
    TRUE
        An additional bedrock column is used below the soil column.
@@ -149,7 +149,7 @@ This file sets the soil options and parameters. It contains one namelist called 
       :type: real
       :default: 3.0
 
-      The heat conductivity of the bedrock (W m\ :sup:`-2` K\ :sup:`-1` ).
+      The heat conductivity of the bedrock (W m\ :sup:`-1` K\ :sup:`-1` ).
 
 
    .. nml:member:: dzdeep

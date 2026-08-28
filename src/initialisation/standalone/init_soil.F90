@@ -111,8 +111,14 @@ ELSE
                 "soilHc_method = 3 - Chadburn et al. (2015)")
 END IF
 
-IF ( l_bedrock )                                                               &
+IF ( l_bedrock )  THEN                                                             &
   CALL log_info("init_soil", "Bedrock will be included at base of soil")
+
+  IF ( ns_deep ==  1) THEN
+    CALL log_warn("init_soil", "Bedrock will be modelled as a single layer")
+    CALL log_warn("init_soil", "There is no geothermal heat flux applied")
+  END IF
+END IF
 
 IF ( l_tile_soil ) THEN
   CALL log_info("init_soil",                                                   &
@@ -128,6 +134,8 @@ ELSE
   CALL log_info("init_soil",                                                   &
     "l_tile_soil = F. Soil tiling is switched off: nsoilt = 1")
 END IF
+
+
 
 RETURN
 END SUBROUTINE init_soil

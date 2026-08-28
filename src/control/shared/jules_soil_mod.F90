@@ -282,8 +282,8 @@ END IF
 
 IF ( l_bedrock ) THEN
   ! Check ns_deep, dzdeep, hcondeep. hcapdeep, hflux_geo are set and valid
-  IF ( ABS( ns_deep - rmdi ) < EPSILON(1.0) ) THEN
-    CALL ereport(RoutineName, errorstatus, 'ns_deep not found')
+  IF ( ns_deep == imdi ) THEN
+    CALL ereport(RoutineName, errorstatus, 'ns_deep not specified')
   ELSE IF ( ns_deep < 1 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
                  'Bedrock must have at least one layer')
@@ -313,9 +313,10 @@ IF ( l_bedrock ) THEN
                    'hcapdeep must lie in the range 100000 to 8000000 J/K/m3')
   END IF
 
-  ! As 0.0 default value, not compulsory  to set.
   ! For continents, areal average 0.067 (F.LUCAZEAU, 2019)
-  IF (hflux_geo < -0.052 .OR. hflux_geo > 15.6 ) THEN
+  IF ( ABS( hflux_geo - rmdi ) < EPSILON(1.0) ) THEN
+    CALL ereport(RoutineName, errorstatus, 'hflux_geo not found')
+  ELSE IF (hflux_geo < -0.052 .OR. hflux_geo > 15.6 ) THEN
     CALL ereport(RoutineName, errorstatus,                                     &
                    'hflux_geo must lie in the range -0.052 to 15.6 W/m2')
   END IF
