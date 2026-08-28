@@ -48,8 +48,8 @@ TYPE :: progs_data_type
 
   REAL(KIND=real_jlslsm), ALLOCATABLE :: tsoil_deep_gb(:,:)
     ! Deep soil temperatures (K)
- REAL(KIND=real_jlslsm), ALLOCATABLE :: dtsd_acc_gb(:,:)
-    ! Accumulated correction in deep soil (bedrock) temperature (K).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: dtsd_acc_gb(:,:)
+     ! Accumulated correction in deep soil (bedrock) temperature (K).
   REAL(KIND=real_jlslsm), ALLOCATABLE :: sice_surft(:,:,:)
     ! Snow layer ice mass on tiles (kg/m2)
   REAL(KIND=real_jlslsm), ALLOCATABLE :: sliq_surft(:,:,:)

@@ -29,11 +29,11 @@ USE string_utils_mod, ONLY: to_string
 USE jules_soil_mod, ONLY: jules_soil, sm_levels, dzsoil, dzsoil_elev,          &
                           l_vg_soil, l_soil_sat_down, soilhc_method,           &
                           l_bedrock, l_tile_soil, l_broadcast_ancils,          &
-                          check_jules_soil
+                          check_jules_soil, ns_deep
 
 USE jules_surface_mod, ONLY: l_elev_land_ice
 
-USE logging_mod, ONLY: log_info, log_fatal
+USE logging_mod, ONLY: log_info, log_fatal, log_warn
 
 USE errormessagelength_mod, ONLY: errormessagelength
 
@@ -111,7 +111,7 @@ ELSE
                 "soilHc_method = 3 - Chadburn et al. (2015)")
 END IF
 
-IF ( l_bedrock )  THEN                                                             &
+IF ( l_bedrock ) THEN
   CALL log_info("init_soil", "Bedrock will be included at base of soil")
 
   IF ( ns_deep ==  1) THEN
@@ -134,8 +134,6 @@ ELSE
   CALL log_info("init_soil",                                                   &
     "l_tile_soil = F. Soil tiling is switched off: nsoilt = 1")
 END IF
-
-
 
 RETURN
 END SUBROUTINE init_soil

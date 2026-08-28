@@ -142,7 +142,7 @@ DO j = 1,soil_pts
   !---------------------------------------------------------------------------
   DO n = 1,ns_deep
     tsoil_deep_prev = tsoil_deep_gb(i,n)
-    tsoil_deep_gb(i,n) = MAX(tsoil_deep_gb(i,n) + dtsd(i,n) +       &
+    tsoil_deep_gb(i,n) = MAX(tsoil_deep_gb(i,n) + dtsd(i,n) +                  &
                dtsd_acc_gb(i,n), 0.0)
     tsoil_deep_gb(i,n) = MIN(tsoil_deep_gb(i,n), 1000.0)
     ! Calculate cumulative numerical correction (avoids rounding error)
