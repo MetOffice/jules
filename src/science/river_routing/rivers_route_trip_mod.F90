@@ -218,16 +218,18 @@ DO iseq = 1, nseqmax
       !-------------------------------------------------------------------------------
       !   If reservoirs are considered and capacity > 0, route through them.
       !-------------------------------------------------------------------------------
-      IF (l_reservoirs .AND. res_cap_current(ip) > 0.0) THEN
-        CALL route_reservoirs(dt, abstracted_res_rp(ip),                       &
-                                    res_cap_current(ip),                       &
-                                    res_catch(ip),                             &
-                                    res_critical(ip),                          &
-                                    res_flood(ip),                             &
-                                    res_emergency(ip),                         &
-                                    res_normal_release(ip),                    &
-                                    res_flood_release(ip),                     &
-                                    res_storage(ip), inflow(ip))
+      IF (l_reservoirs) THEN
+        IF (res_cap_current(ip) > 0.0) THEN
+            CALL route_reservoirs(dt, abstracted_res_rp(ip),                   &
+                                        res_cap_current(ip),                   &
+                                        res_catch(ip),                         &
+                                        res_critical(ip),                      &
+                                        res_flood(ip),                         &
+                                        res_emergency(ip),                     &
+                                        res_normal_release(ip),                &
+                                        res_flood_release(ip),                 &
+                                        res_storage(ip), inflow(ip))
+        ENDIF
       ENDIF
 
       !-----------------------------------------------------------------------
