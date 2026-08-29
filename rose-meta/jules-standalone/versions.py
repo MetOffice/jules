@@ -45,11 +45,11 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vn82_t136(MacroUpgrade):
+class vn82_t140(MacroUpgrade):
     """Upgrade macro from JULES by Maggie Hendry"""
 
     BEFORE_TAG = "vn8.2"
-    AFTER_TAG = "vn8.2_t136"
+    AFTER_TAG = "vn8.2_t140"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
