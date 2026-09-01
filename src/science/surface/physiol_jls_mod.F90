@@ -55,7 +55,6 @@ SUBROUTINE physiol (                                                           &
   !crop_vars_mod (OUT)
   gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                 &
   gs_nir_surft,                                                                &
-  !!gc_nir_surft,               not needed?                                   &
   !p_s_parms (IN)
   bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                            &
   !ancil_info (IN)
@@ -361,8 +360,6 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
         wt_ext_irr_surft(land_pts,sm_levels,nsurft)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_irr_surft(land_pts,nsurft)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: gs_nir_surft(land_pts,nsurft)
-
-!!  not needed? REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_nir_surft(land_pts,nsurft)
 
 !ancil_info (IN)
 LOGICAL, INTENT(IN) :: l_soil_point(land_pts)
