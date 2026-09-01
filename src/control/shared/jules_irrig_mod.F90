@@ -239,6 +239,12 @@ IF ( l_irrig_limit .AND. .NOT. l_irrig_dmd ) THEN
                'l_irrig_limit=T requires l_irrig_dmd=T ')
 END IF
 
+IF ( l_soil_evap_irrig_expl .AND. .NOT. l_irrig_dmd ) THEN
+  errcode = 101
+  CALL ereport(RoutineName, errcode,                                           &
+               'l_soil_evap_irrig_expl=T requires l_irrig_dmd=T ')
+END IF
+
 IF ( l_irrig_limit .AND. .NOT. l_top ) THEN
   errcode = 101
   CALL ereport(RoutineName, errcode,                                           &
@@ -375,6 +381,7 @@ TYPE :: my_namelist
   SEQUENCE
   LOGICAL :: l_irrig_dmd
   LOGICAL :: l_irrig_limit
+  LOGICAL :: l_soil_evap_irrig_expl
   LOGICAL :: frac_irrig_all_tiles
   LOGICAL :: set_irrfrac_on_irrtiles
   INTEGER :: irr_crop
