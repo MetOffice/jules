@@ -671,7 +671,7 @@ l_do_omp    = land_pts>omp_cutoff
 !$OMP sthu_irr_soilt, smvcst_soilt, gsoil_soilt, sthu_soilt,                   &
 !$OMP gc_corr, n_wtrac_jls, smc_soilt_wtrac, growth_sug_pft, growth_sug_gb,    &
 !$OMP fsmc_nir, wt_ext_nir_soilt, wt_ext_nir_type, sthu_nir_soilt,             &
-!$OMP frac_irr_soilt,fsoil_irr_tot,fsoil_nir_tot, gs_nir_type,                 &
+!$OMP frac_irr_soilt, fsoil_irr_tot, fsoil_nir_tot, gs_nir_type,               &
 !$OMP gsoil_nir_soilt,lwp_c_pft,l_wtrac_jls,frac_irr_surft)
 
 DO n = 1,npft
@@ -2254,7 +2254,8 @@ IF (l_irrig_dmd) THEN
 !$OMP             smc_nir_soilt, smc_soilt, sthu_nir_soilt,                    &
 !$OMP             smvcst_soilt, gs_irr_surft, gc_irr_surft, nsurft, l_do_omp,  &
 !$OMP             fsoil_irr_tot, fsoil_nir_tot, frac_irr_soilt,                &
-!$OMP             frac_irr_surft, l_soil_evap_irrig_expl)
+!$OMP             fsoil_irr_tot_tmp, fsoil_nir_tot_tmp, frac_irr_surft,        &
+!$OMP             l_soil_evap_irrig_expl)
   DO m = 1,nsoilt
 !$OMP DO SCHEDULE(STATIC)
     DO l = 1,land_pts
