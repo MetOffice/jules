@@ -494,6 +494,8 @@ fsmc_nir(land_pts,npft)                                                        &
 !                                 ! WORK Bare soil conductance under
 !                                 !      canopy
 ,gsoil_nir_under_canopy(land_pts)                                              &
+!                                 ! WORK Bare soil conductance under
+!                                 !      canopy on non-irrigated fraction.
 ,gsoil_irr_under_canopy(land_pts)
 !                                 ! WORK Bare soil conductance under
 !                                 !      canopy on irrigated fraction.
