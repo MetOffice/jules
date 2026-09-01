@@ -148,6 +148,9 @@ USE parkind1, ONLY: jprb, jpim
 
 USE yomhook, ONLY: lhook, dr_hook
 
+!!! GL TEMP to get things working
+USE trif_vars_mod, ONLY: trif_vars_type
+
 IMPLICIT NONE
 
 !-----------------------------------------------------------------------------
@@ -261,6 +264,9 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     ! Sub-surface temperature on layers and soil tiles accumulated over
     ! TRIFFID timestep (K).
 
+
+! TYPES containing field data
+TYPE(trif_vars_type) :: trif_vars
 !trif_vars_mod
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: cnsrv_veg_triffid_gb(land_pts)
 REAL(KIND=real_jlslsm), INTENT(IN OUT) :: cnsrv_soil_triffid_gb(land_pts)
@@ -381,6 +387,11 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) :: dpm_ratio_gb(land_pts)
 REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
           resp_s_to_atmos_gb(land_pts,dim_cslayer)
 REAL(KIND=real_jlslsm), INTENT(IN) :: deposition_n_gb(land_pts)
+!P Vars
+!REAL(KIND=real_jlslsm), INTENT(OUT) :: p_leaf_trif_pft(land_pts,npft)
+!REAL(KIND=real_jlslsm), INTENT(OUT) :: p_root_trif_pft(land_pts,npft)
+!REAL(KIND=real_jlslsm), INTENT(OUT) :: p_stem_trif_pft(land_pts,npft)
+! End P Vars
 
 !p_s_parms
 REAL(KIND=real_jlslsm), INTENT(IN) :: sthu_soilt(land_pts,nsoilt,sm_levels)
@@ -605,10 +616,18 @@ DO n = 1,npft
     !-------------------------------------------------------------------------
     ! Diagnose nitrogen pools.
     !-------------------------------------------------------------------------
+    !CALL calc_n_comps_triffid(l, n, phen(l,n), lai_bal_pft(l,n),               &
+    !                          leafc_pft(l,n), woodc_pft(l,n), rootc_pft(l,n),  &
+    !                          n_leaf_trif_pft(l,n), n_root_trif_pft(l,n),      &
+    !                          n_stem_trif_pft(l,n), p_leaf_trif_pft(l,n),      &
+    !                          p_root_trif_pft(l,n), p_stem_trif_pft(l,n),      &
+    !                          dvi_cpft)
     CALL calc_n_comps_triffid(l, n, phen(l,n), lai_bal_pft(l,n),               &
-                              woodc_pft(l,n), rootc_pft(l,n),                  &
+                              leafc_pft(l,n), woodc_pft(l,n), rootc_pft(l,n),  &
                               n_leaf_trif_pft(l,n), n_root_trif_pft(l,n),      &
-                              n_stem_trif_pft(l,n), dvi_cpft)
+                              n_stem_trif_pft(l,n), trif_vars%p_leaf_trif_pft(l,n),      &
+                              trif_vars%p_root_trif_pft(l,n), trif_vars%p_stem_trif_pft(l,n),      &
+                              dvi_cpft)
 
     n_veg_pft(l,n) = n_leaf_trif_pft(l,n) + n_root_trif_pft(l,n)               &
                      + n_stem_trif_pft(l,n)
@@ -665,9 +684,11 @@ DO n = 1,npft
           phen(l,n) = MAX(0.0, phen(l,n))
 
           CALL calc_n_comps_triffid(l, n, phen(l,n), lai_bal_pft(l,n),         &
-                             woodc_pft(l,n), rootc_pft(l,n),                   &
+                             leafc_pft(l,n), woodc_pft(l,n), rootc_pft(l,n),   &
                              n_leaf_trif_pft(l,n), n_root_trif_pft(l,n),       &
-                             n_stem_trif_pft(l,n), dvi_cpft)
+                             n_stem_trif_pft(l,n), trif_vars%p_leaf_trif_pft(l,n),       &
+                             trif_vars%p_root_trif_pft(l,n), trif_vars%p_stem_trif_pft(l,n),       &
+                             dvi_cpft)
 
           n_veg_pft(l,n) = n_leaf_trif_pft(l,n) + n_root_trif_pft(l,n)         &
                     + n_stem_trif_pft(l,n)
@@ -843,18 +864,20 @@ DO n = 1,nnpft
     ! Diagnose updated nitrogen pools.
     !-------------------------------------------------------------------------
     ! Work out n_leaf for 100% labile pool
-    CALL calc_n_comps_triffid(l, n, 0.0, lai_bal_pft(l,n), woodc_pft(l,n),     &
-                              rootc_pft(l,n), n_leaf_trif_pft(l,n),            &
-                              n_root_trif_pft(l,n), n_stem_trif_pft(l,n),      &
-                              dvi_cpft)
+    CALL calc_n_comps_triffid(l, n, 0.0, lai_bal_pft(l,n), leafc_pft(l,n),      &
+                              woodc_pft(l,n), rootc_pft(l,n),                   &
+                              n_leaf_trif_pft(l,n), n_root_trif_pft(l,n),       &
+                              n_stem_trif_pft(l,n),  trif_vars%p_leaf_trif_pft(l,n),      &
+                              trif_vars%p_root_trif_pft(l,n), trif_vars%p_stem_trif_pft(l,n), dvi_cpft)
 
     n_leaf_labile_trif_pft(l,n) = n_leaf_trif_pft(l,n) * (1.0 - phen(l,n))
 
     ! Now for the actual phenological state.
-    CALL calc_n_comps_triffid(l, n, phen(l,n), lai_bal_pft(l,n),               &
+    CALL calc_n_comps_triffid(l, n, phen(l,n), lai_bal_pft(l,n),leafc_pft(l,n),&
                               woodc_pft(l,n), rootc_pft(l,n),                  &
                               n_leaf_trif_pft(l,n), n_root_trif_pft(l,n),      &
-                              n_stem_trif_pft(l,n), dvi_cpft)
+                              n_stem_trif_pft(l,n), trif_vars%p_leaf_trif_pft(l,n),      &
+                              trif_vars%p_root_trif_pft(l,n), trif_vars%p_stem_trif_pft(l,n), dvi_cpft)
 
     n_leaf_alloc_trif_pft(l,n) = n_leaf_trif_pft(l,n)                          &
                                  - n_leaf_labile_trif_pft(l,n)

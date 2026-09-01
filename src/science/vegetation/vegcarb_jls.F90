@@ -153,6 +153,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Fraction of NPP available for spreading.
   n_root, n_leaf, n_stem, n_leaf0, n_leaf1,                                    &
     ! N_pools (kg N).
+  p_root, p_leaf, p_stem, p_leaf0, p_leaf1,                                    &
+    ! P Pools
   root_cn,                                                                     &
     ! Root C:N Ratio.
   stem_cn,                                                                     &
@@ -220,14 +222,20 @@ DO t = 1,trif_pts
                                    + g_wood(n) * wood(l)
 
   ! leaf N at full leaf
-  CALL calc_n_comps_triffid(l, n, 1.0, lai(l), wood(l), root(l),               &
-                            n_leaf1, n_root, n_stem, dvi_cpft)
+  CALL calc_n_comps_triffid(l, n, 1.0, lai(l), leaf(l), wood(l), root(l),      &
+                            n_leaf1, n_root, n_stem,                           &
+                            p_leaf1, p_root, p_stem,                           &
+                            dvi_cpft)
   ! leaf N without phenological change
-  CALL calc_n_comps_triffid(l, n, phen(l) + dphen(l), lai(l), wood(l),         &
-                            root(l), n_leaf0, n_root, n_stem, dvi_cpft)
+  CALL calc_n_comps_triffid(l, n, phen(l) + dphen(l), lai(l), leaf(l), wood(l),&
+                            root(l), n_leaf0, n_root, n_stem,                  &
+                            p_leaf0, p_root, p_stem,                           &
+                            dvi_cpft)
   ! leaf N after phenology
-  CALL calc_n_comps_triffid(l, n, phen(l), lai(l), wood(l), root(l),           &
-                            n_leaf, n_root, n_stem, dvi_cpft)
+  CALL calc_n_comps_triffid(l, n, phen(l), lai(l), leaf(l), wood(l), root(l),  &
+                            n_leaf, n_root, n_stem,                            &
+                            p_leaf, p_root, p_stem,                           &
+                            dvi_cpft)
 
   root_cn  = root(l) / n_root
   stem_cn  = wood(l) / n_stem
@@ -324,8 +332,10 @@ DO t = 1,trif_pts
   pc_s(l) = pc(l) + forw * dpc_dlai(l) * dlai - dcveg(l) * r_gamma             &
             - exudate(l)
 
-  CALL calc_n_comps_triffid(l, n, phen (l), lai(l), wood(l), root(l),          &
-                            n_leaf, n_root, n_stem, dvi_cpft)
+  CALL calc_n_comps_triffid(l, n, phen (l), lai(l), leaf(l), wood(l), root(l), &
+                            n_leaf, n_root, n_stem,                            &
+                            p_leaf, p_root, p_stem,                            &
+                            dvi_cpft)
 
   plant_cn = (leaf(l) + root(l) + wood(l)) / (n_leaf + n_root + n_stem)
 

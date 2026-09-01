@@ -96,6 +96,9 @@ TYPE :: psparms_data_type
     ! thaw depth calculation based on unfrozen water content fraction.
   REAL(KIND=real_jlslsm), ALLOCATABLE :: soil_ph_soilt(:,:,:)
     ! Soil pH, defined on soil layers.
+  ! P Vars
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: stype_soilt(:,:,:)
+    ! Soil pH, defined on soil layers. - ported from CNP_FAR
 END TYPE
 
 !================================
@@ -127,6 +130,7 @@ TYPE :: psparms_type
   REAL(KIND=real_jlslsm), POINTER :: sthf_soilt(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: sthu_min_soilt(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: soil_ph_soilt(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: stype_soilt(:,:,:)
 END TYPE
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='P_S_PARMS'
@@ -173,6 +177,7 @@ ALLOCATE(psparms_data%smvccl_soilt(land_pts,nsoilt,sm_levels))
 ALLOCATE(psparms_data%smvcwt_soilt(land_pts,nsoilt,sm_levels))
 ALLOCATE(psparms_data%smvcst_soilt(land_pts,nsoilt,sm_levels))
 ALLOCATE(psparms_data%clay_soilt(land_pts,nsoilt,dim_cslayer))
+ALLOCATE(psparms_data%stype_soilt(land_pts,nsoilt,dim_cslayer))
 
 psparms_data%bexp_soilt(:,:,:)   = 0.0
 psparms_data%sathh_soilt(:,:,:)  = 0.0
@@ -183,6 +188,7 @@ psparms_data%smvccl_soilt(:,:,:) = 0.0
 psparms_data%smvcwt_soilt(:,:,:) = 0.0
 psparms_data%smvcst_soilt(:,:,:) = 0.0
 psparms_data%clay_soilt(:,:,:)   = 0.0
+psparms_data%stype_soilt(:,:,:) = 0.0
 
 ! Plant and soil parameters
 ALLOCATE(psparms_data%albsoil_soilt(land_pts,nsoilt))
@@ -286,6 +292,7 @@ DEALLOCATE(psparms_data%sthu_min_soilt)
 DEALLOCATE(psparms_data%soil_ph_soilt)
 DEALLOCATE(psparms_data%v_close_pft)
 DEALLOCATE(psparms_data%v_open_pft)
+DEALLOCATE(psparms_data%stype_soilt)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -345,6 +352,7 @@ psparms%sthu_min_soilt => psparms_data%sthu_min_soilt
 psparms%soil_ph_soilt => psparms_data%soil_ph_soilt
 psparms%v_close_pft => psparms_data%v_close_pft
 psparms%v_open_pft => psparms_data%v_open_pft
+psparms%stype_soilt => psparms_data%stype_soilt
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -400,6 +408,8 @@ NULLIFY(psparms%sthu_min_soilt)
 NULLIFY(psparms%soil_ph_soilt)
 NULLIFY(psparms%v_close_pft)
 NULLIFY(psparms%v_open_pft)
+NULLIFY(psparms%stype_soilt)
+!!! GL CNP_PHOS: DO I need to put the the other soilt vars here?
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN

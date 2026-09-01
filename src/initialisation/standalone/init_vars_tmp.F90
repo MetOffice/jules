@@ -205,13 +205,21 @@ IF (l_triffid) THEN
   trif_vars%rootC_pft       = 0.0
   trif_vars%woodC_pft       = 0.0
   trif_vars%leafC_pft       = 0.0
-  trifctltype%c_veg_pft       = 0.0
+  trifctltype%c_veg_pft     = 0.0
   trif_vars%n_leaf_pft      = 0.0
   trif_vars%n_root_pft      = 0.0
   trif_vars%n_stem_pft      = 0.0
+  ! P vars:
+  trif_vars%p_leaf_pft      = 0.0
+  trif_vars%p_root_pft      = 0.0
+  trif_vars%p_stem_pft      = 0.0
+  ! end P vars
   trif_vars%lai_bal_pft     = 0.0
-  trifctltype%cv_gb           = 0.0
+  trifctltype%cv_gb         = 0.0
   trif_vars%n_veg_gb        = 0.0
+  ! p_veg_gb:
+  trif_vars%p_veg_gb        = 0.0
+  ! p_veg_gb:
   trif_vars%wp_fast_out_gb  = 0.0
   trif_vars%wp_med_out_gb   = 0.0
   trif_vars%wp_slow_out_gb  = 0.0
@@ -248,21 +256,31 @@ IF (l_triffid) THEN
         END IF
 
         CALL calc_n_comps_triffid(l ,n, phen, trif_vars%lai_bal_pft(l,n),      &
+                                  trif_vars%leafC_pft(l,n), &
                                   trif_vars%woodC_pft(l,n),                    &
                                   trif_vars%rootC_pft(l,n),                    &
                                   trif_vars%n_leaf_pft(l,n),                   &
                                   trif_vars%n_root_pft(l,n),                   &
                                   trif_vars%n_stem_pft(l,n),                   &
+                                  trif_vars%p_leaf_pft(l,n),                   &
+                                  trif_vars%p_root_pft(l,n),                   &
+                                  trif_vars%p_stem_pft(l,n),                   &
                                   crop_vars%dvi_cpft)
 
         trif_vars%n_veg_pft(l,n) = trif_vars%n_leaf_pft(l,n) +                 &
                       trif_vars%n_root_pft(l,n) + trif_vars%n_stem_pft(l,n)
+        
+        trif_vars%p_veg_pft(l,n) = trif_vars%p_leaf_pft(l,n) +                 &
+                      trif_vars%p_root_pft(l,n) + trif_vars%p_stem_pft(l,n)
 
         trifctltype%cv_gb(l) = trifctltype%cv_gb(l) +                          &
                       ainfo%frac_surft(l,n) * trifctltype%c_veg_pft(l,n)
 
         trif_vars%n_veg_gb(l) = trif_vars%n_veg_gb(l) +                        &
                       ainfo%frac_surft(l,n) * trif_vars%n_veg_pft(l,n)
+        
+        trif_vars%p_veg_gb(l) = trif_vars%p_veg_gb(l) +                        &
+                      ainfo%frac_surft(l,n) * trif_vars%p_veg_pft(l,n)
       END IF
     END DO
   END DO

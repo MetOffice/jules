@@ -153,7 +153,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ! Namelist variables used only by the 4-pool soil C model.
 !-----------------------------------------------------------------------------
 REAL(KIND=real_jlslsm) ::                                                      &
-  bio_hum_CN = rmdi,                                                           &
+  bio_hum_CN= rmdi,                                                            &
     ! Soil Bio and Hum CN ratio parameter
   sorp = rmdi,                                                                 &
     ! Soil inorganic N factor in leaching.
@@ -164,8 +164,37 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! roots after the roots uptake from the soil around them)
     ! per 360 days. Should be quicker than the turnover rate of inorganic
     ! N hence choice of value (100 vs 1).
-  tau_resp = rmdi
+  tau_resp = rmdi,                                                             &
     ! Parameter controlling decay of respiration with depth (m-1)
+  ! P Vars
+  bio_hum_CP(18) = rmdi,                                                       &
+    ! Soil Bio and Hum CP ratio parameter
+  l_cp_r(18) = rmdi,                                                           &
+    ! Leaf C:P ratio
+  w_cp_r(18) = rmdi,                                                           &
+    ! Wood C:P ratio
+  r_cp_r(18) = rmdi,                                                           &
+    ! Root C:P ratio
+  ps_in_max(18) = rmdi,                                                        &
+    ! Maximum inorganic P
+  ps_or_max(18) = rmdi,                                                        &
+    ! Maximum organic P
+  npr_soil  = rmdi,                                                            &
+    ! Soil Bio and Hum NP ratio parameter
+  a_root    = rmdi,                                                            &
+    ! Soil Bio and Hum CN ratio parameter
+  fpl       = rmdi,                                                            &
+    ! Soil Bio and Hum CN ratio parameter
+  k_org_sorp  = rmdi,                                                          &
+    ! Organic P sorbed ratio parameter
+  k_org_desorp  = rmdi,                                                        &
+    ! Organic P desorbed ratio parameter
+  k_in_sorp   = rmdi,                                                          &
+    ! Inorganic P sorbed ratio parameter
+  k_in_desorp   = rmdi,                                                        &
+    ! Inorganic P sorbed ratio parameter
+  sorp_pl = rmdi
+    ! Soil inorganic P factor in leaching.
 
 REAL(KIND=real_jlslsm) ::                                                      &
   kaps_4pool(4) = rmdi

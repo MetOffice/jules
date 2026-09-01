@@ -163,8 +163,22 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! Unlimited stem N (kgN m-2).
   n_leaf_pot,                                                                  &
     ! Unlimited leaf N (kgN m-2).
-  lai_pot
+  lai_pot,                                                                     &
     ! Unlimited Balanced LAI.
+  ! P Vars
+  p_leaf,                                                                      &
+    ! Leaf P (kgP m-2).
+  p_root,                                                                      &
+    ! Root P (kgP m-2).
+  p_stem,                                                                      &
+    ! Stem P (kgP m-2).
+  p_root_pot,                                                                  &
+    ! Unlimited root P (kgP m-2).
+  p_stem_pot,                                                                  &
+    ! Unlimited stem P (kgP m-2).
+  p_leaf_pot
+    ! Unlimited leaf P (kgP m-2).
+  ! End P Vars
 
 REAL(KIND=real_jlslsm) ::                                                      &
   n_veg(land_pts),                                                             &
@@ -233,8 +247,8 @@ DO t = 1,trif_pts
   END IF
   droot_pot = dleaf_pot
 
-  CALL calc_n_comps_triffid(l, n, phen(l), lai, wood(l), root(l),              &
-                            n_leaf, n_root, n_stem, dvi_cpft)
+  CALL calc_n_comps_triffid(l, n, phen(l), lai, leaf(l), wood(l), root(l),     &
+                            n_leaf, n_root, n_stem, p_leaf, p_root, p_stem, dvi_cpft)
 
   n_veg(l) = n_leaf + n_root + n_stem
 
@@ -243,9 +257,11 @@ DO t = 1,trif_pts
   ELSE
     lai_pot = (leaf(l) + dleaf_pot) / sigl(n)
   END IF
-  CALL calc_n_comps_triffid(l, n,phen(l), lai_pot, wood(l) + dwood_pot,        &
+  CALL calc_n_comps_triffid(l, n,phen(l), lai_pot, leaf(l), wood(l) + dwood_pot,&
                             root(l) + droot_pot, n_leaf_pot, n_root_pot,       &
-                            n_stem_pot, dvi_cpft)
+                            n_stem_pot, p_leaf_pot, p_root_pot, p_stem_pot,    &
+                            dvi_cpft)
+  !!! GL CNP_PHOS: Having calculations in argument lists is probably bot ideal
 
   n_plant_pot        = n_leaf_pot + n_root_pot + n_stem_pot
   nit_pot            = n_plant_pot - n_veg(l)
@@ -313,9 +329,10 @@ DO t = 1,trif_pts
       droot(l) = dleaf(l)
 
       ! Calculate the nitrogen required to satisfy the demand in new growth.
-      CALL calc_n_comps_triffid(l, n, phen(l), lai_pot, wood(l) + dwood(l),    &
+      CALL calc_n_comps_triffid(l, n, phen(l), lai_pot, leaf(l), wood(l) + dwood(l),&
                                 root(l) + droot(l), n_leaf_pot,                &
-                                n_root_pot, n_stem_pot, dvi_cpft)
+                                n_root_pot, n_stem_pot, p_leaf_pot,          &
+                                p_root_pot, p_stem_pot, dvi_cpft)
 
       n_plant_pot = n_leaf_pot + n_root_pot + n_stem_pot
       nit_pot     = n_plant_pot - n_veg(l)
@@ -357,8 +374,9 @@ DO t = 1,trif_pts
   ELSE
     lai = leaf(l) / sigl(n)
   END IF
-  CALL calc_n_comps_triffid(l, n, phen(l), lai, wood(l), root(l),              &
-                            n_leaf, n_root, n_stem, dvi_cpft)
+  CALL calc_n_comps_triffid(l, n, phen(l), lai, leaf(l), wood(l), root(l),     &
+                            n_leaf, n_root, n_stem, p_leaf, p_root, p_stem,    &
+                            dvi_cpft)
 
   n_veg_old(l)       = n_veg(l)
   n_veg(l)           = n_leaf + n_root + n_stem

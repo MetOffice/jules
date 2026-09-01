@@ -30,8 +30,8 @@ PUBLIC calc_n_comps_triffid, get_can_ave_fac, nleaf_from_lai
 !-----------------------------------------------------------------------------
 CONTAINS
 
-SUBROUTINE calc_n_comps_triffid(l, n, phen, lai_bal, wood, root, n_leaf,       &
-                                n_root, n_stem, dvi_cpft)
+SUBROUTINE calc_n_comps_triffid(l, n, phen, lai_bal, leaf, wood, root, n_leaf,       &
+                                n_root, n_stem, p_leaf, p_root, p_stem, dvi_cpft)
 
 USE jules_vegetation_mod, ONLY:                                                &
 !  imported scalars that are not altered
@@ -45,6 +45,10 @@ USE trif, ONLY:                                                                &
 !  imported arrays that are not altered
     retran_l
 
+USE jules_fields_mod, ONLY: psparms
+
+USE jules_soil_biogeochem_mod, ONLY: l_cp_r, w_cp_r, r_cp_r
+
 IMPLICIT NONE
 
 !-----------------------------------------------------------------------------
@@ -57,6 +61,8 @@ INTEGER, INTENT(IN) ::                                                         &
 REAL(KIND=real_jlslsm), INTENT(IN)    ::                                       &
   lai_bal                                                                      &
              ! Balanced LAI
+, leaf                                                                         &
+             ! Leaf carbon (kg C m-2)
 , wood                                                                         &
              ! Wood carbon (kg C m-2)
 , root                                                                         &
@@ -74,28 +80,65 @@ REAL(KIND=real_jlslsm), INTENT(OUT)   ::                                       &
              ! Leaf N content (kg N m-2)
 , n_root                                                                       &
              ! Root N content (kg N m-2)
-, n_stem
+, n_stem                                                                       &
              ! Wood N content (kg N m-2)
+, p_leaf                                                                       &
+             ! Leaf P content (kg P m-2)
+, p_root                                                                       &
+             ! Root P content (kg P m-2)
+, p_stem
+             ! Wood P content (kg P m-2)
 
 !-----------------------------------------------------------------------------
 ! Local scalar variables.
 !-----------------------------------------------------------------------------
 INTEGER             ::                                                         &
-  errcode
+  errcode                                                                      &
              ! Error code to pass to ereport.
+  , st_int
 
 REAL(KIND=real_jlslsm)                ::                                       &
   fstem                                                                        &
              ! Ratio of respiring stem wood to total wood
 , nl_ave                                                                       &
              ! Leaf nitrogen per unit LAI, averaged over the canopy (kg m-2).
-, x_tmp
+, x_tmp                                                                        &
              ! Temporary factor used in calculation of canopy average.
+, l_cp                                                                         &
+             ! Ratio of leaf C to P
+, r_cp                                                                         &
+             ! Ratio of root C to P
+, w_cp                                                                         &
+             ! Ratio of wood C to P
+, st_real
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CALC_N_COMPS_TRIFFID'
 
 !-----------------------------------------------------------------------------
 !end of header
+!!! GL CNP_PHOS Something is missing here
+st_real = psparms%stype_soilt(l,1,1)
+st_int = INT(st_real)
+!!! GL CNP_PHOS This should be a warning but doing it to check everything else
+IF (st_int < 1) THEN 
+  st_int = 1
+END IF
+! Need the index to be an integer not a real?
+l_cp = l_cp_r(st_int)
+r_cp = r_cp_r(st_int)
+w_cp = w_cp_r(st_int)
+
+!values for veg P coming from Iain Hartley and Beto (the values are total
+!leaf, stem and root P. Now we are using C:P and C pools
+! for C values: Leaf (Fyllas 2009, BGS- BNT site), Stem and root: from AFEX
+! project)
+!P concentrations (g kg-1): Leaf 0.5; Stem and branch 0.06; Fine root 0.4;
+!coarseroot 0.1
+!C concnetrations (mg g-1): Leaf 491; Stem and branch 440; Fine root 450;
+!coarseroot 0.1
+! p_leaf= 0.00192
+! p_root = 0.00105
+! p_stem = 0.00029
 
 IF ( l_leaf_n_resp_fix ) THEN
 
@@ -151,6 +194,9 @@ ELSE
 
 END IF
 
+! Eq. 1 in CNP GMD paper:
+p_leaf   = leaf / l_cp
+
 !------------------------------------------------------------------------------
 ! Calculate root and stem N.
 !------------------------------------------------------------------------------
@@ -162,6 +208,10 @@ ELSE
   n_root = nr_nl(n) * nl0(n) * root
   n_stem = ns_nl(n) * nl0(n) * wood
 END IF
+
+! Eqs. 2-3 in CNP GMD paper:
+p_root  = root / r_cp
+p_stem  = wood / w_cp
 
 END SUBROUTINE calc_n_comps_triffid
 

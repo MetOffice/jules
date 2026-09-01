@@ -189,6 +189,59 @@ TYPE :: trif_vars_data_type
   REAL(KIND=real_jlslsm), ALLOCATABLE :: cnsrv_prod_triffid_gb(:)
                         ! Diagnostic of error in wood product carbon
                         ! conservation in the triffid routine (kg m-2).
+  ! P Vars
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_orig_pft(:,:)
+                        ! Loss of vegetation phosphorus due to litter,
+                        ! landuse change and fire (kg/m2/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_ag_pft(:,:)
+                        ! Phosphorus removed from system due to landuse change
+                        ! this flux is removed from vegetation and not added
+                        ! to any other store (kg/m2/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_fire_pft(:,:)
+                        ! Loss of vegetation phosphorus due to fire
+                        ! (kg/m2/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_nofire_pft(:,:)
+                        ! Loss of vegetation phosphorus due to litter and
+                        ! landuse change (kg/m2/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: root_abandon_p_pft(:,:)
+                        ! Root P moved to soil nitrogen during
+                        ! landuse change (kg/(m2 PFT)/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: root_abandon_p_gb(:)
+                        ! Root P moved to soil nitrogen during
+                        ! landuse change (kg/(m2 land)/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: harvest_p_pft(:,:)
+                        ! Nitrogen harvested from crops (kg/(m2 PFT)/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: harvest_p_gb(:)
+                        ! P harvested from crops: gridbox mean
+                        ! (kg/(m2 land)/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_fertiliser_pft(:,:)
+                        ! Phosphorus available to crop PFTs in addition
+                        ! to soil phosphorus (kg/(m2 PFT)/360days)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_fertiliser_gb(:)
+                        ! P available to crop PFTs in addition to
+                        ! soil P: gridbox mean (kg/(m2 land)/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_leaf_pft(:,:)
+                        ! Leaf P content scaled by LAI, in sf_stom (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_root_pft(:,:)
+                        ! Root P content scaled by LAI_BAL, in sf_stom (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_stem_pft(:,:)
+                        ! Stem P content scaled by LAI_BAL, in sf_stom (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_leaf_trif_pft(:,:)
+                        ! Total Leaf P content (labile + allocated components)
+                        ! scaled by lai_bal, in triffid (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_root_trif_pft(:,:)
+                        ! Root N content scaled by LAI_BAL, in triffid (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_stem_trif_pft(:,:)
+                        ! Stem N content scaled by LAI_BAL, in triffid (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_luc(:)
+                        ! Phosphorus lost through landuse
+                        ! including harvest (kg/m2/360d).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_pft_diag(:,:)
+                        ! Phosphorus on tiles flux to soil P
+                        ! including harvest (kg/m2/360d).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_ag_pft_diag(:,:)
+                        ! Phosphorus on tiles lost through landuse
+                        ! including harvest (kg/m2/360d).
 
   !-----------------------------------------------------------------------------
   ! Variables added for nitrogen conservation checks
@@ -205,6 +258,142 @@ TYPE :: trif_vars_data_type
   REAL(KIND=real_jlslsm), ALLOCATABLE :: cnsrv_N_inorg_triffid_gb(:)
                         ! Diagnostic of error in inorganic nitrogen
                         ! conservation in the triffid routine (kg m-2).
+
+  !-----------------------------------------------------------------------------
+  ! Variables added for phosphorus conservation checks
+  !-----------------------------------------------------------------------------
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: cnsrv_phosphorus_triffid_gb(:)
+                        ! Diagnostic of error in land phosphorus
+                        ! conservation in the triffid routine (kg m-2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: cnsrv_vegP_triffid_gb(:)
+                        ! Diagnostic of error in vegetation phosphorus
+                        ! conservation in the triffid routine (kg m-2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: cnsrv_soilP_triffid_gb(:)
+                        ! Diagnostic of error in soil phosphorus
+                        ! conservation in the triffid routine (kg m-2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: cnsrv_P_inorg_triffid_gb(:)
+                        ! Diagnostic of error in inorganic phosphorus
+                        ! conservation in the triffid routine (kg m-2).
+  
+  !-----------------------------------------------------------------------------
+  ! Variables added for ticket Phosphorus scheme
+  !-----------------------------------------------------------------------------
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: root_litP_pft(:,:)
+                        ! Root litter P turnover on PFTs (kg/m2/360 day).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: leaf_litP_pft(:,:)
+                        ! Leaf litter P turnover on PFTs (kg/m2/360 day).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: wood_litP_pft(:,:)
+                        ! Wood litter P turnover on PFTs (kg/m2/360 day).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: litterP_pft(:,:)
+                        ! Phosphorus in local litter production (kgP/m2/360 day).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_pft(:,:)
+                        ! Phosphorus in total litter production (kgP/m2/360 day).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: minl_p_gb(:,:,:)
+                        ! Mineralised P on soil pools (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: minl_p_pot_gb(:,:,:)
+                        ! Unlimited mineralised P on soil pools
+                        ! (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: immob_p_gb(:,:,:)
+                        ! Immobilised P on soil pools (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: immob_p_pot_gb(:,:,:)
+                        ! Unlimited immobilised P on soil pools
+                        ! (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: f_up_gb(:)
+                        ! plant uptake avg. over 4 layers
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: f_up(:,:)
+                        ! plant P uptade (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: ps_or_p_out(:)
+                        ! organic sorbed P out from 30cm (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: ps_out(:)
+                        ! inorganic P out from 30cm (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: ps_or_out(:)
+                        ! organic sorbed P out from 30cm (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: ps_in_out(:)
+                        ! inorganic sorbed P out from 30cm (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: ps_par_out(:)
+                        ! Parent material P out from 30cm (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: ps_occ_out(:)
+                        ! Occluded P out from 30cm (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: fn_out(:,:)
+                        ! N limiting
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: fp_out(:,:)
+                        ! P limiting
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_litter_flux(:)
+                        ! plant litter P flux (kg/m2/360 days).
+  ! Last 18 P vars required by the output.nml
+  ! (2 of them are in tifctl.F90 and prognostic.F90)
+
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_inorg_sorp_f(:,:)
+                      ! inorg P adsorp (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_inorg_desorp_f(:,:)
+                      ! inorg P desorp (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_org_sorp_f(:,:,:)
+                      ! org P adsorp (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_org_desorp_f(:,:,:)
+                      ! org P desorp (kg/m2/360 days).
+
+
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_uptake_growth_pft(:,:)
+                      ! Vegetation P uptake for growth on PFTs
+                      ! (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_demand_growth_pft(:,:)
+                      ! Vegetation P demand for growth on PFTs
+                      ! (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_demand_lit_pft(:,:)
+                       ! Vegetation P demand for balanced litter
+                      ! production on PFTs (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_demand_spread_pft(:,:)
+                      ! Vegetation P demand for spreading on
+                      ! PFTs(kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_uptake_pft(:,:)
+                      ! Vegetation P uptake on PFTs (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_demand_pft(:,:)
+                      ! Vegetation P demand on PFTs(kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_uptake_gb(:)
+                      ! Vegetation P uptake (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_demand_gb(:)
+                      ! Vegetation P demand (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_veg_gb(:)
+                      ! Veg P (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_veg_pft(:,:)
+                      ! Veg P on PFTs (kg/m2).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: dpveg_pft(:,:)
+                      ! Increment in veg P on PFTs (kg m-2 per TRIFFID
+                      ! timestep).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: dpveg_gb(:)
+                      ! Increment in veg P (kg m-2 per TRIFFID timestep).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: lit_p_t_gb(:)
+                      ! Total P litter flux (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_tot(:)
+                      !TOTAL P
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_tot2(:)
+                      !TOTAL P including all soil layers
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_uptake_extract_gb(:)
+
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_leach_soilt(:,:)
+                      ! Leached P (kg/m2/s)
+
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_uptake_extract(:,:,:)
+                      ! Phosphorus removed from each soil layer by plant
+                      ! uptake (kg m-2).
+
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_uptake_spread_pft(:,:)
+                        ! Vegetation P uptake for spreading in PFTs
+                        ! (kg/m2/360 days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_leach_gb_acc(:)
+                        ! Accumulated leached phosphorus term for outputting
+                        ! on leached P on TRIFFID timesteps via
+                        ! diagnostics_veg.F90 (kg/m2/360days).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: smcl_gb(:,:)
+                        ! Soil moisture content in each layer (kg/m2). Used for P uptake calcs
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_avail_out(:) 
+                        ! Soil available P used to defined the P limitation level
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: n_avail_out(:)
+                        ! Soil available N used to defined the N limitation level 
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: p_fertiliser_add(:,:,:)
+                      ! Phosphorus added to each soil layer by fertiliser
+                      ! (kg m-2).
+  ! end add P vars
 
   !-----------------------------------------------------------------------------
   ! Variables added for ticket #7,#127 (nitrogen scheme)
@@ -560,6 +749,80 @@ TYPE :: trif_vars_type
   INTEGER, POINTER :: harvest_doy(:,:)
   REAL(KIND=real_jlslsm), POINTER :: frac_biocrop_gb(:)
 
+  ! P Vars
+  REAL(KIND=real_jlslsm), POINTER :: lit_p_orig_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: lit_p_ag_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER ::lit_p_fire_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER ::lit_p_nofire_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: root_abandon_p_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: root_abandon_p_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: harvest_p_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: harvest_p_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_fertiliser_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_fertiliser_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_leaf_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_root_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_stem_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_leaf_trif_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_root_trif_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_stem_trif_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_luc(:)
+  REAL(KIND=real_jlslsm), POINTER :: lit_p_pft_diag(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: lit_p_ag_pft_diag(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: cnsrv_phosphorus_triffid_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: cnsrv_vegP_triffid_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: cnsrv_soilP_triffid_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: cnsrv_P_inorg_triffid_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: root_litP_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: leaf_litP_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: wood_litP_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: litterP_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: lit_p_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: immob_p_gb(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: immob_p_pot_gb(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: minl_p_gb(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: minl_p_pot_gb(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: f_up_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: f_up(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: ps_or_p_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: ps_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: ps_or_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: ps_in_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: ps_par_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: ps_occ_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: fn_out(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: fp_out(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_litter_flux(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_inorg_sorp_f(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_inorg_desorp_f(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_org_sorp_f(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_org_desorp_f(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_uptake_growth_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_demand_growth_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_demand_lit_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_demand_spread_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_uptake_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_demand_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_uptake_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_demand_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_veg_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_veg_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: dpveg_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: dpveg_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: lit_p_t_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_tot(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_tot2(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_uptake_extract_gb(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_leach_soilt(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_uptake_extract(:,:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_uptake_spread_pft(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: p_leach_gb_acc(:)
+  REAL(KIND=real_jlslsm), POINTER :: smcl_gb(:,:)               
+  ! Soil moisture content in each layer (kg/m2). Used for P uptake calcs
+  REAL(KIND=real_jlslsm), POINTER :: p_avail_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: n_avail_out(:)
+  REAL(KIND=real_jlslsm), POINTER :: p_fertiliser_add(:,:,:)
+
 
 END TYPE trif_vars_type
 
@@ -886,6 +1149,154 @@ trif_vars_data%harvest_biocrop_n_pft(:,:)   = 0.0
 trif_vars_data%harvest_biocrop_n_gb(:)      = 0.0
 trif_vars_data%harvest_doy(:,:)             = 0
 
+! P Vars
+ALLOCATE(trif_vars_data%p_leaf_pft(land_pts,npft))
+ALLOCATE(trif_vars_data%p_root_pft(land_pts,npft))
+ALLOCATE(trif_vars_data%p_stem_pft(land_pts,npft))
+ALLOCATE(trif_vars_data%lit_p_fire_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%lit_p_nofire_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%cnsrv_phosphorus_triffid_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%cnsrv_vegP_triffid_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%cnsrv_soilP_triffid_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%cnsrv_P_inorg_triffid_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%root_abandon_p_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%root_abandon_p_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%harvest_p_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%harvest_p_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%p_fertiliser_add(land_pts_dim,nsoilt_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%p_fertiliser_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_fertiliser_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%p_leaf_trif_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_root_trif_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_stem_trif_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_luc(land_pts_dim))
+ALLOCATE(trif_vars_data%lit_p_ag_pft_diag(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%lit_p_pft_diag(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%root_litP_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%leaf_litP_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%wood_litP_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%lit_P_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%minl_p_pot_gb(land_pts_dim,dim_cslayer_dim,dim_cs1_dim+1))
+ALLOCATE(trif_vars_data%immob_p_gb(land_pts_dim,dim_cslayer_dim,dim_cs1_dim+1))
+ALLOCATE(trif_vars_data%immob_p_pot_gb(land_pts_dim,dim_cslayer_dim,dim_cs1_dim+1))
+ALLOCATE(trif_vars_data%minl_p_gb(land_pts_dim,dim_cslayer_dim,dim_cs1_dim+1))
+ALLOCATE(trif_vars_data%f_up_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%f_up(land_pts_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%ps_or_p_out(land_pts_dim))
+ALLOCATE(trif_vars_data%ps_out(land_pts_dim))
+ALLOCATE(trif_vars_data%ps_or_out(land_pts_dim))
+ALLOCATE(trif_vars_data%ps_in_out(land_pts_dim))
+ALLOCATE(trif_vars_data%ps_par_out(land_pts_dim))
+ALLOCATE(trif_vars_data%ps_occ_out(land_pts_dim))
+ALLOCATE(trif_vars_data%fn_out(land_pts_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%fp_out(land_pts_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%p_litter_flux(land_pts_dim))
+ALLOCATE(trif_vars_data%p_inorg_sorp_f(land_pts_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%p_inorg_desorp_f(land_pts_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%p_org_sorp_f(land_pts_dim,dim_cslayer_dim,dim_cs1_dim+1))
+ALLOCATE(trif_vars_data%p_org_desorp_f(land_pts_dim,dim_cslayer_dim,dim_cs1_dim+1))
+! 18 rest vars required by the ouptut:
+ALLOCATE(trif_vars_data%p_uptake_growth_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_demand_growth_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_demand_lit_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_demand_spread_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_uptake_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_demand_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_uptake_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%p_demand_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%p_veg_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%p_veg_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%dpveg_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%dpveg_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%lit_p_t_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%p_tot(land_pts_dim))
+ALLOCATE(trif_vars_data%p_tot2(land_pts_dim))
+ALLOCATE(trif_vars_data%p_uptake_extract_gb(land_pts_dim))
+ALLOCATE(trif_vars_data%p_leach_soilt(land_pts_dim,nsoilt_dim))
+ALLOCATE(trif_vars_data%p_uptake_extract(land_pts_dim,nsoilt_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%p_uptake_spread_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%p_leach_gb_acc(land_pts_dim))
+ALLOCATE(trif_vars_data%smcl_gb(land_pts_dim,dim_cslayer_dim))
+ALLOCATE(trif_vars_data%p_avail_out(land_pts_dim))
+ALLOCATE(trif_vars_data%n_avail_out(land_pts_dim))
+ALLOCATE(trif_vars_data%litterP_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%lit_p_orig_pft(land_pts_dim,npft_dim))
+ALLOCATE(trif_vars_data%lit_p_ag_pft(land_pts_dim,npft_dim))
+
+trif_vars_data%p_leaf_pft(:,:)     = 0.0
+trif_vars_data%p_root_pft(:,:)     = 0.0
+trif_vars_data%p_stem_pft(:,:)     = 0.0
+trif_vars_data%lit_p_fire_pft(:,:)          = 0.0
+trif_vars_data%lit_p_nofire_pft(:,:)        = 0.0
+trif_vars_data%cnsrv_phosphorus_triffid_gb(:) = 0.0
+trif_vars_data%cnsrv_vegP_triffid_gb(:)     = 0.0
+trif_vars_data%cnsrv_soilP_triffid_gb(:)    = 0.0
+trif_vars_data%cnsrv_P_inorg_triffid_gb(:)  = 0.0
+trif_vars_data%root_abandon_p_pft(:,:)      = 0.0
+trif_vars_data%root_abandon_p_gb(:)         = 0.0
+trif_vars_data%harvest_p_pft(:,:)           = 0.0
+trif_vars_data%harvest_p_gb(:)              = 0.0
+trif_vars_data%p_fertiliser_add(:,:,:)      = 0.0
+trif_vars_data%p_fertiliser_pft(:,:)        = 0.0
+trif_vars_data%p_fertiliser_gb(:)           = 0.0
+trif_vars_data%p_leaf_trif_pft(:,:)         = 0.0
+trif_vars_data%p_root_trif_pft(:,:)         = 0.0
+trif_vars_data%p_stem_trif_pft(:,:)         = 0.0
+trif_vars_data%p_luc(:)                     = 0.0
+trif_vars_data%lit_p_ag_pft_diag(:,:)       = 0.0
+trif_vars_data%lit_p_pft_diag(:,:)          = 0.0
+trif_vars_data%root_litP_pft(:,:)           = 0.0
+trif_vars_data%leaf_litP_pft(:,:)           = 0.0
+trif_vars_data%wood_litP_pft(:,:)           = 0.0
+trif_vars_data%lit_P_pft(:,:)               = 0.0
+trif_vars_data%minl_p_pot_gb(:,:,:)         = 0.0
+trif_vars_data%immob_p_gb(:,:,:)            = 0.0
+trif_vars_data%immob_p_pot_gb(:,:,:)        = 0.0
+trif_vars_data%minl_p_gb(:,:,:)             = 0.0
+trif_vars_data%f_up_gb(:)                   = 0.0
+trif_vars_data%f_up(:,:)                    = 0.0
+trif_vars_data%ps_or_p_out(:)               = 0.0
+trif_vars_data%ps_out(:)                    = 0.0
+trif_vars_data%ps_or_out(:)                 = 0.0
+trif_vars_data%ps_in_out(:)                 = 0.0
+trif_vars_data%ps_par_out(:)                = 0.0
+trif_vars_data%ps_occ_out(:)                = 0.0
+trif_vars_data%fn_out(:,:)                  = 0.0
+trif_vars_data%fp_out(:,:)                  = 0.0
+trif_vars_data%p_litter_flux(:)             = 0.0
+trif_vars_data%p_inorg_sorp_f(:,:)          = 0.0
+trif_vars_data%p_inorg_desorp_f(:,:)        = 0.0
+trif_vars_data%p_org_sorp_f(:,:,:)          = 0.0
+trif_vars_data%p_org_desorp_f(:,:,:)        = 0.0
+! 18 rest vars required by the ouptut:
+trif_vars_data%p_uptake_growth_pft(:,:)     = 0.0
+trif_vars_data%p_demand_growth_pft(:,:)    = 0.0
+trif_vars_data%p_demand_lit_pft(:,:)       = 0.0
+trif_vars_data%p_demand_spread_pft(:,:)    = 0.0
+trif_vars_data%p_uptake_pft(:,:)           = 0.0
+trif_vars_data%p_demand_pft(:,:)           = 0.0
+trif_vars_data%p_uptake_gb(:)              = 0.0
+trif_vars_data%p_demand_gb(:)              = 0.0
+trif_vars_data%p_veg_gb(:)                 = 0.0
+trif_vars_data%p_veg_pft(:,:)              = 0.0
+trif_vars_data%dpveg_pft(:,:)              = 0.0
+trif_vars_data%dpveg_gb(:)                 = 0.0
+trif_vars_data%lit_p_t_gb(:)               = 0.0
+trif_vars_data%p_tot(:)                    = 0.0
+trif_vars_data%p_tot2(:)                   = 0.0
+trif_vars_data%p_uptake_extract_gb(:)      = 0.0
+trif_vars_data%p_leach_soilt(:,:)          = 0.0
+trif_vars_data%p_uptake_extract(:,:,:)     = 0.0
+trif_vars_data%p_uptake_spread_pft(:,:)    = 0.0
+trif_vars_data%p_leach_gb_acc(:)           = 0.0
+trif_vars_data%smcl_gb(:,:)                = 0.0
+trif_vars_data%p_avail_out(:)              = 0.0
+trif_vars_data%n_avail_out(:)              = 0.0
+trif_vars_data%litterP_pft(:,:)             = 0.0
+trif_vars_data%lit_p_orig_pft(:,:)          = 0.0
+trif_vars_data%lit_p_ag_pft(:,:)            = 0.0
+
+
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE trif_vars_alloc
@@ -1050,6 +1461,80 @@ DEALLOCATE(trif_vars_data%harvest_biocrop_gb)
 DEALLOCATE(trif_vars_data%harvest_biocrop_n_pft)
 DEALLOCATE(trif_vars_data%harvest_biocrop_n_gb)
 DEALLOCATE(trif_vars_data%harvest_doy)
+
+! P Vars
+DEALLOCATE(trif_vars_data%p_leaf_pft)
+DEALLOCATE(trif_vars_data%p_root_pft)
+DEALLOCATE(trif_vars_data%p_stem_pft)
+DEALLOCATE(trif_vars_data%lit_p_fire_pft)
+DEALLOCATE(trif_vars_data%lit_p_nofire_pft)
+DEALLOCATE(trif_vars_data%cnsrv_phosphorus_triffid_gb)
+DEALLOCATE(trif_vars_data%cnsrv_vegP_triffid_gb)
+DEALLOCATE(trif_vars_data%cnsrv_soilP_triffid_gb)
+DEALLOCATE(trif_vars_data%cnsrv_P_inorg_triffid_gb)
+DEALLOCATE(trif_vars_data%root_abandon_p_pft)
+DEALLOCATE(trif_vars_data%root_abandon_p_gb)
+DEALLOCATE(trif_vars_data%harvest_p_pft)
+DEALLOCATE(trif_vars_data%harvest_p_gb)
+DEALLOCATE(trif_vars_data%p_fertiliser_add)
+DEALLOCATE(trif_vars_data%p_fertiliser_pft)
+DEALLOCATE(trif_vars_data%p_fertiliser_gb)
+DEALLOCATE(trif_vars_data%p_leaf_trif_pft)
+DEALLOCATE(trif_vars_data%p_root_trif_pft)
+DEALLOCATE(trif_vars_data%p_stem_trif_pft)
+DEALLOCATE(trif_vars_data%p_luc)
+DEALLOCATE(trif_vars_data%lit_p_ag_pft_diag)
+DEALLOCATE(trif_vars_data%lit_p_pft_diag)
+DEALLOCATE(trif_vars_data%root_litP_pft)
+DEALLOCATE(trif_vars_data%leaf_litP_pft)
+DEALLOCATE(trif_vars_data%wood_litP_pft)
+DEALLOCATE(trif_vars_data%lit_P_pft)
+DEALLOCATE(trif_vars_data%minl_p_pot_gb)
+DEALLOCATE(trif_vars_data%immob_p_gb)
+DEALLOCATE(trif_vars_data%immob_p_pot_gb)
+DEALLOCATE(trif_vars_data%minl_p_gb)
+DEALLOCATE(trif_vars_data%f_up_gb)
+DEALLOCATE(trif_vars_data%f_up)
+DEALLOCATE(trif_vars_data%ps_or_p_out)
+DEALLOCATE(trif_vars_data%ps_out)
+DEALLOCATE(trif_vars_data%ps_or_out)
+DEALLOCATE(trif_vars_data%ps_in_out)
+DEALLOCATE(trif_vars_data%ps_par_out)
+DEALLOCATE(trif_vars_data%ps_occ_out)
+DEALLOCATE(trif_vars_data%fn_out)
+DEALLOCATE(trif_vars_data%fp_out)
+DEALLOCATE(trif_vars_data%p_litter_flux)
+DEALLOCATE(trif_vars_data%p_inorg_sorp_f)
+DEALLOCATE(trif_vars_data%p_inorg_desorp_f)
+DEALLOCATE(trif_vars_data%p_org_sorp_f)
+DEALLOCATE(trif_vars_data%p_org_desorp_f)
+! 18 rest vars required by the ouptut:
+DEALLOCATE(trif_vars_data%p_uptake_growth_pft)
+DEALLOCATE(trif_vars_data%p_demand_growth_pft)
+DEALLOCATE(trif_vars_data%p_demand_lit_pft)
+DEALLOCATE(trif_vars_data%p_demand_spread_pft)
+DEALLOCATE(trif_vars_data%p_uptake_pft)
+DEALLOCATE(trif_vars_data%p_demand_pft)
+DEALLOCATE(trif_vars_data%p_uptake_gb)
+DEALLOCATE(trif_vars_data%p_demand_gb)
+DEALLOCATE(trif_vars_data%p_veg_gb)
+DEALLOCATE(trif_vars_data%p_veg_pft)
+DEALLOCATE(trif_vars_data%dpveg_pft)
+DEALLOCATE(trif_vars_data%dpveg_gb)
+DEALLOCATE(trif_vars_data%lit_p_t_gb)
+DEALLOCATE(trif_vars_data%p_tot)
+DEALLOCATE(trif_vars_data%p_tot2)
+DEALLOCATE(trif_vars_data%p_uptake_extract_gb)
+DEALLOCATE(trif_vars_data%p_leach_soilt)
+DEALLOCATE(trif_vars_data%p_uptake_extract)
+DEALLOCATE(trif_vars_data%p_uptake_spread_pft)
+DEALLOCATE(trif_vars_data%p_leach_gb_acc)
+DEALLOCATE(trif_vars_data%smcl_gb)
+DEALLOCATE(trif_vars_data%p_avail_out)
+DEALLOCATE(trif_vars_data%n_avail_out)
+DEALLOCATE(trif_vars_data%litterP_pft)
+DEALLOCATE(trif_vars_data%lit_p_orig_pft)
+DEALLOCATE(trif_vars_data%lit_p_ag_pft)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
@@ -1218,6 +1703,81 @@ trif_vars%harvest_biocrop_n_pft => trif_vars_data%harvest_biocrop_n_pft
 trif_vars%harvest_biocrop_n_gb => trif_vars_data%harvest_biocrop_n_gb
 trif_vars%harvest_doy => trif_vars_data%harvest_doy
 
+!P Vars
+trif_vars%p_leaf_pft => trif_vars_data%p_leaf_pft
+trif_vars%p_root_pft => trif_vars_data%p_root_pft
+trif_vars%p_stem_pft => trif_vars_data%p_stem_pft
+trif_vars%lit_p_fire_pft => trif_vars_data%lit_p_fire_pft
+trif_vars%lit_p_nofire_pft => trif_vars_data%lit_p_nofire_pft
+trif_vars%cnsrv_phosphorus_triffid_gb => trif_vars_data%cnsrv_phosphorus_triffid_gb
+trif_vars%cnsrv_vegP_triffid_gb => trif_vars_data%cnsrv_vegP_triffid_gb
+trif_vars%cnsrv_soilP_triffid_gb => trif_vars_data%cnsrv_soilP_triffid_gb
+trif_vars%cnsrv_P_inorg_triffid_gb => trif_vars_data%cnsrv_P_inorg_triffid_gb
+trif_vars%root_abandon_p_pft => trif_vars_data%root_abandon_p_pft
+trif_vars%root_abandon_p_gb => trif_vars_data%root_abandon_p_gb
+trif_vars%harvest_p_pft => trif_vars_data%harvest_p_pft
+trif_vars%harvest_p_gb => trif_vars_data%harvest_p_gb
+trif_vars%p_fertiliser_add => trif_vars_data%p_fertiliser_add
+trif_vars%p_fertiliser_pft => trif_vars_data%p_fertiliser_pft
+trif_vars%p_fertiliser_gb => trif_vars_data%p_fertiliser_gb
+trif_vars%p_leaf_trif_pft => trif_vars_data%p_leaf_trif_pft
+trif_vars%p_root_trif_pft => trif_vars_data%p_root_trif_pft
+trif_vars%p_stem_trif_pft => trif_vars_data%p_stem_trif_pft
+trif_vars%p_luc => trif_vars_data%p_luc
+trif_vars%lit_p_ag_pft_diag => trif_vars_data%lit_p_ag_pft_diag
+trif_vars%lit_p_pft_diag => trif_vars_data%lit_p_pft_diag
+trif_vars%root_litP_pft => trif_vars_data%root_litP_pft
+trif_vars%leaf_litP_pft => trif_vars_data%leaf_litP_pft
+trif_vars%wood_litP_pft => trif_vars_data%wood_litP_pft
+trif_vars%lit_P_pft => trif_vars_data%lit_P_pft
+trif_vars%minl_p_pot_gb => trif_vars_data%minl_p_pot_gb
+trif_vars%immob_p_gb => trif_vars_data%immob_p_gb
+trif_vars%immob_p_pot_gb => trif_vars_data%immob_p_pot_gb
+trif_vars%minl_p_gb => trif_vars_data%minl_p_gb
+trif_vars%f_up_gb => trif_vars_data%f_up_gb
+trif_vars%f_up => trif_vars_data%f_up
+trif_vars%ps_or_p_out => trif_vars_data%ps_or_p_out
+trif_vars%ps_out => trif_vars_data%ps_out
+trif_vars%ps_or_out => trif_vars_data%ps_or_out
+trif_vars%ps_in_out => trif_vars_data%ps_in_out
+trif_vars%ps_par_out => trif_vars_data%ps_par_out
+trif_vars%ps_occ_out => trif_vars_data%ps_occ_out
+trif_vars%fn_out => trif_vars_data%fn_out
+trif_vars%fp_out => trif_vars_data%fp_out
+trif_vars%p_litter_flux => trif_vars_data%p_litter_flux
+trif_vars%p_inorg_sorp_f => trif_vars_data%p_inorg_sorp_f
+trif_vars%p_inorg_desorp_f => trif_vars_data%p_inorg_desorp_f
+trif_vars%p_org_sorp_f => trif_vars_data%p_org_sorp_f
+trif_vars%p_org_desorp_f => trif_vars_data%p_org_desorp_f
+! 18 rest vars required by the ouptut:
+trif_vars%p_uptake_growth_pft => trif_vars_data%p_uptake_growth_pft
+trif_vars%p_demand_growth_pft => trif_vars_data%p_demand_growth_pft
+trif_vars%p_demand_lit_pft => trif_vars_data%p_demand_lit_pft
+trif_vars%p_demand_spread_pft => trif_vars_data%p_demand_spread_pft
+trif_vars%p_uptake_pft => trif_vars_data%p_uptake_pft
+trif_vars%p_demand_pft => trif_vars_data%p_demand_pft
+trif_vars%p_uptake_gb => trif_vars_data%p_uptake_gb
+trif_vars%p_demand_gb => trif_vars_data%p_demand_gb
+trif_vars%p_veg_gb => trif_vars_data%p_veg_gb
+trif_vars%p_veg_pft => trif_vars_data%p_veg_pft
+trif_vars%dpveg_pft => trif_vars_data%dpveg_pft
+trif_vars%dpveg_gb => trif_vars_data%dpveg_gb
+trif_vars%lit_p_t_gb => trif_vars_data%lit_p_t_gb
+trif_vars%p_tot => trif_vars_data%p_tot
+trif_vars%p_tot2 => trif_vars_data%p_tot2
+trif_vars%p_uptake_extract_gb => trif_vars_data%p_uptake_extract_gb
+trif_vars%p_leach_soilt => trif_vars_data%p_leach_soilt
+trif_vars%p_uptake_extract => trif_vars_data%p_uptake_extract
+trif_vars%p_uptake_spread_pft => trif_vars_data%p_uptake_spread_pft
+trif_vars%p_leach_gb_acc => trif_vars_data%p_leach_gb_acc
+trif_vars%smcl_gb => trif_vars_data%smcl_gb
+trif_vars%p_avail_out => trif_vars_data%p_avail_out
+trif_vars%n_avail_out => trif_vars_data%n_avail_out
+trif_vars%litterP_pft => trif_vars_data%litterP_pft
+trif_vars%lit_p_orig_pft => trif_vars_data%lit_p_orig_pft
+trif_vars%lit_p_ag_pft => trif_vars_data%lit_p_ag_pft
+
+
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
 END SUBROUTINE trif_vars_assoc
@@ -1383,6 +1943,81 @@ NULLIFY(trif_vars%harvest_biocrop_gb)
 NULLIFY(trif_vars%harvest_biocrop_n_pft)
 NULLIFY(trif_vars%harvest_biocrop_n_gb)
 NULLIFY(trif_vars%harvest_doy)
+
+! P Vars
+NULLIFY(trif_vars%p_leaf_pft)
+NULLIFY(trif_vars%p_root_pft)
+NULLIFY(trif_vars%p_stem_pft)
+NULLIFY(trif_vars%lit_p_fire_pft)
+NULLIFY(trif_vars%lit_p_nofire_pft)
+NULLIFY(trif_vars%cnsrv_phosphorus_triffid_gb)
+NULLIFY(trif_vars%cnsrv_vegP_triffid_gb)
+NULLIFY(trif_vars%cnsrv_soilP_triffid_gb)
+NULLIFY(trif_vars%cnsrv_P_inorg_triffid_gb)
+NULLIFY(trif_vars%root_abandon_p_pft)
+NULLIFY(trif_vars%root_abandon_p_gb)
+NULLIFY(trif_vars%harvest_p_pft)
+NULLIFY(trif_vars%harvest_p_gb)
+NULLIFY(trif_vars%p_fertiliser_add)
+NULLIFY(trif_vars%p_fertiliser_pft)
+NULLIFY(trif_vars%p_fertiliser_gb)
+NULLIFY(trif_vars%p_leaf_trif_pft)
+NULLIFY(trif_vars%p_root_trif_pft)
+NULLIFY(trif_vars%p_stem_trif_pft)
+NULLIFY(trif_vars%p_luc)
+NULLIFY(trif_vars%lit_p_ag_pft_diag)
+NULLIFY(trif_vars%lit_p_pft_diag)
+NULLIFY(trif_vars%root_litP_pft)
+NULLIFY(trif_vars%leaf_litP_pft)
+NULLIFY(trif_vars%wood_litP_pft)
+NULLIFY(trif_vars%lit_P_pft)
+NULLIFY(trif_vars%minl_p_pot_gb)
+NULLIFY(trif_vars%immob_p_gb)
+NULLIFY(trif_vars%immob_p_pot_gb)
+NULLIFY(trif_vars%minl_p_gb)
+NULLIFY(trif_vars%f_up_gb)
+NULLIFY(trif_vars%f_up)
+NULLIFY(trif_vars%ps_or_p_out)
+NULLIFY(trif_vars%ps_out)
+NULLIFY(trif_vars%ps_or_out)
+NULLIFY(trif_vars%ps_in_out)
+NULLIFY(trif_vars%ps_par_out)
+NULLIFY(trif_vars%ps_occ_out)
+NULLIFY(trif_vars%fn_out)
+NULLIFY(trif_vars%fp_out)
+NULLIFY(trif_vars%p_litter_flux)
+NULLIFY(trif_vars%p_inorg_sorp_f)
+NULLIFY(trif_vars%p_inorg_desorp_f)
+NULLIFY(trif_vars%p_org_sorp_f)
+NULLIFY(trif_vars%p_org_desorp_f)
+! 18 rest vars required by the ouptut:
+NULLIFY(trif_vars%p_uptake_growth_pft)
+NULLIFY(trif_vars%p_demand_growth_pft)
+NULLIFY(trif_vars%p_demand_lit_pft)
+NULLIFY(trif_vars%p_demand_spread_pft)
+NULLIFY(trif_vars%p_uptake_pft)
+NULLIFY(trif_vars%p_demand_pft)
+NULLIFY(trif_vars%p_uptake_gb)
+NULLIFY(trif_vars%p_demand_gb)
+NULLIFY(trif_vars%p_veg_gb)
+NULLIFY(trif_vars%p_veg_pft)
+NULLIFY(trif_vars%dpveg_pft)
+NULLIFY(trif_vars%dpveg_gb)
+NULLIFY(trif_vars%lit_p_t_gb)
+NULLIFY(trif_vars%p_tot)
+NULLIFY(trif_vars%p_tot2)
+NULLIFY(trif_vars%p_uptake_extract_gb)
+NULLIFY(trif_vars%p_leach_soilt)
+NULLIFY(trif_vars%p_uptake_extract)
+NULLIFY(trif_vars%p_uptake_spread_pft)
+NULLIFY(trif_vars%p_leach_gb_acc)
+NULLIFY(trif_vars%smcl_gb)
+NULLIFY(trif_vars%p_avail_out)
+NULLIFY(trif_vars%n_avail_out)
+NULLIFY(trif_vars%litterP_pft)
+NULLIFY(trif_vars%lit_p_orig_pft)
+NULLIFY(trif_vars%lit_p_ag_pft)
+
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
