@@ -54,7 +54,8 @@ SUBROUTINE physiol (                                                           &
   rootc_cpft, sthu_irr_soilt, frac_irr_soilt, frac_irr_surft, dvi_cpft,        &
   !crop_vars_mod (OUT)
   gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                 &
-  gs_nir_surft, gc_nir_surft,                                                  &
+  gs_nir_surft,                                                                &
+  !!gc_nir_surft,               not needed?                                   &
   !p_s_parms (IN)
   bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                            &
   !ancil_info (IN)
@@ -360,7 +361,8 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
         wt_ext_irr_surft(land_pts,sm_levels,nsurft)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_irr_surft(land_pts,nsurft)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: gs_nir_surft(land_pts,nsurft)
-REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_nir_surft(land_pts,nsurft)
+
+!!  not needed? REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_nir_surft(land_pts,nsurft)
 
 !ancil_info (IN)
 LOGICAL, INTENT(IN) :: l_soil_point(land_pts)
@@ -555,7 +557,13 @@ REAL(KIND=real_jlslsm) ::                                                      &
                             ! WORK Fraction of ground below canopy
 !                                 !      contributing to evaporation.
 ,fsoil_irr_tot(land_pts)                                                       &
+                            ! WORK Fraction of ground below canopy
+!                                 !      contributing to evaporation
+!                                 !      over irrigated fraction.
 ,fsoil_nir_tot(land_pts)                                                       &
+                            ! WORK Fraction of ground below canopy
+!                                 !      contributing to evaporation
+!                                 !      over non-irrigated fraction.
 ,fsoil_tot(land_pts)                                                           &
                             ! WORK Total fraction of soil
 !                                 !      contributing to evaporation

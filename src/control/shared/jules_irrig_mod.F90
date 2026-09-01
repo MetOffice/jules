@@ -50,9 +50,9 @@ LOGICAL ::                                                                     &
   l_irrig_limit = .FALSE.,                                                     &
     !   Switch for limiting irrigation supply
   l_soil_evap_irrig_expl = .FALSE.
-      ! Switch for explcitly calculating bare soil evaporation over the
-      ! separate irrigated and non-irrigated fractions of the grid box.
-      ! (Default used the grid box mean soil moisture).
+      ! Switch for explicitly calculating bare soil evaporation
+      ! over the separate irrigated and non-irrigated fractions of
+      ! the grid box. (Default uses the grid box mean soil moisture).
 
 INTEGER :: nirrtile = imdi
     !  Number of tiles that can have irrigated fraction
@@ -334,6 +334,9 @@ CALL jules_print('jules_irrig',lineBuffer)
 WRITE(lineBuffer,*)' irrig_option = ',irrig_option
 CALL jules_print('jules_irrig',lineBuffer)
 
+WRITE(lineBuffer,*) ' l_soil_evap_irrig_expl = ',l_soil_evap_irrig_expl
+CALL jules_print('jules_irrig',lineBuffer)
+
 CALL jules_print('jules_irrig',                                                &
     '- - - - - - end of namelist - - - - - -')
 
@@ -381,9 +384,9 @@ TYPE :: my_namelist
   SEQUENCE
   LOGICAL :: l_irrig_dmd
   LOGICAL :: l_irrig_limit
-  LOGICAL :: l_soil_evap_irrig_expl
   LOGICAL :: frac_irrig_all_tiles
   LOGICAL :: set_irrfrac_on_irrtiles
+  LOGICAL :: l_soil_evap_irrig_expl
   INTEGER :: irr_crop
   INTEGER :: nirrtile
   INTEGER :: irrigtiles(npft_max)
@@ -409,6 +412,7 @@ IF (mype == 0) THEN
   my_nml % l_irrig_limit           = l_irrig_limit
   my_nml % frac_irrig_all_tiles    = frac_irrig_all_tiles
   my_nml % set_irrfrac_on_irrtiles = set_irrfrac_on_irrtiles
+  my_nml % l_soil_evap_irrig_expl  = l_soil_evap_irrig_expl
   my_nml % irr_crop                = irr_crop
   my_nml % nirrtile                = nirrtile
   my_nml % irrigtiles              = irrigtiles
@@ -424,6 +428,7 @@ IF (mype /= 0) THEN
   l_irrig_limit           = my_nml % l_irrig_limit
   frac_irrig_all_tiles    = my_nml % frac_irrig_all_tiles
   set_irrfrac_on_irrtiles = my_nml % set_irrfrac_on_irrtiles
+  l_soil_evap_irrig_expl  = my_nml % l_soil_evap_irrig_expl
   irr_crop                = my_nml % irr_crop
   nirrtile                = my_nml % nirrtile
   irrigtiles              = my_nml % irrigtiles

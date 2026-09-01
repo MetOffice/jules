@@ -195,10 +195,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                           ! WORK Fraction of transpiration
 !                           !    extracted from each soil layer
 !                           !    by non-irrigated part of each tile.
-,resfs_nir_surft(land_pts,nsurft)                                              &
-!                           ! WORK Combined soil, stomatal and aerodynam.
-!                           !    resistance factor for fraction 1-fracaero_t
-!                           !    of non-irrigated part of each land tile.
 ,smc_nir_soilt(land_pts,nsoilt)
 !                            ! WORK Available soil moisture (kg/m2).
 !                            !     fraction (kg/m2/s).

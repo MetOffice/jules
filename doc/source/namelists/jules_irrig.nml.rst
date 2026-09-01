@@ -148,24 +148,6 @@ This namelist specifies the different options available for setting up the irrig
    :nml:mem:`nstep_irrig` = NINT(frequency of irrigation update (in sec)) / :nml:mem:`JULES_TIME::timestep_len`
 
 
-.. nml:member:: l_soil_evap_irrig_expl
-
-   :type: logical
-   :default: F
-
-   Switch controlling whether the bare soil evaporation from the irrigated and non-irrigated parts of the grid-box (or soil tile) is controlled by the mean soil moisture or the separate irrigated and non-irrigated soil moisture columns.
-
-   TRUE
-       Bare soil evaporation is explicitly calculated from the irrigated and non-irrigated soil moisture columns.
-
-   FALSE
-      No effect.
-
-   This must be set to FALSE if :nml:mem:`JULES_IRRIG::irrig_option` = 0.
-   This must be set to FALSE if :nml:mem:`JULES_IRRIG::irrig_option` = 2.
-
-	
-
 .. _References_irrig:
 
 ``JULES_IRRIG`` references
