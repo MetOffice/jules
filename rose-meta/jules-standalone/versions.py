@@ -45,15 +45,15 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class vn82_t155(MacroUpgrade):
 
     """Upgrade macro from JULES by Author"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t155"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
+        # Bump tag to pick up metadata changes
         return config, self.reports
