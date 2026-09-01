@@ -148,8 +148,8 @@ DO k = 2,nshyd
       l = surft_index(j)
       wt_ext_nir(l,k) = gs_nir(l) * wt_ext_nir(l,k)                            &
              / (gs_nir(l) + fsoil(l) * gsoil_nir(l))
-      wt_ext(l,k) = frac_irr(l)*wt_ext_irr(l,k)                                &
-           +(1.0-frac_irr(l))*wt_ext_nir(l,k)
+      wt_ext(l,k) = frac_irr(l) * wt_ext_irr(l,k)                              &
+           + (1.0 - frac_irr(l)) * wt_ext_nir(l,k)
     END DO
 !$OMP END DO NOWAIT
   END IF

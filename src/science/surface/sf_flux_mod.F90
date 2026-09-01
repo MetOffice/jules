@@ -36,7 +36,6 @@ USE jules_urban_mod, ONLY: l_moruses_storage
 USE jules_surface_mod, ONLY: l_aggregate, l_epot_corr
 USE jules_science_fixes_mod, ONLY: l_fix_moruses_roof_rad_coupling,            &
                                    l_fix_neg_snow
-USE jules_irrig_mod, ONLY: l_irrig_dmd
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
