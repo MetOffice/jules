@@ -1208,7 +1208,7 @@ USE jules_rivers_mod, ONLY: l_reservoirs, l_rivers
 
 USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_surface_water, &
       l_water_irrigation, n_sw_source, nwater_use,                             &
-      partition_calc_from_stores, partition_method,                           &
+      partition_calc_from_stores, partition_method,                            &
       sw_res_source, sw_river_source
 
 USE model_grid_mod, ONLY: global_land_pts
@@ -1338,7 +1338,7 @@ SUBROUTINE regrid_to_land( global_land_index, map_river_to_land_points,        &
 
 USE ereport_mod, ONLY: ereport
 
-USE jules_rivers_mod, ONLY: i_river_vn, l_reservoirs,                         &
+USE jules_rivers_mod, ONLY: i_river_vn, l_reservoirs,                          &
                             l_rivers, np_rivers, rivers_rfm, rivers_trip
 
 USE model_grid_mod, ONLY: global_land_pts

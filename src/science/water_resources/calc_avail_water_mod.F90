@@ -162,7 +162,7 @@ END SUBROUTINE calc_avail_groundwater
 !##############################################################################
 !##############################################################################
 
-SUBROUTINE calc_avail_surface_water( res_storage_global,                      &
+SUBROUTINE calc_avail_surface_water( res_storage_global,                       &
                                      river_storage_global,                     &
                                      sw_avail_global )
 
@@ -176,7 +176,7 @@ USE model_grid_mod, ONLY: global_land_pts
 
 USE jules_rivers_mod, ONLY: l_reservoirs, l_rivers
 
-USE jules_water_resources_mod, ONLY:  n_sw_source,                            &
+USE jules_water_resources_mod, ONLY:  n_sw_source,                             &
                                       sw_res_source, sw_river_source
 
 IMPLICIT NONE

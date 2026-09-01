@@ -250,19 +250,19 @@ DO ip = 1,np_rivers
   !-------------------------------------------------------------------------------
   IF (l_reservoirs) THEN
     IF (rivers%res_cap_current(ip) > 0.0) THEN
-        reservoir_flow = rivers%rfm_flowin_rp(ip) * 1000.0 / dt
-        CALL route_reservoirs(dt, abstracted_res_rp(ip),                       &
-                                    rivers%res_cap_current(ip),                &
-                                    rivers%res_catch(ip),                      &
-                                    rivers%res_critical(ip),                   &
-                                    rivers%res_flood(ip),                      &
-                                    rivers%res_emergency(ip),                  &
-                                    rivers%res_normal_release(ip),             &
-                                    rivers%res_flood_release(ip),              &
-                                    rivers%res_storage(ip), reservoir_flow)
-        rivers%rfm_flowin_rp(ip) = reservoir_flow * dt / 1000.0
-    ENDIF
-  ENDIF
+      reservoir_flow = rivers%rfm_flowin_rp(ip) * 1000.0 / dt
+      CALL route_reservoirs(dt, abstracted_res_rp(ip),                         &
+                                  rivers%res_cap_current(ip),                  &
+                                  rivers%res_catch(ip),                        &
+                                  rivers%res_critical(ip),                     &
+                                  rivers%res_flood(ip),                        &
+                                  rivers%res_emergency(ip),                    &
+                                  rivers%res_normal_release(ip),               &
+                                  rivers%res_flood_release(ip),                &
+                                  rivers%res_storage(ip), reservoir_flow)
+      rivers%rfm_flowin_rp(ip) = reservoir_flow * dt / 1000.0
+    END IF
+  END IF
 
   IF (landtype == rfm_land) THEN  !Gridcell is land
 

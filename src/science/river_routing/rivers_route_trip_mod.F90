@@ -220,17 +220,17 @@ DO iseq = 1, nseqmax
       !-------------------------------------------------------------------------------
       IF (l_reservoirs) THEN
         IF (res_cap_current(ip) > 0.0) THEN
-            CALL route_reservoirs(dt, abstracted_res_rp(ip),                   &
-                                        res_cap_current(ip),                   &
-                                        res_catch(ip),                         &
-                                        res_critical(ip),                      &
-                                        res_flood(ip),                         &
-                                        res_emergency(ip),                     &
-                                        res_normal_release(ip),                &
-                                        res_flood_release(ip),                 &
-                                        res_storage(ip), inflow(ip))
-        ENDIF
-      ENDIF
+          CALL route_reservoirs(dt, abstracted_res_rp(ip),                     &
+                                      res_cap_current(ip),                     &
+                                      res_catch(ip),                           &
+                                      res_critical(ip),                        &
+                                      res_flood(ip),                           &
+                                      res_emergency(ip),                       &
+                                      res_normal_release(ip),                  &
+                                      res_flood_release(ip),                   &
+                                      res_storage(ip), inflow(ip))
+        END IF
+      END IF
 
       !-----------------------------------------------------------------------
       !   Calculate the coefficient "c" of the model.
