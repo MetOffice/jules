@@ -564,6 +564,14 @@ REAL(KIND=real_jlslsm) ::                                                      &
                             ! WORK Fraction of ground below canopy
 !                                 !      contributing to evaporation
 !                                 !      over non-irrigated fraction.
+,fsoil_irr_tot_tmp                                                             &
+                            ! WORK Fraction of ground below canopy
+!                                 !      contributing to evaporation
+!                                 !      over irrigated fraction.
+,fsoil_nir_tot_tmp                                                             &
+                            ! WORK Fraction of ground below canopy
+!                                 !      contributing to evaporation
+!                                 !      over non-irrigated fraction.
 ,fsoil_tot(land_pts)                                                           &
                             ! WORK Total fraction of soil
 !                                 !      contributing to evaporation
@@ -2252,18 +2260,18 @@ IF (l_irrig_dmd) THEN
     DO l = 1,land_pts
       IF (l_soil_evap_irrig_expl) THEN
         IF (frac_irr_soilt(l,m) > 0.0) THEN
-          fsoil_irr_tot(l) = fsoil_irr_tot(l)/frac_irr_soilt(l,m)
-          smc_irr_soilt(l,m) = (1.0 - fsoil_irr_tot(l) ) *                     &
-             smc_irr_soilt(l,m) + fsoil_irr_tot(l) *                           &
+          fsoil_irr_tot_tmp = fsoil_irr_tot(l)/frac_irr_soilt(l,m)
+          smc_irr_soilt(l,m) = (1.0 - fsoil_irr_tot_tmp ) *                    &
+             smc_irr_soilt(l,m) + fsoil_irr_tot_tmp *                          &
              rho_water * dzsoil(1) *                                           &
              MAX(0.0,sthu_irr_soilt(l,m,1)) * smvcst_soilt(l,m,1)
         ELSE
           smc_irr_soilt(l,m) = 0.0
         END IF
         IF (1.0 - frac_irr_soilt(l,m) > 0.0) THEN
-          fsoil_nir_tot(l) = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
-          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot(l)) *                      &
-               smc_nir_soilt(l,m) + fsoil_nir_tot(l) *                         &
+          fsoil_nir_tot_tmp = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
+          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot_tmp) *                     &
+               smc_nir_soilt(l,m) + fsoil_nir_tot_tmp *                        &
                rho_water * dzsoil(1) *                                         &
               MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
         ELSE
