@@ -56,18 +56,11 @@ class vn82_t61(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        self.rename_setting(config, ["namelist:fire_switches"],
-                            ["namelist:jules_fire_weather_index"])
-        self.rename_setting(config, ["namelist:jules_fire_weather_index",
-                                      "l_fire"],
-                            ["namelist:jules_fire_weather_index",
-                             "l_fire_weather_index"])
-
         self.add_setting(config, ["namelist:jules_inferno"])
 
         source = self.get_setting_value(config, ["file:fire.nml","source"])
         source = source.replace("namelist:fire_switches",
-                                "namelist:jules_fire_weather_index namelist:jules_inferno")
+                                "namelist:fire_switches namelist:jules_inferno")
         self.change_setting_value(config, ["file:fire.nml","source"], source)
 
         l_inferno = self.get_setting_value(config, ["namelist:jules_vegetation", "l_inferno"])
