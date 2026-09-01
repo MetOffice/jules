@@ -9513,7 +9513,7 @@ DATA metadata(735) / var_metadata(                                             &
 ! Long name
     "Catchment area of reservoirs",                                            &
 ! Units
-    "m2"                                                                        &
+    "m2"                                                                       &
   ) /
 !-----------------------------------------------------------------------------
 ! Metadata for res_year

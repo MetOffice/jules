@@ -28,7 +28,7 @@ CONTAINS
 
 !##############################################################################
 
-SUBROUTINE rivers_route_rp( abstracted_res_rp,                                &
+SUBROUTINE rivers_route_rp( abstracted_res_rp,                                 &
                             net_abstracted_river_rp, rivers )
 
 !------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ SUBROUTINE rivers_route_rp( abstracted_res_rp,                                &
 
 USE jules_rivers_mod, ONLY:                                                    &
 !  imported scalars with intent(in)
-     i_river_vn, l_reservoirs, np_rivers,                                     &
+     i_river_vn, l_reservoirs, np_rivers,                                      &
      nstep_rivers, rivers_camaflood, rivers_rfm, rivers_trip, rivers_type
 
 USE jules_water_resources_mod, ONLY:                                           &
@@ -179,7 +179,7 @@ CASE ( rivers_trip )
                           rivers%res_normal_release,                           &
                           rivers%res_flood_release,                            &
                           rivers%res_storage )
-                          
+
 CASE DEFAULT
   WRITE(jules_message,*) 'ERROR: rivers_drive: ' //                            &
                          'do not recognise i_river_vn=', i_river_vn
@@ -418,7 +418,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !------------------------------------------------------------------------------
 ! Array arguments with intent(inout).
 !------------------------------------------------------------------------------
-REAL(KIND=real_jlslsm), INTENT(INOUT) ::                                       &
+REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   res_cap_current(np_rivers)
     ! Capacity of currently active reservoirs (kg).
 

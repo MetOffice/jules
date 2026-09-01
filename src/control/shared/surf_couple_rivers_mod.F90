@@ -429,7 +429,7 @@ ELSE
 
     ! Accumulate abstraction from reservoirs.
     IF ( l_water_resources .AND. l_reservoirs ) THEN
-      CALL accumulate_abstraction( global_land_pts, abstracted_res_global,       &
+      CALL accumulate_abstraction( global_land_pts, abstracted_res_global,     &
                                    tot_abstracted_res_global )
     END IF
   END IF
@@ -597,7 +597,7 @@ IF ( rivers_call ) THEN
     ELSE
       ! Allocate at minimum size.
       tmp_river_size = 1
-    END IF    
+    END IF
     ALLOCATE(abstracted_res_rp(tmp_river_size), STAT = ERROR)
     error_sum = error_sum + ERROR
 
