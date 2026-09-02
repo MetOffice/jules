@@ -64,7 +64,7 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
 
 .. nml:namelist:: JULES_INFERNO
 
-   .. nml:member:: l_inferno
+.. nml:member:: l_inferno
 
    :type: boolean
    :default: F
@@ -166,8 +166,8 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
    :default: 14929920000.0
 
    An exponential decay factor that defines the relationship between flammability and rainfall.
-   In order to recreate the relationship hardwired into jules version 8.2 and lower this value 
-    should be set to 14929920000.0. However, this isnt the relationship that
+   In order to recreate the relationship hardwired into JULES version 8.2 and lower this value 
+    should be set to 14929920000.0. However, this is not the relationship that
    was documented by Mangeon et al. (2016). If you want the Mangeon et al. relationship 
     then this value should be 172800.0.
    If you want to remove the dependence of flammability on rainfall then this value should be set to 0.0.
@@ -191,21 +191,21 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
    :type: real
    :default: 0.8
 
-   Minimum DPM soil carbon pool combustion completness fraction.
+   Minimum DPM soil carbon pool combustion completeness fraction.
 
 .. nml:member:: ccdpm_max
 
    :type: real
    :default: 1.0
 
-   Maximum DPM soil carbon pool combustion completness fraction.
+   Maximum DPM soil carbon pool combustion completeness fraction.
 
 .. nml:member:: ccrpm_min
 
    :type: real
    :default: 0.0
 
-   Minimum RPM soil carbon pool combustion completness fraction.
+   Minimum RPM soil carbon pool combustion completeness fraction.
 
 
 .. nml:member:: ccrpm_max
@@ -213,4 +213,4 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
    :type: real
    :default: 0.2
 
-   Maximum RPM soil carbon pool combustion completness fraction.
+   Maximum RPM soil carbon pool combustion completeness fraction.

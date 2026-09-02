@@ -107,8 +107,6 @@ SUBROUTINE check_jules_inferno()
 USE ereport_mod, ONLY: ereport
 USE jules_print_mgr, ONLY: jules_print, jules_message
 
-USE logging_mod, ONLY: log_info
-
 IMPLICIT NONE
 
 INTEGER :: errorstatus

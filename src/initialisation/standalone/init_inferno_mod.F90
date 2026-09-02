@@ -16,7 +16,9 @@ SUBROUTINE init_inferno(nml_dir)
 USE jules_inferno_mod, ONLY: read_nml_jules_inferno,                           &
                            print_nlist_jules_inferno,                          &
                            check_jules_inferno,                                &
-                           l_inferno, l_trif_fire, ignition_method
+                           l_inferno, l_trif_fire, ignition_method,            &
+                           ignition_constant, ignition_vary_natural,           &
+                           ignition_vary_natural_human
 
 USE logging_mod, ONLY: log_info
 
@@ -33,10 +35,6 @@ IMPLICIT NONE
 !   Language: Fortran 90.
 !   This code is written to JULES coding standards v1.
 !-----------------------------------------------------------------------------
-
-INTEGER, PARAMETER :: ignition_constant = 1
-INTEGER, PARAMETER :: ignition_vary_natural = 2
-INTEGER, PARAMETER :: ignition_vary_natural_human = 3
 
 CHARACTER(LEN=*), INTENT(IN) :: nml_dir  ! The directory containing the
                                          ! namelists

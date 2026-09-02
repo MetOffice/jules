@@ -523,7 +523,7 @@ END IF
 ! check value of z_burn_max with l_layeredc
 IF ( ( l_layeredc .AND. l_trif_fire ) .OR.                                     &
                ( l_layeredc .AND. l_inferno ) ) THEN
-  IF ( ABS( z_burn_max - rmdi ) > EPSILON(1.0) ) THEN
+  IF ( ABS( z_burn_max - rmdi ) < EPSILON(1.0) ) THEN
     CALL ereport(RoutineName, errorstatus, "z_burn_max not found")
   ELSE IF ( z_burn_max <= 0.0 .OR. z_burn_max > 10.0 ) THEN
      CALL ereport(RoutineName, errorstatus,                                   &
