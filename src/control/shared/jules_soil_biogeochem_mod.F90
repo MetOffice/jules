@@ -526,9 +526,8 @@ IF ( ( l_layeredc .AND. l_trif_fire ) .OR.                                     &
   IF ( ABS( z_burn_max - rmdi ) > EPSILON(1.0) ) THEN
     CALL ereport(RoutineName, errorstatus, "z_burn_max not found")
   ELSE IF ( z_burn_max <= 0.0 .OR. z_burn_max > 10.0 ) THEN
-      CALL ereport(RoutineName, errorstatus,                                   &
+     CALL ereport(RoutineName, errorstatus,                                   &
                    "z_burn_max must be positive & less than 10 meters")
-    END IF
   END IF
 END IF
 
