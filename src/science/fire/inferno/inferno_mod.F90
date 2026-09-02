@@ -249,8 +249,6 @@ REAL(KIND=real_jlslsm)                      ::                                 &
     ! The factor dependence on soil moisture
   rain_rate
 
-LOGICAL, PARAMETER :: l_cf_old_inferno = .TRUE.
-
 REAL(KIND=jprb)               :: zhook_handle
 CHARACTER(LEN=*),  PARAMETER :: RoutineName = "CALC_FLAM"
 
@@ -278,15 +276,15 @@ ELSE IF ( flam_sm_func == 2 ) THEN   ! exponential
   f_sm_l = MAX(MIN(f_sm_l, 1.0), 0.0)
 END IF
 
-IF (l_cf_old_inferno) THEN
-  rain_rate = rain_l * s_in_day
+
+rain_rate = rain_l * s_in_day
   ! convert rain rate from kg/m2/s to mm/day
-  flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
+
+flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
                        * EXP( cr * rain_rate) ,1.0) ,0.0)
-END IF
-!  flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
-!                       * EXP( -flam_rain_const * rain_l) ,1.0) ,0.0)
-  ! EJB add units here for rain or add rain as a separate function - make flam_rain > 0
+!flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
+!                       * EXP( cr * s_in_day * rain_l), 1.0), 0.0)
+! EJB add units here for rain or add rain as a separate function - make flam_rain > 0
 
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)

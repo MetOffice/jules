@@ -274,7 +274,7 @@ CALL init_soil(nml_dir)
 ! Must be called after init_soil to check soil tiling flags
 CALL init_vegetation(nml_dir)
 
-! initialase inferno options
+! Initialise inferno options
 CALL init_inferno(nml_dir)
 
 ! Initialise irrigation options

@@ -985,7 +985,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
-INTEGER, PARAMETER :: n_int = 11
+INTEGER, PARAMETER :: n_int = 10
 INTEGER, PARAMETER :: n_real = 11 + (n_photo_coef * 5)
 INTEGER, PARAMETER :: n_log = 27 + npft_max
 

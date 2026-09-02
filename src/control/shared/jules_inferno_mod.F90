@@ -71,7 +71,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
   ccrpm_min = rmdi,                                                            &
     ! Minimum resistant plant material urn fraction (0 <= fraction <= 1)
   ccrpm_max = rmdi,                                                            &
-    ! Resistant Plant Material burn fraction (0 <= fraction <= 1)
+    ! Maximum resistant Plant Material burn fraction (0 <= fraction <= 1)
   z_burn_max = rmdi
     ! Parameter setting maximum depth of burn (m)
 
@@ -474,7 +474,6 @@ OPEN(namelist_unit, FILE=(TRIM(nml_dir) // '/' // 'fire.nml'),                 &
                IOMSG = iomessage)
 IF ( ERROR /= 0 )                                                              &
   CALL log_fatal("init_inferno", "Error opening namelist file fire.nml " //    &
-                 "Error opening namelist file fire.nml " //                    &
                  "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
                  TRIM(iomessage) // ")")
 
