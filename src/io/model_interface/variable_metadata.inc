@@ -6990,7 +6990,7 @@ DATA metadata(542) / var_metadata(                                             &
 ! String identifier
     'apar',                                                                    &
 ! Variable type
-    var_type_surface,                                                          &
+    var_type_pft,                                                              &
 ! Long name
     "PFT Absorbed Photosynthetically Active Radiation",                        &
 ! Units
