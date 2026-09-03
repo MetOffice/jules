@@ -6990,7 +6990,7 @@ DATA metadata(542) / var_metadata(                                             &
 ! String identifier
     'apar',                                                                    &
 ! Variable type
-    var_type_surface,                                                          &
+    var_type_pft,                                                              &
 ! Long name
     "PFT Absorbed Photosynthetically Active Radiation",                        &
 ! Units
@@ -9366,5 +9366,18 @@ DATA metadata(723) / var_metadata(                                             &
     "Inland basin flow on river routing grid",                                 &
 ! Units
     "kg m-2 s-1"                                                               &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for nbp_gb
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
+! String identifier
+    'nbp_gb',                                                                  &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Gridbox net biosphere productivity",                                      &
+! Units
+    "kg/m2/360 days"                                                           &
   ) /
 #endif
