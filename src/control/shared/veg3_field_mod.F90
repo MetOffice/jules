@@ -42,7 +42,7 @@ TYPE :: veg_state_type
       npp_acc(:,:),                                                            &
               ! Accumulated NPP. (kg C m-2 s-1)
       npp_dr_out(:,:),                                                         &
-              ! A diagnostic NPP variable driving RED. (kg C m-2 (360d)-1)    
+              ! A diagnostic NPP variable driving RED. (kg C m-2 (360d)-1)
       frac(:,:),                                                               &
               ! Gridbox area fraction of each tile type including PFTs.
       phen(:,:),                                                               &
@@ -54,7 +54,7 @@ TYPE :: veg_state_type
       g_leaf_phen(:,:),                                                        &
               ! PFT leaf carbon mass density turnover. ((360d)-1)
       g_leaf(:,:),                                                             &
-              ! Pointer necessary to get the diagnosed g_leaf rate from the 
+              ! Pointer necessary to get the diagnosed g_leaf rate from the
               ! rest of JULES. ((360d)-1)
       lai_phen(:,:),                                                           &
               ! Diagnostic LAI immediately following the phenology update.
@@ -72,7 +72,7 @@ TYPE :: veg_state_type
       wood_litC(:,:),                                                          &
               ! Wood litter carbon flux per PFT fraction. (kg C m-2 (360d)-1)
       litCpft(:,:),                                                            &
-              ! Total litter carbon flux per PFT fraction, also includes any 
+              ! Total litter carbon flux per PFT fraction, also includes any
               ! litter from dynamics (e.g., mortality). (kg C m-2 (360d)-1)
       litC(:)
               ! Total litter carbon flux per gridbox. (kg C m-2 (360d)-1)
@@ -115,7 +115,7 @@ PRIVATE
 
 !Expose routines
 PUBLIC :: veg3_field_init, veg3_field_allocate, veg3_field_assoc,              &
-          red_veg3_couple  
+          red_veg3_couple
 
 !Expose data
 PUBLIC :: veg_state, red_state
@@ -214,10 +214,10 @@ END SUBROUTINE veg3_field_allocate
 SUBROUTINE veg3_field_assoc(progs, ainfo)
 
 ! Initial code to associate the veg3 and red fields to the rest of JULES
-! This new routine moves out the pointers from veg3_set_fields to here 
+! This new routine moves out the pointers from veg3_set_fields to here
 ! to keep clean and more in line with in init.F90.
 
-! We still need to run with l_triffid, but this will need to be addressed in a 
+! We still need to run with l_triffid, but this will need to be addressed in a
 ! future revision to allow for veg3 to run fully independently of the switch.
 
 USE jules_vegetation_mod,     ONLY: l_triffid
@@ -291,37 +291,55 @@ INTEGER, INTENT(IN) :: land_pts, nsurft, nnpft, nmasst
 TYPE(ainfo_type), INTENT(IN OUT) :: ainfo
 TYPE(progs_type), INTENT(IN) :: progs
 
-INTEGER :: l,n,k
-REAL :: frac_check(land_pts,nnpft)
+INTEGER :: l,n
 
 !End of header
 !-----------------------------------------------------------------------------
 
 IF (l_red .AND. l_triffid) THEN
   veg_state%phen(:,:) = 1.0
-  frac_check(:,:) = 0.0
 
   DO l = 1, land_pts
     DO n = 1, nnpft
-       DO k = 1, nmasst
 
-        IF (k > red_parms%mclass(n)) EXIT
-        frac_check(l,n) = frac_check(l,n) + red_state%plantNumDensity(l,n,k)   &
-          * red_state%crwn_area_mass(n,k)
+      ! We estimate the PFT physical properties from the prognostic field
+      ! plantNumDensity for the following reasons:
+      !
+      ! i.) Check to see if plantNumDensity derived frac is less than the
+      !     minimum fraction, this should introduce a small error in carbon
+      !     flux but probably only once.
 
-       END DO
+      ! ii.) red_veg3_couple needs to know the phen state variable, which
+      !      is diagnosed from lai_bal. Both are not prognostic variables,
+      !      but lai is, so we can infer then phen state from this and
+      !      plantNumDensity for lai_bal.
 
-      ! Check to see if frac_check is less than the min fraction, if so, add
+      CALL pft_mean_from_mass_class(                                           &
+        !IN sizing
+        red_parms%mclass(n),                                                   &
+        !IN mass-cohort properties
+        red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                  &
+        red_state%mass_mass(n,1:red_parms%mclass(n)),                          &
+        red_state%lai_bal_mass(n,1:red_parms%mclass(n)),                       &
+        red_state%ht_mass(n,1:red_parms%mclass(n)),                            &
+        red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                     &
+        !OUT fields
+        veg_state%frac(l,n),veg_state%vegCpft(l,n),veg_state%lai_bal(l,n),     &
+        veg_state%canht(l,n)                                                   &
+        )
+
+      ! Check to see if frac is less than the min fraction, if so, add
       ! the necessary amount to the plant number density to balance in the
-      ! lowest mass class.
-      IF (frac_check(l,n) < red_parms%frac_min(n)) THEN
+      ! lowest mass class, and set the fraction to the minimum directly.
+      IF (veg_state%frac(l,n) < red_parms%frac_min(n)) THEN
         red_state%plantNumDensity(l,n,1) = red_state%plantNumDensity(l,n,1)    &
-          + (red_parms%frac_min(n) - frac_check(l,n)) /                        &
+          + (red_parms%frac_min(n) - veg_state%frac(l,n)) /                    &
           red_state%crwn_area_mass(n,1)
+        veg_state%frac(l,n) = red_parms%frac_min(n)
 
       END IF
 
-      ! Here we estimate the phenology diagnosed from the lai and lai_bal from 
+      ! Here we estimate the phenology diagnosed from the lai and lai_bal from
       ! the dump/intialisation.
       IF (veg_state%lai_bal(l,n) > 0.0 .AND.  veg_state%lai_bal(l,n) >=        &
           veg_state%lai(l,n)) THEN
@@ -434,15 +452,11 @@ IMPLICIT NONE
 TYPE(ainfo_type),INTENT(IN OUT) :: ainfo
 
 !Local
-INTEGER :: l,n,k  ! Index variables.
+INTEGER :: l,n  ! Index variables.
 
 REAL :: frac_old(land_pts,nnpft)
     ! PFT fraction prior to updating veg_state%frac below, i.e. before the
     ! change in canopy area resulting from vegetation dynamics.
-REAL :: frac_mid(land_pts,nnpft)
-    ! Mean of the fraction before and after vegetation dynamics, used to
-    ! convert the per-canopy-area litter fluxes to a gridbox-area flux,
-    ! approximating the changing canopy area over the timestep.
 
 !-----------------------------------------------------------------------------
 !end of header
@@ -460,63 +474,40 @@ veg_state%canht(:,:)   = 0.0
 
 DO n = 1,nnpft
   DO l = 1,land_pts
-    ! Convert from plant number on mass classes to area on PFTS
-    ! and biomass to carbon
-    DO k = 1,nmasst
-      IF (k > red_parms%mclass(n)) EXIT
-      veg_state%frac(l,n) = veg_state%frac(l,n)                                &
-        + red_state%plantNumDensity(l,n,k) * red_state%crwn_area_mass(n,k)
-      veg_state%vegCpft(l,n) = veg_state%vegCpft(l,n)                          &
-        + red_state%plantNumDensity(l,n,k) * red_state%mass_mass(n,k)
-      veg_state%lai_bal(l,n) = veg_state%lai_bal(l,n)                          &
-        + red_state%plantNumDensity(l,n,k) * red_state%lai_bal_mass(n,k) *     &
-          red_state%crwn_area_mass(n,k)
-      veg_state%canht(l,n) = veg_state%canht(l,n) +                            &
-        red_state%plantNumDensity(l,n,k) * red_state%ht_mass(n,k) *            &
-          red_state%crwn_area_mass(n,k)
-    END DO
 
-    ! Convert to per m2 plant
-    IF (veg_state%frac(l,n) > 0.0) THEN
-      veg_state%vegCpft(l,n) = veg_state%vegCpft(l,n) / veg_state%frac(l,n)
-      veg_state%lai_bal(l,n) = veg_state%lai_bal(l,n) / veg_state%frac(l,n)
-      veg_state%canht(l,n)   = veg_state%canht(l,n) / veg_state%frac(l,n)
-    ELSE
+    ! Estimate the PFT mean physical properties by aggregating across the
+    ! mass class structure.
+    CALL pft_mean_from_mass_class(                                             &
+      !IN sizing
+      red_parms%mclass(n),                                                     &
+      !IN mass-cohort properties
+      red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                    &
+      red_state%mass_mass(n,1:red_parms%mclass(n)),                            &
+      red_state%lai_bal_mass(n,1:red_parms%mclass(n)),                         &
+      red_state%ht_mass(n,1:red_parms%mclass(n)),                              &
+      red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                       &
+      !OUT fields
+      veg_state%frac(l,n),veg_state%vegCpft(l,n),veg_state%lai_bal(l,n),       &
+      veg_state%canht(l,n)                                                     &
+      )
 
-      ! If frac is zero, set mean to lowest mass class value
-      veg_state%vegCpft(l,n) = red_state%mass_mass(n,1)
-      veg_state%lai_bal(l,n) = red_state%lai_bal_mass(n,1)
-      veg_state%canht(l,n)   = red_state%ht_mass(n,1)
-    END IF
+    ! Update the phenology
+    veg_state%lai(l,n)   = veg_state%phen(l,n) * veg_state%lai_bal(l,n)
 
-    veg_state%lai(l,n)     = veg_state%phen(l,n) * veg_state%lai_bal(l,n)
-
+    ! Update the leaf the root pools
     veg_state%leafC(l,n) = cmass * lma(n) * veg_state%lai_bal(l,n)
     veg_state%rootC(l,n) = cmass * lma(n) * veg_state%lai_bal(l,n)
     ! Wood carbon balance of total minus leaf and root
     veg_state%woodC(l,n) = veg_state%vegCpft(l,n) - veg_state%leafC(l,n)       &
                             - veg_state%rootC(l,n)
 
-    ! Mean fraction over the update, approximating the changing canopy area
-    ! as vegetation dynamics were applied.
-    frac_mid(l,n) = 0.5 * (frac_old(l,n) + veg_state%frac(l,n))
-
     ! NPP and its derived litter fluxes are normalised per unit PFT canopy
-    ! area, but that area has since changed from frac_old. Rescale them
-    ! onto the frac_mid basis to limit the error this introduces.
-    CALL veg3_implicit_flux_frac_adj(frac_old(l,n), veg_state%frac(l,n),       &
-                                     veg_state%npp_dr_out(l,n),                &
-                                     veg_state%leaf_litC(l,n),                 &
-                                     veg_state%root_litC(l,n),                 &
-                                     veg_state%wood_litC(l,n),                 &
-                                     veg_state%mort_litC(l,n))
-
-    ! Aggregate the leaf/root/wood turnover litter and the mortality/
+    ! Aggregate the leaf/root/wood turnover litter and the mortality litter
     ! demographic litter for the total litter flux per PFT fraction.
-    veg_state%litCpft(l,n) = (veg_state%leaf_litC(l,n) +                      &
-                              veg_state%root_litC(l,n) +                      &
-                              veg_state%wood_litC(l,n) +                      &
-                              veg_state%mort_litC(l,n) * rsec_per_day *       &
+    veg_state%litCpft(l,n) = (veg_state%leaf_litC(l,n) +                       &
+                              veg_state%root_litC(l,n) +                       &
+                              veg_state%wood_litC(l,n) +                       &
+                              veg_state%mort_litC(l,n) * rsec_per_day *        &
                               360.0)
     ! Update bare soil
     veg_state%frac(l,soil) = MAX(0.0, 1.0 - SUM(veg_state%frac(l,1:nnpft)))
@@ -535,56 +526,95 @@ veg_state%litC(:) = pfttiles_to_gbm(veg_state%litCpft,ainfo,frac_surft_in      &
 
 RETURN
 END SUBROUTINE red_veg3_couple
-!-----------------------------------------------------------------------------
 
-SUBROUTINE veg3_implicit_flux_frac_adj(frac_old, frac_new, npp, leaf_litC,     &
-                                       root_litC, wood_litC, mort_litC)
 !-----------------------------------------------------------------------------
-! npp/leaf_litC/root_litC/wood_litC/mort_litC are normalised per unit PFT
-! canopy area, i.e. on frac_old. If the PFT fraction has since moved to
-! frac_new, that normalisation is stale, so rescale each flux onto the mean
-! of frac_old and frac_new - an implicit approximation to the fraction
-! evolving smoothly over the timestep - to limit the resulting error.
+SUBROUTINE pft_mean_from_mass_class(                                           &
+                !IN sizing
+                mclass,                                                        &
+                !IN mass-cohort properties
+                plantNumDensity,mass_mass,lai_bal_mass,ht_mass,crwn_area_mass, &
+                !OUT fields
+                frac,vegCpft,lai_bal,canht                                     &
+                )
+!-----------------------------------------------------------------------------
+! Aggregates the plant number density across the mass class structure of a
+! single PFT at a single point into the PFT mean physical properties
+! (fraction, carbon density, balanced LAI and canopy height).
 !-----------------------------------------------------------------------------
 
 IMPLICIT NONE
 
-REAL, INTENT(IN) :: frac_old
-    ! PFT fraction that npp/leaf_litC/root_litC/wood_litC/mort_litC are
-    ! normalised on, prior to this adjustment.
-REAL, INTENT(IN) :: frac_new
-    ! Updated PFT fraction, following vegetation dynamics.
+!-----------------------------------------------------------------------------
+! Integers with INTENT IN
+!-----------------------------------------------------------------------------
+INTEGER, INTENT(IN) :: mclass
+              !  Number of mass classes for this PFT.
 
-REAL, INTENT(IN OUT) :: npp
-REAL, INTENT(IN OUT) :: leaf_litC
-REAL, INTENT(IN OUT) :: root_litC
-REAL, INTENT(IN OUT) :: wood_litC
-REAL, INTENT(IN OUT) :: mort_litC
-    ! Fluxes normalised per unit PFT canopy area (on the frac_old basis on
-    ! entry), rescaled onto the frac_mid basis on exit.
+!-----------------------------------------------------------------------------
+! Reals with INTENT IN
+!-----------------------------------------------------------------------------
+REAL, INTENT(IN)     ::                                                        &
+plantNumDensity(mclass),                                                       &
+              !  Population density within each mass cohort. (m-2)
+mass_mass(mclass),                                                             &
+              !  Mass of an individual member of each mass cohort. (kgC)
+lai_bal_mass(mclass),                                                          &
+              !  Balanced leaf area index of an individual member of each mass
+              !  cohort. (m2 m-2)
+ht_mass(mclass),                                                               &
+              !  Height of an individual member of each mass cohort. (m)
+crwn_area_mass(mclass)
+              !  Crown area of an individual member of each mass cohort. (m2)
 
-REAL :: frac_mid
-    ! Mean of frac_old and frac_new; the basis the fluxes are rescaled onto.
-REAL :: flux_scale
-    ! Ratio used to rescale each flux from the frac_old basis onto the
-    ! frac_mid basis.
+!-----------------------------------------------------------------------------
+! Reals with INTENT OUT
+!-----------------------------------------------------------------------------
+REAL, INTENT(OUT)    ::                                                        &
+frac,                                                                          &
+              !  PFT fraction across the gridbox. (-)
+vegCpft,                                                                       &
+              !  Total PFT carbon density per PFT area fraction. (kg C m-2)
+lai_bal,                                                                       &
+              !  Balanced LAI per PFT area fraction. (m2 m-2)
+canht
+              !  Canopy height per PFT area fraction. (m)
 
-!End of header
+!-----------------------------------------------------------------------------
+!Local Vars
+!-----------------------------------------------------------------------------
+INTEGER              :: k
 
-frac_mid = 0.5 * (frac_old + frac_new)
+!End of headers
 
-IF (frac_mid > 0.0) THEN
-  flux_scale = frac_old / frac_mid
+! Initialise vars
+frac    = 0.0
+vegCpft = 0.0
+lai_bal = 0.0
+canht   = 0.0
+
+! Convert from plant number on mass classes to area on PFTs
+! and biomass to carbon
+DO k = 1, mclass
+  frac    = frac    + plantNumDensity(k) * crwn_area_mass(k)
+  vegCpft = vegCpft + plantNumDensity(k) * mass_mass(k)
+  lai_bal = lai_bal + plantNumDensity(k) * lai_bal_mass(k) * crwn_area_mass(k)
+  canht   = canht   + plantNumDensity(k) * ht_mass(k) * crwn_area_mass(k)
+END DO
+
+! Convert to per m2 plant
+IF (frac > 0.0) THEN
+  vegCpft = vegCpft / frac
+  lai_bal = lai_bal / frac
+  canht   = canht   / frac
 ELSE
-  flux_scale = 0.0
+
+  ! If frac is zero, set mean to lowest mass class value
+  vegCpft = mass_mass(1)
+  lai_bal = lai_bal_mass(1)
+  canht   = ht_mass(1)
 END IF
 
-npp       = npp       * flux_scale
-leaf_litC = leaf_litC * flux_scale
-root_litC = root_litC * flux_scale
-wood_litC = wood_litC * flux_scale
-mort_litC = mort_litC * flux_scale
-
-END SUBROUTINE veg3_implicit_flux_frac_adj
+END SUBROUTINE pft_mean_from_mass_class
 !-----------------------------------------------------------------------------
+
 END MODULE veg3_field_mod

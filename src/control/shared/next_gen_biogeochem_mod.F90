@@ -248,7 +248,7 @@ IF (asteps_since_triffid == veg3_ctrl%nstep_trif) THEN
 
   npp_dr = veg_state%npp_acc / veg3_ctrl%dt_red
 
-  ! Record driving npp_dr and convert to s-1 -> (360 days)-1 
+  ! Record driving npp_dr and convert to s-1 -> (360 days)-1
   veg_state%npp_dr_out(:,:) = npp_dr * rsec_per_day * 360
 
   ! Reset accumulation to zero - note this can be used to pass a negative flux
@@ -386,9 +386,9 @@ g_leaf_phen_dr(:,:) = 0.0
 !-----------------------------------------------------------------------------
 IF (l_phenol .AND. MOD(a_step,veg3_ctrl%nstep_phen) == 0) THEN
 
-  veg_state%phen(:,:) = 1.
-  lai_bal_dummy(:) = 0.
-  g_leaf_day(:) = 0.
+  veg_state%phen(:,:) = 1.0
+  lai_bal_dummy(:) = 0.0
+  g_leaf_day(:) = 0.0
 
   DO n = 1,nnpft
     lai_bal_dummy(:) = veg_state%lai_bal(:,n)

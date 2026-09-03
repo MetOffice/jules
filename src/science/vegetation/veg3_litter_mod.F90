@@ -112,9 +112,9 @@ DO n = 1, nnpft
 
     ! Copy across to veg_state%leaf_litC, veg_state%root_litC, veg_state%wood_litC
     ! Convert to kg C m-2 (360d)-1
-    veg_state%leaf_litC(l,n) = leaf_litter(l,n) * rsec_per_day * 360.
-    veg_state%root_litC(l,n) = root_litter(l,n) * rsec_per_day * 360.
-    veg_state%wood_litC(l,n) = wood_litter(l,n) * rsec_per_day * 360.
+    veg_state%leaf_litC(l,n) = leaf_litter(l,n) * rsec_per_day * 360.0
+    veg_state%root_litC(l,n) = root_litter(l,n) * rsec_per_day * 360.0
+    veg_state%wood_litC(l,n) = wood_litter(l,n) * rsec_per_day * 360.0
 
     local_litter(l,n) = leaf_litter(l,n) + root_litter(l,n) + wood_litter(l,n)
 
