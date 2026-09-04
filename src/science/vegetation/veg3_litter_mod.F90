@@ -9,7 +9,9 @@
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in Veg3 Ecosystem Demography
 ! *****************************COPYRIGHT****************************************
-
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
 MODULE veg3_litter_mod
 
 IMPLICIT NONE
@@ -25,6 +27,8 @@ SUBROUTINE veg3_Litter(                                                        &
                 veg_index_pts,veg_index,veg3_ctrl,land_pts,nnpft,              &
                 !IN parms
                 litter_parms,                                                  &
+                !IN fields
+                g_leaf_phen_dr,                                                &
                 !IN state
                 veg_state,                                                     &
                 ! OUT Fields
@@ -33,6 +37,8 @@ SUBROUTINE veg3_Litter(                                                        &
                 )
 
 !Only get the data structures - the data comes through the calling tree
+USE conversions_mod, ONLY: rsec_per_day
+
 USE veg3_parm_mod, ONLY:  veg3_ctrl_type,litter_parm_type
 USE veg3_field_mod, ONLY:  veg_state_type
 
@@ -49,6 +55,15 @@ INTEGER, INTENT(IN) :: land_pts,nnpft,veg_index(land_pts),veg_index_pts
 !-----------------------------------------------------------------------------
 TYPE(veg3_ctrl_type),INTENT(IN)   :: veg3_ctrl
 TYPE(litter_parm_type),INTENT(IN) :: litter_parms
+
+!-----------------------------------------------------------------------------
+! Reals with INTENT IN
+!-----------------------------------------------------------------------------
+REAL, INTENT(IN)       ::                                                      &
+g_leaf_phen_dr(land_pts,nnpft)
+        ! Mean phenology-driven leaf turnover rate for driving vegetation
+        ! dynamics, accumulated and averaged over the vegetation dynamics
+        ! timestep in veg3_run_ctrl. (s-1)
 
 !-----------------------------------------------------------------------------
 ! Objects with INTENT INOUT
@@ -85,14 +100,21 @@ local_litter(:,:) = 0.0
 !$OMP PARALLEL DO DEFAULT(NONE) SCHEDULE(STATIC) COLLAPSE(2)                   &
 !$OMP PRIVATE(l,n,k)                                                           &
 !$OMP SHARED(litter_parms,veg_state,leaf_litter,root_litter,wood_litter,       &
-!$OMP        local_litter,veg_index,veg_index_pts,nnpft)
+!$OMP        local_litter,veg_index,veg_index_pts,nnpft,g_leaf_phen_dr)
 DO n = 1, nnpft
   DO k = 1, veg_index_pts
     l = veg_index(k)
 
-    leaf_litter(l,n) = litter_parms%g_leaf(n) * veg_state%leafC(l,n)
+    leaf_litter(l,n) = g_leaf_phen_dr(l,n) * veg_state%leafC(l,n) *            &
+                       veg_state%phen(l,n)
     root_litter(l,n) = litter_parms%g_root(n) * veg_state%rootC(l,n)
     wood_litter(l,n) = litter_parms%g_wood(n) * veg_state%woodC(l,n)
+
+    ! Copy across to veg_state%leaf_litC, veg_state%root_litC, veg_state%wood_litC
+    ! Convert to kg C m-2 (360d)-1
+    veg_state%leaf_litC(l,n) = leaf_litter(l,n) * rsec_per_day * 360.0
+    veg_state%root_litC(l,n) = root_litter(l,n) * rsec_per_day * 360.0
+    veg_state%wood_litC(l,n) = wood_litter(l,n) * rsec_per_day * 360.0
 
     local_litter(l,n) = leaf_litter(l,n) + root_litter(l,n) + wood_litter(l,n)
 

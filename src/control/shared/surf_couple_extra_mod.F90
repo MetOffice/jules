@@ -8,6 +8,9 @@ MODULE surf_couple_extra_mod
 !
 ! [Met Office Ref SC0237]
 ! *****************************COPYRIGHT****************************************
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
 USE um_types, ONLY: real_jlslsm
 
 IMPLICIT NONE
@@ -1073,7 +1076,7 @@ CASE ( jules )
 
         CALL next_gen_biogeochem(                                              &
           !IN control vars
-            asteps_since_triffid,land_pts,nnpft,nmasst,veg3_ctrl,              &
+            asteps_since_triffid,a_step,land_pts,nnpft,nmasst,veg3_ctrl,       &
             ainfo,                                                             &
           !IN parms
             litter_parms,red_parms,                                            &
@@ -1087,10 +1090,9 @@ CASE ( jules )
         ! - Uses non-veg tilepts
         ! - Accesses fields via USE statements
 
-        ! Note use lai_bal for now as we don't yet have phenology
         CALL sparm (land_pts,nsurft,surft_pts,ainfo%surft_index,               &
                     veg_state%frac,veg_state%canht,                            &
-                    veg_state%lai_bal,psparms%z0m_soil_gb,                     &
+                    veg_state%lai,psparms%z0m_soil_gb,                         &
                     psparms%catch_snow_surft,psparms%catch_surft,              &
                     psparms%z0_surft,psparms%z0h_bare_surft,urban_param%ztm_gb)
 

@@ -127,6 +127,11 @@ ELSE IF (can_model == 3 .OR. can_model == 4) THEN
     IF ( ft > nnpft ) THEN
       leaf = leafc_from_prognostics(ft - nnpft, dvi_cpft(l,ft - nnpft), lai(l))
       wood = stemc_from_prognostics(ft - nnpft, ht(l) )
+
+    ELSE IF (l_red) THEN
+      leaf = veg_state%leafC(l,ft)
+      wood = veg_state%woodC(l,ft)
+
     ELSE
       lai_bal(l) = ( a_ws(ft) * eta_sl(ft) * ht(l) /                           &
                      a_wl(ft) )**(1.0 / (b_wl(ft) - 1))
@@ -140,11 +145,7 @@ ELSE IF (can_model == 3 .OR. can_model == 4) THEN
       wood = a_wl(ft) * (lai_bal(l)**b_wl(ft))
     END IF
 
-    IF (l_red) THEN
-      canhc(l) = hleaf * veg_state%leafC(l,ft) + hwood * veg_state%woodC(l,ft)
-    ELSE
-      canhc(l) = hleaf * leaf + hwood * wood
-    END IF
+    canhc(l) = hleaf * leaf + hwood * wood
 
     ! If using tree heights from alternative sources (such as SIMARD dataset),
     ! then the heat capacicy can become unrealisitcaly large for the tallest trees.

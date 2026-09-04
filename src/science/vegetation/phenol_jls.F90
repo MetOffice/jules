@@ -6,9 +6,9 @@
 
 MODULE phenol_mod
 
-USE um_types, ONLY: real_jlslsm
 
 IMPLICIT NONE
+
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='PHENOL_MOD'
 
@@ -23,12 +23,14 @@ CONTAINS
 !
 ! ---------------------------------------------------------------------------
 SUBROUTINE phenol (land_pts, veg_pts, n, veg_index, dtime_phen, g_leaf, ht,    &
-                  lai, g_leaf_phen)
+                   lai, g_leaf_phen,lai_bal_red)
 
-USE jules_vegetation_mod, ONLY: l_nitrogen
+USE um_types, ONLY: real_jlslsm
+USE jules_vegetation_mod, ONLY: l_nitrogen,                                    &
+                                ! TEMP RED
+                                l_red
 USE pftparm, ONLY: a_wl, a_ws, b_wl, eta_sl, g_leaf_0
 USE trif, ONLY: g_grow
-
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
 
@@ -58,6 +60,12 @@ REAL(KIND=real_jlslsm) , INTENT(IN) ::                                         &
     ! Rate of leaf turnover (/360days).
   ht(land_pts)
     ! Canopy height (m).
+!-----------------------------------------------------------------------------
+! Optional Arguments with INTENT(IN)
+!-----------------------------------------------------------------------------
+REAL, INTENT(IN), OPTIONAL ::                                                  &
+  lai_bal_red(land_pts)
+    ! Balanced growth LAI from veg3.
 
 !-----------------------------------------------------------------------------
 ! Arguments with INTENT(INOUT).
@@ -72,6 +80,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   g_leaf_phen(land_pts)
     ! Rate of leaf turnover including leaf phenology (/360days).
+
 
 !-----------------------------------------------------------------------------
 ! Local variables.
@@ -102,10 +111,17 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !-----------------------------------------------------------------------------
 ! Diagnose the phenological state
 !-----------------------------------------------------------------------------
+
 DO j = 1,veg_pts
   l = veg_index(j)
-  lai_bal(l) = (a_ws(n) * eta_sl(n) * ht(l)                                    &
-               /a_wl(n))**(1.0 / (b_wl(n) - 1.0))
+  ! If we're running l_red we use lai_bal as an input, otherwise estimate the
+  ! classic TRIFFID way.
+  IF (l_red .AND. PRESENT(lai_bal_red)) THEN
+    lai_bal(l) = lai_bal_red(l)
+  ELSE
+    lai_bal(l) = (a_ws(n) * eta_sl(n) * ht(l)                                  &
+                 /a_wl(n))**(1.0 / (b_wl(n) - 1.0))
+  END IF
   phen(l)    = lai(l) / lai_bal(l)
 END DO
 
@@ -137,7 +153,6 @@ DO j = 1,veg_pts
   !---------------------------------------------------------------------------
   phen(l) = phen(l) + dphen
   lai(l)  = phen(l) * lai_bal(l)
-
 END DO
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)

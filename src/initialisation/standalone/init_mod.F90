@@ -150,9 +150,8 @@ USE jules_rivers_mod,             ONLY: rivers_data_type,                      &
 ! USE veg3_parm_mod,              ONLY: in_dev
                                         !
                                         !
-! USE veg3_field_mod,             ONLY: in_dev
-                                        !
-                                        !
+USE veg3_field_mod,               ONLY: veg3_field_assoc
+
 USE jules_chemvars_mod,           ONLY: chemvars_data_type,                    &
                                         chemvars_type,                         &
                                         chemvars_assoc
@@ -352,7 +351,7 @@ CALL imgn_drive_assoc(imgn_drive,imgn_drive_data)
 CALL imgn_vars_assoc(imgn_vars,imgn_vars_data)
 CALL rivers_assoc(rivers,rivers_data)
 !CALL veg3_parm_assoc(in_dev)
-!CALL veg3_field_assoc(in_dev)
+CALL veg3_field_assoc(progs,ainfo)
 CALL chemvars_assoc(chemvars,chemvars_data)
 CALL water_resources_assoc(water_resources,water_resources_data)
 CALL wtrac_jls_assoc(wtrac_jls,wtrac_jls_data)
