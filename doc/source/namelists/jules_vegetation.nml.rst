@@ -586,6 +586,55 @@ This file sets the vegetation options. It contains one namelist called :nml:lst:
    See Hadley Centre Technical Note 24, Eq.3.
 
 
+.. nml:member:: l_inferno
+
+   :type: logical
+   :default: F
+
+   Switch that determines whether interactive fires (INFERNO) is
+   used. This allows for the diagnostic of burnt area, burnt carbon
+   and a variety of fire emissions.
+
+   TRUE
+       INFERNO is used to provide diagnostic fire variables
+
+   FALSE
+       INFERNO is not used.
+
+.. nml:member:: ignition_method
+
+   :type: integer
+   :permitted: 1, 2, 3
+   :default: 1
+
+   Switch to determine the type of ignition used (ubiquitous or prescribed with population and lightning)
+
+   1.  INFERNO uses ubiquitous (constant) ignitions, of 1.67 fires km\
+       :sup:`-2` s\ :sup:`-1` (1.5 from humans, 0.17 from lightning).
+
+   2.  INFERNO uses prescribed lightning ignitions, either from an ancillary or the UM.
+       Meanwhile humans are assumed to ignite 1.5 fires km\ :sup:`-2` s\ :sup:`-1`.
+
+   3.  INFERNO uses prescribed ignition using Population Density and Lightning Frequency (Cloud-to-Ground).
+       These must be provided as prescribed data to the JULES run.
+
+.. nml:member:: l_trif_fire
+
+   :type: logical
+   :default: F
+
+   Switch that determines whether interactive fire is used. This allows for burnt area to link with dynamic
+   vegetation.
+
+   Only used if :nml:mem:`l_triffid` = TRUE.
+
+   TRUE
+       Burnt area is calculated in INFERNO and passed to TRIFFID to
+       calculate vegetation dynamics. Carbon is also removed from DPM
+       and RPM pools in SOILCARB.
+   FALSE
+       Burnt area is zero unless prescribed via an ancillary file.
+
 .. nml:member:: l_vegdrag_pft
 
    :type: logical(npft)

@@ -311,10 +311,8 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
                  ! Wood (or Stem) minimum combustion completeness (kg/kg)
 ,ccwood_max(:)                                                                 &
                  ! Wood (or Stem) maximum combustion completeness (kg/kg)
-,fire_mort(:)                                                                  &
+,fire_mort(:)
                  ! Fire mortality per PFT
-,fireveg_c_to_atmos(:)
-                 ! Burnt vegetation carbon to atmosphere per PFT
 
 !-----------------------------------------------------------------------------
 ! Parameters for INFERNO emissions
@@ -603,7 +601,6 @@ ALLOCATE( ccleaf_max(npft))
 ALLOCATE( ccwood_min(npft))
 ALLOCATE( ccwood_max(npft))
 ALLOCATE( fire_mort(npft))
-ALLOCATE( fireveg_c_to_atmos(npft))
 
 avg_ba(:)     = rmdi
 ccleaf_min(:) = rmdi
@@ -611,7 +608,6 @@ ccleaf_max(:) = rmdi
 ccwood_min(:) = rmdi
 ccwood_max(:) = rmdi
 fire_mort(:)  = rmdi
-fireveg_c_to_atmos(:) = rmdi
 
 ! INFERNO emission parameters
 ALLOCATE( fef_bc(npft))
@@ -792,8 +788,6 @@ WRITE(lineBuffer,*)' fef_dms = ',fef_dms
 CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' fire_mort = ',fire_mort
 CALL jules_print('pftparm',lineBuffer)
-WRITE(lineBuffer,*)' fireveg_c_to_atmos = ',fireveg_c_to_atmos
-CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' fl_o3_ct = ',fl_o3_ct
 CALL jules_print('pftparm',lineBuffer)
 WRITE(lineBuffer,*)' fsmc_of = ',fsmc_of
@@ -899,15 +893,13 @@ USE jules_soil_biogeochem_mod, ONLY: l_layeredC, soil_bgc_model,               &
                                       soil_model_4pool
 
 USE jules_vegetation_mod, ONLY: can_rad_mod, l_crop, l_trait_phys,             &
-                                 l_use_pft_psi, l_bvoc_emis,                   &
-                                 l_o3_damage, photo_acclim_model,              &
+                                 l_use_pft_psi, l_bvoc_emis, l_inferno,        &
+                                 l_o3_damage, l_trif_fire, photo_acclim_model, &
                                  photo_act_model, photo_act_pft,               &
                                  photo_farquhar, photo_model,                  &
                                  stomata_jacobs, stomata_medlyn, stomata_sox,  &
                                  stomata_model, l_spec_veg_z0, l_sugar,        &
                                  l_scale_resp_pm
-
-USE jules_inferno_mod, ONLY: l_inferno, l_trif_fire
 
 USE jules_radiation_mod, ONLY: l_spec_albedo, l_albedo_obs, l_snow_albedo
 
@@ -1411,10 +1403,6 @@ IF ( l_trif_fire ) THEN
   IF ( ANY( ABS( fire_mort(:) - rmdi ) < EPSILON(1.0) ) ) THEN
     ERROR = 1
     CALL jules_print(routinename, "No value for fire_mort")
-  END IF
-  IF ( ANY( ABS( fireveg_c_to_atmos(:) - rmdi ) < EPSILON(1.0) ) ) THEN
-    ERROR = 1
-    CALL jules_print(routinename, "No value for fireveg_c_to_atmos")
   END IF
 END IF
 

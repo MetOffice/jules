@@ -37,7 +37,11 @@ ag_expand(:)
                  ! 0 = no (default) , 1 = yes . Used only if l_ag_expand=T
 
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
- g_area(:)                                                                     &
+ fireveg_c_to_atmos(:)                                                         &
+    ! Fraction of burnt carbon that goes to the atmosphere as CO2 instead
+    ! of in the soil. Based on mean whole-plant mortality factor from
+    ! Li et al (2012) table 2. 
+,g_area(:)                                                                     &
                   !  Disturbance rate (/360days).
 ,g_grow(:)                                                                     &
                   !  Rate of leaf growth (/360days)
@@ -104,6 +108,7 @@ IF ( l_triffid .OR. l_phenol ) THEN
   ALLOCATE( harvest_freq(npft))
   ALLOCATE( harvest_type(npft))
   ALLOCATE( ag_expand(npft))
+  ALLOCATE( fireveg_c_to_atmos(npft))
   ALLOCATE( g_area(npft))
   ALLOCATE( g_grow(npft))
   ALLOCATE( g_root(npft))
@@ -121,6 +126,7 @@ IF ( l_triffid .OR. l_phenol ) THEN
   harvest_freq(:)  = 0
   harvest_type(:)  = 0
   ag_expand(:)     = 0
+  fireveg_c_to_atmos(:) = 0
   g_area(:)        = 0.0
   g_grow(:)        = 0.0
   g_root(:)        = 0.0

@@ -128,9 +128,10 @@ USE jules_soil_mod, ONLY: sm_levels
 
 USE jules_surface_mod, ONLY: cmass
 
-USE pftparm, ONLY: a_wl, a_ws, b_wl, eta_sl, lma, sigl, fireveg_c_to_atmos
+USE pftparm, ONLY: a_wl, a_ws, b_wl, eta_sl, lma, sigl
 
-USE trif, ONLY: crop, harvest_freq, harvest_ht, harvest_type, lai_min
+USE trif, ONLY: crop, harvest_freq, harvest_ht, harvest_type, lai_min,         &
+                 fireveg_c_to_atmos
 
 USE jules_soil_biogeochem_mod, ONLY:                                           &
   ! imported scalar parameters
@@ -404,10 +405,6 @@ REAL(KIND=real_jlslsm), PARAMETER :: harvest_rate = 0.3
     ! Fraction of litter diverted as harvest.
     ! This fraction ends up in the product pools instead of in the soil.
 
-! REAL(KIND=real_jlslsm), PARAMETER :: fire_ratio = 0.13
-    ! Fraction of burnt carbon that goes to the atmosphere as CO2 instead
-    ! of in the soil. Based on mean whole-plant mortality factor from
-    ! Li et al (2012) table 2.
 
 !-----------------------------------------------------------------------------
 ! Local scalar variables.
@@ -1169,7 +1166,6 @@ DO t = 1,trif_pts
       lit_n_fire_pft(l,n) = 0.0
     END IF
 
-    ! veg_c_fire_emission_pft(l,n) = lit_c_fire_pft(l,n) * fire_ratio
     veg_c_fire_emission_pft(l,n) = lit_c_fire_pft(l,n) * fireveg_c_to_atmos(n)
 
     veg_c_fire_emission_gb(l) = veg_c_fire_emission_gb(l) +                    &

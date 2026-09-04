@@ -936,20 +936,6 @@ ease the direct links to these documents are:
         land surfaces with radiation for relating remote sensing products to
         climate models, J. Geophys. Res., 111, D02116, https://doi.org/10.1029/2005JD005952.
 
-.. nml:member:: fireveg_c_to_atmos
-
-   :type: real(npft)
-   :default: None
-
-   Fraction of burnt carbon that goes to the atmosphere as CO2 instead of in the soil. 
-   Based on mean whole-plant mortality factor from Li et al (2012) table 2.
-
-   .. seealso::
-      References:
-
-      *  Li, F., Zeng, X. D., and Levis, S.: A process-based fire parameterization 
-      of intermediate complexity in a Dynamic Global Vegetation Model, Biogeosciences,
-       9, 2761-2780, https://doi.org/10.5194/bg-9-2761-2012, 2012.
 
 .. nml:group:: Only used with the Farquhar model of leaf photosynthesis (:nml:mem:`JULES_VEGETATION::photo_model` = 2). A value is required for each PFT, but only those for C\ :sub:`3` plants are used (since only C\ :sub:`3` plants use the Farquhar model). Below, J\ :sub:`max` is the potential rate of electron transport, and V\ :sub:`cmax` is the maximum rate of carboxylation of Rubisco.
 

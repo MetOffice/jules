@@ -274,9 +274,9 @@ USE jules_surface_mod, ONLY:                                                   &
 
 USE jules_vegetation_mod, ONLY:                                                &
   ! imported scalars
-  l_triffid, l_nitrogen
+  l_triffid, l_trif_fire, l_nitrogen, l_inferno
 
-USE jules_inferno_mod, ONLY: l_trif_fire, l_inferno, z_burn_max
+USE jules_inferno_mod, ONLY: z_burn_max
 
 
 USE ereport_mod, ONLY: ereport

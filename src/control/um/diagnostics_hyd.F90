@@ -129,7 +129,7 @@ USE missing_data_mod, ONLY: rmdi
 
 !     INFERNO diagnostics
 USE jules_surface_types_mod,  ONLY: npft
-USE jules_inferno_mod, ONLY: l_inferno
+USE jules_vegetation_mod, ONLY: l_inferno
 
 USE set_levels_list_mod, ONLY: set_levels_list
 USE set_pseudo_list_mod, ONLY: set_pseudo_list

@@ -15,8 +15,9 @@ SUBROUTINE init_inferno(nml_dir)
 
 USE jules_inferno_mod, ONLY: read_nml_jules_inferno,                           &
                            print_nlist_jules_inferno,                          &
-                           check_jules_inferno,                                &
-                           l_inferno, l_trif_fire, ignition_method,            &
+                           check_jules_inferno
+
+USE jules_vegetation_mod, ONLY:l_inferno, l_trif_fire, ignition_method,        &
                            ignition_constant, ignition_vary_natural,           &
                            ignition_vary_natural_human
 

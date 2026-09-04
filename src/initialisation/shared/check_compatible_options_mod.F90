@@ -39,8 +39,7 @@ USE jules_soil_mod,                ONLY: l_tile_soil, l_holdwater
 USE jules_surface_mod,             ONLY: l_flake_model, l_aggregate
 USE jules_surface_types_mod,       ONLY: urban_roof, npft, nnvg, ntype
 USE jules_urban_mod,               ONLY: l_moruses_storage
-USE jules_vegetation_mod,          ONLY: l_triffid
-USE jules_inferno_mod,             ONLY: l_inferno, l_trif_fire
+USE jules_vegetation_mod,          ONLY: l_triffid, l_inferno, l_trif_fire
 USE jules_water_resources_mod,     ONLY: l_water_environment,                  &
                                          l_water_irrigation, l_water_resources,&
                                          l_water_transfers

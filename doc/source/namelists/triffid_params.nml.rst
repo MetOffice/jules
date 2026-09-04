@@ -178,3 +178,19 @@ This namelist is used to read PFT parameters that are only needed by the dynamic
 
       .. note:: :nml:mem:`lai_min_io` must be set such that PFT height at :nml:mem:`lai_min_io` <= :nml:mem:`harvest_ht_io`, otherwise JULES will not start (the required value will be shown in error output).
 
+.. nml:member:: fireveg_c_to_atmos_io
+
+   :type: real(npft)
+   :default: None
+
+   Only used if :nml:mem:`JULES_INFERNO::l_trif_fire` = TRUE.
+
+   Fraction of burnt carbon that goes to the atmosphere as CO2 instead of in the soil. 
+   Based on mean whole-plant mortality factor from Li et al (2012) table 2.
+
+   .. seealso::
+      References:
+
+      *  Li, F., Zeng, X. D., and Levis, S.: A process-based fire parameterization 
+      of intermediate complexity in a Dynamic Global Vegetation Model, Biogeosciences,
+       9, 2761-2780, https://doi.org/10.5194/bg-9-2761-2012, 2012.

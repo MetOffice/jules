@@ -99,7 +99,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
   fef_so2_io(npft_max) = rmdi,                                                 &
   fd_io(npft_max) = rmdi,                                                      &
   fire_mort_io(npft_max) = rmdi,                                               &
-  fireveg_c_to_atmos_io(npft_max) = rmdi,                                      &
   fl_o3_ct_io(npft_max) = rmdi,                                                &
   fsmc_of_io(npft_max) = rmdi,                                                 &
   fsmc_p0_io(npft_max) = rmdi,                                                 &
@@ -196,7 +195,7 @@ NAMELIST  / jules_pftparm/                                                     &
   tlow_io,         tupp_io,          vint_io,                                  &
   vsl_io,          sug_yg_io,        z0hm_pft_io,                              &
   z0hm_classic_pft_io, z0v_io,       sox_a_io,                                 &
-  sox_p50_io,      sox_rp_min_io,    fireveg_c_to_atmos_io
+  sox_p50_io,      sox_rp_min_io
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='PFTPARM_IO'
 
@@ -232,7 +231,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 2
 INTEGER, PARAMETER :: n_int = 3 * npft_max
-INTEGER, PARAMETER :: n_real = 109 * npft_max
+INTEGER, PARAMETER :: n_real = 108 * npft_max
 
 TYPE :: my_namelist
   SEQUENCE
@@ -296,7 +295,6 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: fef_nh3_io(npft_max)
   REAL(KIND=real_jlslsm) :: fef_dms_io(npft_max)
   REAL(KIND=real_jlslsm) :: fire_mort_io(npft_max)
-  REAL(KIND=real_jlslsm) :: fireveg_c_to_atmos_io(npft_max)
   REAL(KIND=real_jlslsm) :: fl_o3_ct_io(npft_max)
   REAL(KIND=real_jlslsm) :: fsmc_of_io(npft_max)
   REAL(KIND=real_jlslsm) :: fsmc_p0_io(npft_max)
@@ -424,7 +422,6 @@ IF (mype == 0) THEN
   my_nml % fef_nh3_io     = fef_nh3_io
   my_nml % fef_dms_io     = fef_dms_io
   my_nml % fire_mort_io   = fire_mort_io
-  my_nml % fireveg_c_to_atmos_io = fireveg_c_to_atmos_io
   my_nml % fl_o3_ct_io    = fl_o3_ct_io
   my_nml % fsmc_of_io     = fsmc_of_io
   my_nml % fsmc_p0_io     = fsmc_p0_io
@@ -542,7 +539,6 @@ IF (mype /= 0) THEN
   fef_nh3_io      = my_nml % fef_nh3_io
   fef_dms_io      = my_nml % fef_dms_io
   fire_mort_io    = my_nml % fire_mort_io
-  fireveg_c_to_atmos_io = my_nml % fireveg_c_to_atmos_io
   fl_o3_ct_io     = my_nml % fl_o3_ct_io
   fsmc_of_io      = my_nml % fsmc_of_io
   fsmc_p0_io      = my_nml % fsmc_p0_io
@@ -636,7 +632,7 @@ USE pftparm, ONLY:                                                             &
   fef_oc,          fef_so2,          fef_c2h4,                                 &
   fef_c2h6,        fef_c3h8,         fef_hcho,                                 &
   fef_mecho,       fef_nh3,                                                    &
-  fef_dms,         fire_mort,        fireveg_c_to_atmos,                       &
+  fef_dms,         fire_mort,                                                  &
   fl_o3_ct,        fsmc_of,          fsmc_p0,                                  &
   sug_g0,          g1_stomata,       g_leaf_0,                                 &
   glmin,           gpp_st,           sug_grec,                                 &
@@ -786,7 +782,6 @@ ccleaf_min(:)   = ccleaf_min_io(1:npft)
 ccwood_max(:)   = ccwood_max_io(1:npft)
 ccwood_min(:)   = ccwood_min_io(1:npft)
 fire_mort(:)  = fire_mort_io(1:npft)
-fireveg_c_to_atmos(:) = fireveg_c_to_atmos_io(1:npft)
 
 ! INFERNO emission parameters
 fef_bc(:)       = fef_bc_io(1:npft)

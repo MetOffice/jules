@@ -152,6 +152,17 @@ LOGICAL ::                                                                     &
       ! switch to prevent crop and natural PFTs competing
   l_trif_biocrop = .FALSE.,                                                    &
       ! Switch to enable periodic harvesting of bioenergy crop PFTs
+  l_inferno = .FALSE.,                                                         &
+      ! Switch used to control whether the Interactive fire scheme is used
+  l_trif_fire = .FALSE.,                                                       &
+      ! Switch used to control whether interactive fire is used
+      !   T => if l_inferno is also true, g_burn is calculated in INFERNO
+!   and passed to TRIFFID to calculate emissions and vegetation
+       !   dynamics
+       !   T => if l_inferno is false, interactive fire is calculated via
+!   ancillary if provided, and is 0 if not provided
+       !   F => g_burn is calculated via ancillary if provided, and is 0 if
+!   not provided
    l_use_pft_psi = .FALSE.,                                                    &
        ! Switch used to control what parameters are used in the calculation
        ! of the soil moisture stress factor
@@ -222,6 +233,12 @@ INTEGER ::                                                                     &
       ! Number of layers for canopy radiation model
 
 INTEGER ::                                                                     &
+  ignition_method = 1,                                                         &
+      ! Switch for the calculation method of INFERNO fire ignitions
+      ! IGNITION_METHOD=1:Constant (1.67 per km2 per s)
+      ! IGNITION_METHOD=2:Constant (Human - 1.5 per km2 per s)
+      !                   Varying  (Lightning - see Pechony and Shindell,2009)
+      ! IGNITION_METHOD=3:Vary Human and Lightning (Pechony and Shindell,2009)
   fsmc_shape = 0,                                                              &
       ! shape of the soil moisture stress function fsmc
       ! 0: piece-wise linear in vol. soil moisture.
@@ -238,6 +255,10 @@ INTEGER ::                                                                     &
       ! Chosen model of leaf photosynthesis.
   stomata_model = imdi
       ! Chosen model of stomatal conductance.
+
+INTEGER, PARAMETER :: ignition_constant = 1
+INTEGER, PARAMETER :: ignition_vary_natural = 2
+INTEGER, PARAMETER :: ignition_vary_natural_human = 3
 
 INTEGER ::                                                                     &
   phenol_period = imdi,                                                        &
@@ -322,8 +343,8 @@ NAMELIST  / jules_vegetation/                                                  &
     phenol_period, triffid_period, l_trait_phys, l_ht_compete,                 &
     l_bvoc_emis, l_o3_damage, can_model, can_rad_mod, ilayers,                 &
     frac_min, frac_seed, pow, l_landuse, l_leaf_n_resp_fix, l_stem_resp_fix,   &
-    l_nitrogen, l_vegcan_soilfx, l_trif_crop,                                  &
-    l_vegdrag_pft, l_rsl_scalar,                                               &
+    l_nitrogen, l_vegcan_soilfx, l_trif_crop, l_trif_fire,                     &
+    l_inferno, ignition_method, l_vegdrag_pft, l_rsl_scalar,                   &
     cd_leaf, c1_usuh, c2_usuh, c3_usuh, dsj_coef, dsv_coef, jv25_coef,         &
     act_j_coef, act_v_coef,                                                    &
     n_alloc_jmax, n_alloc_vcmax, n_day_photo_acclim,                           &
@@ -412,14 +433,15 @@ END IF
 
 ! Check options that depend on TRIFFID if it is not enabled
 IF ( .NOT. l_triffid .AND. ANY( [ l_veg_compete, l_trif_eq, l_landuse,         &
-   l_ht_compete, l_nitrogen, l_trif_crop, l_trif_biocrop,                      &
+   l_ht_compete, l_nitrogen, l_trif_crop, l_trif_fire, l_trif_biocrop,         &
    l_ag_expand ] ) ) THEN
   errcode = 101
   WRITE(jules_message,'(A,8(1x,L1))')                                          &
      'These should be false when l_triffid = F: l_veg_compete, ' //            &
      'l_trif_eq, l_landuse, l_ht_compete, l_nitrogen, l_trif_crop, ' //        &
-     'l_trif_biocrop, l_ag_expand = ', l_veg_compete, l_trif_eq,               &
-     l_landuse, l_ht_compete, l_nitrogen, l_trif_crop, l_trif_biocrop, l_ag_expand
+     'l_trif_fire, l_trif_biocrop, l_ag_expand = ', l_veg_compete, l_trif_eq,  &
+     l_landuse, l_ht_compete, l_nitrogen, l_trif_crop, l_trif_fire,            &
+     l_trif_biocrop, l_ag_expand
   CALL ereport( "check_jules_vegetation", errcode, jules_message )
 END IF
 
@@ -753,6 +775,14 @@ IF ( l_croprotate .AND. .NOT. l_prescsow) THEN
                'prescribed fractions and crop model to be active')
 END IF
 
+! Check a suitable ignition_method was given
+IF ( ignition_method /= ignition_constant .AND.                                &
+     ignition_method /= ignition_vary_natural .AND.                            &
+     ignition_method /= ignition_vary_natural_human ) THEN
+  errcode = 101
+  CALL ereport("check_jules_vegetation", errcode,                              &
+               'ignition_method must be 1, 2 or 3')
+END IF
 
 IF ( fsmc_shape == 1 .AND. .NOT. l_use_pft_psi ) THEN
   errcode = 101
@@ -823,6 +853,9 @@ WRITE(lineBuffer,*)' l_trif_crop = ',l_trif_crop
 CALL jules_print('jules_vegetation_mod',lineBuffer)
 
 WRITE(lineBuffer,*)' l_trif_biocrop = ',l_trif_biocrop
+CALL jules_print('jules_vegetation_mod',lineBuffer)
+
+WRITE(lineBuffer,*)' l_trif_fire = ',l_trif_fire
 CALL jules_print('jules_vegetation_mod',lineBuffer)
 
 WRITE(lineBuffer,*)' l_trait_phys = ',l_trait_phys
@@ -985,9 +1018,9 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
-INTEGER, PARAMETER :: n_int = 10
+INTEGER, PARAMETER :: n_int = 11
 INTEGER, PARAMETER :: n_real = 11 + (n_photo_coef * 5)
-INTEGER, PARAMETER :: n_log = 27 + npft_max
+INTEGER, PARAMETER :: n_log = 29 + npft_max
 
 TYPE :: my_namelist
   SEQUENCE
@@ -996,6 +1029,7 @@ TYPE :: my_namelist
   INTEGER :: can_model
   INTEGER :: can_rad_mod
   INTEGER :: ilayers
+  INTEGER :: ignition_method
   INTEGER :: photo_acclim_model
   INTEGER :: photo_act_model
   INTEGER :: photo_jv_model
@@ -1032,6 +1066,7 @@ TYPE :: my_namelist
   LOGICAL :: l_trif_crop
   LOGICAL :: l_trif_biocrop
   LOGICAL :: l_ag_expand
+  LOGICAL :: l_trif_fire
   LOGICAL :: l_landuse
   LOGICAL :: l_nitrogen
   LOGICAL :: l_recon
@@ -1039,6 +1074,7 @@ TYPE :: my_namelist
   LOGICAL :: l_stem_resp_fix
   LOGICAL :: l_scale_resp_pm
   LOGICAL :: l_vegcan_soilfx
+  LOGICAL :: l_inferno
   LOGICAL :: l_vegdrag_pft(npft_max)
   LOGICAL :: l_rsl_scalar
   LOGICAL :: l_spec_veg_z0
@@ -1067,6 +1103,7 @@ IF (mype == 0) THEN
   my_nml % can_model       = can_model
   my_nml % can_rad_mod     = can_rad_mod
   my_nml % ilayers         = ilayers
+  my_nml % ignition_method = ignition_method
   my_nml % photo_acclim_model = photo_acclim_model
   my_nml % photo_act_model = photo_act_model
   my_nml % photo_jv_model     = photo_jv_model
@@ -1103,6 +1140,7 @@ IF (mype == 0) THEN
   my_nml % l_trif_crop     = l_trif_crop
   my_nml % l_trif_biocrop  = l_trif_biocrop
   my_nml % l_ag_expand     = l_ag_expand
+  my_nml % l_trif_fire     = l_trif_fire
   my_nml % l_landuse       = l_landuse
   my_nml % l_nitrogen      = l_nitrogen
   my_nml % l_recon         = l_recon
@@ -1110,6 +1148,7 @@ IF (mype == 0) THEN
   my_nml % l_stem_resp_fix = l_stem_resp_fix
   my_nml % l_scale_resp_pm = l_scale_resp_pm
   my_nml % l_vegcan_soilfx = l_vegcan_soilfx
+  my_nml % l_inferno       = l_inferno
   my_nml % l_vegdrag_pft   = l_vegdrag_pft
   my_nml % l_rsl_scalar    = l_rsl_scalar
   my_nml % l_spec_veg_z0   = l_spec_veg_z0
@@ -1127,6 +1166,7 @@ IF (mype /= 0) THEN
   can_model       = my_nml % can_model
   can_rad_mod     = my_nml % can_rad_mod
   ilayers         = my_nml % ilayers
+  ignition_method = my_nml % ignition_method
   photo_acclim_model = my_nml % photo_acclim_model
   photo_act_model = my_nml % photo_act_model
   photo_jv_model     = my_nml % photo_jv_model
@@ -1163,6 +1203,7 @@ IF (mype /= 0) THEN
   l_trif_crop     = my_nml % l_trif_crop
   l_trif_biocrop  = my_nml % l_trif_biocrop
   l_ag_expand     = my_nml % l_ag_expand
+  l_trif_fire     = my_nml % l_trif_fire
   l_landuse       = my_nml % l_landuse
   l_nitrogen      = my_nml % l_nitrogen
   l_recon         = my_nml % l_recon
@@ -1170,6 +1211,7 @@ IF (mype /= 0) THEN
   l_stem_resp_fix = my_nml % l_stem_resp_fix
   l_scale_resp_pm = my_nml % l_scale_resp_pm
   l_vegcan_soilfx = my_nml % l_vegcan_soilfx
+  l_inferno       = my_nml % l_inferno
   l_vegdrag_pft   = my_nml % l_vegdrag_pft
   l_rsl_scalar    = my_nml % l_rsl_scalar
   l_spec_veg_z0   = my_nml % l_spec_veg_z0

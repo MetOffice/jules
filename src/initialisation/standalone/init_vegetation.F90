@@ -36,8 +36,10 @@ USE jules_vegetation_mod, ONLY: jules_vegetation, photo_acclim_model,          &
                                 photo_act_pft, photo_act_gb, photo_jv_model,   &
                                 jv_scale, jv_ntotal, stomata_model,            &
                                 stomata_jacobs, stomata_medlyn, stomata_sox,   &
-                                l_trif_eq, triffid_period,                     &
-                                check_jules_vegetation
+                                l_inferno, l_trif_eq, triffid_period,          &
+                                ignition_method, check_jules_vegetation,       &
+                                ignition_constant, ignition_vary_natural,      &
+                                ignition_vary_natural_human
 
 USE logging_mod, ONLY: log_info, log_error, log_fatal
 
@@ -173,6 +175,22 @@ CASE ( stomata_sox )
   CALL log_info("init_vegetation",                                             &
                 "Using the SOX model of stomatal conductance.")
 END SELECT
+
+IF ( l_inferno ) THEN
+  CALL log_info("init_vegetation",                                             &
+                "Interactive fires and emissions (INFERNO) will be diagnosed")
+  IF (ignition_method == ignition_constant ) THEN
+    CALL log_info("init_vegetation",                                           &
+                  "Constant or ubiquitous ignitions (INFERNO)")
+  ELSE IF (ignition_method == ignition_vary_natural ) THEN
+    CALL log_info("init_vegetation",                                           &
+                  "Constant human ignitions, varying lightning (INFERNO)")
+  ELSE IF (ignition_method == ignition_vary_natural_human ) THEN
+    CALL log_info("init_vegetation",                                           &
+                  "Fully prescribed ignitions (INFERNO)")
+  END IF
+END IF
+
 
 ! Check that TRIFFID timestep (the coupling period) seems sensible
 ! In equilibrium mode, the coupling period should be sufficient to average

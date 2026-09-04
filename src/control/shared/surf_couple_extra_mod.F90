@@ -213,10 +213,9 @@ USE jules_vegetation_mod,     ONLY:                                            &
   l_crop, l_fao_ref_evapotranspiration,                                        &
 #endif
   l_triffid, l_trif_eq, l_phenol, phenol_period, triffid_period,               &
+  l_inferno, ignition_method,                                                  &
+  ignition_vary_natural, ignition_vary_natural_human,                          &
   l_acclim, n_day_photo_acclim, l_red
-
-USE jules_inferno_mod, ONLY: l_inferno, ignition_method,                       &
-  ignition_vary_natural, ignition_vary_natural_human
 
 USE jules_irrig_mod, ONLY: l_irrig_dmd
 

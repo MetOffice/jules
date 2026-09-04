@@ -63,31 +63,16 @@ class vn82_t61(MacroUpgrade):
                                 "namelist:fire_switches namelist:jules_inferno")
         self.change_setting_value(config, ["file:fire.nml","source"], source)
 
-        l_inferno = self.get_setting_value(config, ["namelist:jules_vegetation", "l_inferno"])
-        self.add_setting(config,
-                ["namelist:jules_inferno", "l_inferno"], l_inferno)
-        self.remove_setting(config, ["namelist:jules_vegetation", "l_inferno"])
-
-        l_trif_fire = self.get_setting_value(config, ["namelist:jules_vegetation", "l_trif_fire"])
-        self.add_setting(config,
-                ["namelist:jules_inferno", "l_trif_fire"], l_trif_fire)
-        self.remove_setting(config, ["namelist:jules_vegetation", "l_trif_fire"])
-
-        ignition_method = self.get_setting_value(config, ["namelist:jules_vegetation", "ignition_method"])
-        self.add_setting(config,
-                ["namelist:jules_inferno", "ignition_method"], ignition_method)
-        self.remove_setting(config, ["namelist:jules_vegetation", "ignition_method"])
-        
         z_burn_max = self.get_setting_value(config, ["namelist:jules_soil_biogeochem", "z_burn_max"])
         self.add_setting(config,
                 ["namelist:jules_inferno", "z_burn_max"], z_burn_max)
         self.remove_setting(config, ["namelist:jules_soil_biogeochem", "z_burn_max"])
-        
+
         self.add_setting(config, ["namelist:jules_inferno", "ccdpm_min"], "0.8")
         self.add_setting(config, ["namelist:jules_inferno", "ccdpm_max"], "1.0")
         self.add_setting(config, ["namelist:jules_inferno", "ccrpm_min"], "0.0")
         self.add_setting(config, ["namelist:jules_inferno", "ccrpm_max"], "0.2")
-        
+
         self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_low"], "10.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_up"], "90.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_low"], "0.0")
@@ -96,10 +81,10 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_up"], "0.2")
         self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
-        
+
         npft = int(self.get_setting_value(config, ["namelist:jules_surface_types", "npft"]))
         self.add_setting(
-        config, ["namelist:jules_pftparm", "fireveg_c_to_atmos_io"], ",".join(["0.13"] * npft))
+        config, ["namelist:jules_triffid", "fireveg_c_to_atmos_io"], ",".join(["0.13"] * npft))
 
 
         return config, self.reports

@@ -81,7 +81,7 @@ SUBROUTINE calc_ignitions(                                                     &
 
 USE yomhook,      ONLY: lhook, dr_hook
 USE parkind1,     ONLY: jprb
-USE jules_inferno_mod, ONLY: ignition_constant, ignition_vary_natural,         &
+USE jules_vegetation_mod, ONLY: ignition_constant, ignition_vary_natural,      &
                                 ignition_vary_natural_human
 
 IMPLICIT NONE

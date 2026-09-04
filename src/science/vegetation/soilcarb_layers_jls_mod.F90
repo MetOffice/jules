@@ -42,13 +42,12 @@ USE soilcarb_tracer_age_mod, ONLY: soilcarb_tracer_age
 
 USE jules_vegetation_mod, ONLY: l_nitrogen
 USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,                             &
-                ccrpm_min, ccrpm_max, z_burn_max,                              &
-                l_trif_fire
-
+                ccrpm_min, ccrpm_max, z_burn_max
 USE jules_soil_mod, ONLY: cs_min, dzsoil, sm_levels
 USE veg_param, ONLY: litc_norm
 USE pftparm, ONLY: rootd_ft
 USE ancil_info, ONLY: dim_cslayer, nsoilt, dim_cs1
+USE jules_vegetation_mod, ONLY: l_trif_fire
 USE root_frac_mod, ONLY: root_frac
 USE soilcarb_mix_mod, ONLY: soilcarb_mix
 USE dpm_rpm_mod, ONLY: dpm_rpm

@@ -8,7 +8,9 @@ MODULE jules_inferno_mod
 
 ! -----------------------------------------------------------------------------
 ! Description:
-!   Contains switches and other inputs for l_inferno and l_trif_fire options
+!   Contains switches and other parameters for l_inferno and l_trif_fire
+!   In the future will also contain l_inferno, l_trif_fire and
+!       ignition_method
 !
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in TECHNICAL
@@ -19,27 +21,7 @@ USE missing_data_mod, ONLY: rmdi, imdi
 
 IMPLICIT NONE
 
-LOGICAL ::                                                                     &
-  l_inferno = .FALSE.,                                                         &
-      ! Switch used to control whether inferno fire scheme is used to calculate
-      !   flammability and burnt area
-  l_trif_fire = .FALSE.
-      ! Switch used to control whether fire is part of the carbon cycle
-      !   T => if l_inferno is also true, g_burn is calculated in INFERNO
-      !   passed to TRIFFID to calculate emissions and vegetation dynamics
-      !   T => if l_inferno is false, interactive fire is calculated via
-      !   ancillary if provided, and is 0 if not provided
-      !   F => g_burn is calculated via ancillary if provided, and is 0 if
-      !   not provided
-
-
 INTEGER ::                                                                     &
-  ignition_method = imdi,                                                      &
-      ! Switch for the calculation method of INFERNO fire ignitions
-      !   IGNITION_METHOD=1:Constant (1.67 per km2 per s)
-      !   IGNITION_METHOD=2:Constant (Human - 1.5 per km2 per s)
-      !                     Varying  (Lightning - see Pechony & Shindell,2009)
-      !   IGNITION_METHOD=3:Vary Human and Lightning (Pechony & Shindell,2009)
   flam_sm_func = 1
       ! Switch for relationship between INFERNO fire
       !      flammability and soil moisture
@@ -83,8 +65,7 @@ INTEGER, PARAMETER :: ignition_vary_natural_human = 3
 ! Set up a namelist to allow switches to be set.
 !-----------------------------------------------------------------------
 NAMELIST  / jules_inferno/                                                     &
-  l_trif_fire, l_inferno, ignition_method, flam_sm_func,                       &
-  flam_sm_low, flam_sm_up, flam_rhum_low, flam_rhum_up,                        &
+  flam_sm_func,flam_sm_low, flam_sm_up, flam_rhum_low, flam_rhum_up,           &
   flam_rain_const, flam_fuel_low, flam_fuel_up,                                &
   ccdpm_min, ccdpm_max,  ccrpm_min, ccrpm_max, z_burn_max
 
@@ -103,6 +84,8 @@ SUBROUTINE check_jules_inferno()
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in TECHNICAL
 !-----------------------------------------------------------------------------
+
+USE jules_vegetation_mod, ONLY: l_inferno, l_trif_fire, ignition_method
 
 USE ereport_mod, ONLY: ereport
 USE jules_print_mgr, ONLY: jules_print, jules_message
@@ -197,7 +180,7 @@ IF ( l_inferno ) THEN
 END IF ! end of l_inferno check
 
 
-IF ( l_trif_fire ) THEN
+IF ( l_trif_fire .OR. l_inferno ) THEN
   IF ( ABS(ccdpm_min - rmdi) < EPSILON(rmdi) ) THEN
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
                 "ccdpm_min needs to be specified.")
@@ -244,6 +227,8 @@ END SUBROUTINE check_jules_inferno
 
 SUBROUTINE print_nlist_jules_inferno()
 
+USE jules_vegetation_mod, ONLY: l_inferno, l_trif_fire, ignition_method
+
 USE jules_print_mgr, ONLY: jules_print
 
 IMPLICIT NONE
@@ -254,12 +239,6 @@ CALL jules_print('jules_inferno', 'Contents of namelist jules_inferno')
 
 CALL jules_print('jules_inferno_mod',                                          &
                  'Contents of namelist jules_inferno')
-
-WRITE(lineBuffer,*)' l_trif_fire = ',l_trif_fire
-CALL jules_print('jules_inferno_mod',lineBuffer)
-
-WRITE(lineBuffer,*)' l_inferno = ',l_inferno
-CALL jules_print('jules_inferno_mod',lineBuffer)
 
 IF ( l_inferno ) THEN
   WRITE(lineBuffer,*)' ignition_method = ',ignition_method
@@ -351,10 +330,9 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 
 ! set number of each type of variable in my_namelist type
-INTEGER, PARAMETER :: no_of_types = 3
-INTEGER, PARAMETER :: n_int = 2
+INTEGER, PARAMETER :: no_of_types = 2
+INTEGER, PARAMETER :: n_int = 1
 INTEGER, PARAMETER :: n_real = 12
-INTEGER, PARAMETER :: n_log = 2
 
 TYPE :: my_namelist
   SEQUENCE
@@ -370,9 +348,6 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: ccrpm_min
   REAL(KIND=real_jlslsm) :: ccrpm_max
   REAL(KIND=real_jlslsm) :: z_burn_max
-  LOGICAL :: l_trif_fire
-  LOGICAL :: l_inferno
-  INTEGER :: ignition_method
   INTEGER :: flam_sm_func
 END TYPE my_namelist
 
@@ -383,7 +358,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 CALL gc_get_communicator(my_comm, icode)
 
 CALL setup_nml_type(no_of_types, mpl_nml_type, n_int_in = n_int,               &
-                    n_real_in = n_real, n_log_in = n_log)
+                    n_real_in = n_real)
 
 IF (mype == 0) THEN
 
@@ -391,10 +366,7 @@ IF (mype == 0) THEN
         IOMSG = iomessage)
   CALL check_iostat(errorstatus, "namelist jules_inferno", iomessage)
 
-  my_nml % ignition_method = ignition_method
   my_nml % flam_sm_func    = flam_sm_func
-  my_nml % l_trif_fire     = l_trif_fire
-  my_nml % l_inferno       = l_inferno
   my_nml % flam_sm_low     = flam_sm_low
   my_nml % flam_sm_up      = flam_sm_up
   my_nml % flam_rhum_low   = flam_rhum_low
@@ -413,10 +385,7 @@ CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
 
 IF (mype /= 0) THEN
 
-  ignition_method = my_nml % ignition_method
   flam_sm_func    = my_nml % flam_sm_func
-  l_trif_fire     = my_nml % l_trif_fire
-  l_inferno       = my_nml % l_inferno
   flam_sm_low     = my_nml % flam_sm_low
   flam_sm_up      = my_nml % flam_sm_up
   flam_rhum_low   = my_nml % flam_rhum_low

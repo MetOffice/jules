@@ -66,8 +66,8 @@ USE conversions_mod, ONLY: rsec_per_day
 USE jules_surface_types_mod, ONLY: npft, nnpft, ncpft, ntype
 
 USE jules_vegetation_mod, ONLY: frac_min, l_crop,                              &
-                                l_trif_crop, can_model
-USE jules_inferno_mod, ONLY: l_inferno, l_trif_fire
+                                l_trif_crop, can_model,                        &
+                                l_inferno, l_trif_fire
 
 USE veg_param, ONLY: litc_norm, agric
 

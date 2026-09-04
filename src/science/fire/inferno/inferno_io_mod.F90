@@ -54,7 +54,7 @@ USE pftparm,                  ONLY:                                            &
     ! Average Burned Area per PFT, and fire mortality rate
 
 USE jules_inferno_mod, ONLY:                                                   &
-  l_trif_fire, flam_rhum_low, flam_rhum_up,                                    &
+  flam_rhum_low, flam_rhum_up,                                                 &
   flam_sm_low, flam_sm_up, flam_fuel_low,                                      &
   flam_fuel_up, flam_rain_const, flam_sm_func
 
@@ -62,6 +62,7 @@ USE qsat_mod, ONLY: qsat_wat
 
 USE jules_surface_types_mod,        ONLY: npft
 USE parkind1,                       ONLY: jprb
+USE jules_vegetation_mod,           ONLY: l_trif_fire
 USE timestep_mod,                   ONLY: timestep
 USE calc_c_comps_triffid_mod,       ONLY: calc_c_comps_triffid
 
