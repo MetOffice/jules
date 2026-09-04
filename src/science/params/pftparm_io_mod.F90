@@ -232,7 +232,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 2
 INTEGER, PARAMETER :: n_int = 3 * npft_max
-INTEGER, PARAMETER :: n_real = 108 * npft_max
+INTEGER, PARAMETER :: n_real = 109 * npft_max
 
 TYPE :: my_namelist
   SEQUENCE
