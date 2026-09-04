@@ -262,7 +262,7 @@ USE stash_array_mod,          ONLY: sf
 USE atm_step_local,           ONLY: dim_cs1
 #else
 !Modules specific to JULES
-USE fire_mod,                 ONLY: fire_prog, fire_diag, l_fire
+USE fire_mod,                 ONLY: fire_prog, fire_diag, l_fire_weather_index
 
 USE metstats_mod,             ONLY: metstats_prog, l_metstats
 
@@ -1030,7 +1030,7 @@ CASE ( jules )
     END IF
 
     !Fire (standalone only)
-    IF ( l_fire ) THEN
+    IF ( l_fire_weather_index ) THEN
       !Calculate the gridbox mean soil moisture
       smc_gb = soiltiles_to_gbm(progs%smc_soilt, ainfo)
       CALL fire_timestep(metstats_prog, smc_gb, fire_prog, fire_diag,          &
