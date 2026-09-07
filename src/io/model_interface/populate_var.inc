@@ -1554,7 +1554,7 @@ CASE ( 'deposition_n' )
     trif_vars%deposition_n_gb(:) = const_val
   END IF
 
-CASE ( 'trif_vars%g_burn_pft' )
+CASE ( 'g_burn_pft' )
   IF ( PRESENT(cube) ) THEN
     cube_land = map_to_land(cube)
     CALL cube_get_data(cube_land, trif_vars%g_burn_pft)

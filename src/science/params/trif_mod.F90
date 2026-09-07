@@ -40,7 +40,7 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
  fireveg_c_to_atmos(:)                                                         &
     ! Fraction of burnt carbon that goes to the atmosphere as CO2 instead
     ! of in the soil. Based on mean whole-plant mortality factor from
-    ! Li et al (2012) table 2. 
+    ! Li et al (2012) table 2.
 ,g_area(:)                                                                     &
                   !  Disturbance rate (/360days).
 ,g_grow(:)                                                                     &
@@ -126,7 +126,7 @@ IF ( l_triffid .OR. l_phenol ) THEN
   harvest_freq(:)  = 0
   harvest_type(:)  = 0
   ag_expand(:)     = 0
-  fireveg_c_to_atmos(:) = 0
+  fireveg_c_to_atmos(:) = 0.0
   g_area(:)        = 0.0
   g_grow(:)        = 0.0
   g_root(:)        = 0.0

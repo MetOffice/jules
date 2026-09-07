@@ -71,6 +71,8 @@ CALL jules_print('trif_io',                                                    &
 
 WRITE(lineBuffer,*)' crop_io = ',crop_io
 CALL jules_print('trif_io',lineBuffer)
+WRITE(lineBuffer,*)' fireveg_c_to_atmos_io = ',fireveg_c_to_atmos_io
+CALL jules_print('trif_io',lineBuffer)
 WRITE(lineBuffer,*)' g_area_io = ',g_area_io
 CALL jules_print('trif_io',lineBuffer)
 WRITE(lineBuffer,*)' g_grow_io = ',g_grow_io
@@ -101,8 +103,8 @@ WRITE(lineBuffer,*)' harvest_type_io = ',harvest_type_io
 CALL jules_print('trif_io',lineBuffer)
 WRITE(lineBuffer,*)' ag_expand_io = ',ag_expand_io
 CALL jules_print('trif_io',lineBuffer)
-  WRITE(lineBuffer,*)' harvest_ht_io = ',harvest_ht_io
-  CALL jules_print('harvest_ht_io',lineBuffer)
+WRITE(lineBuffer,*)' harvest_ht_io = ',harvest_ht_io
+CALL jules_print('harvest_ht_io',lineBuffer)
 CALL jules_print('trif_io',                                                    &
     '- - - - - - end of namelist - - - - - -')
 
@@ -150,11 +152,11 @@ TYPE :: my_namelist
   INTEGER :: harvest_type_io(npft_max)
   INTEGER :: ag_expand_io(npft_max)
   REAL(KIND=real_jlslsm) :: harvest_ht_io(npft_max)
+  REAL(KIND=real_jlslsm) :: fireveg_c_to_atmos_io(npft_max)
   REAL(KIND=real_jlslsm) :: g_area_io(npft_max)
   REAL(KIND=real_jlslsm) :: g_grow_io(npft_max)
   REAL(KIND=real_jlslsm) :: g_root_io(npft_max)
   REAL(KIND=real_jlslsm) :: g_wood_io(npft_max)
-  REAL(KIND=real_jlslsm) :: fireveg_c_to_atmos_io(npft_max)
   REAL(KIND=real_jlslsm) :: lai_max_io(npft_max)
   REAL(KIND=real_jlslsm) :: lai_min_io(npft_max)
   REAL(KIND=real_jlslsm) :: alloc_fast_io(npft_max)
@@ -185,11 +187,11 @@ IF (mype == 0) THEN
   my_nml % harvest_type_io = harvest_type_io
   my_nml % ag_expand_io = ag_expand_io
   my_nml % harvest_ht_io = harvest_ht_io
+  my_nml % fireveg_c_to_atmos_io = fireveg_c_to_atmos_io
   my_nml % g_area_io  = g_area_io
   my_nml % g_grow_io  = g_grow_io
   my_nml % g_root_io  = g_root_io
   my_nml % g_wood_io  = g_wood_io
-  my_nml % fireveg_c_to_atmos_io = fireveg_c_to_atmos_io
   my_nml % lai_max_io = lai_max_io
   my_nml % lai_min_io = lai_min_io
   my_nml % alloc_fast_io = alloc_fast_io
@@ -209,11 +211,11 @@ IF (mype /= 0) THEN
   harvest_type_io = my_nml % harvest_type_io
   ag_expand_io = my_nml % ag_expand_io
   harvest_ht_io = my_nml % harvest_ht_io
+  fireveg_c_to_atmos_io = my_nml % fireveg_c_to_atmos_io
   g_area_io  = my_nml % g_area_io
   g_grow_io  = my_nml % g_grow_io
   g_root_io  = my_nml % g_root_io
   g_wood_io  = my_nml % g_wood_io
-  fireveg_c_to_atmos_io = my_nml % fireveg_c_to_atmos_io
   lai_max_io = my_nml % lai_max_io
   lai_min_io = my_nml % lai_min_io
   alloc_fast_io = my_nml % alloc_fast_io

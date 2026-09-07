@@ -280,7 +280,7 @@ END IF
 rain_rate = rain_l * s_in_day
   ! convert rain rate from kg/m2/s to mm/day
 
-flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
+flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                     &
                        * EXP( cr * rain_rate) ,1.0) ,0.0)
 !flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
 !                       * EXP( cr * s_in_day * rain_l), 1.0), 0.0)

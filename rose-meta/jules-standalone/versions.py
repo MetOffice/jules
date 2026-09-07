@@ -86,5 +86,4 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(
         config, ["namelist:jules_triffid", "fireveg_c_to_atmos_io"], ",".join(["0.13"] * npft))
 
-
         return config, self.reports
