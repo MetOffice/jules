@@ -163,6 +163,33 @@ This file sets the hydrology options. It contains one namelist called :nml:lst:`
 
    FALSE
        Use standard wetland and surface saturation fraction calculations.
+   |
+   .. nml:member:: l_darcy_lsh_all
+
+      :type: logical
+      :default: F
+
+   TRUE
+      Enable Darcian fluxes between bottom soil layer and lsh groundwater layer.
+
+   FALSE
+      Only gravitation drainage is allowed between bottom soil layer and the lsh groundwater layer.
+   |
+   .. nml:member:: l_calc_zw2
+
+      :type: logical
+      :default: F
+
+   TRUE
+      Water table depth calculation adapted to reduce impact of root zone abstraction on its over-estimation.
+   FALSE
+      Use standard calculation of water table depth based on Koster et al 2000 which assumes that the soil moisture profile above the water table is determined from the balance between pressure head gradient and gravity.
+
+   .. seealso::
+      References:
+
+      * Koster, R. D. (2000), A catchment-based approach to modeling land surface processes in a general circulation model 1. Model structure J. Geophys. Res. VOL. 105, NO. D20, PAGES 24,809-24,822
+
 
 
 .. nml:group:: Only used if :nml:mem:`JULES_HYDROLOGY::l_pdm` = TRUE

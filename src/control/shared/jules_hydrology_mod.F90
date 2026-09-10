@@ -47,9 +47,13 @@ LOGICAL ::                                                                     &
       ! Only used if l_top=.T.
   l_limit_gsoil = .FALSE.,                                                     &
       ! Switch for limiting gsoil above theta_crit
-  l_inland = .FALSE.
+  l_inland = .FALSE.,                                                          &
       ! Switch for putting inland water from from rivers into soil moisture
-
+  l_calc_zw2 = .FALSE.,                                                        &
+      ! Switch for using the updated water table depth calculation
+  l_darcy_lsh_all = .FALSE.
+      ! Switch for allowing full two-way hydraulic conductivity between bottom
+      ! soil layer and "groundwater" lsh layer
 !-----------------------------------------------------------------------------
 ! PDM parameters
 !-----------------------------------------------------------------------------
@@ -86,8 +90,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
 NAMELIST  / jules_hydrology/                                                   &
   l_hydrology, l_top, l_pdm, l_spdmvar, l_baseflow_corr, l_var_rainfrac,       &
   l_wetland_unfrozen, l_limit_gsoil, l_inland,                                 &
-  dz_pdm, b_pdm, s_pdm, slope_pdm_max, ti_max, ti_wetl, zw_max, nfita
-
+  dz_pdm, b_pdm, s_pdm, slope_pdm_max, ti_max, ti_wetl, zw_max, nfita,         &
+  l_calc_zw2, l_darcy_lsh_all
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_HYDROLOGY_MOD'
 

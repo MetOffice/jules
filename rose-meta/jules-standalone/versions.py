@@ -45,15 +45,20 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class vn82_t1(MacroUpgrade):
 
     """Upgrade macro from JULES by Author"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t138"
+
+    """Issue number 138"""
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
+        """Add l_calc_zw2 to namelist jules_hydrology"""
+        self.add_setting(config, ["namelist:jules_hydrology", "l_calc_zw2"], ".false.")
+        """Add l_darcy_lsh_all to namelist jules_hydrology"""
+        self.add_setting(config, ["namelist:jules_hydrology", "l_darcy_lsh_all"], ".false.")
         return config, self.reports
