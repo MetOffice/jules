@@ -32,7 +32,7 @@ USE jules_science_fixes_mod, ONLY: l_fix_snow_frac, l_fix_neg_snow
 USE water_constants_mod, ONLY: tm, rho_ice
 USE jules_surface_mod, ONLY: l_aggregate
 USE jules_vegetation_mod, ONLY: can_model
-USE jules_irrig_mod, ONLY: l_soil_evap_irrig_expl
+USE jules_irrig_mod, ONLY: l_soil_evap_irrig_separate
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
 IMPLICIT NONE
@@ -148,7 +148,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP        dq,snowdep_surft,tstar,snow_surft,                                &
 !$OMP        catch,frac_snow_subl_melt,maskd,resfs,gc,ch,vshr,l_et_stom,       &
 !$OMP        l_et_stom_surft,resfs_stom,gc_stom_surft,frac_irr_surft,          &
-!$OMP        gc_irr_surft,gc_nir_surft,l_soil_evap_irrig_expl,flake,           &
+!$OMP        gc_irr_surft,gc_nir_surft,l_soil_evap_irrig_separate,flake,       &
 !$OMP        canopy,epdt,resft,l_fix_snow_frac, l_fix_neg_snow)
 DO k = 1,surft_pts
   l = surft_index(k)
@@ -233,7 +233,7 @@ DO k = 1,surft_pts
   ! and bare soil evaporation from soil tiles.
   !-----------------------------------------------------------------------
   resfs(l) = gc(l) / ( gc(l) + ch(l) * vshr(i,j) )
-  IF ( l_soil_evap_irrig_expl ) THEN
+  IF ( l_soil_evap_irrig_separate ) THEN
     gc_nir_surft(l) = gc(l)
     IF ( frac_irr_surft(l) < 1.0 ) THEN
       gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                             &
@@ -265,7 +265,8 @@ IF ( .NOT. l_aggregate .AND. can_model == 4) THEN
 !$OMP          SHARED(surft_pts, surft_index, land_index, t_i_length,          &
 !$OMP                 snow_surft, gc, vshr, fracaero_t,                        &
 !$OMP                 resfs, ch, resft, gc_nir_surft, frac_irr_surft,          &
-!$OMP                 gc_irr_surft, l_soil_evap_irrig_expl) SCHEDULE(STATIC)
+!$OMP                 gc_irr_surft, l_soil_evap_irrig_separate)                &
+!$OMP                 SCHEDULE(STATIC)
     DO k = 1,surft_pts
       l = surft_index(k)
       IF (snow_surft(l) >  0.0) THEN
@@ -274,7 +275,7 @@ IF ( .NOT. l_aggregate .AND. can_model == 4) THEN
         fracaero_t(l) = 0.0
         resfs(l) = gc(l) /                                                     &
                 (gc(l) + ch(l) * vshr(i,j))
-        IF ( l_soil_evap_irrig_expl ) THEN
+        IF ( l_soil_evap_irrig_separate ) THEN
           gc_nir_surft(l) = gc(l)
           IF ( frac_irr_surft(l) < 1.0 ) THEN
             gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                       &

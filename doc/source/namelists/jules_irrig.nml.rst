@@ -50,7 +50,7 @@ This namelist specifies the different options available for setting up the irrig
    1. Not available yet. In a future release this will replace :nml:mem:`l_irrig_dmd`.
    2. Apply irrigation to irrigated surface types C3_irrig and/or C4_irrig. This option requires :nml:mem:`JULES_IRRIG::l_irrig_dmd` = FALSE and :nml:mem:`JULES_PFTPARM::irrig_pft_io` = 0 or 1.
 
-  When :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, :nml:mem:`JULES_IRRIG::irrig_option` is not available.
+   When :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, :nml:mem:`JULES_IRRIG::irrig_option` is not available.
 
 .. nml:member:: l_irrig_limit
 
@@ -148,7 +148,7 @@ This namelist specifies the different options available for setting up the irrig
    :nml:mem:`nstep_irrig` = NINT(frequency of irrigation update (in sec)) / :nml:mem:`JULES_TIME::timestep_len`
 
 
-.. nml:member:: l_soil_evap_irrig_expl
+.. nml:member:: l_soil_evap_irrig_separate
 
    :type: logical
    :default: F
@@ -158,11 +158,11 @@ This namelist specifies the different options available for setting up the irrig
    TRUE
        Bare soil evaporation is explicitly calculated from the irrigated and non-irrigated soil moisture columns.
 
+       Only available when :nml:mem:`l_irrig_dmd` = TRUE
    FALSE
       No effect.
 
-   This must be set to FALSE if :nml:mem:`JULES_IRRIG::irrig_option` = 0.
-   This must be set to FALSE if :nml:mem:`JULES_IRRIG::irrig_option` = 2.
+   This must be set to FALSE if :nml:mem:`irrig_option` = No irrigation (0) or Surface tile-based irrigation (2).
 
 
 
