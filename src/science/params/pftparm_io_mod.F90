@@ -321,12 +321,12 @@ USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: IOSTAT_END
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: unitnumber
-INTEGER             :: ErrorStatus, errcode, i
+INTEGER             :: ErrorStatus, errcode, n
 CHARACTER(LEN=errormessagelength) :: iomessage
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_PFTPARM_INSTANCES'
 
-i = 0
+n = 0
 DO ! loop over jules_pftparm instances
   CALL reset_jules_pftparm()
   READ (UNIT = unitnumber, NML = jules_pftparm, IOSTAT = errorstatus,        &
@@ -335,13 +335,9 @@ DO ! loop over jules_pftparm instances
   IF (errorstatus == IOSTAT_END) THEN
     EXIT
   ELSE IF (errorstatus == 0) THEN
-    i = i + 1
-    IF ( i > npft ) THEN
-      errcode = 101
-      WRITE(iomessage,*)                                                     &
-         "Number of instances of jules_pftparm exceeds npft."
-      CALL ereport(RoutineName, errcode, iomessage)
-    END IF
+    n = n + 1
+    ! Map jules_pftparm instance to correct position in allocated array
+    CALL init_pftparm_allocated()
   ELSE
     ! Equivalent to UM check_iostat so both UM & JULES can use this routine
     jules_message =                                                   newline//&
@@ -351,9 +347,15 @@ DO ! loop over jules_pftparm instances
     errorstatus=ABS(errorstatus)
     CALL ereport (RoutineName, errorstatus, jules_message)
   END IF
-  ! Map to correct position in allocated array
-  CALL init_pftparm_allocated()
 END DO ! loop over jules_pftparm instances
+
+IF ( n /= npft ) THEN
+  errcode = 101
+  WRITE(iomessage,*)                                                           &
+     "Number of instances of jules_pftparm does not equal npft."
+  CALL ereport(RoutineName, errcode, iomessage)
+END IF
+
 REWIND(UNIT = unitnumber)
 
 END SUBROUTINE read_nml_jules_pftparm_instances
