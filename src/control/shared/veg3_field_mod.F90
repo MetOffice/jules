@@ -56,6 +56,11 @@ TYPE :: veg_state_type
       g_leaf(:,:),                                                             &
               ! Pointer necessary to get the diagnosed g_leaf rate from the
               ! rest of JULES. ((360d)-1)
+      g_leaf_day(:,:),                                                         &
+              ! PFT mean leaf turnover rate for input to phenology. ((360d)-1)
+      g_leaf_dr_out(:,:),                                                      &
+              ! PFT mean leaf turnover rate for driving vegetation dynamics.
+              ! ((360d)-1)
       lai_phen(:,:),                                                           &
               ! Diagnostic LAI immediately following the phenology update.
               ! Associated with trifctl%lai_phen_pft. (m2 m-2)
@@ -150,6 +155,8 @@ ALLOCATE(veg_state%npp_acc      ( land_pts, nnpft) )
 ALLOCATE(veg_state%npp_dr_out   ( land_pts, nnpft) )
 ALLOCATE(veg_state%g_leaf_phen  ( land_pts, nnpft) )
 ALLOCATE(veg_state%g_leaf       ( land_pts, nnpft) )
+ALLOCATE(veg_state%g_leaf_day   ( land_pts, nnpft) )
+ALLOCATE(veg_state%g_leaf_dr_out( land_pts, nnpft) )
 ALLOCATE(veg_state%lai_phen     ( land_pts, nnpft) )
 ALLOCATE(veg_state%g_leaf_acc   ( land_pts, nnpft) )
 ALLOCATE(veg_state%g_leaf_phen_acc ( land_pts, nnpft) )
@@ -175,6 +182,8 @@ veg_state%npp_acc(:,:)         = 0.0
 veg_state%npp_dr_out(:,:)      = 0.0
 veg_state%g_leaf_phen(:,:)     = 0.0
 veg_state%g_leaf(:,:)          = 0.0
+veg_state%g_leaf_day(:,:)      = 0.0
+veg_state%g_leaf_dr_out(:,:)   = 0.0
 veg_state%lai_phen(:,:)        = 0.0
 veg_state%g_leaf_acc(:,:)      = 0.0
 veg_state%g_leaf_phen_acc(:,:) = 0.0
@@ -240,6 +249,8 @@ DEALLOCATE(veg_state%npp_dr_out)
 DEALLOCATE(veg_state%frac)
 DEALLOCATE(veg_state%g_leaf_phen)
 DEALLOCATE(veg_state%g_leaf)
+DEALLOCATE(veg_state%g_leaf_day)
+DEALLOCATE(veg_state%g_leaf_dr_out)
 DEALLOCATE(veg_state%lai_phen)
 DEALLOCATE(veg_state%g_leaf_acc)
 DEALLOCATE(veg_state%g_leaf_phen_acc)
@@ -316,6 +327,8 @@ IF (l_red .AND. l_triffid) THEN
   veg_state%npp_dr_out => trifctl_data%npp_dr_out_pft
   veg_state%g_leaf => trifctl_data%g_leaf_pft
   veg_state%g_leaf_phen => trifctl_data%g_leaf_phen_pft
+  veg_state%g_leaf_day => trifctl_data%g_leaf_day_pft
+  veg_state%g_leaf_dr_out => trifctl_data%g_leaf_dr_out_pft
   veg_state%lai_phen => trifctl_data%lai_phen_pft
   veg_state%g_leaf_acc => trifctl_data%g_leaf_acc_pft
   veg_state%g_leaf_phen_acc => trifctl_data%g_leaf_phen_acc_pft

@@ -198,11 +198,8 @@ local_litter(land_pts,nnpft),                                                  &
     ! Litter production (kg C/m2/s).
 growth(land_pts,nnpft),                                                        &
     ! growth (kg C/m2/s).
-mort_add(land_pts,nnpft,nmasst),                                               &
+mort_add(land_pts,nnpft,nmasst)
     ! mortality above baseline (/m2)
-g_leaf_phen_dr(land_pts,nnpft)
-    ! Mean phenology-driven leaf turnover rate for driving vegetation
-    ! dynamics (/s)
 
 !End of headers
 
@@ -218,7 +215,7 @@ mort_add(:,:,:)      = 0.0
 ! veg-veg2a_jls_mod.
 !-----------------------------------------------------------------------------
 CALL veg3_phenol_couple(veg_index_pts,veg_index,veg3_ctrl,land_pts,nnpft,      &
-                        a_step,asteps_since_triffid,veg_state,g_leaf_phen_dr)
+                        a_step,asteps_since_triffid,veg_state)
 
 ! Now call vegetation model
 IF (asteps_since_triffid == veg3_ctrl%nstep_trif) THEN
@@ -230,7 +227,7 @@ IF (asteps_since_triffid == veg3_ctrl%nstep_trif) THEN
                 !IN parms
                 litter_parms,                                                  &
                 !IN fields
-                g_leaf_phen_dr,                                                &
+                veg_state%g_leaf_dr_out,                                       &
                 !IN state
                 veg_state,                                                     &
                 ! OUT Fields
@@ -306,9 +303,7 @@ SUBROUTINE veg3_phenol_couple(                                                 &
                 veg_index_pts,veg_index,veg3_ctrl,land_pts,nnpft,              &
                 a_step,asteps_since_triffid,                                   &
                 !IN state
-                veg_state,                                                     &
-                !OUT fields
-                g_leaf_phen_dr                                                 &
+                veg_state                                                      &
                 )
 
 ! Diagnoses leaf phenology and the mean phenology-driven leaf turnover rate
@@ -349,34 +344,20 @@ TYPE(veg3_ctrl_type),INTENT(IN)   :: veg3_ctrl
 TYPE(veg_state_type),INTENT(IN OUT)   :: veg_state
 
 !-----------------------------------------------------------------------------
-! Reals with INTENT OUT
-!-----------------------------------------------------------------------------
-REAL, INTENT(OUT)      ::                                                      &
-g_leaf_phen_dr(land_pts,nnpft)
-    ! Mean phenology-driven leaf turnover rate for driving vegetation
-    ! dynamics (s-1).
-
-!-----------------------------------------------------------------------------
 !Local Vars
 !-----------------------------------------------------------------------------
 REAL ::                                                                        &
 gam_trif,                                                                      &
               ! Inverse vegetation dynamics coupling timestep ((360d)-1).
-lai_bal_dummy(land_pts),                                                       &
+lai_bal_dummy(land_pts)
               ! Dummy lai to pass into phenol routine, gets around bug where
               ! FORTRAN does not accept veg_state%lai_bal as optional
               ! argument.
-g_leaf_day(land_pts)
-              ! Mean leaf turnover rate driving phenology, diagnosed from
-              ! the physiological leaf turnover accumulated since the
-              ! previous phenology call. ((360d)-1)
 
 INTEGER :: l,n,k
     ! Loop counters.
 
 !End of headers
-
-g_leaf_phen_dr(:,:) = 0.0
 
 !-----------------------------------------------------------------------------
 ! Work out the phenology at its own timestep, appending to the accumulated
@@ -388,7 +369,6 @@ IF (l_phenol .AND. MOD(a_step,veg3_ctrl%nstep_phen) == 0) THEN
 
   veg_state%phen(:,:) = 1.0
   lai_bal_dummy(:) = 0.0
-  g_leaf_day(:) = 0.0
 
   DO n = 1,nnpft
     lai_bal_dummy(:) = veg_state%lai_bal(:,n)
@@ -397,11 +377,12 @@ IF (l_phenol .AND. MOD(a_step,veg3_ctrl%nstep_phen) == 0) THEN
     ! elapsed phenology period, mirroring g_leaf_day in veg-veg2a_jls_mod.
     DO k = 1,veg_index_pts
       l = veg_index(k)
-      g_leaf_day(l) = veg_state%g_leaf_acc(l,n) / veg3_ctrl%dt_phen_360d
+      veg_state%g_leaf_day(l,n) = veg_state%g_leaf_acc(l,n) /                  &
+                                  veg3_ctrl%dt_phen_360d
     END DO
 
     CALL phenol(land_pts,veg_index_pts,n,veg_index,veg3_ctrl%dt_phen_360d,     &
-                g_leaf_day,veg_state%canht(:,n),                               &
+                veg_state%g_leaf_day(:,n),veg_state%canht(:,n),                &
                 veg_state%lai(:,n),veg_state%g_leaf_phen(:,n),lai_bal_dummy)
 
     DO k = 1,veg_index_pts
@@ -445,8 +426,8 @@ IF (asteps_since_triffid == veg3_ctrl%nstep_trif) THEN
       IF (l_phenol) THEN
         ! Diagnose the mean phenological leaf turnover rate over the
         ! coupling period and convert to JULES-standard per-second units.
-        g_leaf_phen_dr(l,n) = veg_state%g_leaf_phen_acc(l,n) * gam_trif /      &
-                              (rsec_per_day * 360.0)
+        veg_state%g_leaf_dr_out(l,n) = veg_state%g_leaf_phen_acc(l,n) *        &
+                                       gam_trif / (rsec_per_day * 360.0)
 
         ! Reset the accumulated phenological turnover ready for the next
         ! coupling period.
@@ -454,8 +435,8 @@ IF (asteps_since_triffid == veg3_ctrl%nstep_trif) THEN
       ELSE
         ! No phenology - fall back to the raw accumulated physiological
         ! leaf turnover rate, as in veg-veg2a_jls_mod.
-        g_leaf_phen_dr(l,n) = veg_state%g_leaf_acc(l,n) * gam_trif /           &
-                              (rsec_per_day * 360.0)
+        veg_state%g_leaf_dr_out(l,n) = veg_state%g_leaf_acc(l,n) * gam_trif /  &
+                                       (rsec_per_day * 360.0)
 
         veg_state%g_leaf_acc(l,n) = 0.0
       END IF
@@ -464,12 +445,12 @@ IF (asteps_since_triffid == veg3_ctrl%nstep_trif) THEN
       ! the vegetation dynamics timestep. If it does, reduce the rate so
       ! that the turnover does not exceed the current LAI.
       IF (veg_state%lai(l,n) > 0.0) THEN
-        IF (g_leaf_phen_dr(l,n) * veg3_ctrl%dt_red > 1.0) THEN
-          g_leaf_phen_dr(l,n) = 1.0 / veg3_ctrl%dt_red
+        IF (veg_state%g_leaf_dr_out(l,n) * veg3_ctrl%dt_red > 1.0) THEN
+          veg_state%g_leaf_dr_out(l,n) = 1.0 / veg3_ctrl%dt_red
 
         END IF
       ELSE
-        g_leaf_phen_dr(l,n) = 0.0
+        veg_state%g_leaf_dr_out(l,n) = 0.0
 
       END IF
 
