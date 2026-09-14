@@ -221,7 +221,7 @@ IMPLICIT NONE
 CHARACTER(LEN=*), INTENT(IN) :: nml_dir  ! The directory containing the
                                          ! namelists
 ! Work variables
-INTEGER :: i, ERROR  ! Error indicator
+INTEGER :: ERROR  ! Error indicator
 CHARACTER(LEN=errormessagelength) :: iomessage
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_PFTPARM'
@@ -241,17 +241,8 @@ IF ( ERROR /= 0 )                                                              &
                  "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //          &
                  TRIM(iomessage) // ")")
 
-DO i = 1, npft
-  CALL reset_jules_pftparm()
-  READ(namelist_unit, NML = jules_pftparm, IOSTAT = ERROR, IOMSG = iomessage)
-  IF ( ERROR /= 0 ) THEN
-    CALL log_fatal(routinename,                                                &
-                   "Error reading namelist JULES_PFTPARM " //                  &
-                   "(IOSTAT=" // TRIM(to_string(ERROR)) // " IOMSG=" //        &
-                   TRIM(iomessage) // ")")
-  END IF
-  CALL init_pftparm_allocated()
-END DO
+! Also maps instances to allocated pftparm arrays
+CALL read_nml_jules_pftparm_instances(namelist_unit)
 
 ! Close the namelist file
 CLOSE(namelist_unit, IOSTAT = ERROR, IOMSG = iomessage)
@@ -274,27 +265,21 @@ USE check_iostat_mod, ONLY:  check_iostat
 USE UM_parcore,       ONLY:  mype
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
-USE errormessagelength_mod, ONLY: errormessagelength
 USE pftparm, ONLY: pftparm_alloc, read_nml_jules_pftparm_bcast
 USE c_z0h_z0m, ONLY: c_z0h_z0m_alloc, read_nml_c_z0h_z0m_bcast, z0h_z0m
 USE c_irrigation_mod, ONLY: c_irrigation_alloc, read_nml_c_irrigation_bcast,   &
    irrig_tile
 USE jules_surface_types_mod, ONLY: npft, ntype
-USE ereport_mod, ONLY: ereport
-
-USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: IOSTAT_END
 
 IMPLICIT NONE
 
 ! Subroutine arguments
 INTEGER, INTENT(IN) :: unitnumber
-INTEGER             :: ErrorStatus, errcode, i
 REAL(KIND=jprb)     :: zhook_handle
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_PFTPARM'
 INTEGER(KIND=jpim), PARAMETER          :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER          :: zhook_out = 1
-CHARACTER(LEN=errormessagelength) :: iomessage
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
@@ -309,29 +294,8 @@ IF ( .NOT. ALLOCATED(irrig_tile) ) THEN
 END IF
 
 IF (mype == 0) THEN
-  i = 0
-  DO ! loop over jules_pftparm instances
-    CALL reset_jules_pftparm()
-    READ (UNIT = unitnumber, NML = jules_pftparm, IOSTAT = errorstatus,        &
-       IOMSG = iomessage)
-
-    IF (errorstatus == IOSTAT_END) THEN
-      EXIT
-    ELSE IF (errorstatus == 0) THEN
-      i = i + 1
-      IF ( i > npft ) THEN
-        errcode = 101
-        WRITE(iomessage,*)                                                     &
-           "Number of instances of jules_pftparm exceeds npft."
-        CALL ereport(RoutineName, errcode, iomessage)
-      END IF
-    ELSE
-      CALL check_iostat(errorstatus, "namelist jules_pftparm", iomessage)
-    END IF
-    ! Map to correct position in allocated array
-    CALL init_pftparm_allocated()
-  END DO ! loop over jules_pftparm instances
-  REWIND(UNIT = unitnumber)
+  ! Also maps instances to allocated pftparm arrays
+  CALL read_nml_jules_pftparm_instances(unitnumber)
 END IF
 
 ! Now the allocated arrays are filled, broadcast these to other processors
@@ -344,6 +308,55 @@ RETURN
 END SUBROUTINE read_nml_jules_pftparm
 #endif
 
+SUBROUTINE read_nml_jules_pftparm_instances(unitnumber)
+
+USE jules_surface_types_mod, ONLY: npft
+
+USE jules_print_mgr, ONLY: jules_message, newline
+USE ereport_mod, ONLY: ereport
+USE errormessagelength_mod, ONLY: errormessagelength
+
+USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: IOSTAT_END
+
+IMPLICIT NONE
+
+INTEGER, INTENT(IN) :: unitnumber
+INTEGER             :: ErrorStatus, errcode, i
+CHARACTER(LEN=errormessagelength) :: iomessage
+
+CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_PFTPARM_INSTANCES'
+
+i = 0
+DO ! loop over jules_pftparm instances
+  CALL reset_jules_pftparm()
+  READ (UNIT = unitnumber, NML = jules_pftparm, IOSTAT = errorstatus,        &
+     IOMSG = iomessage)
+
+  IF (errorstatus == IOSTAT_END) THEN
+    EXIT
+  ELSE IF (errorstatus == 0) THEN
+    i = i + 1
+    IF ( i > npft ) THEN
+      errcode = 101
+      WRITE(iomessage,*)                                                     &
+         "Number of instances of jules_pftparm exceeds npft."
+      CALL ereport(RoutineName, errcode, iomessage)
+    END IF
+  ELSE
+    ! Equivalent to UM check_iostat so both UM & JULES can use this routine
+    jules_message =                                                   newline//&
+       "Error reading namelist JULES_PFTPARM" //                      newline//&
+       'IoMsg: '//TRIM(iomessage)//                                   newline//&
+       'Please check input list against code.'
+    errorstatus=ABS(errorstatus)
+    CALL ereport (RoutineName, errorstatus, jules_message)
+  END IF
+  ! Map to correct position in allocated array
+  CALL init_pftparm_allocated()
+END DO ! loop over jules_pftparm instances
+REWIND(UNIT = unitnumber)
+
+END SUBROUTINE read_nml_jules_pftparm_instances
 
 SUBROUTINE init_pftparm_allocated()
 
@@ -402,7 +415,7 @@ USE jules_surface_types_mod,  ONLY: map_nml_instance_to_tile_number, ntype
 
 IMPLICIT NONE
 
-INTEGER :: i, errorstatus
+INTEGER :: i
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
