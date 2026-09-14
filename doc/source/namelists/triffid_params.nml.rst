@@ -183,7 +183,7 @@ This namelist is used to read PFT parameters that are only needed by the dynamic
    :type: real(npft)
    :default: None
 
-   Only used if :nml:mem:`JULES_INFERNO::l_trif_fire` = TRUE.
+   Only used if :nml:mem:`JULES_VEGETATION::l_trif_fire` = TRUE.
 
    Fraction of burnt carbon that goes to the atmosphere as CO2 instead of in the soil. 
    Based on mean whole-plant mortality factor from Li et al (2012) table 2.

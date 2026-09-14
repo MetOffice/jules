@@ -67,7 +67,7 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
    :type: real
    :default: 0.2
 
-   Parameter controlling the depth to which fire burns soil litter carbon in metres. At depths shallower than this value, the fire can burn soil carbon in the two litter pools (dpm and rpm). If z_burn_max falls within a layer only a proportion of the soil carbon is burnt. Only used with layered soil carbon scheme (:nml:mem:`JULES_SOIL_BIOGEOCHEM::l_layeredc` = TRUE) and fire (either :nml:mem:`JULES_INFERNO::l_trif_fire` or :nml:mem:`JULES_INFERNO::l_inferno` or both). In reality the burn depth varies so please check whether the default value of 0.2 is suitable for your application.
+   Parameter controlling the depth to which fire burns soil litter carbon in metres. At depths shallower than this value, the fire can burn soil carbon in the two litter pools (dpm and rpm). If z_burn_max falls within a layer only a proportion of the soil carbon is burnt. Only used with layered soil carbon scheme (:nml:mem:`JULES_SOIL_BIOGEOCHEM::l_layeredc` = TRUE) and fire (either :nml:mem:`JULES_VEGETATION::l_trif_fire` or :nml:mem:`JULES_VEGETATION::l_inferno` or both). In reality the burn depth varies so please check whether the default value of 0.2 is suitable for your application.
 
 .. nml:member:: flam_sm_func
 
