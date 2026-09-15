@@ -3,10 +3,10 @@
 
 This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` that contains switches used to calculate the different fire weather indices available. The second namelist is for parameters associated with the inferno fire model called :nml:lst:`JULES_INFERNO`
 
-``JULES_FIRE_WEATHER_INDEX`` namelist members
+``FIRE_SWITCHES`` namelist members
 -----------------------------------
 
-.. nml:namelist:: JULES_FIRE_WEATHER_INDEX
+.. nml:namelist:: FIRE_SWITCHES
 
 .. nml:member:: l_fire
 

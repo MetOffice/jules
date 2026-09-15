@@ -211,7 +211,7 @@ REAL(KIND=real_jlslsm) ,   INTENT(IN)       ::                                 &
     ! Exponential decay parameter for relationship between soil moisture
     !    and flammability (> 0.0) (flam_sm_func=2)
   flam_rain_const
-    !
+    ! decay function for exponential relationship between rain & flammability.
 
 INTEGER, INTENT(IN)   ::                                                       &
    flam_sm_func
@@ -233,12 +233,12 @@ REAL(KIND=real_jlslsm),    PARAMETER        ::                                 &
   b = 5.02808,                                                                 &
   f = 8.1328e-03,                                                              &
   h=-3.49149,                                                                  &
-  Ts = 373.16,                                                                 &
+  Ts = 373.16
     ! Water saturation temperature
-  cr=-2.0 * s_in_day
-    ! Precipitation factor (-2(day/mm)*(kg/m2/s))
 
 REAL(KIND=real_jlslsm)                      ::                                 &
+  cr,                                                                          &
+    ! Precipitation factor (mm/day)
   Z_l,                                                                         &
     ! Component of the Goff-Gratch saturation vapor pressure
   TsbyT_l,                                                                     &
@@ -279,13 +279,10 @@ END IF
 
 rain_rate = rain_l * s_in_day
   ! convert rain rate from kg/m2/s to mm/day
+cr = -flam_rain_const / s_in_day
 
 flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                     &
-                       * EXP( cr * rain_rate) ,1.0) ,0.0)
-!flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                   &
-!                       * EXP( cr * s_in_day * rain_l), 1.0), 0.0)
-! EJB add units here for rain or add rain as a separate function - make flam_rain > 0
-
+                     * EXP( cr * rain_rate) ,1.0) ,0.0)
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
