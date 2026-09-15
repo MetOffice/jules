@@ -49,11 +49,13 @@ class vnYY_txxxx(MacroUpgrade):
 
     """Upgrade macro from JULES by Author"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t139"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Add settings
+        # Add l_soil_evap_irrig_expl to namelist jules_irrig
+        self.add_setting(config, ["namelist:jules_irrig","l_soil_evap_irrig_expl"], ".false.")
+        
         return config, self.reports
