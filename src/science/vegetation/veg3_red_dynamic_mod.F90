@@ -366,14 +366,8 @@ DO k = 1, mclass
 
   IF (growth < 0.0) THEN
     ! Negative growth is represented as a downward shrinkage flux of
-    ! individuals through the mass classes, the lowest mass class has
-    ! nowhere lower to shrink into, so its share of the loss is instead matched
-    ! by an equivalent mortality rate.
+    ! individuals through the mass classes.
     mort(k) = mort_base + mort_add(k)
-
-    IF (k == 1) THEN
-      mort(k) = mort(k) - g_mass(k) / mass_mass(k)
-    END IF
 
     IF (k < mclass) THEN
       ! Flux shrinking down into this class from the class above
@@ -383,12 +377,17 @@ DO k = 1, mclass
       flux_in(k) = 0.0
     END IF
 
-    IF (k > 1) THEN
+    IF (k == 1) THEN
+      ! Truncate shrinkage at the lowest mass class - individuals cannot
+      ! shrink below the lowest mass class, so we reduce the litterfall flux
+      ! to account for the negative growth. 
+      flux_out(k) = 0.0
+      mort_litC = mort_litC + plantNumDensity(k) * g_mass(k)
+
+    ELSE
       ! Flux shrinking out of this class into the class below
       flux_out(k) = - plantNumDensity(k) * g_mass(k)                           &
         / (mass_mass(k) - mass_mass(k-1))
-    ELSE
-      flux_out(k) = 0.0
     END IF
 
   ELSE

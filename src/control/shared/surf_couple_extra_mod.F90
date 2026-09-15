@@ -239,9 +239,9 @@ USE sf_diags_mod,             ONLY: sf_diag
 
 USE timestep_mod,             ONLY: timestep
 
-USE veg3_parm_mod,            ONLY: veg3_ctrl,litter_parms,red_parms
+USE veg3_parm_mod,            ONLY: veg3_ctrl,litter_parms,red_parms,soil_parms
 
-USE veg3_field_mod,           ONLY: veg_state,red_state
+USE veg3_field_mod,           ONLY: veg_state,red_state,soil_state
 
 USE water_constants_mod,      ONLY: rho_water
 
@@ -1079,9 +1079,9 @@ CASE ( jules )
             asteps_since_triffid,a_step,land_pts,nnpft,nmasst,veg3_ctrl,       &
             ainfo,                                                             &
           !IN parms
-            litter_parms,red_parms,                                            &
+            litter_parms,red_parms,soil_parms,                                 &
           !INOUT data structures
-            veg_state,red_state                                                &
+            veg_state,red_state,soil_state                                     &
           !OUT diagnostics
           )
 

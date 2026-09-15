@@ -60,6 +60,33 @@ TYPE(veg3_ctrl_type)   :: veg3_ctrl
 TYPE(litter_parm_type) :: litter_parms
 TYPE(red_parm_type)    :: red_parms
 
+!Set up object containing everything we need for soil carbon coupling
+
+TYPE :: soil_parm_type
+  LOGICAL :: l_layeredc
+              ! Layered (.TRUE.) or single-layer (.FALSE.) soil carbon.
+  INTEGER :: soil_bgc_model
+              ! Soil biogeochemistry model in use.
+  INTEGER :: dim_cslayer
+              ! Number of soil carbon layers.
+  INTEGER :: dim_cs1
+              ! Number of soil carbon pools.
+  REAL    :: tau_lit
+              ! Litter decomposition rate exponent for the vertical litter
+              ! profile (m-1).
+  REAL    :: litc_norm
+              ! Normalisation for the vertical litter profile.
+  REAL    :: resp_frac_a
+  REAL    :: resp_frac_b
+  REAL    :: resp_frac_c
+              ! Coefficients relating clay content to the fraction of soil
+              ! respiration that forms new soil C.
+  REAL, ALLOCATABLE :: dzsoil(:)
+              ! Soil layer thicknesses (m).
+END TYPE soil_parm_type
+
+TYPE(soil_parm_type)   :: soil_parms
+
 !Private by default
 PRIVATE
 
@@ -67,13 +94,13 @@ PRIVATE
 PUBLIC :: veg3_parm_init, veg3_parm_allocate, check_jules_red_parms
 
 !Expose data
-PUBLIC :: veg3_ctrl, litter_parms, red_parms, l_red
+PUBLIC :: veg3_ctrl, litter_parms, red_parms, soil_parms, l_red
 
 !Expose data structures
-PUBLIC :: veg3_ctrl_type, litter_parm_type, red_parm_type
+PUBLIC :: veg3_ctrl_type, litter_parm_type, red_parm_type, soil_parm_type
 
 !Allow external code to read but not write
-PROTECTED :: litter_parms, veg3_ctrl, red_parms
+PROTECTED :: litter_parms, veg3_ctrl, red_parms, soil_parms
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='VEG3_PARM_MOD'
 
@@ -83,6 +110,7 @@ CONTAINS
 SUBROUTINE veg3_parm_allocate(land_pts,nsurft,nnpft,npft)
 
 USE missing_data_mod, ONLY: rmdi, imdi
+USE ancil_info,       ONLY: dim_cslayer
 
 IMPLICIT NONE
 INTEGER, INTENT(IN) :: land_pts, nsurft, nnpft, npft
@@ -113,6 +141,9 @@ ALLOCATE(red_parms%frac_min           (nnpft))
 ALLOCATE(red_parms%comp_coef          (nnpft,nnpft))
 ALLOCATE(red_parms%mclass_geom_mult   (nnpft))
 
+! Allocate soil_parm_type
+ALLOCATE(soil_parms%dzsoil(dim_cslayer))
+
 litter_parms%g_wood          = rmdi
 litter_parms%g_leaf          = rmdi
 litter_parms%g_root          = rmdi
@@ -133,6 +164,8 @@ red_parms%phi_l              = rmdi
 red_parms%frac_min           = rmdi
 red_parms%comp_coef          = rmdi
 red_parms%mclass_geom_mult   = rmdi
+
+soil_parms%dzsoil             = rmdi
 
 RETURN
 END SUBROUTINE veg3_parm_allocate
@@ -157,11 +190,25 @@ USE conversions_mod,          ONLY: rsec_per_day
 
 USE jules_surface_types_mod,  ONLY: soil
 
+!Soil carbon coupling parameters
+USE jules_soil_biogeochem_mod, ONLY: l_layeredC, soil_bgc_model, tau_lit
+USE ancil_info,                ONLY: dim_cslayer, dim_cs1
+#if !defined(UM_JULES)
+USE jules_soil_mod,            ONLY: dzsoil
+USE veg_param,                 ONLY: litc_norm
+#endif
+
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: land_pts, nsurft, nnpft, npft, nmasst
 
 INTEGER :: n,k
+
+! Coefficients relating clay content to the fraction of soil respiration
+! that forms new soil C (i.e. is NOT released to the atmosphere).
+REAL, PARAMETER :: resp_frac_a_local = 4.0895
+REAL, PARAMETER :: resp_frac_b_local = 2.672
+REAL, PARAMETER :: resp_frac_c_local = -0.0786
 
 !End of header
 
@@ -238,6 +285,23 @@ IF (l_red .AND. l_triffid) THEN
     END DO
   END DO
 
+  ! Soil carbon coupling parameters
+  soil_parms%l_layeredc    = l_layeredC
+  soil_parms%soil_bgc_model = soil_bgc_model
+  soil_parms%dim_cslayer   = dim_cslayer
+  soil_parms%dim_cs1       = dim_cs1
+  soil_parms%tau_lit       = tau_lit
+  soil_parms%resp_frac_a   = resp_frac_a_local
+  soil_parms%resp_frac_b   = resp_frac_b_local
+  soil_parms%resp_frac_c   = resp_frac_c_local
+#if !defined(UM_JULES)
+  soil_parms%litc_norm     = litc_norm
+  soil_parms%dzsoil(:)     = dzsoil(1:dim_cslayer)
+#else
+  soil_parms%litc_norm     = 1.0
+  soil_parms%dzsoil(:)     = 0.0
+#endif
+
 END IF
 
 RETURN
@@ -264,6 +328,7 @@ SUBROUTINE check_jules_red_parms()
 
 USE ereport_mod,     ONLY: ereport
 USE jules_print_mgr, ONLY: jules_print, jules_message
+USE jules_soil_biogeochem_mod, ONLY: soil_model_4pool, soil_bgc_model
 
 IMPLICIT NONE
 
@@ -277,6 +342,15 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_RED_PARMS'
 !-----------------------------------------------------------------------------
 error_sum = 0
 IF ( l_red ) THEN
+
+  ! veg3_soil_couple only supports the 4-pool soil carbon model (layered
+  ! or single-layer).
+  IF ( soil_bgc_model /= soil_model_4pool ) THEN
+    error_sum = error_sum + 1
+    CALL jules_print(RoutineName, "l_red requires soil_bgc_model=" //          &
+      "soil_model_4pool")
+  END IF
+
   IF ( ANY( red_parms%alpha_recrt(:) < 0 ) ) THEN
     error_sum = error_sum + 1
     CALL jules_print(RoutineName, "No value for alpha_recrt")

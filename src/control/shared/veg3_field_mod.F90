@@ -21,6 +21,7 @@ USE jules_vegetation_mod, ONLY: l_red
 !Use at module level
 USE ancil_info,    ONLY: ainfo_type
 USE prognostics,   ONLY: progs_type
+USE p_s_parms,     ONLY: psparms_type
 
 IMPLICIT NONE
 
@@ -112,8 +113,65 @@ TYPE :: red_state_type
               !  PFT number density across plant mass. (/m2)
 END TYPE red_state_type
 
+! Structure to keep the soil state variables and fields used in coupling
+! veg3/RED to the soil carbon (and, in future, nitrogen) model.
+TYPE :: soil_state_type
+  REAL, POINTER ::                                                             &
+      cs_pool_soilt(:,:,:,:),                                                  &
+              ! Soil carbon pools (DPM,RPM,bio,humus), by soil tile and
+              ! layer. (kg C m-2)
+      frac_c_label_pool_soilt(:,:,:,:),                                        &
+              ! Fraction of each soil C pool from labelled carbon.
+      ns_pool_gb(:,:,:),                                                       &
+              ! Soil nitrogen pools, by layer. (kg N m-2)
+      n_inorg_soilt_lyrs(:,:,:),                                               &
+              ! Gridbox inorganic N pool on soil levels. (kg N m-2)
+      n_inorg_avail_pft(:,:,:),                                                &
+              ! Available inorganic N for PFTs. (kg N m-2)
+      t_soil_soilt_acc(:,:,:),                                                 &
+              ! Accumulated soil temperature, used for soil C mixing. (K)
+      clay_soilt(:,:,:),                                                       &
+              ! Soil clay fraction, by layer.
+      sthu_soilt(:,:,:),                                                       &
+              ! Unfrozen soil moisture content as a fraction of saturation.
+      resp_s_acc_soilt(:,:,:,:),                                               &
+              ! Accumulated soil respiration since the last coupling call.
+              ! (kg C m-2)
+      resp_s_dr_out_gb(:,:,:),                                                 &
+              ! Mean soil respiration driving the soil C update. (kg C m-2
+              ! (360d)-1)
+      burnt_carbon_dpm(:),                                                     &
+              ! Burnt DPM carbon. (kg C m-2 (360d)-1)
+      burnt_carbon_rpm(:),                                                     &
+              ! Burnt RPM carbon. (kg C m-2 (360d)-1)
+      g_burn_gb(:),                                                            &
+              ! Gridbox mean fire disturbance rate. ((360d)-1)
+      minl_n_gb(:,:,:),                                                        &
+              ! Gross mineralisation of N. (kg N m-2 (360d)-1)
+      minl_n_pot_gb(:,:,:),                                                    &
+              ! Potential gross mineralisation of N. (kg N m-2 (360d)-1)
+      immob_n_gb(:,:,:),                                                       &
+              ! Immobilisation of N. (kg N m-2 (360d)-1)
+      immob_n_pot_gb(:,:,:),                                                   &
+              ! Potential immobilisation of N. (kg N m-2 (360d)-1)
+      fn_gb(:,:),                                                              &
+              ! Nitrogen decomposition rate modifier.
+      resp_s_diag_gb(:,:,:),                                                   &
+              ! Diagnosed soil respiration by pool. (kg C m-2 (360d)-1)
+      resp_s_pot_diag_gb(:,:,:),                                               &
+              ! Diagnosed potential soil respiration by pool.
+              ! (kg C m-2 (360d)-1)
+      dpm_ratio_gb(:),                                                         &
+              ! Ratio of DPM carbon to total litter carbon.
+      n_gas_gb(:,:),                                                           &
+              ! Gaseous N loss. (kg N m-2 (360d)-1)
+      resp_s_to_atmos_gb(:,:)
+              ! Soil-to-atmosphere respiration flux. (kg C m-2 (360d)-1)
+END TYPE soil_state_type
+
 TYPE(veg_state_type)   :: veg_state
 TYPE(red_state_type)   :: red_state
+TYPE(soil_state_type)  :: soil_state
 
 !Private by default
 PRIVATE
@@ -123,10 +181,10 @@ PUBLIC :: veg3_field_init, veg3_field_allocate, veg3_field_deallocate,         &
           veg3_field_assoc, red_veg3_couple
 
 !Expose data
-PUBLIC :: veg_state, red_state
+PUBLIC :: veg_state, red_state, soil_state
 
 !Expose data structures
-PUBLIC :: veg_state_type, red_state_type
+PUBLIC :: veg_state_type, red_state_type, soil_state_type
 
 !Allow external code to read but not write
 !PROTECTED ::
@@ -137,6 +195,9 @@ CONTAINS
 !-------------------------------------------------------------------------------
 
 SUBROUTINE veg3_field_allocate(land_pts,nsurft,nnpft,nmasst)
+
+USE ancil_info,    ONLY: dim_cslayer, dim_cs1, nsoilt
+USE jules_soil_mod, ONLY: sm_levels
 
 IMPLICIT NONE
 INTEGER, INTENT(IN) :: land_pts, nsurft, nnpft, nmasst
@@ -216,6 +277,58 @@ red_state%g_mass_scale(:,:)       = 0.0
 red_state%plantNumDensity(:,:,:)  = 0.0
 red_state%mort(:,:,:)             = 0.0
 
+! Soil state
+
+! Allocate soil_state_type
+ALLOCATE(soil_state%cs_pool_soilt          (land_pts,nsoilt,dim_cslayer,dim_cs1))
+ALLOCATE(soil_state%frac_c_label_pool_soilt(land_pts,nsoilt,dim_cslayer,dim_cs1))
+ALLOCATE(soil_state%ns_pool_gb             (land_pts,dim_cslayer,dim_cs1))
+ALLOCATE(soil_state%n_inorg_soilt_lyrs     (land_pts,nsoilt,dim_cslayer))
+ALLOCATE(soil_state%n_inorg_avail_pft      (land_pts,nnpft,dim_cslayer))
+ALLOCATE(soil_state%t_soil_soilt_acc       (land_pts,nsoilt,sm_levels))
+ALLOCATE(soil_state%clay_soilt             (land_pts,nsoilt,dim_cslayer))
+ALLOCATE(soil_state%sthu_soilt             (land_pts,nsoilt,sm_levels))
+ALLOCATE(soil_state%resp_s_acc_soilt       (land_pts,nsoilt,dim_cslayer,dim_cs1))
+ALLOCATE(soil_state%resp_s_dr_out_gb       (land_pts,dim_cslayer,dim_cs1+1))
+ALLOCATE(soil_state%burnt_carbon_dpm       (land_pts))
+ALLOCATE(soil_state%burnt_carbon_rpm       (land_pts))
+ALLOCATE(soil_state%g_burn_gb              (land_pts))
+ALLOCATE(soil_state%minl_n_gb              (land_pts,dim_cslayer,dim_cs1+1))
+ALLOCATE(soil_state%minl_n_pot_gb          (land_pts,dim_cslayer,dim_cs1+1))
+ALLOCATE(soil_state%immob_n_gb             (land_pts,dim_cslayer,dim_cs1+1))
+ALLOCATE(soil_state%immob_n_pot_gb         (land_pts,dim_cslayer,dim_cs1+1))
+ALLOCATE(soil_state%fn_gb                  (land_pts,dim_cslayer))
+ALLOCATE(soil_state%resp_s_diag_gb         (land_pts,dim_cslayer,dim_cs1+1))
+ALLOCATE(soil_state%resp_s_pot_diag_gb     (land_pts,dim_cslayer,dim_cs1+1))
+ALLOCATE(soil_state%dpm_ratio_gb           (land_pts))
+ALLOCATE(soil_state%n_gas_gb               (land_pts,dim_cslayer))
+ALLOCATE(soil_state%resp_s_to_atmos_gb     (land_pts,dim_cslayer))
+
+! Initialise soil_state_type
+soil_state%cs_pool_soilt(:,:,:,:)           = 0.0
+soil_state%frac_c_label_pool_soilt(:,:,:,:) = 0.0
+soil_state%ns_pool_gb(:,:,:)                = 0.0
+soil_state%n_inorg_soilt_lyrs(:,:,:)        = 0.0
+soil_state%n_inorg_avail_pft(:,:,:)         = 0.0
+soil_state%t_soil_soilt_acc(:,:,:)          = 0.0
+soil_state%clay_soilt(:,:,:)                = 0.0
+soil_state%sthu_soilt(:,:,:)                = 0.0
+soil_state%resp_s_acc_soilt(:,:,:,:)        = 0.0
+soil_state%resp_s_dr_out_gb(:,:,:)          = 0.0
+soil_state%burnt_carbon_dpm(:)              = 0.0
+soil_state%burnt_carbon_rpm(:)              = 0.0
+soil_state%g_burn_gb(:)                     = 0.0
+soil_state%minl_n_gb(:,:,:)                 = 0.0
+soil_state%minl_n_pot_gb(:,:,:)             = 0.0
+soil_state%immob_n_gb(:,:,:)                = 0.0
+soil_state%immob_n_pot_gb(:,:,:)            = 0.0
+soil_state%fn_gb(:,:)                       = 0.0
+soil_state%resp_s_diag_gb(:,:,:)            = 0.0
+soil_state%resp_s_pot_diag_gb(:,:,:)        = 0.0
+soil_state%dpm_ratio_gb(:)                  = 0.0
+soil_state%n_gas_gb(:,:)                    = 0.0
+soil_state%resp_s_to_atmos_gb(:,:)          = 0.0
+
 RETURN
 END SUBROUTINE veg3_field_allocate
 
@@ -263,11 +376,35 @@ DEALLOCATE(veg_state%vegC)
 
 DEALLOCATE(red_state%plantNumDensity)
 
+DEALLOCATE(soil_state%cs_pool_soilt)
+DEALLOCATE(soil_state%frac_c_label_pool_soilt)
+DEALLOCATE(soil_state%ns_pool_gb)
+DEALLOCATE(soil_state%n_inorg_soilt_lyrs)
+DEALLOCATE(soil_state%n_inorg_avail_pft)
+DEALLOCATE(soil_state%t_soil_soilt_acc)
+DEALLOCATE(soil_state%clay_soilt)
+DEALLOCATE(soil_state%sthu_soilt)
+DEALLOCATE(soil_state%resp_s_acc_soilt)
+DEALLOCATE(soil_state%resp_s_dr_out_gb)
+DEALLOCATE(soil_state%burnt_carbon_dpm)
+DEALLOCATE(soil_state%burnt_carbon_rpm)
+DEALLOCATE(soil_state%g_burn_gb)
+DEALLOCATE(soil_state%minl_n_gb)
+DEALLOCATE(soil_state%minl_n_pot_gb)
+DEALLOCATE(soil_state%immob_n_gb)
+DEALLOCATE(soil_state%immob_n_pot_gb)
+DEALLOCATE(soil_state%fn_gb)
+DEALLOCATE(soil_state%resp_s_diag_gb)
+DEALLOCATE(soil_state%resp_s_pot_diag_gb)
+DEALLOCATE(soil_state%dpm_ratio_gb)
+DEALLOCATE(soil_state%n_gas_gb)
+DEALLOCATE(soil_state%resp_s_to_atmos_gb)
+
 RETURN
 END SUBROUTINE veg3_field_deallocate
 
 !-------------------------------------------------------------------------------
-SUBROUTINE veg3_field_assoc(progs, ainfo, trifctl_data, trif_vars_data)
+SUBROUTINE veg3_field_assoc(progs, ainfo, psparms, trifctl_data, trif_vars_data)
 
 ! Initial code to associate the veg3 and red fields to the rest of JULES
 ! This new routine moves out the pointers from veg3_set_fields to here
@@ -289,6 +426,7 @@ IMPLICIT NONE
 
 TYPE(progs_type), INTENT(IN) :: progs
 TYPE(ainfo_type), INTENT(IN) :: ainfo
+TYPE(psparms_type), INTENT(IN) :: psparms
 TYPE(trifctl_data_type), INTENT(IN), TARGET :: trifctl_data
 TYPE(trif_vars_data_type), INTENT(IN), TARGET :: trif_vars_data
 ! End of header
@@ -336,6 +474,38 @@ IF (l_red .AND. l_triffid) THEN
   veg_state%litCpft => trifctl_data%lit_c_pft
   veg_state%vegC => trifctl_data%cv_gb
   veg_state%litC => trifctl_data%lit_c_mn_gb
+
+  ! Soil state fields used in the veg3/RED soil carbon coupling.
+  ! Firstly progs
+  soil_state%cs_pool_soilt => progs%cs_pool_soilt
+  soil_state%frac_c_label_pool_soilt => progs%frac_c_label_pool_soilt
+  soil_state%ns_pool_gb => progs%ns_pool_gb
+  soil_state%n_inorg_soilt_lyrs => progs%n_inorg_soilt_lyrs
+  soil_state%n_inorg_avail_pft => progs%n_inorg_avail_pft
+  soil_state%t_soil_soilt_acc => progs%t_soil_soilt_acc
+
+  ! Next psparms
+  soil_state%clay_soilt => psparms%clay_soilt
+  soil_state%sthu_soilt => psparms%sthu_soilt
+
+  ! Next trifctl_data
+  soil_state%resp_s_acc_soilt => trifctl_data%resp_s_acc_soilt
+  soil_state%resp_s_dr_out_gb => trifctl_data%resp_s_dr_out_gb
+
+  ! Finally trif_vars_data
+  soil_state%burnt_carbon_dpm => trif_vars_data%burnt_carbon_dpm
+  soil_state%burnt_carbon_rpm => trif_vars_data%burnt_carbon_rpm
+  soil_state%g_burn_gb => trif_vars_data%g_burn_gb
+  soil_state%minl_n_gb => trif_vars_data%minl_n_gb
+  soil_state%minl_n_pot_gb => trif_vars_data%minl_n_pot_gb
+  soil_state%immob_n_gb => trif_vars_data%immob_n_gb
+  soil_state%immob_n_pot_gb => trif_vars_data%immob_n_pot_gb
+  soil_state%fn_gb => trif_vars_data%fn_gb
+  soil_state%resp_s_diag_gb => trif_vars_data%resp_s_diag_gb
+  soil_state%resp_s_pot_diag_gb => trif_vars_data%resp_s_pot_diag_gb
+  soil_state%dpm_ratio_gb => trif_vars_data%dpm_ratio_gb
+  soil_state%n_gas_gb => trif_vars_data%n_gas_gb
+  soil_state%resp_s_to_atmos_gb => trif_vars_data%resp_s_to_atmos_gb
 
 END IF
 
@@ -578,6 +748,16 @@ DO n = 1,nnpft
 
   END DO
 
+END DO
+
+! Litter must be positive for the 4-pool soil carbon model (soilcarb_layers
+! calculates the DPM:RPM ratio as a fraction of the total litter, which
+! would otherwise divide by zero when a point has no litter). If there is
+! no litter, make it a very small positive value.
+DO l = 1,land_pts
+  IF (SUM(veg_state%litCpft(l,:)) == 0.0) THEN
+    veg_state%litCpft(l,1) = TINY(0.0)
+  END IF
 END DO
 
 !Final aggregation to gridbox for vegetation carbon for diagnostic purposes
