@@ -49,7 +49,7 @@ USE jules_surface_mod, ONLY: l_elev_land_ice, l_flake_model
 
 USE jules_soil_mod, ONLY: l_bedrock, sm_levels, l_tile_soil
 
-USE fire_mod,     ONLY: fire_cntl, l_fire
+USE fire_mod,     ONLY: fire_cntl, l_fire_weather_index
 
 USE metstats_mod, ONLY: metstats_flag, l_metstats
 
@@ -368,7 +368,7 @@ END IF
 !-----------------------------------------------------------------------------
 ! Add fire prognostic variables if switched on
 !-----------------------------------------------------------------------------
-IF ( l_fire ) THEN
+IF ( l_fire_weather_index ) THEN
   IF (fire_cntl%mcarthur%flag) THEN
     CALL add_to_list( 'fire_mcarthur_r_dr', nvars, identifiers )
     CALL add_to_list( 'fire_mcarthur_n_dr', nvars, identifiers )

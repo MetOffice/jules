@@ -140,7 +140,7 @@
             "/src/science/params/trif_mod.F90",
             "/src/science/params/pftparm_mod.F90",
             "/src/science/params/ecosse_param_mod.F90",
-            "/src/science/fire/fire_mod.F90",
+            "/src/science/fire/fire_weather_index/fire_mod.F90",
             "/src/science/surface/sf_diags_mod.F90",
             "/src/science/params/urban_param_mod.F90",
             "/src/params/imogen/imogen_time.F90",

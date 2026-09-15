@@ -45,16 +45,42 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class vn82_t141(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Maggie Hendry"""
 
     BEFORE_TAG = "vn8.2"
-    AFTER_TAG = "vn8.2_t139"
+    AFTER_TAG = "vn8.2_t141"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
+        self.rename_setting(config, ["namelist:fire_switches"],
+                            ["namelist:jules_fire_weather_index"])
+        self.rename_setting(config, ["namelist:jules_fire_weather_index",
+                                      "l_fire"],
+                            ["namelist:jules_fire_weather_index",
+                             "l_fire_weather_index"])
+
+        source = self.get_setting_value(config, ["file:fire.nml","source"])
+        source = source.replace("namelist:fire_switches",
+                                "namelist:jules_fire_weather_index")
+        self.change_setting_value(config, ["file:fire.nml","source"], source)
+
+        return config, self.reports
+
+
+class vn82_t155(MacroUpgrade):
+
+    """Upgrade macro from JULES by Author"""
+
+    BEFORE_TAG = "vn8.2_t141"
+    AFTER_TAG = "vn8.2_t155"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Bump tag to pick up metadata changes
         # Add l_soil_evap_irrig_expl to namelist jules_irrig
         self.add_setting(config, ["namelist:jules_irrig","l_soil_evap_irrig_expl"], ".false.")
         
