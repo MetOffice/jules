@@ -68,3 +68,17 @@ class vn82_t141(MacroUpgrade):
         self.change_setting_value(config, ["file:fire.nml","source"], source)
 
         return config, self.reports
+
+
+class vn82_t155(MacroUpgrade):
+
+    """Upgrade macro from JULES by Author"""
+
+    BEFORE_TAG = "vn8.2_t141"
+    AFTER_TAG = "vn8.2_t155"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Bump tag to pick up metadata changes
+        return config, self.reports
