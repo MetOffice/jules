@@ -81,7 +81,7 @@ class vn82_t155(MacroUpgrade):
         """Upgrade a JULES runtime app configuration."""
 
         # Bump tag to pick up metadata changes
-        # Add l_soil_evap_irrig_expl to namelist jules_irrig
-        self.add_setting(config, ["namelist:jules_irrig","l_soil_evap_irrig_expl"], ".false.")
+        # Add l_soil_evap_irrig_separate to namelist jules_irrig
+        self.add_setting(config, ["namelist:jules_irrig","l_soil_evap_irrig_separate"], ".false.")
         
         return config, self.reports
