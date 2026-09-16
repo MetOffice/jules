@@ -495,9 +495,12 @@ fsmc_nir(land_pts,npft)                                                        &
 ,gsoil_nir_under_canopy(land_pts)                                              &
 !                                 ! WORK Bare soil conductance under
 !                                 !      canopy on non-irrigated fraction.
-,gsoil_irr_under_canopy(land_pts)
+,gsoil_irr_under_canopy(land_pts)                                              &
 !                                 ! WORK Bare soil conductance under
 !                                 !      canopy on irrigated fraction.
+,psi_root_zone_nir_pft(land_pts,npft)
+!                                 ! WORK Water potential in the
+!                                 !      non-irrigated root zone (Pa)
 
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
  ratio_wt(:,:,:,:)
@@ -829,26 +832,23 @@ DO n = 1,dim_cs1
   END DO
 END DO
 
-IF ( l_irrig_dmd ) THEN
-  DO k = 1,sm_levels
-    DO m = 1,nsoilt
-      DO l = 1,land_pts
-        sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
-        IF ( l_irrig_dmd ) THEN
-          sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
-          IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
-            sthu_nir_soilt(l,m,k) =                                            &
-                 (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)                      &
-                 * sthu_irr_soilt(l,m,k))                                      &
-                 / (1.0 - frac_irr_soilt(l,m))
-          ELSE
-            sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
-          END IF
+DO k = 1,sm_levels
+  DO m = 1,nsoilt
+    DO l = 1,land_pts
+      sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
+      IF ( l_irrig_dmd ) THEN
+        IF ( frac_irr_soilt(l,m) < 1.0 ) THEN
+          sthu_nir_soilt(l,m,k) =                                              &
+               (sthu_soilt(l,m,k) - frac_irr_soilt(l,m)                        &
+               * sthu_irr_soilt(l,m,k))                                        &
+               / (1.0 - frac_irr_soilt(l,m))
+        ELSE
+          sthu_nir_soilt(l,m,k) = sthu_irr_soilt(l,m,k)
         END IF
-      END DO
+      END IF
     END DO
   END DO
-END IF
+END DO
 
 DO n = 1,ntype
 !$OMP DO SCHEDULE(STATIC)
@@ -1171,7 +1171,7 @@ DO n = 1,npft
                     v_close,                                                   &
                     bexp_soilt(:,m,:), sathh_soilt(:,m,:),                     &
                     wt_ext_nir_type(:,:,n),fsmc_nir(:,n),                      &
-                    psi_root_zone_pft(:,n))
+                    psi_root_zone_nir_pft(:,n))
 
       DO l = 1,land_pts
         fsmc_pft(l,n) = fsmc_nir(l,n)*(1.0-frac_irr_surft(l,n))                &
