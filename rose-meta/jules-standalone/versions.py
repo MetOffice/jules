@@ -70,10 +70,24 @@ class vn82_t141(MacroUpgrade):
         return config, self.reports
 
 
+class vn82_t155(MacroUpgrade):
+
+    """Upgrade macro from JULES by Author"""
+
+    BEFORE_TAG = "vn8.2_t141"
+    AFTER_TAG = "vn8.2_t155"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Bump tag to pick up metadata changes
+        return config, self.reports
+
+
 class vn82_t140(MacroUpgrade):
     """Upgrade macro from JULES by Maggie Hendry"""
 
-    BEFORE_TAG = "vn8.2_t141"
+    BEFORE_TAG = "vn8.2_t155"
     AFTER_TAG = "vn8.2_t140"
 
     def upgrade(self, config, meta_config=None):
@@ -86,18 +100,18 @@ class vn82_t140(MacroUpgrade):
             ncpft = int(ncpft)
             if ncpft > 0:
                 msg = (
-                    f"This configuration contains crop varieties (ncpft > 0). "
-                    f"Previous upgrade macros were incomplete for "
-                    f"configurations with crops. Please see "
-                    f"https://github.com/MetOffice/jules/issues/136 for "
-                    f"guidance."
-                    f"\n        * jules_surface_types: This macro adds the "
-                    f"WSMR crop varieties with an index of 0, rather than "
-                    f"assume the surface types present. This namelist will "
-                    f"need correcting."
-                    f"\n        * jules_pftparm: Please ensure parameters are "
-                    f"correct as upgrade macros may have assumed the wrong "
-                    f"surface types."
+                    "This configuration contains crop varieties (ncpft > 0). "
+                    "Previous upgrade macros were incomplete for "
+                    "configurations with crops. Please see "
+                    "https://github.com/MetOffice/jules/issues/136 for "
+                    "guidance."
+                    "\n        * jules_surface_types: This macro adds the "
+                    "WSMR crop varieties with an index of 0, rather than "
+                    "assume the surface types present. This namelist will "
+                    "need correcting."
+                    "\n        * jules_pftparm: Please ensure parameters are "
+                    "correct as upgrade macros may have assumed the wrong "
+                    "surface types."
                 )
                 self.add_report(info=msg, is_warning=True)
 
