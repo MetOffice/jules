@@ -1640,6 +1640,14 @@ CASE ( 'tsoil_deep' )
     progs%tsoil_deep_gb(:,:) = const_val
   END IF
 
+CASE ( 'tsoil_deep_corr_acc' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = map_to_land(cube)
+    CALL cube_get_data(cube_land, progs%tsoil_deep_corr_acc)
+  ELSE
+    progs%tsoil_deep_corr_acc(:,:) = const_val
+  END IF
+
 CASE ( 'sthu_irr' )
   IF ( PRESENT(cube) ) THEN
     IF ( l_tile_soil .AND. l_broadcast_soilt) THEN

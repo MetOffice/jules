@@ -229,7 +229,7 @@ CASE ( 'substr_ch4', 'mic_ch4', 'mic_act_ch4', 'acclim_ch4' )
   dim_names(1:ndims) = [ land_dim_name, ch4layer_dim_name ]
   dim_sizes(1:ndims) = [ global_land_pts, dim_ch4layer ]
 
-CASE ( 'tsoil_deep' )
+CASE ( 'tsoil_deep', 'tsoil_deep_corr_acc' )
   ndims = 2
   dim_names(1:ndims) = [ land_dim_name, bedrock_dim_name ]
   dim_sizes(1:ndims) = [ global_land_pts, ns_deep ]

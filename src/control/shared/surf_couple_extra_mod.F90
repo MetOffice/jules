@@ -778,7 +778,7 @@ CASE ( jules )
       progs%canopy_surft, wtrac_jls%canopy_surft,                              &
       progs%smcl_soilt, psparms%sthf_soilt,                                    &
       psparms%sthu_soilt, crop_vars%sthu_irr_soilt, progs%tsoil_deep_gb,       &
-      progs%dtsd_acc_gb,                                                       &
+      progs%tsoil_deep_corr_acc,                                               &
       progs%t_soil_soilt, progs%t_soil_soilt_acc, progs%tsurf_elev_surft,      &
       wtrac_jls%smcl_soilt, wtrac_jls%sthf_soilt, wtrac_jls%sthu_soilt,        &
       fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, wtrac_jls%sthzw_soilt,   &

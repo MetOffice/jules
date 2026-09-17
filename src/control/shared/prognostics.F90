@@ -48,7 +48,7 @@ TYPE :: progs_data_type
 
   REAL(KIND=real_jlslsm), ALLOCATABLE :: tsoil_deep_gb(:,:)
     ! Deep soil temperatures (K)
-  REAL(KIND=real_jlslsm), ALLOCATABLE :: dtsd_acc_gb(:,:)
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: tsoil_deep_corr_acc(:,:)
      ! Accumulated correction in deep soil (bedrock) temperature (K).
   REAL(KIND=real_jlslsm), ALLOCATABLE :: sice_surft(:,:,:)
     ! Snow layer ice mass on tiles (kg/m2)
@@ -203,7 +203,7 @@ TYPE :: progs_type
   INTEGER, POINTER :: years_since_harvest(:,:)
 
   REAL(KIND=real_jlslsm), POINTER :: tsoil_deep_gb(:,:)
-  REAL(KIND=real_jlslsm), POINTER :: dtsd_acc_gb(:,:)
+  REAL(KIND=real_jlslsm), POINTER :: tsoil_deep_corr_acc(:,:)
   REAL(KIND=real_jlslsm), POINTER :: sice_surft(:,:,:)
   REAL(KIND=real_jlslsm), POINTER ::   sliq_surft(:,:,:)
   REAL(KIND=real_jlslsm), POINTER :: snowdepth_surft(:,:)
@@ -412,12 +412,12 @@ END IF
 ! Only allocate the bedrock tsoil_deep_gb if bedrock is being used
 IF ( l_bedrock ) THEN
   ALLOCATE(progs_data%tsoil_deep_gb(land_pts,ns_deep))
-  ALLOCATE(progs_data%dtsd_acc_gb(land_pts,ns_deep))
+  ALLOCATE(progs_data%tsoil_deep_corr_acc(land_pts,ns_deep))
 ELSE
   ALLOCATE(progs_data%tsoil_deep_gb(1,1))
-  ALLOCATE(progs_data%dtsd_acc_gb(1,1))
+  ALLOCATE(progs_data%tsoil_deep_corr_acc(1,1))
 END IF
-progs_data%dtsd_acc_gb(:,:) = 0.0
+progs_data%tsoil_deep_corr_acc(:,:) = 0.0
 progs_data%tsoil_deep_gb(:,:) = 0.0
 
 ! Prognostics for microbial methane scheme
@@ -572,7 +572,7 @@ IF ( ALLOCATED(progs_data%years_since_harvest) ) THEN
 END IF
 
 DEALLOCATE(progs_data%tsoil_deep_gb)
-DEALLOCATE(progs_data%dtsd_acc_gb)
+DEALLOCATE(progs_data%tsoil_deep_corr_acc)
 
 IF ( ALLOCATED(progs_data%t_home_gb) ) THEN
   DEALLOCATE(progs_data%t_home_gb)
@@ -669,7 +669,7 @@ progs%frac_past_prev_gb => progs_data%frac_past_prev_gb
 progs%frac_biocrop_prev_gb => progs_data%frac_biocrop_prev_gb
 progs%triffid_co2_gb => progs_data%triffid_co2_gb
 progs%tsoil_deep_gb => progs_data%tsoil_deep_gb
-progs%dtsd_acc_gb => progs_data%dtsd_acc_gb
+progs%tsoil_deep_corr_acc => progs_data%tsoil_deep_corr_acc
 progs%lai_pft => progs_data%lai_pft
 progs%canht_pft => progs_data%canht_pft
 progs%smcl_soilt => progs_data%smcl_soilt
@@ -760,7 +760,7 @@ NULLIFY(progs%frac_past_prev_gb)
 NULLIFY(progs%frac_biocrop_prev_gb)
 NULLIFY(progs%triffid_co2_gb)
 NULLIFY(progs%tsoil_deep_gb)
-NULLIFY(progs%dtsd_acc_gb)
+NULLIFY(progs%tsoil_deep_corr_acc)
 NULLIFY(progs%lai_pft)
 NULLIFY(progs%canht_pft)
 NULLIFY(progs%smcl_soilt)

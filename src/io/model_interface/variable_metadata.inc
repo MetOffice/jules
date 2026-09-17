@@ -9367,4 +9367,17 @@ DATA metadata(723) / var_metadata(                                             &
 ! Units
     "kg m-2 s-1"                                                               &
   ) /
+!-----------------------------------------------------------------------------
+! Metadata for tsoil_deep_corr_acc
+!-----------------------------------------------------------------------------
+DATA metadata(724) / var_metadata(                                             &
+! String identifier
+    'tsoil_deep_corr_acc',                                                     &
+! Variable type
+    var_type_bedrock,                                                          &
+! Long name
+    "Accumulated temperature correction",                                      &
+! Units
+    "K"                                                                        &
+  ) /
 #endif

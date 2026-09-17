@@ -2218,6 +2218,10 @@ CASE ( 'tsoil_deep' )
   cube_land = cube_from_array(progs%tsoil_deep_gb(:,1:ns_deep))
   cube = map_from_land(cube_land)
 
+CASE ( 'tsoil_deep_corr_acc' )
+  cube_land = cube_from_array(progs%tsoil_deep_corr_acc(:,1:ns_deep))
+  cube = map_from_land(cube_land)
+
 CASE ( 'alb_tile_1' )
   cube_land = cube_from_array(fluxes%alb_surft(:,:,1))
   cube = map_from_land(cube_land)

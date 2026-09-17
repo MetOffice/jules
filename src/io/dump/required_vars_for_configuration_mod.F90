@@ -296,6 +296,7 @@ END IF
 ! Additional deep soil temperature if bedrock is on
 IF ( l_bedrock ) THEN
   CALL add_to_list( 'tsoil_deep', nvars, identifiers )
+  CALL add_to_list( 'tsoil_deep_corr_acc', nvars, identifiers )
 END IF
 
 ! FLake prognostics
