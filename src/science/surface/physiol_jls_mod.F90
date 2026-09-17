@@ -501,6 +501,11 @@ fsmc_nir(land_pts,npft)                                                        &
 ,psi_root_zone_nir_pft(land_pts,npft)
 !                                 ! WORK Water potential in the
 !                                 !      non-irrigated root zone (Pa)
+!                                 !      (This is a temporary variable added so
+!                                 !      that a fix can be added later:
+!                                 !      If SOX and l_irrig_dmd are true then
+!                                 !      psi_root_zone_pft should not be based
+!                                 !      on the irrigated soil moisture).
 
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
  ratio_wt(:,:,:,:)
