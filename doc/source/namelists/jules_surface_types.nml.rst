@@ -290,6 +290,30 @@ and removed in the GUI window as described in the table below. To:
 
    Index of C3 irrigated PFT surface type (#303). Can only be used if :nml:mem:`JULES_IRRIG::irrig_option` = 2.
 
+.. nml:member:: c3_crop_wheat
+
+   :type: integer
+   :permitted: :nml:mem:`npft` - :nml:mem:`ncpft` + 1 : :nml:mem:`npft`
+   :default: -32768
+
+   Index of C3 wheat crop PFT surface type (#304). Can only be used if :nml:mem:`ncpft` > 0.
+
+.. nml:member:: c3_crop_soybean
+
+   :type: integer
+   :permitted: :nml:mem:`npft` - :nml:mem:`ncpft` + 1 : :nml:mem:`npft`
+   :default: -32768
+
+   Index of C3 soybean crop PFT surface type (#305). Can only be used if :nml:mem:`ncpft` > 0.
+
+.. nml:member:: c3_crop_rice
+
+   :type: integer
+   :permitted: :nml:mem:`npft` - :nml:mem:`ncpft` + 1 : :nml:mem:`npft`
+   :default: -32768
+
+   Index of C3 rice crop PFT surface type (#306). Can only be used if :nml:mem:`ncpft` > 0.
+
 .. nml:member:: c4_grass
 
    :type: integer
@@ -321,6 +345,14 @@ and removed in the GUI window as described in the table below. To:
    :default: -32768
 
    Index of C4 irrigated PFT surface type (#403). Can only be used if :nml:mem:`JULES_IRRIG::irrig_option` = 2.
+
+.. nml:member:: c4_crop_maize
+
+   :type: integer
+   :permitted: :nml:mem:`npft` - :nml:mem:`ncpft` + 1 : :nml:mem:`npft`
+   :default: -32768
+
+   Index of C4 maize crop PFT surface type (#404). Can only be used if :nml:mem:`ncpft` > 0.
 
 .. nml:member:: shrub
 
