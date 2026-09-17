@@ -42,7 +42,7 @@ SUBROUTINE hydrol (                                                            &
      fexp_soilt, ti_mean_soilt,                                                &
      npp_soilt, inlandout_atm_gb, inlandout_atm_gb_wtrac,                      &
      canopy_surft, canopy_surft_wtrac, smcl_soilt, sthf_soilt,                 &
-     sthu_soilt,  sthu_irr_soilt, tsoil_deep_gb, tsoil_deep_corr_acc,                  &
+     sthu_soilt,  sthu_irr_soilt, tsoil_deep_gb, tsoil_deep_corr_acc,          &
      t_soil_soilt, t_soil_soilt_acc, tsurf_elev_surft,                         &
      smcl_soilt_wtrac, sthf_soilt_wtrac, sthu_soilt_wtrac,                     &
      fsat_soilt, fwetl_soilt, sthzw_soilt, zw_soilt, sthzw_soilt_wtrac,        &
@@ -305,7 +305,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
     !  Unfrozen soil wetness over irrigation.
   tsoil_deep_gb(land_pts,ns_deep),                                             &
     ! Deep soil temperature (K).
-  tsoil_deep_corr_acc(land_pts,ns_deep),                                               &
+  tsoil_deep_corr_acc(land_pts,ns_deep),                                       &
     ! Accumulated correction in deep soil (bedrock) temperature (K).
   t_soil_soilt(land_pts,nsoilt,sm_levels),                                     &
     ! Sub-surface temperatures (K).
