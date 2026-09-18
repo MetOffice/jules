@@ -206,10 +206,10 @@ g0
 INTEGER              :: k
 
 REAL                 ::                                                        &
-P,                                                                             &
+P_a,                                                                           &
               !  The total PFT carbon assimilate across the gridbox.
               !  (kgC m-2 s-1)
-G,                                                                             &
+G_struct,                                                                      &
               ! Total gridbox carbon assimilate devoted to vegetation
               ! structural growth. (kgC m-2 s-1)
 plantNumDensity_g_sum
@@ -230,12 +230,12 @@ DO k = 1, mclass
 END DO
 
 ! Partition the growth into recruitment and structural growth
-P = frac * growth
-P_s = alpha_recrt * P
-G = (1.0 - alpha_recrt) * P
+P_a = frac * growth
+P_s = alpha_recrt * P_a
+G_struct = (1.0 - alpha_recrt) * P_a
 
 IF (plantNumDensity_g_sum > 0) THEN
-  g0 = G / plantNumDensity_g_sum
+  g0 = G_struct / plantNumDensity_g_sum
 END IF
 
 IF (growth < 0.0) THEN
@@ -246,7 +246,7 @@ IF (growth < 0.0) THEN
 
   ! Adjust g0 to account for the loss of recruitment
   IF (plantNumDensity_g_sum > 0) THEN
-    g0 = P / plantNumDensity_g_sum
+    g0 = G_struct / plantNumDensity_g_sum
   END IF
 
 END IF
