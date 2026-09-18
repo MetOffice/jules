@@ -8,6 +8,9 @@
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in Veg3 Ecosystem Demography
 ! *****************************COPYRIGHT****************************************
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
 
 MODULE next_gen_biogeochem_mod
 
@@ -28,7 +31,7 @@ SUBROUTINE next_gen_biogeochem(                                                &
         !IN parms
           litter_parms,red_parms,soil_parms,                                   &
         !INOUT data structures
-          veg_state,red_state,soil_state                                      &
+          veg_state,red_state,soil_state                                       &
         !OUT diagnostics
         )
 
@@ -97,7 +100,7 @@ REAL ::                                                                        &
         ! Veg/Soil Fractional coverage
 
 LOGICAL ::                                                                     &
-  l_veg_step    
+  l_veg_step
   ! Flag to indicate whether this is a vegetation dynamics timestep.
 
 ! End of header
@@ -135,7 +138,7 @@ IF (veg_index_pts > 0) CALL veg3_run_ctrl(                                     &
               )
 
 ! Call the soil Biogeochemistry model
-IF (veg_index_pts > 0 .AND. l_veg_step) CALL veg3_soil_couple(                &
+IF (veg_index_pts > 0 .AND. l_veg_step) CALL veg3_soil_couple(                 &
               !IN Control vars
               veg_index_pts,veg_index,land_pts,nnpft,veg3_ctrl,soil_parms,     &
               !INOUT state
@@ -498,7 +501,7 @@ SUBROUTINE veg3_soil_couple(                                                   &
                 !IN Control vars
                 veg_index_pts,veg_index,land_pts,nnpft,veg3_ctrl,soil_parms,   &
                 !INOUT state
-                veg_state,soil_state                                          &
+                veg_state,soil_state                                           &
                 )
 
 ! Couples RED litter carbon to the soil carbon model, mirroring the soil
@@ -568,7 +571,7 @@ ns_gb(land_pts,soil_parms%dim_cslayer),                                        &
     ! Total soil N on layers (kg N/m2). Always zero (see lit_n_t_gb).
 neg_n(land_pts),                                                               &
     ! Negative N required to prevent ns<0 (kg N). Unused (l_nitrogen=F).
-implicit_resp_correction(land_pts),                                           &
+implicit_resp_correction(land_pts),                                            &
     ! Respiration carried to next coupling period to account for applying
     ! the minimum soil carbon constraint (kg m-2).
 isunfrozen(land_pts,soil_parms%dim_cslayer),                                   &
@@ -577,22 +580,22 @@ isunfrozen(land_pts,soil_parms%dim_cslayer),                                   &
 burnt_soil(land_pts),                                                          &
     ! Burnt C in RPM and DPM pools (kg m-2 360d-1). Fire is not yet coupled
     ! to veg3/RED, so this is always zero.
-lit_frac(soil_parms%dim_cslayer),                                             &
+lit_frac(soil_parms%dim_cslayer),                                              &
     ! Litter fraction into each soil layer.
-dcs(land_pts,soil_parms%dim_cslayer),                                         &
+dcs(land_pts,soil_parms%dim_cslayer),                                          &
     ! Change in soil carbon over the coupling period (kg C/m2).
-denom_resp,                                                                   &
+denom_resp,                                                                    &
     ! Denominator for calculating resp_s_acc_soilt.
 #if !defined(UM_JULES)
-dcs_pools(land_pts,soil_parms%dim_cslayer,4),                                 &
+dcs_pools(land_pts,soil_parms%dim_cslayer,4),                                  &
     ! Soil carbon by pool at the start of the coupling period, used to
     ! calculate the layer mixing term (kg C/m2).
-mix_s(land_pts,soil_parms%dim_cslayer-1,4),                                   &
-    ! Diffusion coefficient for soil C between soil layers (m^2/360days).
+mix_s(land_pts,soil_parms%dim_cslayer-1,4),                                    &
+    ! Diffusion coefficient for soil C between soil layers (m2 360d-1).
     ! Equation 15 of Burke et al. (2017),
     ! https://www.geosci-model-dev.net/10/959/2017/gmd-10-959-2017.pdf
 #endif
-mix_term(land_pts,soil_parms%dim_cslayer,4),                                  &
+mix_term(land_pts,soil_parms%dim_cslayer,4),                                   &
     ! Mixing term for calculating the respiration correction
     ! (kg C/m2/360days).
 lit_resp
@@ -720,12 +723,12 @@ lit_frac(:)     = 1.0
 ! nothing to mix.
 IF (soil_parms%l_layeredc) THEN
   ! Calculate vertical profile of litter inputs.
-  lit_frac(1) = soil_parms%dzsoil(1) *                                        &
-                EXP( -soil_parms%tau_lit * 0.5 * soil_parms%dzsoil(1) ) /     &
+  lit_frac(1) = soil_parms%dzsoil(1) *                                         &
+                EXP( -soil_parms%tau_lit * 0.5 * soil_parms%dzsoil(1) ) /      &
                 soil_parms%litc_norm
   DO n = 2,soil_parms%dim_cslayer
     lit_frac(n) = soil_parms%dzsoil(n) * EXP( -soil_parms%tau_lit *            &
-                  (SUM(soil_parms%dzsoil(1:n-1)) + 0.5 *                      &
+                  (SUM(soil_parms%dzsoil(1:n-1)) + 0.5 *                       &
                   soil_parms%dzsoil(n)) ) / soil_parms%litc_norm
   END DO
 
@@ -757,6 +760,14 @@ DO k = 1,veg_index_pts
     soil_state%resp_s_acc_soilt(l,1,n,4) = lit_resp *                          &
       soil_state%cs_pool_soilt(l,1,n,4) * denom_resp
   END DO
+END DO
+
+! Diagnose the net biosphere productivity (NPP minus soil respiration to
+! atmosphere) for each land point.
+DO k = 1,veg_index_pts
+  l = veg_index(k)
+  veg_state%nbp_gb(l) = veg_state%npp_n_gb(l) -                                &
+                        SUM(soil_state%resp_s_to_atmos_gb(l,:))
 END DO
 
 END SUBROUTINE veg3_soil_couple
