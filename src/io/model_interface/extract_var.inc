@@ -44,10 +44,7 @@ USE jules_radiation_mod, ONLY:                                                 &
   wght_alb
 
 USE jules_vegetation_mod, ONLY:                                                &
-  l_vegdrag_surft, l_red
-
-USE veg3_field_mod, ONLY:                                                      &
-  veg_state
+  l_vegdrag_surft
 
 USE c_z0h_z0m, ONLY:                                                           &
   z0h_z0m
@@ -1789,19 +1786,15 @@ CASE ( 'npp_n_gb' )
   cube = map_from_land(cube_land)
 
 CASE ( 'nbp_gb' )
-  IF ( l_red ) THEN
-    cube_land = cube_from_array(veg_state%nbp_gb)
-  ELSE
-    cube_land = cube_from_array(trif_vars%npp_n_gb                     -       &
-                                SUM(trif_vars%resp_s_to_atmos_gb(:,:),2) -     &
-                                trif_vars%wp_fast_out_gb                 -     &
-                                trif_vars%wp_med_out_gb                  -     &
-                                trif_vars%wp_slow_out_gb                 -     &
-                                trif_vars%harvest_gb                     -     &
-                                trif_vars%veg_c_fire_emission_gb         -     &
-                                trif_vars%burnt_carbon_dpm               -     &
-                                trif_vars%burnt_carbon_rpm )
-  END IF
+  cube_land = cube_from_array(trif_vars%npp_n_gb                       -       &
+                              SUM(trif_vars%resp_s_to_atmos_gb(:,:),2) -       &
+                              trif_vars%wp_fast_out_gb                 -       &
+                              trif_vars%wp_med_out_gb                  -       &
+                              trif_vars%wp_slow_out_gb                 -       &
+                              trif_vars%harvest_gb                     -       &
+                              trif_vars%veg_c_fire_emission_gb         -       &
+                              trif_vars%burnt_carbon_dpm               -       &
+                              trif_vars%burnt_carbon_rpm )
   cube = map_from_land(cube_land)
 
 CASE ( 'n_demand' )
