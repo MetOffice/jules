@@ -153,7 +153,7 @@ This namelist specifies the different options available for setting up the irrig
    :type: logical
    :default: F
 
-   Switch controlling whether the bare soil evaporation from the irrigated and non-irrigated parts of the grid-box (or soil tile) is controlled by the mean soil moisture or the separate irrigated and non-irrigated soil moisture columns.
+   Switch controlling whether the bare soil evaporation from the irrigated and non-irrigated parts of the grid-box (or soil tile) is controlled by the mean soil moisture or the separate irrigated and non-irrigated soil moisture columns. Depending on how the irrigation is applied there may be some in-advertent wetting of the bare soil fraction too, if the extent of this is large then it may be better to leave this switch as off.
 
    Only available when :nml:mem:`l_irrig_dmd` = TRUE (:nml:mem:`irrig_option` = 1 in future release).
 
