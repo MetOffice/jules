@@ -54,7 +54,7 @@ SUBROUTINE physiol (                                                           &
   rootc_cpft, sthu_irr_soilt, frac_irr_soilt, frac_irr_surft, dvi_cpft,        &
   !crop_vars_mod (OUT)
   gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                 &
-  gs_nir_surft,                                                                &
+!  gs_nir_surft,                                                                &
   !p_s_parms (IN)
   bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                            &
   !ancil_info (IN)
@@ -359,7 +359,7 @@ REAL(KIND=real_jlslsm), INTENT(OUT) :: smc_irr_soilt(land_pts,nsoilt)
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
         wt_ext_irr_surft(land_pts,sm_levels,nsurft)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: gc_irr_surft(land_pts,nsurft)
-REAL(KIND=real_jlslsm), INTENT(OUT) :: gs_nir_surft(land_pts,nsurft)
+!REAL(KIND=real_jlslsm), INTENT(OUT) :: gs_nir_surft(land_pts,nsurft)
 
 !ancil_info (IN)
 LOGICAL, INTENT(IN) :: l_soil_point(land_pts)
@@ -1853,6 +1853,8 @@ ELSE
       m = n
     END IF !nsoilt
 
+!!        wt_ext_nir_soilt, wt_ext_nir_type, gs_nir_surft, gc_irr_surft,    &
+    
 !$OMP PARALLEL DO IF(surft_pts(n) > 1) DEFAULT(NONE) PRIVATE(k, l, j)          &
 !$OMP SHARED(surft_pts, surft_index, flake, gc_surft, gs_type, l_irrig_dmd,    &
 !$OMP        l_soil_evap_irrig_separate, gs_irr_surft, gs_irr_type,            &
@@ -1860,7 +1862,7 @@ ELSE
 !$OMP        vf_type, sm_levels, wt_ext_soilt, frac, wt_ext_type,              &
 !$OMP        wt_ext_surft, frac_irr_surft, frac_irr_soilt,                     &
 !$OMP        wt_ext_irr_soilt, wt_ext_irr_type, wt_ext_irr_surft,              &
-!$OMP        wt_ext_nir_soilt, wt_ext_nir_type, gs_nir_surft, gc_irr_surft,    &
+!$OMP        wt_ext_nir_soilt, wt_ext_nir_type, gc_irr_surft,                  &
 !$OMP        gs_nir_type, n, m, lake,                                          &
 !$OMP        l_flake_model, non_lake_frac)                                     &
 !$OMP        SCHEDULE(STATIC)
@@ -1871,7 +1873,7 @@ ELSE
       IF (l_irrig_dmd) THEN
         gs_irr_surft(l,n) = gs_irr_type(l,n) ! irrigation
         IF (l_soil_evap_irrig_separate) THEN
-          gs_nir_surft(l,n) = gs_nir_type(l,n) ! non irrigation
+!          gs_nir_surft(l,n) = gs_nir_type(l,n) ! non irrigation
           gc_irr_surft(l,n) = gs_irr_surft(l,n)
         END IF
       END IF
