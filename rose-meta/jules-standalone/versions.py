@@ -69,18 +69,35 @@ class vn82_t141(MacroUpgrade):
 
         return config, self.reports
 
+class vn82_t155(MacroUpgrade):
 
-class vn82_t139(MacroUpgrade):
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2_t141"
+    AFTER_TAG = "vn8.2_t155"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Bump tag to pick up metadata changes
+        return config, self.reports
+
+
+class vn82_t165(MacroUpgrade):
 
     """Upgrade macro from JULES by Nic Gedney"""
 
     BEFORE_TAG = "vn8.2_t155"
-    AFTER_TAG = "vn8.2_t139"
+    AFTER_TAG = "vn8.2_t165"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
         # Add l_soil_evap_irrig_separate to namelist jules_irrig
-        self.add_setting(config, ["namelist:jules_irrig","l_soil_evap_irrig_separate"], ".false.")
-        
+        self.add_setting(
+            config,
+            ["namelist:jules_irrig", "l_soil_evap_irrig_separate"],
+            ".false.",
+        )
+
         return config, self.reports
