@@ -3,6 +3,9 @@
 ! For further details please refer to the file COPYRIGHT.txt
 ! which you should have received as part of this distribution.
 ! *****************************COPYRIGHT**************************************
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
 
 MODULE init_mod
 
@@ -88,6 +91,13 @@ USE jules_surface_types_mod,      ONLY: npft, nnpft, ntype
 USE ancil_info,                   ONLY: land_pts, nsurft, nmasst
 USE veg3_parm_mod,                ONLY: veg3_parm_init
 USE veg3_field_mod,               ONLY: veg3_field_init
+
+! Soil biogeochemistry (4-pool) is allocated/associated separately below,
+! rather than from within veg3_field_mod.F90, so it remains independent of
+! the choice of vegetation dynamics model (see comments at the call sites).
+USE jules_vegetation_mod,         ONLY: l_red
+USE soil_bgc_4pool_field_mod,     ONLY: soil_bgc_4pool_allocate,              &
+                                        soil_bgc_4pool_assoc
 
 !TYPE definitions
 USE crop_vars_mod,                ONLY: crop_vars_data_type,                   &
@@ -330,6 +340,13 @@ CALL init_grid(nml_dir, crop_vars_data,psparms_data,top_pdm_data,              &
                wtrac_jls_data                                                  &
                )
 
+! Allocate the soil biogeochemistry (4-pool) state separately from veg3
+! such that we are able to run soil biogeochemistry separately from the
+! choice of vegetation dynamics model in the future.
+IF (l_red) THEN
+  CALL soil_bgc_4pool_allocate(land_pts, nnpft)
+END IF
+
 !Associate the data and pointer types
 CALL crop_vars_assoc(crop_vars, crop_vars_data)
 CALL psparms_assoc(psparms,psparms_data)
@@ -351,7 +368,15 @@ CALL imgn_drive_assoc(imgn_drive,imgn_drive_data)
 CALL imgn_vars_assoc(imgn_vars,imgn_vars_data)
 CALL rivers_assoc(rivers,rivers_data)
 !CALL veg3_parm_assoc(in_dev)
-CALL veg3_field_assoc(progs,ainfo,psparms,trifctl_data,trif_vars_data)
+CALL veg3_field_assoc(progs,ainfo,trifctl_data,trif_vars_data)
+
+! Associate the soil biogeochemistry (4-pool) state separately from veg3's
+! such that we are able to run soil biogeochemistry separately from the
+! choice of vegetation dynamics model in the future.
+IF (l_red) THEN
+  CALL soil_bgc_4pool_assoc(progs, psparms, trifctl_data, trif_vars_data)
+END IF
+
 CALL chemvars_assoc(chemvars,chemvars_data)
 CALL water_resources_assoc(water_resources,water_resources_data)
 CALL wtrac_jls_assoc(wtrac_jls,wtrac_jls_data)

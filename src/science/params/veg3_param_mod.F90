@@ -343,8 +343,8 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_RED_PARMS'
 error_sum = 0
 IF ( l_red ) THEN
 
-  ! veg3_soil_couple only supports the 4-pool soil carbon model (layered
-  ! or single-layer).
+  ! soil_bgc_4pool_control only supports the 4-pool soil carbon model
+  ! (layered or single-layer).
   IF ( soil_bgc_model /= soil_model_4pool ) THEN
     error_sum = error_sum + 1
     CALL jules_print(RoutineName, "l_red requires soil_bgc_model=" //          &
