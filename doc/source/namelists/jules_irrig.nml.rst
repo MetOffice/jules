@@ -161,7 +161,7 @@ This namelist specifies the different options available for setting up the irrig
        Bare soil evaporation is explicitly calculated from the irrigated and non-irrigated soil moisture columns.
 
    FALSE
-      No effect.
+      No effect. (Bare soil evaporation is calculated using the mean soil moisture).
 
    This must be set to FALSE if :nml:mem:`irrig_option` = No irrigation (0) or Tile-based irrigation (2).
 
