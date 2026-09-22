@@ -2256,14 +2256,14 @@ IF (l_irrig_dmd) THEN
   END IF
 
   ! Add available water for evaporation from bare soil in irrig frac.
-!$OMP PARALLEL IF(l_do_omp) DEFAULT(NONE) PRIVATE(l,m,n) SHARED(dzsoil,        &
+  DO m = 1,nsoilt
+!$OMP PARALLEL IF(l_do_omp) DEFAULT(NONE) PRIVATE(l) SHARED(dzsoil,            &
 !$OMP             fsoil_tot, land_pts, smc_irr_soilt, sthu_irr_soilt, nsoilt,  &
-!$OMP             smc_nir_soilt, smc_soilt, sthu_nir_soilt,                    &
+!$OMP             smc_nir_soilt, smc_soilt, sthu_nir_soilt, m,                 &
 !$OMP             smvcst_soilt, gs_irr_surft, gc_irr_surft, nsurft, l_do_omp,  &
 !$OMP             fsoil_irr_tot, fsoil_nir_tot, frac_irr_soilt,                &
 !$OMP             fsoil_irr_tot_tmp, fsoil_nir_tot_tmp, frac_irr_surft,        &
 !$OMP             l_soil_evap_irrig_separate)
-  DO m = 1,nsoilt
 !$OMP DO SCHEDULE(STATIC)
     DO l = 1,land_pts
       IF (l_soil_evap_irrig_separate) THEN
