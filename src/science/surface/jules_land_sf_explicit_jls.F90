@@ -812,8 +812,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
                              ! respired fraction of RESP_S
 ,gc_stom_surft(land_pts,nsurft)                                                &
                              ! canopy conductance
-!,gs_nir_surft(land_pts,nsurft)                                                 &
-!                             ! Conductance for non-irrigated part of tile
 ,sice_surft_tmp(land_pts,nsmax)                                                &
                              ! Ice content of snow layers (kg/m2)
 ,sliq_surft_tmp(land_pts,nsmax)                                                &
@@ -1249,7 +1247,6 @@ CALL physiol (                                                                 &
   rootc_cpft, sthu_irr_soilt, frac_irr_soilt, frac_irr_surft, dvi_cpft,        &
   !crop_vars_mod (OUT)
   gs_irr_surft, smc_irr_soilt, wt_ext_irr_surft, gc_irr_surft,                 &
-!  gs_nir_surft,                                                                &
   !p_s_parms (IN)
   bexp_soilt, sathh_soilt, v_close_pft, v_open_pft,                            &
   !ancil_info
