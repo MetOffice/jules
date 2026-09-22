@@ -98,7 +98,7 @@ This file contains two namelists one called :nml:lst:`JULES_FIRE_WEATHER_INDEX` 
    Exponential decay parameter for relationship between soil moisture and flammability. Only used if :nml:mem:`flam_sm_func` = 2.
 
 .. nml:member:: flam_rhum_low
- 
+
    :type: real
    :default: 10.0
 

@@ -61,6 +61,9 @@ INTEGER, PARAMETER :: ignition_constant = 1
 INTEGER, PARAMETER :: ignition_vary_natural = 2
 INTEGER, PARAMETER :: ignition_vary_natural_human = 3
 
+INTEGER, PARAMETER :: flam_sm_func_linear = 1
+INTEGER, PARAMETER :: flam_sm_func_exponential = 2
+
 !-----------------------------------------------------------------------
 ! Set up a namelist to allow switches to be set.
 !-----------------------------------------------------------------------
@@ -109,12 +112,15 @@ IF ( l_inferno ) THEN
   END IF
 
   ! Check a suitable flam_sm_func was given
-  IF ( flam_sm_func /= 1 .AND. flam_sm_func /= 2 ) THEN
+  SELECT CASE ( flam_sm_func )
+  CASE ( flam_sm_func_linear, flam_sm_func_exponential )
+  ! Allowed values so nothing to report
+  CASE DEFAULT
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
               'flam_sm_func must be 1 or 2')
-  END IF
+  END SELECT
 
-  IF ( flam_sm_func == 2 ) THEN
+  IF ( flam_sm_func == flam_sm_func_exponential ) THEN
     IF ( ABS(flam_sm_low - rmdi) < EPSILON(rmdi) ) THEN
       CALL ereport( TRIM(RoutineName), errorstatus,                            &
                   "flam_sm_low needs to be specified.")

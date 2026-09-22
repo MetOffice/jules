@@ -176,6 +176,8 @@ CASE ( stomata_sox )
                 "Using the SOX model of stomatal conductance.")
 END SELECT
 
+
+! checking the l_inferno and l_trif_fire options
 IF ( l_inferno ) THEN
   CALL log_info("init_vegetation",                                             &
                 "Interactive fires and emissions (INFERNO) will be diagnosed")
@@ -189,6 +191,11 @@ IF ( l_inferno ) THEN
     CALL log_info("init_vegetation",                                           &
                   "Fully prescribed ignitions (INFERNO)")
   END IF
+END IF
+
+IF ( l_trif_fire ) THEN
+    CALL log_info("init_vegetation",                                           &
+                "Fires will interact with the carbon cycle in triffid")
 END IF
 
 
@@ -216,6 +223,8 @@ ELSE IF ( l_triffid .AND. triffid_period > 30 ) THEN
                  "timestep of <30 days is recommended; 10 days is " //         &
                  "often used")
 END IF
+
+
 
 RETURN
 END SUBROUTINE init_vegetation
