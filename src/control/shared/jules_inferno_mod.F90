@@ -22,7 +22,7 @@ USE missing_data_mod, ONLY: rmdi, imdi
 IMPLICIT NONE
 
 INTEGER ::                                                                     &
-  flam_sm_func = 1
+  flam_sm_func = imdi
       ! Switch for relationship between INFERNO fire
       !      flammability and soil moisture
       ! FLAM_SM_FUNC=1:Linear (doesnt require flam_sm_low / flam_sm_up)

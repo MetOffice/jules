@@ -63,10 +63,11 @@ class vn82_t61(MacroUpgrade):
                                 "namelist:fire_switches namelist:jules_inferno")
         self.change_setting_value(config, ["file:fire.nml","source"], source)
 
-        z_burn_max = self.get_setting_value(config, ["namelist:jules_soil_biogeochem", "z_burn_max"])
-        self.add_setting(config,
-                ["namelist:jules_inferno", "z_burn_max"], z_burn_max)
-        self.remove_setting(config, ["namelist:jules_soil_biogeochem", "z_burn_max"])
+        self.rename_setting(
+            config,
+            ["namelist:jules_soil_biogeochem", "z_burn_max"],
+            ["namelist:jules_inferno", "z_burn_max"],
+        )
 
         self.add_setting(config, ["namelist:jules_inferno", "ccdpm_min"], "0.8")
         self.add_setting(config, ["namelist:jules_inferno", "ccdpm_max"], "1.0")
@@ -81,7 +82,11 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_up"], "0.2")
         self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
-
+        npft = self.get_setting_value(
+                config, ["namelist:jules_surface_types", "npft"]
+        )
+        if npft is not None:
+            npft = int(npft)
         npft = int(self.get_setting_value(config, ["namelist:jules_surface_types", "npft"]))
         self.add_setting(
         config, ["namelist:jules_triffid", "fireveg_c_to_atmos_io"], ",".join(["0.13"] * npft))
