@@ -569,14 +569,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
                             ! WORK Fraction of ground below canopy
 !                                 !      contributing to evaporation
 !                                 !      over non-irrigated fraction.
-,fsoil_irr_tot_tmp                                                             &
-                            ! WORK Fraction of ground below canopy
-!                                 !      contributing to evaporation
-!                                 !      over irrigated fraction.
-,fsoil_nir_tot_tmp                                                             &
-                            ! WORK Fraction of ground below canopy
-!                                 !      contributing to evaporation
-!                                 !      over non-irrigated fraction.
 ,fsoil_tot(land_pts)                                                           &
                             ! WORK Total fraction of soil
 !                                 !      contributing to evaporation
@@ -2256,32 +2248,36 @@ IF (l_irrig_dmd) THEN
   END IF
 
   ! Add available water for evaporation from bare soil in irrig frac.
-  DO m = 1,nsoilt
-!$OMP PARALLEL IF(l_do_omp) DEFAULT(NONE) PRIVATE(l) SHARED(dzsoil,            &
+!$OMP PARALLEL IF(l_do_omp) DEFAULT(NONE) PRIVATE(l,m,n) SHARED(dzsoil,        &
 !$OMP             fsoil_tot, land_pts, smc_irr_soilt, sthu_irr_soilt, nsoilt,  &
-!$OMP             smc_nir_soilt, smc_soilt, sthu_nir_soilt, m,                 &
+!$OMP             smc_nir_soilt, smc_soilt, sthu_nir_soilt,                    &
 !$OMP             smvcst_soilt, gs_irr_surft, gc_irr_surft, nsurft, l_do_omp,  &
 !$OMP             fsoil_irr_tot, fsoil_nir_tot, frac_irr_soilt,                &
-!$OMP             fsoil_irr_tot_tmp, fsoil_nir_tot_tmp, frac_irr_surft,        &
-!$OMP             l_soil_evap_irrig_separate)
+!$OMP             frac_irr_surft, l_soil_evap_irrig_separate)
+  DO m = 1,nsoilt
 !$OMP DO SCHEDULE(STATIC)
     DO l = 1,land_pts
       IF (l_soil_evap_irrig_separate) THEN
         IF (frac_irr_soilt(l,m) > 0.0) THEN
-          fsoil_irr_tot_tmp = fsoil_irr_tot(l)/frac_irr_soilt(l,m)
-          smc_irr_soilt(l,m) = (1.0 - fsoil_irr_tot_tmp ) *                    &
-             smc_irr_soilt(l,m) + fsoil_irr_tot_tmp *                          &
+          smc_irr_soilt(l,m) = (1.0 - fsoil_irr_tot(l)/frac_irr_soilt(l,m)) *  &
+             smc_irr_soilt(l,m) + fsoil_irr_tot(l)/frac_irr_soilt(l,m) *       &
              rho_water * dzsoil(1) *                                           &
              MAX(0.0,sthu_irr_soilt(l,m,1)) * smvcst_soilt(l,m,1)
         ELSE
           smc_irr_soilt(l,m) = 0.0
         END IF
         IF (1.0 - frac_irr_soilt(l,m) > 0.0) THEN
-          fsoil_nir_tot_tmp = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
-          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot_tmp) *                     &
-               smc_nir_soilt(l,m) + fsoil_nir_tot_tmp *                        &
+          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot(l) /                       &
+               (1.0-frac_irr_soilt(l,m))) *                                    &
+               smc_nir_soilt(l,m) + fsoil_nir_tot(l) /                         &
+               (1.0-frac_irr_soilt(l,m)) *                                     &
                rho_water * dzsoil(1) *                                         &
               MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
+!          fsoil_nir_tot_tmp = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
+!          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot_tmp) *                     &
+!               smc_nir_soilt(l,m) + fsoil_nir_tot_tmp *                        &
+!               rho_water * dzsoil(1) *                                         &
+!              MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
         ELSE
           smc_nir_soilt(l,m) = 0.0
         END IF
