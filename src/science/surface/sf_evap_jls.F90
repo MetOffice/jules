@@ -849,6 +849,35 @@ IF (l_irrig_dmd) THEN
   END DO !sm_levels
 END IF !l_irrig_dmd
 
+IF ( l_soil_evap_irrig_separate ) THEN
+  DO m = 1,sm_levels
+    DO n = 1,nsurft
+
+      !Set the current soil tile (see notice above)
+      IF (nsoilt == 1) THEN
+        !There is only 1 soil tile
+        mm = 1
+!$OMP DO SCHEDULE(STATIC)
+        DO k = 1,surft_pts(n)
+          l = surft_index(k,n)
+          ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +   &
+               (1. - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+!$OMP END DO
+
+      ELSE ! nsoilt == nsurft
+        !Soil tiles map directly on to surface tiles
+        mm = n
+!$OMP DO SCHEDULE(STATIC)
+        DO k = 1,surft_pts(n)
+          l = surft_index(k,n)
+          ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +   &
+               (1. - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+!$OMP END DO
+      END IF !nsoilt
+    END DO !nsurft
+  END DO !sm_levels
+END IF !l_soil_evap_irrig_separate
+
 !-----------------------------------------------------------------------
 ! Calculate increments to surface heat fluxes, moisture fluxes and
 ! temperatures

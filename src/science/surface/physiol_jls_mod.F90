@@ -837,6 +837,7 @@ DO n = 1,dim_cs1
   END DO
 END DO
 
+!$OMP DO SCHEDULE(STATIC)
 DO k = 1,sm_levels
   DO m = 1,nsoilt
     DO l = 1,land_pts
@@ -854,6 +855,7 @@ DO k = 1,sm_levels
     END DO
   END DO
 END DO
+!$OMP END DO
 
 DO n = 1,ntype
 !$OMP DO SCHEDULE(STATIC)
