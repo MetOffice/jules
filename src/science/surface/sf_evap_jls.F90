@@ -862,6 +862,7 @@ IF ( l_soil_evap_irrig_separate ) THEN
           l = surft_index(k,n)
           ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +   &
                (1. - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+        END DO !surft_pts
 !$OMP END DO
 
       ELSE ! nsoilt == nsurft
@@ -872,8 +873,10 @@ IF ( l_soil_evap_irrig_separate ) THEN
           l = surft_index(k,n)
           ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +   &
                (1. - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+        END DO !surft_pts
 !$OMP END DO
       END IF !nsoilt
+
     END DO !nsurft
   END DO !sm_levels
 END IF !l_soil_evap_irrig_separate
