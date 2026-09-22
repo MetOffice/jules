@@ -20,15 +20,15 @@
 ###############################################################################
 # Science Module Leaders (informational)
 ###############################################################################
-# Surface:                 John Edwards, Rich Ellis
+# Surface:                 John Edwards
 # Hydrology:               Nic Gedney, Sonja Folwell
-# Vegetation:              Lina Mercado, Karina Williams, Rebecca Oliver
+# Vegetation:              Lina Mercado, Rebecca Oliver
 # Veg3 RED Demography:     Andy Wiltshire, Arthur Argles
 # Biogeochemistry:         Eleanor Burke, Noah Smith
 # Biogenic fluxes:         Garry Hayman, James Weber
 # Fire:                    Doug Kelley, Chantelle Burton
 # Lakes:                   Helen Johnson
-# Evaluation:              Nina Raoult, Siyuan Tian
+# Evaluation:              Heather Rumbold, Siyuan Tian
 # CABLE Science:           Ian Harman, Claire Carouge
 # IMOGEN:                  Chris Huntingford, Eleanor Burke
 #
@@ -36,26 +36,121 @@
 # Code Owners
 ###############################################################################
 
-/**                               @GiorgiaLine
-rose-meta/**/version*.py            @james-bruten-mo
-rose-meta/jules-shared/**/HEAD/rose-meta.conf    @maggiehendry
-rose-meta/jules-standalone/HEAD/rose-meta.conf    @maggiehendry
-rose-meta/jules-um/HEAD/rose-meta.conf    @maggiehendry
-rose-meta/jules-lfric/HEAD/rose-meta.conf    @maggiehendry
-rose-stem/                        @james-bruten-mo
-etc/                              @MetOffice/ssdteam
-**/science/river_routing/            @maggiehendry
-**/initialisation/rivers-standalone/ @maggiehendry
-**/control/rivers-standalone/       @maggiehendry
-**/control/shared/jules_rivers_mod.F90      @maggiehendry
-**/io/rivers-standalone/     @maggiehendry
-**/control/shared/surf_couple_rivers_mod.F90        @maggiehendry
-**/initialisation/standalone/ancillaries/init_ancillaries_coupling_mod.F90      @maggiehendry
-**/initialisation/standalone/ancillaries/init_rivers_process_data_mod.F90       @maggiehendry
-**/initialisation/standalone/ancillaries/init_rivers_props_mod.F90      @maggiehendry
-**/initialisation/standalone/ancillaries/jules_rivers_props_mod.F90     @maggiehendry
-**/initialisation/standalone/grid/init_river_out_grid_mod.F90           @maggiehendry
-**/initialisation/standalone/init_rivers.F90        @maggiehendry
-**/control/shared/jules_water_resources_mod.F90     @maggiehendry
-**/control/shared/overbank_inundation_mod.F90       @maggiehendry
-**/io/dump/get_dim_info_mod.F90     @maggiehendry
+# Global fallback
+*                                                           @GiorgiaLine
+
+# Core Infrastructure & Tooling
+rose-meta/**/version*.py            			    @james-bruten-mo
+rose-stem/                        			    @james-bruten-mo
+etc/                              			    @MetOffice/ssdteam
+
+# Rose Metadata Configuration
+rose-meta/jules-shared/**/HEAD/rose-meta.conf			@maggiehendry
+rose-meta/**/HEAD/rose-meta.conf    				@maggiehendry
+rose-meta/jules-fcm-make/HEAD/rose-meta.conf			@MetOffice/ssdteam
+
+# Rivers Module
+**/science/river_routing/					@maggiehendry
+**/rivers-standalone/						@maggiehendry
+**/control/shared/*_rivers*_mod.F90  				@maggiehendry
+**/control/shared/jules_water_resources_mod.F90     		@maggiehendry
+**/control/shared/overbank_inundation_mod.F90       		@maggiehendry
+**/io/dump/get_dim_info_mod.F90					@maggiehendry
+**/initialisation/standalone/init_rivers.F90			@maggiehendry
+**/initialisation/standalone/grid/init_river_out_grid_mod.F90           	@maggiehendry
+**/initialisation/standalone/ancillaries/init_ancillaries_coupling_mod.F90	@maggiehendry
+**/initialisation/standalone/ancillaries/*river*_mod.F90       			@maggiehendry
+rose-meta/jules-shared/jules-rivers/						@maggiehendry
+
+# Lakes Module
+**/science/flake/						@HelenRJohnson
+**/control/shared/lake_mod.F90					@HelenRJohnson
+**/initialisation/standalone/*flake*_mod.F90                	@HelenRJohnson
+
+# Snow & Surface Modules
+**/science/snow/			@JMEdwardsXtr
+**/science/surface/			@JMEdwardsXtr
+rose-meta/jules-shared/jules-snow/	@JMEdwardsXtr @maggiehendry
+rose-meta/jules-shared/jules-surface/	@JMEdwardsXtr @maggiehendry
+
+# Vegetation Module
+**/vegetation								@beckyoliver
+**/control/shared/jules_vegetation_mod.F90				@beckyoliver
+**/control/shared/veg_control.F90					@beckyoliver
+**/initialisation/standalone/ancillaries/init_vegetation_props_mod.F90	@beckyoliver
+**/initialisation/standalone/init_vegetation.F90			@beckyoliver
+**/initialisation/standalone/params/init_pftparm.inc			@beckyoliver
+**/science/params/pftparm_io_mod.F90					@beckyoliver
+**/science/params/pftparm_mod.F90					@beckyoliver
+**/science/params/veg_param_mod.F90					@beckyoliver
+doc/source/namelists/jules_vegetation.nml.rst				@beckyoliver
+doc/source/namelists/pft_params.nml.rst					@beckyoliver
+rose-meta/jules-shared/jules-vegetation/				@beckyoliver @maggiehendry
+rose-meta/jules-shared/jules-pftparm/					@beckyoliver @maggiehendry
+
+# RED Demography Module (Veg3)
+**/control/shared/veg3_field_mod.F90			@mo-arthurargles
+**/science/params/veg3_param_mod.F90			@mo-arthurargles
+**/science/vegetation/veg3_*_mod.F90			@mo-arthurargles
+**/initialisation/standalone/params/init_red_mod.F90	@mo-arthurargles
+**/science/params/red_io_mod.F90			@mo-arthurargles
+doc/source/namelists/red_parms.nml.rst			@mo-arthurargles
+rose-meta/jules-shared/jules-red/			@mo-arthurargles
+
+# Biogeochemistry Module
+**/soil_biogeochem							@eleanorgb @noahdsmith
+**/control/shared/*soil_biogeochem*_mod.F90				@eleanorgb @noahdsmith
+**/control/shared/jules_plant_n_uptake_mod.F90				@eleanorgb @noahdsmith
+**/control/shared/jules_soil_ecosse_mod.F90				@eleanorgb @noahdsmith
+**/control/shared/next_gen_biogeochem_mod.F90				@eleanorgb @noahdsmith @mo-arthurargles
+**/initialisation/standalone/init_plant_n_uptake_mod.F90		@eleanorgb @noahdsmith
+**/initialisation/standalone/init_soil_biogeochem_mod.F90		@eleanorgb @noahdsmith
+**/initialisation/standalone/init_soil_ecosse_mod.F90			@eleanorgb @noahdsmith
+**/initialisation/standalone/initial_conditions/ecosse_init_mod.F90 	@eleanorgb @noahdsmith
+**/science/soil/ch4_microbe_mod.F90					@eleanorgb @noahdsmith
+**/science/surface/microbe_jls.F90					@eleanorgb @noahdsmith
+**/science/vegetation/triffid_jls.F90					@eleanorgb @noahdsmith
+**/science/vegetation/decay_jls.F90					@eleanorgb @noahdsmith
+**/science/vegetation/dpm_rpm_jls.F90					@eleanorgb @noahdsmith
+**/science/vegetation/soilcarb*						@eleanorgb @noahdsmith
+doc/source/namelists/jules_soil_biogeochem.nml.rst			@eleanorgb @noahdsmith
+rose-meta/jules-shared/jules-soil-biogeochem/				@eleanorgb @noahdsmith
+rose-meta/jules-shared/jules-soil-ecosse/				@eleanorgb @noahdsmith
+
+# IMOGEN
+**/imogen								@eleanorgb
+control/standalone/update/update_precip_variables_mod.F90		@eleanorgb
+control/standalone/update/fill_disaggregated_precip_arrays_mod.F90	@eleanorgb
+control/standalone/update/impose_diurnal_cycle_mod.F90			@eleanorgb
+initialisation/standalone/init_imogen.F90				@eleanorgb
+doc/source/namelists/imogen.nml.rst					@eleanorgb
+
+# Hydrology Module
+**/soil							@nicgedney @sfolwell
+**/control/shared/jules_hydrology_mod.F90		@nicgedney @sfolwell
+**/control/shared/jules_soil_mod.F90			@nicgedney @sfolwell
+**/initialisation/standalone/init_hydrology.F90		@nicgedney @sfolwell
+**/initialisation/standalone/init_soil.F90		@nicgedney @sfolwell
+doc/source/namelists/jules_hydrology.nml.rst		@nicgedney @sfolwell
+doc/source/namelists/jules_soil.nml.rst			@nicgedney @sfolwell
+rose-meta/jules-shared/jules-hydrology/			@nicgedney @sfolwell @maggiehendry
+rose-meta/jules-shared/jules-soil/			@nicgedney @sfolwell @maggiehendry
+
+# Biogenic fluxes Module
+**/deposition								@GarryHayman
+**/control/shared/jules_deposition_mod.F90				@GarryHayman
+**/initialisation/standalone/init_deposition_mod.F90			@GarryHayman
+**/initialisation/standalone/params/init_deposition_species_mod.F90	@GarryHayman
+**/science/params/deposition*						@GarryHayman
+doc/source/namelists/jules_deposition.nml.rst				@GarryHayman
+rose-meta/jules-shared/jules-deposition*				@GarryHayman @maggiehendry
+
+# Fire Module
+**/fire			   			  @chantelleburton
+**/control/shared/fire_vars_mod.F90		  @chantelleburton
+**/initialisation/standalone/init_fire_mod.F90	  @chantelleburton
+doc/source/namelists/fire.nml.rst		  @chantelleburton
+
+# CABLE
+**/cable			@ccarouge
+doc/source/namelists/cable_*	@ccarouge
