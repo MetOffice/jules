@@ -62,7 +62,7 @@ INTEGER, INTENT(IN) :: land_pts,nnpft,veg_index(land_pts),veg_index_pts,nmasst
 !----------------------------------------------------------------------------
 REAL, INTENT(IN)   ::                                                          &
 growth(land_pts,nnpft),                                                        &
-              !  The total carbon assimilate across the PFT area. (kgC m-2 s-1)
+              !  The total carbon assimilate across the PFT area. (kgC m-2 of PFT s-1)
 mort_add(land_pts,nnpft,nmasst),                                               &
               !  Additional plant mortality across plant mass (s-1)
 dt
