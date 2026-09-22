@@ -194,8 +194,8 @@ IF ( l_inferno ) THEN
 END IF
 
 IF ( l_trif_fire ) THEN
-    CALL log_info("init_vegetation",                                           &
-                "Fires will interact with the carbon cycle in triffid")
+  CALL log_info("init_vegetation",                                             &
+              "Fires will interact with the carbon cycle in triffid")
 END IF
 
 

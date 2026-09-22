@@ -114,7 +114,7 @@ IF ( l_inferno ) THEN
   ! Check a suitable flam_sm_func was given
   SELECT CASE ( flam_sm_func )
   CASE ( flam_sm_func_linear, flam_sm_func_exponential )
-  ! Allowed values so nothing to report
+    ! Allowed values so nothing to report
   CASE DEFAULT
     CALL ereport( TRIM(RoutineName), errorstatus,                              &
               'flam_sm_func must be 1 or 2')
