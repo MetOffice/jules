@@ -50,7 +50,7 @@ class vn82_t61(MacroUpgrade):
 
     """Upgrade macro from JULES by Eleanor Burke"""
 
-    BEFORE_TAG = "vn8.2"
+    BEFORE_TAG = "vn8.2_t140"
     AFTER_TAG = "vn8.2_t61"
 
     def upgrade(self, config, meta_config=None):
@@ -59,8 +59,8 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno"])
 
         source = self.get_setting_value(config, ["file:fire.nml","source"])
-        source = source.replace("namelist:fire_switches",
-                                "namelist:fire_switches namelist:jules_inferno")
+        source = source.replace("namelist:jules_fire_weather_index",
+                                "namelist:jules_fire_weather_index namelist:jules_inferno")
         self.change_setting_value(config, ["file:fire.nml","source"], source)
 
         self.rename_setting(
