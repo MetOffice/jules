@@ -63,8 +63,8 @@ TYPE(ainfo_type), INTENT(IN OUT)      :: ainfo
 !----------------------------------------------------------------------------
 INTEGER, INTENT(IN)    :: land_pts, nnpft, nmasst
 INTEGER, INTENT(IN)    :: a_step
-                      ! Current atmospheric timestep number, used to
-                      ! determine when the phenology timestep falls due.
+                      ! Atmospheric timestep number, used to test whether
+                      ! the current timestep is a phenology timestep.
 
 !----------------------------------------------------------------------------
 ! Variables with INTENT inout
@@ -333,10 +333,16 @@ IMPLICIT NONE
 ! Integers with INTENT IN
 !----------------------------------------------------------------------------
 INTEGER, INTENT(IN)    :: land_pts,nnpft,veg_index_pts,veg_index(land_pts)
+                      ! land_pts       - Total number of land points.
+                      ! nnpft          - Number of plant functional types.
+                      ! veg_index_pts  - Number of land points on which
+                      !                  vegetation dynamics are calculated.
+                      ! veg_index      - Indices of land points on which
+                      !                  vegetation dynamics are calculated.
 
 INTEGER, INTENT(IN)    :: a_step
-                      ! Current atmospheric timestep number, used to
-                      ! determine when the phenology timestep falls due.
+                      ! Atmospheric timestep number, used to test whether
+                      ! the current timestep is a phenology timestep.
 
 INTEGER, INTENT(IN)    :: asteps_since_triffid
                       ! Number of atmospheric timesteps since last call to

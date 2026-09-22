@@ -24,6 +24,10 @@ TYPE :: veg3_ctrl_type
   INTEGER :: land_pts,nsurft,npft,nnpft,soil,triffid_period,nstep_trif,nmasst, &
              phenol_period,nstep_phen
   REAL    :: timestep,frac_min,dt_red,dt_phen_360d
+             ! dt_red - Length of the RED/vegetation dynamics coupling
+             !          timestep (s).
+             ! dt_phen_360d - Length of the phenology coupling timestep
+             !                (360 days).
 END TYPE veg3_ctrl_type
 
 !Set up objects containing everything we need for litter calculation
