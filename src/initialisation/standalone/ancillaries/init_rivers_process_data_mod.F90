@@ -286,7 +286,7 @@ IF ( is_master_task() ) THEN
   !----------------------------------------------------------------------------
   IF ( l_shift_x .OR. l_reverse_y ) THEN
     CALL remap_ancil_control( nx_rivers, ny_rivers, rivers_dx, l_shift_x,      &
-                              l_reverse_y, rivers )
+                              l_reverse_y, rivers, l_use_land_fraction )
   END IF
 
   !----------------------------------------------------------------------------
@@ -938,7 +938,7 @@ END SUBROUTINE process_rivers_coords
 !##############################################################################
 
 SUBROUTINE remap_ancil_control( nx_rivers, ny_rivers, rivers_dx, l_shift_x,    &
-                                l_reverse_y, rivers )
+                                l_reverse_y, rivers, l_use_land_fraction )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -967,9 +967,11 @@ LOGICAL, INTENT(IN) ::                                                         &
   l_shift_x,                                                                   &
     ! Flag indicating that a cyclic shift is applied in the x direction to
     ! river ancillaries. This can be TRUE only if the coordinate is longitude.
-  l_reverse_y
+  l_reverse_y,                                                                 &
     ! Flag indicating if the order in the y direction of ancillary fields is
     ! to be reversed so that the coordinate is monotonically increasing.
+  l_use_land_fraction
+    ! Flag indicating that we are using land fractions
 
 !------------------------------------------------------------------------------
 ! Array arguments with INTENT(IN)
@@ -997,6 +999,14 @@ DO ivar = 1, nvars
   CALL remap_ancil( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
                     var(ivar), rivers )
 END DO
+
+!------------------------------------------------------------------------------
+! Deal with the land fraction field
+!------------------------------------------------------------------------------
+IF ( l_use_land_fraction ) THEN
+  CALL remap_ancil( nx_rivers, ny_rivers, rivers_dx, l_shift_x, l_reverse_y,   &
+                    'land_fraction_2d', rivers )
+END IF
 
 !------------------------------------------------------------------------------
 ! Having used the river coordinates to remap all the required fields, we now
