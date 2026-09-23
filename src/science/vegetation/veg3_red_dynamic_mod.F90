@@ -27,7 +27,7 @@ CONTAINS
 !-----------------------------------------------------------------------------
 SUBROUTINE veg3_red_dynamic(                                                   &
                 !IN Control vars
-                dt_red,veg_index_pts,veg_index,veg3_ctrl,land_pts,                 &
+                dt_red,veg_index_pts,veg_index,veg3_ctrl,land_pts,             &
                 nnpft,nmasst,                                                  &
                 !IN red_parms
                 red_parms,                                                     &
@@ -122,7 +122,7 @@ DO l = 1,land_pts
       !IN sizing
       red_parms%mclass(n),                                                     &
       !IN Control vars
-      dt_red,                                                                      &
+      dt_red,                                                                  &
       !IN PFT parameters
       red_parms%mort_base(n),red_parms%frac_min(n),                            &
       !IN fields
@@ -259,7 +259,7 @@ SUBROUTINE update_pft_size_structure(                                          &
                 !IN sizing
                 mclass,                                                        &
                 !IN Control vars
-                dt_red,                                                            &
+                dt_red,                                                        &
                 !IN PFT parameters
                 mort_base,frac_min,                                            &
                 !IN fields
@@ -284,7 +284,7 @@ INTEGER, INTENT(IN) :: mclass
 ! Reals with INTENT IN
 !-----------------------------------------------------------------------------
 REAL, INTENT(IN)     ::                                                        &
-dt_red,                                                                            &
+dt_red,                                                                        &
               !  Dynamic vegetation time-step (s)
 mort_base,                                                                     &
               !  Background mortality rate for this PFT. (s-1)
