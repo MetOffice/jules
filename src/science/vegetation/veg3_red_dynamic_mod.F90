@@ -27,7 +27,7 @@ CONTAINS
 !-----------------------------------------------------------------------------
 SUBROUTINE veg3_red_dynamic(                                                   &
                 !IN Control vars
-                dt,veg_index_pts,veg_index,veg3_ctrl,land_pts,                 &
+                dt_red,veg_index_pts,veg_index,veg3_ctrl,land_pts,                 &
                 nnpft,nmasst,                                                  &
                 !IN red_parms
                 red_parms,                                                     &
@@ -65,7 +65,7 @@ growth(land_pts,nnpft),                                                        &
               !  The total carbon assimilate across the PFT area. (kgC m-2 of PFT s-1)
 mort_add(land_pts,nnpft,nmasst),                                               &
               !  Additional plant mortality across plant mass (s-1)
-dt
+dt_red
               !  Dynamic vegetation time-step (s)
 
 !-----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ DO l = 1,land_pts
       !IN sizing
       red_parms%mclass(n),                                                     &
       !IN Control vars
-      dt,                                                                      &
+      dt_red,                                                                      &
       !IN PFT parameters
       red_parms%mort_base(n),red_parms%frac_min(n),                            &
       !IN fields
@@ -259,7 +259,7 @@ SUBROUTINE update_pft_size_structure(                                          &
                 !IN sizing
                 mclass,                                                        &
                 !IN Control vars
-                dt,                                                            &
+                dt_red,                                                            &
                 !IN PFT parameters
                 mort_base,frac_min,                                            &
                 !IN fields
@@ -284,7 +284,7 @@ INTEGER, INTENT(IN) :: mclass
 ! Reals with INTENT IN
 !-----------------------------------------------------------------------------
 REAL, INTENT(IN)     ::                                                        &
-dt,                                                                            &
+dt_red,                                                                            &
               !  Dynamic vegetation time-step (s)
 mort_base,                                                                     &
               !  Background mortality rate for this PFT. (s-1)
@@ -424,8 +424,8 @@ DO k = 1, mclass
 
   !Prevent the mass class from being exhausted over a timestep
   IF (plantNumDensity(k)                                                       &
-      + (dplantNumDensity_dt(k) * dt) < 0.0 ) THEN
-    dplantNumDensity_dt(k) = -plantNumDensity(k) / dt
+      + (dplantNumDensity_dt(k) * dt_red) < 0.0 ) THEN
+    dplantNumDensity_dt(k) = -plantNumDensity(k) / dt_red
     mort_litC =  mort_litC                                                     &
       + (dplantNumDensity_dt(k) - flux_out(k))                                 &
       * mass_mass(k)
@@ -437,7 +437,7 @@ DO k = 1, mclass
   END IF
 
   plantNumDensity(k) = plantNumDensity(k)                                      &
-      + dplantNumDensity_dt(k) * dt
+      + dplantNumDensity_dt(k) * dt_red
   frac_check = frac_check + plantNumDensity(k)                                 &
     * crwn_area_mass(k)
 
