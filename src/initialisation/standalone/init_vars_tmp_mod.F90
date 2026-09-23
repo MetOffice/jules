@@ -20,7 +20,7 @@ SUBROUTINE init_vars_tmp(crop_vars,psparms,toppdm,ainfo,trif_vars, aerotype,   &
 USE Ancil_info, ONLY: lice_pts
 USE jules_deposition_mod, ONLY: dzl_const, l_deposition
 USE jules_vegetation_mod, ONLY: l_triffid, l_use_pft_psi, fsmc_shape,          &
-                                l_phenol
+                                l_phenol, l_red
 
 USE trif, ONLY: lai_min
 
@@ -207,7 +207,7 @@ trifctltype%c_veg_pft(:,:) = 0.0
 ! This is necessary to ensure time average diagnostics are produced correctly.
 !-----------------------------------------------------------------------------
 
-IF (l_triffid) THEN
+IF (l_triffid .AND. .NOT. l_red) THEN
   trif_vars%rootC_pft       = 0.0
   trif_vars%woodC_pft       = 0.0
   trif_vars%leafC_pft       = 0.0
