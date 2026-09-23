@@ -45,18 +45,87 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class UpgradeError(Exception):
+class vn82_t141(MacroUpgrade):
 
-    """Exception created when an upgrade fails."""
+    """Upgrade macro from JULES by Maggie Hendry"""
 
-    def __init__(self, msg):
-        self.msg = msg
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t141"
 
-    def __repr__(self):
-        sys.tracebacklimit = 0
-        return self.msg
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
 
-    __str__ = __repr__
+        self.rename_setting(config, ["namelist:fire_switches"],
+                            ["namelist:jules_fire_weather_index"])
+        self.rename_setting(config, ["namelist:jules_fire_weather_index",
+                                      "l_fire"],
+                            ["namelist:jules_fire_weather_index",
+                             "l_fire_weather_index"])
+
+        source = self.get_setting_value(config, ["file:fire.nml","source"])
+        source = source.replace("namelist:fire_switches",
+                                "namelist:jules_fire_weather_index")
+        self.change_setting_value(config, ["file:fire.nml","source"], source)
+
+        return config, self.reports
+
+
+class vn82_t155(MacroUpgrade):
+
+    """Upgrade macro from JULES by Author"""
+
+    BEFORE_TAG = "vn8.2_t141"
+    AFTER_TAG = "vn8.2_t155"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Bump tag to pick up metadata changes
+        return config, self.reports
+
+
+class vn82_t140(MacroUpgrade):
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2_t155"
+    AFTER_TAG = "vn8.2_t140"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        ncpft = self.get_setting_value(
+            config, ["namelist:jules_surface_types", "ncpft"]
+        )
+        if ncpft is not None:
+            ncpft = int(ncpft)
+            if ncpft > 0:
+                msg = (
+                    "This configuration contains crop varieties (ncpft > 0). "
+                    "Previous upgrade macros were incomplete for "
+                    "configurations with crops. Please see "
+                    "https://github.com/MetOffice/jules/issues/136 for "
+                    "guidance."
+                    "\n        * jules_surface_types: This macro adds the "
+                    "WSMR crop varieties with an index of 0, rather than "
+                    "assume the surface types present. This namelist will "
+                    "need correcting."
+                    "\n        * jules_pftparm: Please ensure parameters are "
+                    "correct as upgrade macros may have assumed the wrong "
+                    "surface types."
+                )
+                self.add_report(info=msg, is_warning=True)
+
+        jules_surface_types = {}
+        jules_surface_types["c3_crop_wheat"] = "0"
+        jules_surface_types["c3_crop_soybean"] = "0"
+        jules_surface_types["c4_crop_maize"] = "0"
+        jules_surface_types["c3_crop_rice"] = "0"
+        for item, value in jules_surface_types.items():
+            self.add_setting(
+                config, ["namelist:jules_surface_types", item], value
+            )
+
+        return config, self.reports
 
 
 class vn82_t115a(MacroUpgrade):
