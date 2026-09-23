@@ -259,6 +259,11 @@ DO n = 1,nsurft
     IF (l_irrig_dmd) THEN
       esoil_nir_surft(l,n) = 0.0
       esoil_irr_surft(l,n) = 0.0
+      IF ( l_soil_evap_irrig_separate ) THEN
+        DO m = 1,sm_levels
+          wt_ext_nir_surft(l,m,n) = 0.0
+        END DO
+      END IF
     END IF
     elake_surft(l,n) = 0.0
     ei_surft(l,n) = 0.0
@@ -853,31 +858,31 @@ IF ( l_soil_evap_irrig_separate ) THEN
   DO m = 1,sm_levels
     DO n = 1,nsurft
 
-     IF ( .NOT. ((l_flake_model) .AND. (n == lake)) ) THEN
-       !Set the current soil tile (see notice above)
-       IF (nsoilt == 1) THEN
-         !There is only 1 soil tile
-         mm = 1
+      !Set the current soil tile (see notice above)
+      IF (nsoilt == 1) THEN
+        !There is only 1 soil tile
+        mm = 1
+        IF ( .NOT. ((l_flake_model) .AND. (n == lake)) ) THEN
 !$OMP DO SCHEDULE(STATIC)
-         DO k = 1,surft_pts(n)
-           l = surft_index(k,n)
-           ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +  &
-                (1. - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
-         END DO !surft_pts
+          DO k = 1,surft_pts(n)
+            l = surft_index(k,n)
+            ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) + &
+                 (1.0 - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+          END DO !surft_pts
 !$OMP END DO
+        END IF
 
-       ELSE ! nsoilt == nsurft
-         !Soil tiles map directly on to surface tiles
-         mm = n
+      ELSE ! nsoilt == nsurft
+        !Soil tiles map directly on to surface tiles
+        mm = n
 !$OMP DO SCHEDULE(STATIC)
-         DO k = 1,surft_pts(n)
-           l = surft_index(k,n)
-           ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +  &
-                (1. - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
-         END DO !surft_pts
+        DO k = 1,surft_pts(n)
+          l = surft_index(k,n)
+          ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +   &
+               (1.0 - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+        END DO !surft_pts
 !$OMP END DO
-       END IF !nsoilt
-     END IF 
+      END IF !nsoilt
     END DO !nsurft
   END DO !sm_levels
 END IF !l_soil_evap_irrig_separate

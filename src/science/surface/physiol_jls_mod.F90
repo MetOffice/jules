@@ -2268,11 +2268,11 @@ IF (l_irrig_dmd) THEN
                (1.0-frac_irr_soilt(l,m)) *                                     &
                rho_water * dzsoil(1) *                                         &
               MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
-!          fsoil_nir_tot_tmp = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
-!          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot_tmp) *                     &
-!               smc_nir_soilt(l,m) + fsoil_nir_tot_tmp *                        &
-!               rho_water * dzsoil(1) *                                         &
-!              MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
+          !          fsoil_nir_tot_tmp = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
+          !          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot_tmp) *                     &
+          !               smc_nir_soilt(l,m) + fsoil_nir_tot_tmp *                        &
+          !               rho_water * dzsoil(1) *                                         &
+          !              MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
         ELSE
           smc_nir_soilt(l,m) = 0.0
         END IF
