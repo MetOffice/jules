@@ -35,13 +35,13 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
 CONTAINS
 
 !------------------------------------------------------------------------------
-SUBROUTINE soil_bgc_4pool_control(                                      &
+SUBROUTINE soil_bgc_4pool_control(                                             &
                 !IN Control vars
                 veg_index_pts,veg_index,land_pts,nnpft,veg3_ctrl,soil_parms,   &
                 !IN vegetation-derived fluxes (plain arrays rather than the
                 ! veg_state derived type, so this routine has no dependency
                 ! on the choice of vegetation dynamics model)
-                frac,litCpft,litC,npp_n_gb,                                   &
+                frac,litCpft,litC,npp_n_gb,                                    &
                 !INOUT state
                 soil_state,                                                    &
                 !OUT diagnostics
@@ -129,7 +129,7 @@ resp_frac_cspool(land_pts,soil_parms%dim_cslayer,soil_parms%dim_cs1),          &
 resp_s_dr(land_pts,soil_parms%dim_cslayer,5),                                  &
     ! Mean soil respiration for driving the soil carbon update
     ! (kg C/m2/360days). NB 5=dim_cs1+1; the 5th element is workspace.
-lit_c_pft_gb(land_pts,nnpft),                                                   &
+lit_c_pft_gb(land_pts,nnpft),                                                  &
     ! Litter carbon flux from each PFT normalised to gridbox area (i.e.
     ! litCpft weighted by frac), as required by soilcarb/soilcarb_layers.
     ! Held as a local copy so the litCpft argument is never modified.

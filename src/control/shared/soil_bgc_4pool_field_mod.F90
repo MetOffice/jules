@@ -89,7 +89,7 @@ TYPE(soil_state_type)  :: soil_state
 PRIVATE
 
 !Expose routines
-PUBLIC :: soil_bgc_4pool_allocate, soil_bgc_4pool_deallocate,    &
+PUBLIC :: soil_bgc_4pool_allocate, soil_bgc_4pool_deallocate,                  &
           soil_bgc_4pool_assoc
 
 !Expose data
@@ -210,7 +210,7 @@ RETURN
 END SUBROUTINE soil_bgc_4pool_deallocate
 
 !-------------------------------------------------------------------------------
-SUBROUTINE soil_bgc_4pool_assoc(progs, psparms, trifctl_data,          &
+SUBROUTINE soil_bgc_4pool_assoc(progs, psparms, trifctl_data,                  &
                                         trif_vars_data)
 
 ! Associates the soil_state fields to the rest of JULES.

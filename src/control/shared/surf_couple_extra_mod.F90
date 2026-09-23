@@ -141,7 +141,7 @@ USE inferno_io_mod,           ONLY: inferno_io
 USE irrigation_mod,           ONLY: irrigation_control
 USE veg_control_mod,          ONLY: veg_control
 USE next_gen_biogeochem_mod,  ONLY: next_gen_biogeochem
-USE soil_bgc_4pool_control_mod,                                         &
+USE soil_bgc_4pool_control_mod,                                                &
                               ONLY: soil_bgc_4pool_control
 USE sparm_mod,                ONLY: sparm
 USE infiltration_rate_mod,    ONLY: infiltration_rate
@@ -1098,7 +1098,7 @@ CASE ( jules )
             asteps_since_triffid,a_step,land_pts,nnpft,nmasst,veg3_ctrl,       &
             ainfo,                                                             &
           !IN parms
-            litter_parms,red_parms,                                           &
+            litter_parms,red_parms,                                            &
           !INOUT data structures
             veg_state,red_state,                                               &
           !OUT diagnostics
@@ -1113,7 +1113,7 @@ CASE ( jules )
         ! in as plain arrays (rather than veg_state) so that the soil
         ! routine has no dependency on veg3/RED.
         IF (veg_index_pts > 0 .AND. l_veg_step) THEN
-          CALL soil_bgc_4pool_control(                                  &
+          CALL soil_bgc_4pool_control(                                         &
                       veg_index_pts,veg_index,land_pts,nnpft,veg3_ctrl,        &
                       soil_parms,veg_state%frac(:,1:nnpft),veg_state%litCpft,  &
                       veg_state%litC,veg_state%npp_n_gb,soil_state,            &

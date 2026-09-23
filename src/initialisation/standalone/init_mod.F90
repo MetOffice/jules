@@ -96,7 +96,7 @@ USE veg3_field_mod,               ONLY: veg3_field_init
 ! rather than from within veg3_field_mod.F90, so it remains independent of
 ! the choice of vegetation dynamics model (see comments at the call sites).
 USE jules_vegetation_mod,         ONLY: l_red
-USE soil_bgc_4pool_field_mod,     ONLY: soil_bgc_4pool_allocate,              &
+USE soil_bgc_4pool_field_mod,     ONLY: soil_bgc_4pool_allocate,               &
                                         soil_bgc_4pool_assoc
 
 !TYPE definitions
