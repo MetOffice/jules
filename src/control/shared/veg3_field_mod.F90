@@ -671,12 +671,12 @@ DO l = 1,land_pts
 END DO
 
 !Final aggregation to gridbox for vegetation carbon for diagnostic purposes
-veg_state%vegC = pfttiles_to_gbm(veg_state%vegCpft,ainfo,frac_surft_in         &
+veg_state%vegC = pfttiles_to_gbm(veg_state%vegCpft,ainfo,                      &
                               frac_surft_in = veg_state%frac)
 
 ! Aggregate the per-PFT litter contributions for the gridbox total
-veg_state%litC(:) = pfttiles_to_gbm(veg_state%litCpft,ainfo,frac_surft_in      &
-                  = veg_state%frac)
+veg_state%litC(:) = pfttiles_to_gbm(veg_state%litCpft,ainfo,                   &
+                  frac_surft_in = veg_state%frac)
 
 ! Aggregate the per-PFT NPP driving RED to gridbox mean diagnostics.
 ! npp_dr_out is in kg C m-2 (360d)-1, matching npp_n_gb's units directly.
