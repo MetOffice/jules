@@ -9,3 +9,4 @@
 | maggiehendry    | Maggie Hendry    | Met Office  | 2026-08-21 |
 | DanCopsey       | Dan Copsey       | Met Office  | 2026-08-24 |
 | Pierre-siddall  | Pierre Siddall   | Met Office  | 2026-08-26 |
+| nicgedney       | Nic Gedney       | Met Office  | 2026-09-01 |

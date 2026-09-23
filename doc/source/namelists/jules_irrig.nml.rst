@@ -50,7 +50,7 @@ This namelist specifies the different options available for setting up the irrig
    1. Not available yet. In a future release this will replace :nml:mem:`l_irrig_dmd`.
    2. Apply irrigation to irrigated surface types C3_irrig and/or C4_irrig. This option requires :nml:mem:`JULES_IRRIG::l_irrig_dmd` = FALSE and :nml:mem:`JULES_PFTPARM::irrig_pft_io` = 0 or 1.
 
-  When :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, :nml:mem:`JULES_IRRIG::irrig_option` is not available.
+   When :nml:mem:`JULES_IRRIG::l_irrig_dmd` = TRUE, :nml:mem:`JULES_IRRIG::irrig_option` is not available.
 
 .. nml:member:: l_irrig_limit
 
@@ -146,6 +146,24 @@ This namelist specifies the different options available for setting up the irrig
    Irrigation will be updated every :nml:mem:`nstep_irrig` timesteps. For example, with a model timestep of 1 hour, :nml:mem:`nstep_irrig` = 24 means that irrigation will be updated on the 24th timestep, i.e. daily updates.
 
    :nml:mem:`nstep_irrig` = NINT(frequency of irrigation update (in sec)) / :nml:mem:`JULES_TIME::timestep_len`
+
+
+.. nml:member:: l_soil_evap_irrig_separate
+
+   :type: logical
+   :default: F
+
+   Switch controlling whether the bare soil evaporation from the irrigated and non-irrigated parts of the grid-box (or soil tile) is controlled by the mean soil moisture or the separate irrigated and non-irrigated soil moisture columns. Depending on how the irrigation is applied there may be some inadvertent wetting of the bare soil fraction too, if the extent of this is large then it may be better to leave this switch as off.
+
+   Only available when :nml:mem:`l_irrig_dmd` = TRUE (:nml:mem:`irrig_option` = 1 in future release).
+
+   TRUE
+       Bare soil evaporation is explicitly calculated from the irrigated and non-irrigated soil moisture columns.
+
+   FALSE
+      No effect. (Bare soil evaporation is calculated using the mean soil moisture).
+
+   This must be set to FALSE if :nml:mem:`irrig_option` = No irrigation (0) or Tile-based irrigation (2).
 
 
 .. _References_irrig:
