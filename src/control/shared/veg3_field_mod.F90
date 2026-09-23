@@ -262,11 +262,16 @@ SUBROUTINE veg3_field_deallocate()
 ! done, otherwise the original local allocations become orphaned (leaked) -
 ! this can be a significant leak for red_state%plantNumDensity in particular.
 !
-! Note: veg_state%phen, veg_state%npp_acc and veg_state%mort_litC are
-! deliberately NOT included here. They are never re-associated in
-! veg3_field_assoc (mort_litC is declared ALLOCATABLE rather than POINTER
-! for this reason) and so simply remain the arrays allocated in
-! veg3_field_allocate for the lifetime of the run.
+! Note: veg_state%phen, veg_state%npp_acc, veg_state%mort_litC,
+! veg_state%nbp_gb and the red_state ALLOCATABLE components (mass_mass,
+! ht_mass, lai_bal_mass, crwn_area_mass, g_mass_scale, mort) are
+! deliberately NOT included here. None of these are re-associated in
+! veg3_field_assoc (the red_state ones are ALLOCATABLE rather than
+! POINTER, so cannot be re-associated at all) and they remain the arrays
+! allocated in veg3_field_allocate for the lifetime of the run. They are
+! read/written every timestep (e.g. in red_veg3_couple and
+! veg3_red_dynamic_mod), so deallocating them here - before that ongoing
+! use - would break the run.
 
 IMPLICIT NONE
 
