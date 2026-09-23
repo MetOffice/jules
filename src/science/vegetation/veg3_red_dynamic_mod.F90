@@ -447,7 +447,7 @@ END DO
 IF (frac_check < frac_min) THEN
   ! Take this additional carbon from the litterfall flux
   mort_litC = mort_litC - (frac_min - frac_check)/crwn_area_mass(1) *          &
-              mass_mass(1) / dt
+              mass_mass(1) / dt_red
   plantNumDensity(1) = plantNumDensity(1)                                      &
     +(frac_min - frac_check) / crwn_area_mass(1)
 
