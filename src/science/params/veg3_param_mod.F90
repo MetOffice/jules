@@ -11,6 +11,17 @@
 !
 ! Some of the content of this file has been produced with the assistance of
 ! Met Office Github Copilot Enterprise.
+!
+! Description:
+! This module contains parameters necessary to run the RED demographic drynamic
+! vegetation model (Argles et al., 2020)
+!
+! Citation:
+! Argles, A. P. K., Moore, J. R., Huntingford, C., Wiltshire,
+! A. J., Harper, A. B., Jones, C. D., & Cox, P. M. (2020).
+! Robust Ecosystem Demography (RED version 1.0): A parsimonious approach to
+! modelling vegetation dynamics in Earth system models. Geoscientific Model
+! Development, 13(9), 4067–4089. https://doi.org/10.5194/gmd-13-4067-2020
 
 MODULE veg3_parm_mod
 
@@ -24,6 +35,10 @@ TYPE :: veg3_ctrl_type
   INTEGER :: land_pts,nsurft,npft,nnpft,soil,triffid_period,nstep_trif,nmasst, &
              phenol_period,nstep_phen
   REAL    :: timestep,frac_min,dt_red,dt_phen_360d
+             ! dt_red - Length of the RED/vegetation dynamics coupling
+             !          timestep (s).
+             ! dt_phen_360d - Length of the phenology coupling timestep
+             !                (360 days).
 END TYPE veg3_ctrl_type
 
 !Set up objects containing everything we need for litter calculation
@@ -270,6 +285,15 @@ IF (l_red .AND. l_triffid) THEN
   DO n = 1,nnpft
     ! Cycle through the PFTs
     ! Update mclass_geom_mult for each PFT
+    ! mclass_geom_mult is used to calculate the geometric spacingbetween mass
+    ! classes for a given PFT: mass_(i+1) = mass_i * mclass_geom_mult,
+    ! where mclass_geom_mult > 1.0. Therefore, if we have the minimum and mass
+    ! classes for a PFT, we can estimate the geometric multiplier required to
+    ! get from the minimum to the maximum mass class:
+    !
+    ! mass_i = mass0 * mclass_geom_mult^(i-1)
+    !
+    ! mclass_geom_mult = (massi / mass0)^(1/(mclass-1))
     IF (red_parms%mclass(n) > 1) THEN
       red_parms%mclass_geom_mult(n) =                                          &
         (red_parms%massi(n) / red_parms%mass0(n))**                            &

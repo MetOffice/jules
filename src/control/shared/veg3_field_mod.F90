@@ -131,8 +131,6 @@ TYPE :: red_state_type
     g_mass_scale(:,:),                                                         &
               !  PFT plant growth scaling wrt metabolic scaling
               !  theory across mass. (kg C /kg C)
-    mclass_geom_mult(:),                                                       &
-              !  PFT geometric scaling coefficent for binning mass classes (-)
     mort(:,:,:)
               !  PFT mortality rate across plant mass. (/s)
   REAL, POINTER ::                                                             &
@@ -264,9 +262,11 @@ SUBROUTINE veg3_field_deallocate()
 ! done, otherwise the original local allocations become orphaned (leaked) -
 ! this can be a significant leak for red_state%plantNumDensity in particular.
 !
-! Note: veg_state%phen and veg_state%npp_acc are deliberately NOT included
-! here. They are never re-associated in veg3_field_assoc and remain the
-! arrays allocated in veg3_field_allocate for the lifetime of the run.
+! Note: veg_state%phen, veg_state%npp_acc and veg_state%mort_litC are
+! deliberately NOT included here. They are never re-associated in
+! veg3_field_assoc (mort_litC is declared ALLOCATABLE rather than POINTER
+! for this reason) and so simply remain the arrays allocated in
+! veg3_field_allocate for the lifetime of the run.
 
 IMPLICIT NONE
 
@@ -667,7 +667,7 @@ END DO
 
 !Final aggregation to gridbox for vegetation carbon for diagnostic purposes
 veg_state%vegC = pfttiles_to_gbm(veg_state%vegCpft,ainfo,frac_surft_in         &
-               = veg_state%frac)
+                              frac_surft_in = veg_state%frac)
 
 ! Aggregate the per-PFT litter contributions for the gridbox total
 veg_state%litC(:) = pfttiles_to_gbm(veg_state%litCpft,ainfo,frac_surft_in      &

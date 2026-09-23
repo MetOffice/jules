@@ -28,7 +28,7 @@ SUBROUTINE veg3_Litter(                                                        &
                 !IN parms
                 litter_parms,                                                  &
                 !IN fields
-                g_leaf_phen_dr,                                                &
+                g_leaf_dr,                                                     &
                 !IN state
                 veg_state,                                                     &
                 ! OUT Fields
@@ -60,7 +60,7 @@ TYPE(litter_parm_type),INTENT(IN) :: litter_parms
 ! Reals with INTENT IN
 !-----------------------------------------------------------------------------
 REAL, INTENT(IN)       ::                                                      &
-g_leaf_phen_dr(land_pts,nnpft)
+g_leaf_dr(land_pts,nnpft)
         ! Mean phenology-driven leaf turnover rate for driving vegetation
         ! dynamics, accumulated and averaged over the vegetation dynamics
         ! timestep in veg3_run_ctrl. (s-1)
@@ -100,12 +100,12 @@ local_litter(:,:) = 0.0
 !$OMP PARALLEL DO DEFAULT(NONE) SCHEDULE(STATIC) COLLAPSE(2)                   &
 !$OMP PRIVATE(l,n,k)                                                           &
 !$OMP SHARED(litter_parms,veg_state,leaf_litter,root_litter,wood_litter,       &
-!$OMP        local_litter,veg_index,veg_index_pts,nnpft,g_leaf_phen_dr)
+!$OMP        local_litter,veg_index,veg_index_pts,nnpft,g_leaf_dr)
 DO n = 1, nnpft
   DO k = 1, veg_index_pts
     l = veg_index(k)
 
-    leaf_litter(l,n) = g_leaf_phen_dr(l,n) * veg_state%leafC(l,n) *            &
+    leaf_litter(l,n) = g_leaf_dr(l,n) * veg_state%leafC(l,n) *                 &
                        veg_state%phen(l,n)
     root_litter(l,n) = litter_parms%g_root(n) * veg_state%rootC(l,n)
     wood_litter(l,n) = litter_parms%g_wood(n) * veg_state%woodC(l,n)
