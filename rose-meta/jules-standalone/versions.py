@@ -131,7 +131,7 @@ class vn82_t140(MacroUpgrade):
 class vn82_t115a(MacroUpgrade):
     """Upgrade macro from JULES by Maggie Hendry"""
 
-    BEFORE_TAG = "vn8.2"
+    BEFORE_TAG = "vn8.2_t140"
     AFTER_TAG = "vn8.2_t115a"
 
     def upgrade(self, config, meta_config=None):
@@ -143,10 +143,10 @@ class vn82_t115a(MacroUpgrade):
         if npft is not None:
             npft = int(npft)
             # Replace all instances of double space delimiter from jules_pftparm
-            for keys, sub_node in config.walk():
+            for keys, node in config.walk():
                 # Skip all entries unless contains jules_pftparm
                 if keys[0].find("namelist:jules_pftparm") > -1:
-                    config_value = str(sub_node.get_value([]))
+                    config_value = str(node.get_value([]))
                     if len(config_value.split(",")) != npft:
                         if len(config_value.split("  ")) == npft:
                             self.change_setting_value(
@@ -282,38 +282,72 @@ class vn82_t115a(MacroUpgrade):
             # IGNORED VALUES STILL GET PROCESSED. THERE ARE LEGITIMATE REASONS
             # FOR THESE IN OPT FILES SO A WARNING IS ISSUED TO CHECK THE RESULT.
             pft_name = [None] * npft
-            # Define known vegetation types in jules_surface_types
-            jules_surface_types = {}
-            jules_surface_types["brd_leaf"] = ""
-            jules_surface_types["brd_leaf_dec"] = ""
-            jules_surface_types["brd_leaf_eg_temp"] = ""
-            jules_surface_types["brd_leaf_eg_trop"] = ""
-            jules_surface_types["c3_crop"] = ""
-            jules_surface_types["c3_grass"] = ""
-            jules_surface_types["c3_irrig"] = ""
-            jules_surface_types["c3_pasture"] = ""
-            jules_surface_types["c4_crop"] = ""
-            jules_surface_types["c4_grass"] = ""
-            jules_surface_types["c4_irrig"] = ""
-            jules_surface_types["c4_pasture"] = ""
-            jules_surface_types["ndl_leaf"] = ""
-            jules_surface_types["ndl_leaf_dec"] = ""
-            jules_surface_types["ndl_leaf_eg"] = ""
-            jules_surface_types["shrub"] = ""
-            jules_surface_types["shrub_dec"] = ""
-            jules_surface_types["shrub_eg"] = ""
-            jules_surface_types["usr_type"] = ""
-            # Read jules_surface_types into dictionary
+            # These are the known surface types defined in
+            # jules_surface_types_mod at the time that this macro was written
+            pfts = [
+                "brd_leaf",
+                "brd_leaf_dec",
+                "brd_leaf_eg_temp",
+                "brd_leaf_eg_trop",
+                "c3_crop",
+                "c3_grass",
+                "c3_irrig",
+                "c3_pasture",
+                "c4_crop",
+                "c4_grass",
+                "c4_irrig",
+                "c4_pasture",
+                "ndl_leaf",
+                "ndl_leaf_dec",
+                "ndl_leaf_eg",
+                "shrub",
+                "shrub_dec",
+                "shrub_eg",
+                "usr_type"
+            ]
+            not_pfts = [
+                "npft",
+                "ncpft",
+                "nnvg",
+                "urban",
+                "urban_canyon",
+                "urban_roof",
+                "lake",
+                "soil",
+                "ice",
+                "elev_ice",
+                "elev_rock"
+            ]
+            # Process jules_surface_types namelist to create pft_name_io
             nlist = []
-            for item, values in jules_surface_types.items():
-                levels = self.get_setting_value(
-                    config, ["namelist:jules_surface_types", item]
-                )
-                if levels is not None:
-                    levels = levels.split(",")
-                    for l in range(len(levels)):
-                        n = int(levels[l])
-                        if n > 0:
+            for keys, node in config.walk():
+                # Skip all entries unless contains jules_surface_types
+                if keys[0].find("namelist:jules_surface_types") > -1:
+                    item = keys[-1]
+                    if item.find("namelist:jules_surface_types") == -1:
+                        if item in not_pfts:
+                            continue
+                        if item not in pfts:
+                            msg = (
+                                f"\n*******************************************"
+                                f"************************************"
+                                f"\nSurface type {item} has been used but was "
+                                f"not recognised by vn82_t115a."
+                                f"\nPlease ensure that jules_surface_types and "
+                                f"jules_pftparm is correct and add"
+                                f"\nunidentified types to the code."
+                                f"\n*******************************************"
+                                f"************************************"
+                            )
+                            self.add_report(info=msg, is_warning=True)
+
+                        print(f"{keys[0]}, {item}, {node}")
+                        config_value = str(node.value)
+                        config_value = config_value.split(",")
+                        for l in range(len(config_value)):
+                            n = int(config_value[l])
+                            if n == 0:
+                                continue
                             if n > npft:
                                 if item == "usr_type":
                                     # usr_type is also used by non-veg varieties
@@ -351,27 +385,18 @@ class vn82_t115a(MacroUpgrade):
                                         f"*********"
                                     )
                                     self.add_report(info=msg, is_warning=True)
-                                nlist.append(n)
-                                pft_name[n - 1] = item
-                                if item == "usr_type":
-                                    pft_name[n - 1] += "#" + str(l + 1)
-                                else:
-                                    if len(levels) > 1:
-                                        raise UpgradeError(
-                                            f"{item} cannot be a list"
-                                        )
-                                pft_name[n - 1] = "'{}'".format(
-                                    pft_name[n - 1]
-                                )
-            if None in pft_name:
-                raise UpgradeError(
-                    f"\n*************************************************"
-                    f"******************************"
-                    f"\nSurface type is not a known type. "
-                    f"Please correct this, then reapply macro."
-                    f"\n*************************************************"
-                    f"******************************"
-                )
+                            nlist.append(n)
+                            pft_name[n - 1] = item
+                            if item == "usr_type":
+                                pft_name[n - 1] += "#" + str(l + 1)
+                            else:
+                                if len(config_value) > 1:
+                                    raise UpgradeError(
+                                        f"{item} cannot be a list"
+                                    )
+                            pft_name[n - 1] = "'{}'".format(
+                                pft_name[n - 1]
+                            )
             self.change_setting_value(
                 config,
                 ["namelist:jules_pftparm", "pft_name_io"],
@@ -410,9 +435,8 @@ class vn82_t115(MacroUpgrade):
             error = 0
             jules_pftparm = {}
             for keys, node in config.walk():
-                section = keys[0]
                 # Skip all entries unless contains jules_pftparm
-                if section.find("namelist:jules_pftparm") > -1:
+                if keys[0].find("namelist:jules_pftparm") > -1:
                     item = keys[-1]
                     if item.find("namelist:jules_pftparm") == -1:
                         value = str(node.value)
