@@ -357,13 +357,7 @@ class vn82_t115a(MacroUpgrade):
                         for l in range(len(config_value)):
                             n = int(config_value[l])
                             if n == 0:
-                                # Test this with items that have had crops
-                                # added but not set by user. These will be
-                                # misidentified.
-                                # raise UpgradeError("
-                                # f"Index of surface type = 0"
-                                # )
-                                # Skip for now.
+                                # Skip items which have an unset index
                                 continue
                             if n > npft:
                                 if item == "usr_type":
@@ -424,6 +418,16 @@ class vn82_t115a(MacroUpgrade):
                             pft_name[n - 1] = "'{}'".format(
                                 pft_name[n - 1]
                             )
+            if None in pft_name:
+                raise UpgradeError(
+                    f"\n*************************************************"
+                    f"******************************"
+                    f"\nNot all surface types were defined by "
+                    f"jules_surface_types.\nPlease correct the namelist, then "
+                    f"reapply macro."
+                    f"\n*************************************************"
+                    f"******************************"
+                    )
             self.change_setting_value(
                 config,
                 ["namelist:jules_pftparm", "pft_name_io"],
