@@ -258,6 +258,8 @@ SUBROUTINE read_jules_pftparm (unitnumber)
 
 USE pftparm_io,       ONLY:                                                    &
   read_nml_jules_pftparm
+USE pftparm,          ONLY:                                                    &
+  print_nlist_jules_pftparm, check_jules_pftparm
 
 IMPLICIT NONE
 
@@ -269,7 +271,12 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_JULES_PFTPARM'
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
+! Reading the jules_pftparm namelist now allocates and fills pftparm arrays
 CALL read_nml_jules_pftparm(unitnumber)
+IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
+  CALL print_nlist_jules_pftparm()
+END IF
+CALL check_jules_pftparm()
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN

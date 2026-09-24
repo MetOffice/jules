@@ -87,8 +87,6 @@ USE jules_surface_types_mod, ONLY: ncpft, nnpft,                               &
 USE ancil_info, ONLY: land_pts, lice_pts, soil_pts, nsoilt,                    &
                       dim_cslayer
 
-USE prognostics, ONLY: l_broadcast_soilt_in_mod => l_broadcast_soilt
-
 USE crop_vars_mod, ONLY: startyr, startmon, startday,                          &
                          starttime
 

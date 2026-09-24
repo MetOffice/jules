@@ -147,5 +147,65 @@ CALL jules_print(RoutineName,                                                  &
 END SUBROUTINE c_irrigation_print
 #endif
 
+#if defined(UM_JULES) && !defined(LFRIC)
+SUBROUTINE read_nml_c_irrigation_bcast(ntype)
+
+USE setup_namelist, ONLY: setup_nml_type
+USE UM_parcore,     ONLY: mype
+USE parkind1, ONLY: jprb, jpim
+USE yomhook, ONLY: lhook, dr_hook
+USE errormessagelength_mod, ONLY: errormessagelength
+USE max_dimensions, ONLY: ntype_max
+
+IMPLICIT NONE
+
+!Arguments
+INTEGER, INTENT(IN) :: ntype
+
+! Local variables
+INTEGER :: my_comm
+INTEGER :: mpl_nml_type
+INTEGER :: icode
+
+CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_C_IRRIGATION_BCAST'
+INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
+INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
+REAL(KIND=jprb)               :: zhook_handle
+CHARACTER(LEN=errormessagelength) :: iomessage
+
+! set number of each type of variable in my_namelist type
+INTEGER, PARAMETER :: no_of_types = 1
+INTEGER, PARAMETER :: n_int = ntype_max
+
+TYPE :: my_namelist
+  SEQUENCE
+  INTEGER :: irrig_tile(ntype_max)
+END TYPE my_namelist
+
+TYPE (my_namelist) :: my_nml
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
+
+CALL gc_get_communicator(my_comm, icode)
+
+CALL setup_nml_type(no_of_types, mpl_nml_type, n_int_in = n_int)
+
+IF ( mype == 0 ) THEN
+  my_nml % irrig_tile(1:ntype) = irrig_tile(:)
+END IF
+
+CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
+
+IF (mype /= 0) THEN
+  irrig_tile(:) = my_nml % irrig_tile(1:ntype)
+END IF
+
+CALL mpl_type_free(mpl_nml_type,icode)
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
+RETURN
+
+END SUBROUTINE read_nml_c_irrigation_bcast
+#endif
 
 END MODULE c_irrigation_mod
