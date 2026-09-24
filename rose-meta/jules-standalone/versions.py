@@ -309,7 +309,7 @@ class vn82_t115a(MacroUpgrade):
                 "shrub_eg",
                 "usr_type"
             ]
-            not_pfts = [
+            non_pfts = [
                 "npft",
                 "ncpft",
                 "nnvg",
@@ -329,28 +329,41 @@ class vn82_t115a(MacroUpgrade):
                 if keys[0].find("namelist:jules_surface_types") > -1:
                     item = keys[-1]
                     if item.find("namelist:jules_surface_types") == -1:
-                        if item in not_pfts:
+                        if str(node.state) == '!!':
+                            # Skip triggered off items
+                            continue
+                        if item in non_pfts:
+                            # Skip non-PFT items
                             continue
                         if item not in pfts:
+                            # Process items that are unrecognised as otherwise
+                            # experimental configurations couldn't be
+                            # upgraded without an edit to the upgrade macro.
                             msg = (
                                 f"\n*******************************************"
                                 f"************************************"
-                                f"\nSurface type {item} has been used but was "
-                                f"not recognised by vn82_t115a."
+                                f"\nSurface type '{item}' has been used but "
+                                f"was not recognised by vn82_t115a."
                                 f"\nPlease ensure that jules_surface_types and "
-                                f"jules_pftparm is correct and add"
-                                f"\nunidentified types to the code."
+                                f"jules_pftparm namelists are correct"
+                                f"\nand add unidentified types to the code."
                                 f"\n*******************************************"
                                 f"************************************"
                             )
                             self.add_report(info=msg, is_warning=True)
 
-                        print(f"{keys[0]}, {item}, {node}")
                         config_value = str(node.value)
                         config_value = config_value.split(",")
                         for l in range(len(config_value)):
                             n = int(config_value[l])
                             if n == 0:
+                                # Test this with items that have had crops
+                                # added but not set by user. These will be
+                                # misidentified.
+                                # raise UpgradeError("
+                                # f"Index of surface type = 0"
+                                # )
+                                # Skip for now.
                                 continue
                             if n > npft:
                                 if item == "usr_type":
@@ -362,9 +375,21 @@ class vn82_t115a(MacroUpgrade):
                                     )
                                     self.add_report(info=msg, is_warning=True)
                                 else:
-                                    raise UpgradeError(
-                                        f"{item} is greater than npft"
+                                    # Assume all other types are unrecognised
+                                    # non-veg varieties and skip these
+                                    msg = (
+                                        f"\n***********************************"
+                                        f"*************************************"
+                                        f"*******"
+                                        f"\n'{item}' is greater than npft."
+                                        f"\nAssumed to be an unidentified "
+                                        f"non-veg type. Skipping..."
+                                        f"\n***********************************"
+                                        f"*************************************"
+                                        f"*******"
                                     )
+                                    self.add_report(info=msg, is_warning=True)
+                                    continue
                             else:
                                 if n in nlist:
                                     msg = (
@@ -381,9 +406,7 @@ class vn82_t115a(MacroUpgrade):
                                         f"jules_surface_types\nand manually "
                                         f"correct if required. These are "
                                         f"checked at runtime to ensure\n"
-                                        f"compatibility.\nNB. This may result "
-                                        f"from user ignored values as the "
-                                        f"macro cannot identify them."
+                                        f"compatibility."
                                         f"\n**********************************"
                                         f"************************************"
                                         f"*********"
@@ -396,7 +419,7 @@ class vn82_t115a(MacroUpgrade):
                             else:
                                 if len(config_value) > 1:
                                     raise UpgradeError(
-                                        f"{item} cannot be a list"
+                                        f"'{item}' cannot be a list"
                                     )
                             pft_name[n - 1] = "'{}'".format(
                                 pft_name[n - 1]
@@ -454,7 +477,7 @@ class vn82_t115(MacroUpgrade):
                                 jules_pftparm[item] = [RMDI] * npft
                             else:
                                 error += 1
-                                print(f"ERROR: Length {item} is not npft.")
+                                print(f"ERROR: Length '{item}' is not npft.")
             if error > 0:
                 raise UpgradeError(
                     f"\n*************************************************"
