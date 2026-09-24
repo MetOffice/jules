@@ -16,7 +16,7 @@ IMPLICIT NONE
 
 CONTAINS
 
-SUBROUTINE check_unavailable_options()
+SUBROUTINE check_unavailable_options(call_type)
 
 USE ereport_mod, ONLY: ereport
 USE log_mod,     ONLY: log_event, log_scratch_space, log_level_warning
@@ -26,6 +26,8 @@ USE jules_surface_mod, ONLY: l_anthrop_heat_src, anthrop_heat_option, dukes,   &
                              l_elev_lw_down, l_point_data
 
 IMPLICIT NONE
+
+CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: call_type
 
 !Local variables
 INTEGER :: errcode, error_sum

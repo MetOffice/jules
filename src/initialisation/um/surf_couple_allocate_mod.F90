@@ -31,7 +31,7 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE ::                                        &
 CONTAINS
 
 SUBROUTINE surf_couple_allocate (land_field, ntiles, sm_levels,                &
-                                      nice, nice_use)
+                                      nice, nice_use, call_type)
 
 USE um_parallel_mod,          ONLY: is_master_task
 USE atm_fields_bounds_mod,    ONLY: tdims, vdims, udims
@@ -189,6 +189,7 @@ INTEGER, INTENT(IN) :: nice_use     ! Number of sea ice categories used
 
 ! Local variables
 INTEGER             :: i            ! Looper
+CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: call_type
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1

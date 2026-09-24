@@ -21,11 +21,13 @@ CONTAINS
 
 ! For the scm the call takes a few extra arguments due to differences in
 ! module from the main UM
-SUBROUTINE jules_init(land_index,psparms,progs,lake_vars,ainfo                 &
 #if defined(SCMA)
-                      ,land_field, ntiles, sm_levels                           &
+SUBROUTINE jules_init(land_index,psparms,progs,lake_vars                       &
+                     ,land_field, ntiles, sm_levels)
+#else
+SUBROUTINE jules_init(land_index,psparms,progs,lake_vars                       &
+                     ,toppdm)
 #endif
-                      )
 
 !Sort out scm-dependent USE statements
 #if defined(SCMA)
@@ -51,6 +53,8 @@ USE atm_fields_mod,           ONLY: rho_snow_grnd,                             &
 USE atm_fields_mod,           ONLY: clapp_horn, sat_soilw_suction,             &
                                     sat_soil_cond, therm_cap, therm_cond,      &
                                     vol_smc_crit, vol_smc_wilt, vol_smc_sat
+USE jules_soil_mod,           ONLY: dzsoil, l_satcon_decay,                    &
+                                    f_satcon
 USE trignometric_mod,         ONLY: true_longitude, true_latitude
 
 USE conversions_mod,          ONLY: recip_pi_over_180
@@ -69,6 +73,9 @@ USE yomhook,                  ONLY: lhook, dr_hook
 
 !TYPE definitions
 USE p_s_parms, ONLY: psparms_type
+#if ! defined(SCMA)
+USE top_pdm, ONLY: top_pdm_type
+#endif
 USE prognostics, ONLY: progs_type
 USE lake_mod,    ONLY: lake_type
 IMPLICIT NONE
@@ -85,12 +92,23 @@ INTEGER, INTENT(IN) :: land_index    (MAX(1,land_field))
 
 !TYPES containing field data (IN OUT)
 TYPE(psparms_type), INTENT(IN OUT) :: psparms
+#if ! defined(SCMA)
+TYPE(top_pdm_type), INTENT(IN OUT) :: toppdm
+#endif
 TYPE(progs_type), INTENT(IN OUT) :: progs
 TYPE(lake_type), INTENT(IN OUT) :: lake_vars
 TYPE(ainfo_type), INTENT(IN OUT) :: ainfo
 
 ! WORK variables:
 INTEGER :: i,j,l,m,n
+
+#if ! defined(SCMA)
+REAL :: depth_of_base_of_soil_level(sm_levels)
+    ! Depth of base of soil level in m
+
+REAL :: depth_of_mid_soil_level(sm_levels)
+    ! Depth of centre of soil level in m
+#endif
 
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
@@ -123,6 +141,36 @@ DO m = 1, nsoilt
   END DO
 END DO
 #endif
+
+IF ( l_satcon_decay ) THEN
+
+  depth_of_base_of_soil_level(1) = dzsoil(1)
+  DO n = 2,sm_levels
+    depth_of_base_of_soil_level(n) = depth_of_base_of_soil_level(n-1) + dzsoil(n)
+  END DO
+  depth_of_mid_soil_level(:) = depth_of_base_of_soil_level(:) - dzsoil(:) * 0.5
+
+  DO m = 1, nsoilt
+    DO l = 1, land_field
+      psparms%satcon_soilt(l,m,0) = sat_soil_cond(l) * f_satcon
+      DO n = 1, sm_levels
+        psparms%satcon_soilt(l,m,n) = psparms%satcon_soilt(l,m,0) *            &
+          EXP( - toppdm%fexp_soilt(l,m) * (depth_of_mid_soil_level(n)) )
+      END DO
+    END DO
+  END DO
+
+ELSE
+
+  DO m = 1, nsoilt
+    DO l = 1, land_field
+      DO n = 0, sm_levels
+        psparms%satcon_soilt(l,m,n) = sat_soil_cond(l)
+      END DO
+    END DO
+  END DO
+
+END IF
 
 ! snowdepth needed in AP1 for JULES radiation
 !---------------------------------------------

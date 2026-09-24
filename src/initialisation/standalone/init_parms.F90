@@ -72,7 +72,7 @@ CALL sparm(land_pts, nsurft, ainfo%surft_pts,                                  &
            psparms%z0h_bare_surft, urban_param%ztm_gb)
 
 CALL infiltration_rate(land_pts, nsurft, ainfo%surft_pts, ainfo%surft_index,   &
-                       psparms%satcon_soilt, ainfo%frac_surft,                 &
+                       psparms%satcon_soilt(:,:,0), ainfo%frac_surft,          &
                        psparms%infil_surft)
 
 !-----------------------------------------------------------------------

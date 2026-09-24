@@ -43,7 +43,7 @@ USE logging_mod, ONLY: log_info, log_warn, log_fatal
 
 USE jules_surface_types_mod, ONLY: npft, nnpft
 
-USE jules_soil_mod, ONLY: sm_levels, soil_props_const_z
+USE jules_soil_mod, ONLY: sm_levels, soil_props_const_z, l_satcon_decay, f_satcon
 
 USE dump_mod, ONLY: ancil_dump_read
 
@@ -323,6 +323,22 @@ IF ((fsmc_shape == 1) .AND. ANY(fsmc_mod == 1)) THEN
     CALL log_fatal("init_vars_tmp",                                            &
                    "fsmc_shape=fsmc_mod=1 requires " //                        &
                    "const_z=T in JULES_SOIL_PROPS.")
+  END IF
+END IF
+
+IF ( soil_props_const_z ) THEN
+  IF ( l_satcon_decay ) THEN
+    IF ( .NOT. f_satcon == 1.0 .AND. ancil_dump_read%soil_props ) THEN
+      CALL log_fatal("init_vars_tmp",                                          &
+                     "f_satcon should be 1.0 " //                              &
+                     "when JULES_SOIL_PROPS has read_from_dump=T.")
+    END IF
+  END IF
+ELSE
+  IF ( l_satcon_decay ) THEN
+    CALL log_fatal("init_vars_tmp",                                            &
+                  "l_satcon_decay=T requires " //                              &
+                  "const_z=T in JULES_SOIL_PROPS.")
   END IF
 END IF
 

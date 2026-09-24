@@ -12,7 +12,7 @@ IMPLICIT NONE
 
 CONTAINS
 
-SUBROUTINE check_unavailable_options()
+SUBROUTINE check_unavailable_options(call_type)
 
 USE ereport_mod, ONLY: ereport
 USE jules_print_mgr, ONLY:                                                     &
@@ -24,8 +24,9 @@ USE jules_irrig_mod, ONLY: l_irrig_limit
 USE jules_urban_mod, ONLY: l_urban_empirical
 USE jules_rivers_mod, ONLY: l_riv_overbank, l_rivers, i_river_vn,              &
     rivers_um_trip, rivers_rfm
-USE jules_soil_biogeochem_mod, ONLY: l_ch4_microbe, l_label_frac_cs
-USE jules_soil_mod, ONLY: l_tile_soil, l_bedrock
+USE jules_soil_biogeochem_mod, ONLY: l_ch4_microbe, l_label_frac_cs,           &
+                                     l_bgc_heat
+USE jules_soil_mod, ONLY: l_tile_soil, l_bedrock, l_satcon_decay
 USE jules_surface_types_mod, ONLY: ncpft
 USE jules_water_resources_mod, ONLY: l_water_resources
 USE jules_deposition_mod, ONLY: l_deposition_from_ukca, l_deposition_gc_corr,  &
@@ -38,6 +39,7 @@ IMPLICIT NONE
 !Local variables
 INTEGER :: errcode, error_sum
 CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_UNAVAILABLE_OPTIONS'
+CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: call_type
 
 
 error_sum = 0
@@ -256,6 +258,19 @@ IF ( dep_h2_soil_scheme /= imdi ) THEN
        ": Only the Conrad & Seiler (1, original) H2 soil deposition " //       &
        "scheme is available to the UM. dep_h2_soil_scheme = ",                 &
        dep_h2_soil_scheme
+    CALL jules_print(RoutineName, jules_message, level = PrNorm)
+  END IF
+END IF
+
+! There are many science options that are available to the UM, but not to the
+! SCM. These can be listed here.
+IF ( call_type == "SCM" ) THEN
+  ! jules_soil_mod
+  IF ( l_satcon_decay ) THEN
+    error_sum = error_sum + 1
+    WRITE(jules_message,'(I0,A,L1)') error_sum,                                &
+    ": l_satcon_decay=T is not available in the SCM. " //                      &
+    "l_satcon_decay = ", l_satcon_decay
     CALL jules_print(RoutineName, jules_message, level = PrNorm)
   END IF
 END IF

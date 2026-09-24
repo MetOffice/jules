@@ -23,6 +23,7 @@ SUBROUTINE calc_baseflow( npnts, nshyd, soil_pts, soil_index,                  &
                           qbase, qbase_l, top_crit )
 
 USE jules_hydrology_mod, ONLY: ti_max, zw_max
+USE jules_soil_mod, ONLY: l_satcon_decay, f_satcon
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -134,8 +135,14 @@ DO j = 1,soil_pts
   !---------------------------------------------------------------------------
   DO n = 1,nshyd
     IF (sthf(i,n) <  1.0) THEN
-      ksfz(i,n) = 0.5 * (ksz(i,n-1) + ksz(i,n))                                &
-                 *(1.0 - sthf(i,n))**(2.0 * b(i) + 3.0) * EXP(-ti_mean(i))
+      IF ( l_satcon_decay ) THEN
+        ! Use satcon at upper boundary of layer 1 for mathematical ease:
+        ksfz(i,n) = ksz(i,0) / fexp(i)                                         &
+             * (1.0 - sthf(i,n))**(2.0 * b(i) + 3.0) * EXP(-ti_mean(i))
+      ELSE
+        ksfz(i,n) = 0.5 * (ksz(i,n-1) + ksz(i,n))                              &
+             *(1.0 - sthf(i,n))**(2.0 * b(i) + 3.0) * EXP(-ti_mean(i))
+      END IF
     ELSE
       ksfz(i,n) = 0.0
     END IF
@@ -172,18 +179,33 @@ DO j = 1,soil_pts
 
   DO n = 1,nshyd
 
-    qbase_max_l(i,n) = ksfz(i,n) * (zdepth(n) - zdepth(n-1))
+    IF ( l_satcon_decay ) THEN
+      qbase_max_l(i,n) = ksfz(i,n) *                                           &
+           (EXP(-fexp(i) * zdepth(n-1)) - EXP(-fexp(i) * zdepth(n)))
 
-    IF (zw(i) <= zdepth(n-1)) THEN
-      qbase_l(i,n) = qbase_max_l(i,n)
-    END IF
+      IF (zw(i) <= zdepth(n-1)) THEN
+        qbase_l(i,n) = qbase_max_l(i,n)
+      END IF
 
-    IF (zw(i) <  zdepth(n) .AND. zw(i) >  zdepth(n-1)) THEN
-      qbase_l(i,n) = ksfz(i,n) * (zdepth(n) - zw(i))
-    END IF
+      IF (zw(i) <  zdepth(n) .AND. zw(i) >  zdepth(n-1)) THEN
+        qbase_l(i,n) = ksfz(i,n) *                                             &
+          (EXP(-fexp(i) * zw(i)) - EXP(-fexp(i) * (zdepth(n))))
+      END IF
 
-    IF (n == 1 .AND. zw(i) <  zdepth(n)) THEN
-      qbase_l(i,n) = ksfz(i,n) * (zdepth(n) - zw(i))
+    ELSE
+      qbase_max_l(i,n) = ksfz(i,n) * (zdepth(n) - zdepth(n-1))
+
+      IF (zw(i) <= zdepth(n-1)) THEN
+        qbase_l(i,n) = qbase_max_l(i,n)
+      END IF
+
+      IF (zw(i) <  zdepth(n) .AND. zw(i) >  zdepth(n-1)) THEN
+        qbase_l(i,n) = ksfz(i,n) * (zdepth(n) - zw(i))
+      END IF
+
+      IF (n == 1 .AND. zw(i) <  zdepth(n)) THEN
+        qbase_l(i,n) = ksfz(i,n) * (zdepth(n) - zw(i))
+      END IF
     END IF
 
   END DO

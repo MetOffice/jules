@@ -79,7 +79,7 @@ CHARACTER(LEN=*), PARAMETER :: routinename='CHECK_COMPATIBLE_OPTIONS'
 ! being attempted to be used. A CASE statement using lsm_id can be added here
 ! and the routine split up if it transpires that some are required by child
 ! models.
-CALL check_unavailable_options()
+CALL check_unavailable_options(call_type)
 
 ERROR = 0
 

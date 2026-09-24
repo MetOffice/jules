@@ -1095,7 +1095,7 @@ CASE ( jules )
                     psparms%z0_surft,psparms%z0h_bare_surft,urban_param%ztm_gb)
 
         CALL infiltration_rate(land_pts,nsurft,surft_pts,ainfo%surft_index,    &
-                               psparms%satcon_soilt,veg_state%frac,            &
+                               psparms%satcon_soilt(:,:,0),veg_state%frac,     &
                                psparms%infil_surft)
 
         DO n = 1, nnpft

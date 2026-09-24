@@ -29,8 +29,12 @@ IMPLICIT NONE
 !-----------------------------------------------------------------------------
 ! Switches
 !-----------------------------------------------------------------------------
+INTEGER, PARAMETER ::                                                          &
+  sm_levels_default = 4
+
 INTEGER ::                                                                     &
-  sm_levels = imdi
+  sm_levels = sm_levels_default
+      ! Number of soil layers
 
 LOGICAL ::                                                                     &
   l_vg_soil      = .FALSE.,                                                    &
@@ -53,11 +57,14 @@ LOGICAL ::                                                                     &
   soil_props_const_z = .FALSE.,                                                &
       ! Switch for whether soil ancils has the same values on each layer.
       ! Set in the JULES_SOIL_PROPS namelist.
-  l_holdwater = .FALSE.
+  l_holdwater = .FALSE.,                                                       &
       ! Switch to control how supersaturated and negative soil moisture is
       ! handled in the implicit calculation. FALSE: excess/required moisture
       ! is pushed out/in from the base of the soil. TRUE: water is added/
       ! taken from an adjacent layer.
+  l_satcon_decay = .FALSE.
+      ! Switch to vary saturated hydraulic conductivity exponentially with
+      ! depth
 
 #if !defined(UM_JULES)
 LOGICAL ::                                                                     &
@@ -116,9 +123,12 @@ REAL(KIND=real_jlslsm) ::                                                      &
       ! Depth of layer over which soil moisture diagnostic is averaged (m)
   zst = rmdi,                                                                  &
       ! Depth of layer over which soil temperature diagnostic is averaged (m)
-  confrac = rmdi
+  confrac = rmdi,                                                              &
       ! Fraction of the gridbox over which convective precipitation is
       ! assumed to fall
+  f_satcon = 1.0
+      ! The factor satcon from the ancil is multiplied by to get the satcon
+      ! at the surface
 
 !-----------------------------------------------------------------------------
 ! Bedrock parameters
@@ -165,14 +175,14 @@ NAMELIST  / jules_soil/                                                        &
 ! Additional parameters for standalone JULES only (for soil tiling).
     l_broadcast_ancils,                                                        &
 #endif
-! Soil levels
+! Levels
     sm_levels,                                                                 &
 ! Switches
     l_vg_soil, l_dpsids_dsdz, l_soil_sat_down, soilhc_method, l_bedrock,       &
-    l_holdwater, l_tile_soil,                                                  &
+    l_holdwater, l_tile_soil, l_satcon_decay,                                  &
 ! Parameters
     cs_min, zsmc, zst, confrac, ns_deep, hcapdeep, hcondeep,                   &
-    dzdeep, dzsoil_io, dzsoil_elev
+    dzdeep, dzsoil_io, dzsoil_elev, f_satcon
 
 
 
@@ -185,6 +195,7 @@ SUBROUTINE check_jules_soil()
 
 USE jules_irrig_mod, ONLY: l_irrig_dmd
 USE jules_surface_mod, ONLY: l_elev_land_ice
+USE jules_hydrology_mod, ONLY: l_top
 USE ereport_mod, ONLY: ereport
 
 !-----------------------------------------------------------------------------
@@ -208,6 +219,17 @@ INTEGER :: errorstatus
 
 ! Set error status to show a fatal error for all checks.
 errorstatus = 101
+
+!-----------------------------------------------------------------------------
+! Verify that a suitable sm_levels was given in the namelist
+!
+!   * If we are running in the UM and the user tried to specify sm_levels
+!     using the namelist, emit an error as it is probably something that
+!     needs looking at
+!     We use the passed in value instead
+!   * If we are running standalone, we ignore the passed in value and use the
+!     value from the namelist
+!-----------------------------------------------------------------------------
 
 ! Check that sm_levels has been set
 IF ( sm_levels < 1 ) THEN
@@ -248,6 +270,21 @@ IF ( ABS( confrac - rmdi ) < EPSILON(1.0) ) THEN
 ELSE IF ( confrac < 0.0 .OR. confrac > 1.0 ) THEN
   CALL ereport(RoutineName, errorstatus,                                       &
                  'confrac must lie in the range 0 to 1')
+END IF
+
+IF (l_satcon_decay) THEN
+  IF ( .NOT. l_top ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+               'l_satcon_decay=T can only be used with'//                      &
+               'l_top=T')
+  END IF
+END IF
+
+IF ( .NOT. f_satcon == 1.0  ) THEN
+  IF ( .NOT. l_satcon_decay ) THEN
+    CALL ereport(RoutineName, errorstatus,                                     &
+             'f_satcon should be 1.0 unless l_satcon_decay=T')
+  END IF
 END IF
 
 ! check that cs_min is set and > 1.0e-6
@@ -342,6 +379,9 @@ CALL jules_print('jules_soil', lineBuffer)
 WRITE(lineBuffer, *) '  l_bedrock = ', l_bedrock
 CALL jules_print('jules_soil', lineBuffer)
 
+WRITE(lineBuffer, *) '  l_satcon_decay = ', l_satcon_decay
+CALL jules_print('jules_soil', lineBuffer)
+
 WRITE(lineBuffer, *) '  l_tile_soil = ', l_tile_soil
 CALL jules_print('jules_soil', lineBuffer)
 
@@ -376,6 +416,9 @@ WRITE(lineBuffer, *) '  dzsoil_io = ', dzsoil_io(1:sm_levels)
 CALL jules_print('jules_soil', lineBuffer)
 
 WRITE(lineBuffer, *) '  dzsoil_elev = ', dzsoil_elev
+CALL jules_print('jules_soil', lineBuffer)
+
+WRITE(lineBuffer, *) '  f_satcon = ', f_satcon
 CALL jules_print('jules_soil', lineBuffer)
 
 CALL jules_print('jules_soil',                                                 &
@@ -418,7 +461,7 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 3
 INTEGER, PARAMETER :: n_int = 3
-INTEGER, PARAMETER :: n_real = 8 + sm_levels_max
+INTEGER, PARAMETER :: n_real = 7 + sm_levels_max
 INTEGER, PARAMETER :: n_log = 6
 
 TYPE :: my_namelist
@@ -435,12 +478,14 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: dzdeep
   REAL(KIND=real_jlslsm) ::dzsoil_io(sm_levels_max)
   REAL(KIND=real_jlslsm) ::dzsoil_elev
+  REAL(KIND=real_jlslsm) ::f_satcon
   LOGICAL :: l_vg_soil
   LOGICAL :: l_dpsids_dsdz
   LOGICAL :: l_soil_sat_down
   LOGICAL :: l_holdwater
   LOGICAL :: l_bedrock
   LOGICAL :: l_tile_soil
+  LOGICAL :: l_satcon_decay
 END TYPE my_namelist
 
 TYPE (my_namelist) :: my_nml
@@ -470,12 +515,14 @@ IF (mype == 0) THEN
   my_nml % dzdeep          = dzdeep
   my_nml % dzsoil_io       = dzsoil_io
   my_nml % dzsoil_elev     = dzsoil_elev
+  my_nml % f_satcon        = f_satcon
   my_nml % l_vg_soil       = l_vg_soil
   my_nml % l_dpsids_dsdz   = l_dpsids_dsdz
   my_nml % l_soil_sat_down = l_soil_sat_down
   my_nml % l_holdwater     = l_holdwater
   my_nml % l_bedrock       = l_bedrock
   my_nml % l_tile_soil     = l_tile_soil
+  my_nml % l_satcon_decay  = l_satcon_decay
 
 END IF
 
@@ -495,12 +542,14 @@ IF (mype /= 0) THEN
   dzdeep          = my_nml % dzdeep
   dzsoil_io       = my_nml % dzsoil_io
   dzsoil_elev     = my_nml % dzsoil_elev
+  f_satcon        = my_nml % f_satcon
   l_vg_soil       = my_nml % l_vg_soil
   l_dpsids_dsdz   = my_nml % l_dpsids_dsdz
   l_soil_sat_down = my_nml % l_soil_sat_down
   l_holdwater     = my_nml % l_holdwater
   l_bedrock       = my_nml % l_bedrock
   l_tile_soil     = my_nml % l_tile_soil
+  l_satcon_decay  = my_nml % l_satcon_decay
 END IF
 
 CALL mpl_type_free(mpl_nml_type,icode)

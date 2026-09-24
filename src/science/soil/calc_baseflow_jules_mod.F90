@@ -24,7 +24,7 @@ USE jules_hydrology_mod, ONLY:                                                 &
   ti_max,zw_max,l_baseflow_corr
 
 USE jules_soil_mod, ONLY:                                                      &
-  l_vg_soil
+  l_vg_soil, l_satcon_decay
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -227,16 +227,31 @@ DO j = 1,soil_pts
 
   DO n = 1,nshyd
 
-    qbase_max_l(i,n) = ksfz(i,n) * ( zdepth(n) - zdepth(n-1) )
+    IF ( l_satcon_decay ) THEN
+      qbase_max_l(i,n) = ksfz(i,n) *                                           &
+           (EXP(-fexp(i) * zdepth(n-1)) - EXP(-fexp(i) * zdepth(n)))
 
-    IF ( zw(i) <= zdepth(n-1) ) qbase_l(i,n) = qbase_max_l(i,n)
+      IF (zw(i) <= zdepth(n-1)) THEN
+        qbase_l(i,n) = qbase_max_l(i,n)
+      END IF
 
-    IF ( zw(i) <  zdepth(n) .AND. zw(i) >  zdepth(n-1) ) THEN
-      qbase_l(i,n) = ksfz(i,n) * ( zdepth(n) - zw(i) )
-    END IF
+      IF (zw(i) <  zdepth(n) .AND. zw(i) >  zdepth(n-1)) THEN
+        qbase_l(i,n) = ksfz(i,n) *                                             &
+          (EXP(-fexp(i) * zw(i)) - EXP(-fexp(i) * (zdepth(n))))
+      END IF
 
-    IF ( n == 1 .AND. zw(i) <  zdepth(n) ) THEN
-      qbase_l(i,n) = ksfz(i,n) * ( zdepth(n) - zw(i) )
+    ELSE
+      qbase_max_l(i,n) = ksfz(i,n) * ( zdepth(n) - zdepth(n-1) )
+
+      IF ( zw(i) <= zdepth(n-1) ) qbase_l(i,n) = qbase_max_l(i,n)
+
+      IF ( zw(i) <  zdepth(n) .AND. zw(i) >  zdepth(n-1) ) THEN
+        qbase_l(i,n) = ksfz(i,n) * ( zdepth(n) - zw(i) )
+      END IF
+
+      IF ( n == 1 .AND. zw(i) <  zdepth(n) ) THEN
+        qbase_l(i,n) = ksfz(i,n) * ( zdepth(n) - zw(i) )
+      END IF
     END IF
 
   END DO

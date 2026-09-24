@@ -124,5 +124,21 @@ class vn82_t140(MacroUpgrade):
             self.add_setting(
                 config, ["namelist:jules_surface_types", item], value
             )
+        return config, self.reports
 
+class vn82_t1307(MacroUpgrade):
+
+    """Upgrade macro from JULES by Eddy Robertson"""
+
+    BEFORE_TAG = "vn8.2_t140"
+    AFTER_TAG = "vn8.2_t171"
+    
+    def upgrade(self,config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add settings
+        self.add_setting(config, ["namelist:jules_soil",
+                                  "l_satcon_decay"], ".false.")
+        self.add_setting(config, ["namelist:jules_soil",
+                                  "f_satcon"], "1.0")
         return config, self.reports

@@ -96,7 +96,7 @@ USE jules_soil_biogeochem_mod, ONLY:                                           &
 USE jules_soil_mod, ONLY:                                                      &
   dzsoil,                                                                      &
      ! Thicknesses of the soil layers (m).
-  dzsoil_elev, ns_deep
+  dzsoil_elev, ns_deep, l_satcon_decay, f_satcon
 
 USE jules_water_tracers_mod, ONLY: l_wtrac_jls
 USE wtrac_hyd_mod,           ONLY: wtrac_hy_type, wtrac_alloc_hyd,             &

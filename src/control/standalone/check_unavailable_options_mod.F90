@@ -12,7 +12,7 @@ IMPLICIT NONE
 
 CONTAINS
 
-SUBROUTINE check_unavailable_options()
+SUBROUTINE check_unavailable_options(call_type)
 
 USE ereport_mod, ONLY: ereport
 USE jules_print_mgr, ONLY: jules_message, jules_print, jules_format,           &
@@ -35,6 +35,7 @@ IMPLICIT NONE
 !Local variables
 INTEGER :: errcode, error_sum
 CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_UNAVAILABLE_OPTIONS'
+CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: call_type
 
 error_sum = 0
 

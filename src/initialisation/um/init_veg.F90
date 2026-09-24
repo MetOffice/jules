@@ -59,6 +59,7 @@ USE atm_fields_mod,           ONLY: frac_surft        => frac_typ,             &
 
 USE trif,                     ONLY: lai_min
 USE pftparm,                  ONLY: a_ws, eta_sl, a_wl, b_wl
+USE jules_soil_mod, ONLY: f_satcon
 
 USE umPrintMgr,               ONLY: umPrint, umMessage
 USE yomhook,                  ONLY: lhook, dr_hook

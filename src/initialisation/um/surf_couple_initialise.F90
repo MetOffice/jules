@@ -64,7 +64,7 @@ USE errormessagelength_mod, ONLY: errormessagelength
 
 !USE in instances of the JULES TYPES
 USE atm_fields_mod, ONLY: psparms, trif_vars, urban_param, progs, crop_vars,   &
-                          ainfo, lake_vars
+                          ainfo, lake_vars, toppdm
 
 IMPLICIT NONE
 

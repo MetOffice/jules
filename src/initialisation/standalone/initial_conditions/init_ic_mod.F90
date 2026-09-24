@@ -94,7 +94,8 @@ USE crop_vars_mod, ONLY: startyr, startmon, startday,                          &
 
 USE crop_utils_mod, ONLY: croplai_min, cropcanht_min, croprootc_min
 
-USE jules_soil_mod, ONLY: dzsoil, sm_levels
+USE jules_soil_mod, ONLY: dzsoil, sm_levels, l_satcon_decay,                   &
+                          f_satcon
 
 USE assign_irrig_fraction_mod,  ONLY: assign_irrig_fraction
 
@@ -206,6 +207,12 @@ REAL ::                                                                        &
     ! Downward water flux at bottom of each soil layer (kg m-2 s-1).
     ! Used as a dummy argument.
 
+REAL(KIND=real_jlslsm) :: depth_of_base_of_soil_level(sm_levels)
+    ! Depth of base of soil level in m
+
+REAL(KIND=real_jlslsm) :: depth_of_mid_soil_level(sm_levels)
+    ! Depth of centre of soil level in m
+
 INTEGER :: nstep_dummy        ! Used as a dummy argument.
 LOGICAL :: l_run_model_dummy  ! Used as a dummy argument.
 
@@ -256,7 +263,11 @@ CALL init_ic_shared ( nvars_required, required_vars,                           &
 !-----------------------------------------------------------------------------
 ! Set surface values.
 psparms%hcon_soilt(:,:,0)   = psparms%hcon_soilt(:,:,1)
-psparms%satcon_soilt(:,:,0) = psparms%satcon_soilt(:,:,1)
+IF ( l_satcon_decay ) THEN
+  psparms%satcon_soilt(:,:,0) = psparms%satcon_soilt(:,:,1) * f_satcon
+ELSE
+  psparms%satcon_soilt(:,:,0) = psparms%satcon_soilt(:,:,1)
+END IF
 
 ! Check that psparms%sathh_soilt>=0 - a common error!
 IF ( ANY( psparms%sathh_soilt(:,:,:) < 0.0 ) )                                 &
@@ -767,6 +778,32 @@ DO i = 1,sm_levels
                       psparms%sthu_soilt(:,m,i), psparms%sthf_soilt(:,m,i))
   END DO
 END DO
+
+!-----------------------------------------------------------------------------
+! Set up exponentially varying satcon
+!-----------------------------------------------------------------------------
+
+IF ( l_satcon_decay ) THEN
+  IF ( soil_pts /= 0 ) THEN
+    depth_of_base_of_soil_level(1) = dzsoil(1)
+    DO n = 2,sm_levels
+      depth_of_base_of_soil_level(n) = depth_of_base_of_soil_level(n-1) + dzsoil(n)
+    END DO
+    depth_of_mid_soil_level(:) = depth_of_base_of_soil_level(:) - dzsoil(:) * 0.5
+
+    DO j = 1,soil_pts
+      i = ainfo%soil_index(j)
+      ! recall satcon_soilt(:,:,0) is surface (set above)
+      DO n = 1,sm_levels
+        DO m = 1,nsoilt
+          psparms%satcon_soilt(i,m,n) = psparms%satcon_soilt(i,m,0) *          &
+          EXP( - toppdm%fexp_soilt(i,m) * (depth_of_base_of_soil_level(n)))
+        END DO
+      END DO
+    END DO
+  END IF
+END IF
+
 !-----------------------------------------------------------------------------
 ! Finish initialising TOPMODEL
 !-----------------------------------------------------------------------------

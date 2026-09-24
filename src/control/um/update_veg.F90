@@ -55,6 +55,7 @@ USE um_stashcode_mod,         ONLY: stashcode_lai, stashcode_canopy_height,    &
                                     stashcode_z0m_soil
 USE ancil_mod, ONLY: num_ancil_requests, ancil_requests
 USE cancila_mod, ONLY: update
+USE jules_soil_mod, ONLY: f_satcon
 
 USE yomhook,                  ONLY: lhook, dr_hook
 USE parkind1,                 ONLY: jprb, jpim
@@ -124,7 +125,7 @@ IF (update_lai .OR. update_canht .OR. update_z0msoil ) THEN
 
   !Not sure we need to call this here, but rose stem breaks if we don't
   CALL infiltration_rate(land_pts, nsurft, surft_pts, surft_index,             &
-                        satcon_gb, frac_surft, infil_surft)
+                        satcon_gb * f_satcon, frac_surft, infil_surft)
 
 END IF
 
