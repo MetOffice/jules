@@ -87,7 +87,6 @@ class vn82_t61(MacroUpgrade):
         )
         if npft is not None:
             npft = int(npft)
-        npft = int(self.get_setting_value(config, ["namelist:jules_surface_types", "npft"]))
         self.add_setting(
         config, ["namelist:jules_triffid", "fireveg_c_to_atmos_io"], ",".join(["0.13"] * npft))
 
