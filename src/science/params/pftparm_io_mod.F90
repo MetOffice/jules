@@ -329,7 +329,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_NML_JULES_PFTPARM_INSTANCES'
 n = 0
 DO ! loop over jules_pftparm instances
   CALL reset_jules_pftparm()
-  READ (UNIT = unitnumber, NML = jules_pftparm, IOSTAT = errorstatus,        &
+  READ (UNIT = unitnumber, NML = jules_pftparm, IOSTAT = errorstatus,          &
      IOMSG = iomessage)
 
   IF (errorstatus == IOSTAT_END) THEN
