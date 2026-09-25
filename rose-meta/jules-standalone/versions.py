@@ -125,6 +125,9 @@ class vn82_t140(MacroUpgrade):
                 config, ["namelist:jules_surface_types", item], value
             )
 
+        return config, self.reports
+
+
 class vn82_t61(MacroUpgrade):
 
     """Upgrade macro from JULES by Eleanor Burke"""
@@ -135,13 +138,31 @@ class vn82_t61(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        self.add_setting(config, ["namelist:jules_inferno"])
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            # Add new INFERNO namelist to namelist file fire.nml
+            source = self.get_setting_value(config, ["file:fire.nml", "source"])
+            source = source.replace("namelist:jules_fire_weather_index",
+                                    "namelist:jules_fire_weather_index namelist:jules_inferno")
+            self.change_setting_value(config, ["file:fire.nml", "source"], source)
 
-        source = self.get_setting_value(config, ["file:fire.nml","source"])
-        source = source.replace("namelist:jules_fire_weather_index",
-                                "namelist:jules_fire_weather_index namelist:jules_inferno")
-        self.change_setting_value(config, ["file:fire.nml","source"], source)
+            # Add new item to jules_triffid namelist (npft)
+            npft = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_surface_types", "npft"]
+                )
+            )
+            self.add_setting(
+                config,
+                ["namelist:jules_triffid", "fireveg_c_to_atmos_io"],
+                ",".join(["0.13"] * npft),
+            )
 
+        # Add items to new INFERNO namelist jules_inferno
         self.rename_setting(
             config,
             ["namelist:jules_soil_biogeochem", "z_burn_max"],
@@ -161,12 +182,5 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_up"], "0.2")
         self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
-        npft = self.get_setting_value(
-                config, ["namelist:jules_surface_types", "npft"]
-        )
-        if npft is not None:
-            npft = int(npft)
-        self.add_setting(
-        config, ["namelist:jules_triffid", "fireveg_c_to_atmos_io"], ",".join(["0.13"] * npft))
 
         return config, self.reports

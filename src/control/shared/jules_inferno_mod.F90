@@ -112,9 +112,10 @@ IF ( l_inferno ) THEN
   END IF
 
   ! Check a suitable flam_sm_func was given
-  IF (flam_sm_func  /=  flam_sm_func_linear .OR.                               &
-          flam_sm_func  /=  flam_sm_func_exponential) THEN
-    CALL ereport( TRIM(RoutineName), errorstatus, 'flam_sm_func must be 1 or 2')
+  IF ( flam_sm_func  /=  flam_sm_func_linear .AND.                             &
+       flam_sm_func  /=  flam_sm_func_exponential ) THEN
+    CALL ereport( TRIM(RoutineName), errorstatus,                              &
+              'flam_sm_func must be 1 or 2')
   END IF
 
   IF ( flam_sm_func == flam_sm_func_exponential ) THEN
