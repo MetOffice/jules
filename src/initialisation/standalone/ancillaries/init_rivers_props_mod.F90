@@ -47,7 +47,8 @@ USE init_rivers_process_data_mod, ONLY: process_rivers_data
 USE io_constants, ONLY: max_file_name_len, namelist_unit
 
 USE jules_rivers_mod, ONLY:                                                    &
-  i_river_vn, l_rivers, l_sea_level, rivers_camaflood, rivers_rfm,             &
+  i_river_vn, l_rivers, l_minor_reservoirs, l_sea_level,                       &
+  rivers_camaflood, rivers_rfm,                                                &
   rivers_trip, y1_land_grid, l_riv_overbank, l_outflow_per_river,              &
   l_init_storage,                                                              &
   ! types
@@ -59,6 +60,9 @@ USE jules_rivers_props_mod, ONLY:                                              &
    nvars_max, nvars, var, read_list, FILE, const_val, use_file, tpl_name,      &
    var_name, l_use_area, nx_rivers, ny_rivers, file_name_coords,               &
    x_dim_name, y_dim_name, is_climatology
+
+USE jules_water_resources_mod, ONLY:                                           &
+  l_water_resources
 
 USE logging_mod, ONLY: log_fatal, log_info
 USE jules_print_mgr,  ONLY: jules_message
@@ -296,6 +300,16 @@ IF ( is_master_task() ) THEN
     ! Add upstream drainage area.
     nvars_required = nvars_required + 1
     required_vars(nvars_required) = 'area'
+  END IF
+
+  !----------------------------------------------------------------------------
+  ! Add variables for minor reservoirs.
+  !----------------------------------------------------------------------------
+  IF ( l_minor_reservoirs ) THEN
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'minor_res_capacity_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'minor_res_frac_grid'
   END IF
 
   ! OASIS-Rivers:

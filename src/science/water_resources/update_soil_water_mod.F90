@@ -75,7 +75,7 @@ IMPLICIT NONE
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   conveyance_loss(land_pts),                                                   &
-    ! Water that is lost during conveyance (kg).
+    ! Water that is lost during conveyance from source to user (kg).
   demand_irrig(land_pts),                                                      &
     ! Demand for irrigation water (kg).
   demand_irrig_soilt(land_pts,nsoilt),                                         &
@@ -164,7 +164,7 @@ END IF
 ! Update groundwater stores.
 !------------------------------------------------------------------------------
 ! Calculate the total water addition - this is the loss during transport
-! (conveyance) and part of the return flow.
+! from source to user (conveyance) and part of the return flow.
 water_added(:) = conveyance_loss(:) + return_flow_gw(:)
 
 IF ( l_have_renew_gwater ) THEN
@@ -175,7 +175,7 @@ IF ( l_have_renew_gwater ) THEN
 ELSE
   ! Without renewable groundwater, the water added is added to sub-surface
   ! runoff. It might be better to add to soil moisture, but that has not been
-  ! coded.
+  ! coded. Here we convert units from kg to kg m-2 s-1.
   DO l = 1, land_pts
     sub_surf_roff(l) = sub_surf_roff(l) + water_added(l)                       &
                                           / ( land_area(l) * timestep_len )

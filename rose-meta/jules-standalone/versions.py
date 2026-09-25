@@ -52,7 +52,7 @@ class vn82_t141(MacroUpgrade):
     BEFORE_TAG = "vn8.2"
     AFTER_TAG = "vn8.2_t141"
 
-    def upgrade(self, config, meta_config=None):
+    def upgrade(self,config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
         self.rename_setting(config, ["namelist:fire_switches"],
@@ -125,4 +125,19 @@ class vn82_t140(MacroUpgrade):
                 config, ["namelist:jules_surface_types", item], value
             )
 
+        return config, self.reports
+
+
+class vn82_t32(MacroUpgrade):
+
+    """Upgrade macro from JULES by Douglas Clark"""
+
+    BEFORE_TAG = "vn8.2_t140"
+    AFTER_TAG = "vn8.2_t32"
+
+    def upgrade(self,config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add settings
+        self.add_setting(config, ["namelist:jules_rivers", "l_minor_reservoirs"], ".false.")
         return config, self.reports

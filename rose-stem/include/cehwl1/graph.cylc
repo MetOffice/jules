@@ -235,13 +235,13 @@
 
         "eraint" : ["eraint_rfm_2ddata", "eraint_trip_2ddata", "scripts"],
 
-       "gswp2_es" : ["gswp2_es_1p1", "gswp2_es_curr", "gswp2_es_beta", "scripts"],
+        "gswp2_es" : ["gswp2_es_1p1", "gswp2_es_curr", "gswp2_es_beta", "scripts"],
 
         "imogen" : ["imogen_layeredc","imogen_layeredc_co2conc",
                     "imogen_layeredc_dtempg","imogen_layeredc_ch4", "scripts"],
 
         "tutorial" : ["loobos_crops"],
 
-         "scripts" : ["umdp3_check", "metadata_check", "site_validator"],
+        "scripts" : ["umdp3_check", "metadata_check", "site_validator"],
     }
 %}
