@@ -285,7 +285,6 @@ END IF
 
 
 ! inferno compatibility checks
-
 ! l_layeredc with l_inferno or l_trif_fire require z_burn_max to be set
 IF ( l_layeredc .AND. ( l_trif_fire .OR. l_inferno ) ) THEN
   IF ( ABS( z_burn_max - rmdi ) < EPSILON(1.0) ) THEN
@@ -293,10 +292,6 @@ IF ( l_layeredc .AND. ( l_trif_fire .OR. l_inferno ) ) THEN
     CALL jules_print(routinename,                                              &
                    "z_burn_max must be set when using l_layeredc with " //     &
                    "l_trif_fire / l_inferno")
-  ELSE IF ( z_burn_max <= 0.0 .OR. z_burn_max > 10.0 ) THEN
-    ERROR = 1
-    CALL jules_print(routinename,                                              &
-                  "z_burn_max must be positive & less than 10 meters")
   END IF
 END IF
 

@@ -23,7 +23,7 @@ General/Technical changes
 Bugs fixed
 ----------
 
- *  Add a burn depth parameter :nml:mem:`JULES_SOIL_BIOGEOCHEM::z_burn_max` for when layered soil carbon is used so that fire only consumes soil carbon from above the burn depth. (#1514)
+ *  Add a burn depth parameter :nml:mem:``JULES_SOIL_BIOGEOCHEM::z_burn_max`` for when layered soil carbon is used so that fire only consumes soil carbon from above the burn depth. (#1514)
  *  Fix to stop NaNs appearing in the agriculture fraction (frac_agr) with the TRIFFID vegetation model. (#1526)
  *  Fixed JULES upgrade macro code for Rose2 and related fix for how JULES version files are imported. (#1508, 1531)
  *  Fixes for build on Met Office XC40 system. (#1513)

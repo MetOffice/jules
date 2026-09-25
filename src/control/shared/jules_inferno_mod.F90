@@ -225,6 +225,13 @@ IF ( l_trif_fire .OR. l_inferno ) THEN
                 "ccrpm_max must be < 1.0.")
   END IF
 
+  IF ( ABS( z_burn_max - rmdi ) < EPSILON(rmdi) ) THEN
+    IF ( z_burn_max <= 0.0 .OR. z_burn_max > 10.0 ) THEN
+      CALL ereport(RoutineName, errorstatus,                                   &
+        "z_burn_max must be positive & less than 10 meters")
+    END IF
+  END IF
+
 END IF  ! end of l_trif_fire check
 
 
