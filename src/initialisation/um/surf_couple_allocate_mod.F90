@@ -64,7 +64,7 @@ USE trif_io, ONLY:                                                             &
 ! namelist variables:
   crop_io,         harvest_freq_io,                                            &
   harvest_type_io, ag_expand_io,                                               &
-  g_area_io,       g_grow_io,                                                  &
+  g_area_io,       g_grow_io,        fireveg_c_to_atmos_io,                    &
   g_root_io,       g_wood_io,        lai_max_io,                               &
   lai_min_io,      alloc_fast_io,    alloc_med_io,                             &
   alloc_slow_io,   dpm_rpm_ratio_io, retran_l_io,                              &
@@ -73,7 +73,7 @@ USE trif_io, ONLY:                                                             &
 USE trif, ONLY:                                                                &
   crop,            harvest_freq,                                               &
   harvest_type,    ag_expand,                                                  &
-  g_area,          g_grow,                                                     &
+  g_area,          g_grow,           fireveg_c_to_atmos,                       &
   g_root,          g_wood,           lai_max,                                  &
   lai_min,         alloc_fast,       alloc_med,                                &
   alloc_slow,      dpm_rpm_ratio,    retran_l,                                 &
@@ -312,6 +312,7 @@ IF ( l_triffid .OR. l_phenol ) THEN
   harvest_freq(:) = harvest_freq_io(1:npft)
   harvest_type(:) = harvest_type_io(1:npft)
   ag_expand(:) = ag_expand_io(1:npft)
+  fireveg_c_to_atmos(:)  = fireveg_c_to_atmos_io(1:npft)
   g_area(:)  = g_area_io(1:npft)
   g_grow(:)  = g_grow_io(1:npft)
   g_root(:)  = g_root_io(1:npft)
