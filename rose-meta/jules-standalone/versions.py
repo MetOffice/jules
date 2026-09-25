@@ -55,24 +55,38 @@ class vn82_t141(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        self.rename_setting(config, ["namelist:fire_switches"],
-                            ["namelist:jules_fire_weather_index"])
-        self.rename_setting(config, ["namelist:jules_fire_weather_index",
-                                      "l_fire"],
-                            ["namelist:jules_fire_weather_index",
-                             "l_fire_weather_index"])
-
-        source = self.get_setting_value(config, ["file:fire.nml","source"])
-        source = source.replace("namelist:fire_switches",
-                                "namelist:jules_fire_weather_index")
-        self.change_setting_value(config, ["file:fire.nml","source"], source)
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            self.rename_setting(
+                config,
+                ["namelist:fire_switches"],
+                ["namelist:jules_fire_weather_index"],
+            )
+            self.rename_setting(
+                config,
+                ["namelist:jules_fire_weather_index", "l_fire"],
+                ["namelist:jules_fire_weather_index", "l_fire_weather_index"],
+            )
+            source = self.get_setting_value(
+                config, ["file:fire.nml", "source"]
+            )
+            source = source.replace(
+                "namelist:fire_switches", "namelist:jules_fire_weather_index"
+            )
+            self.change_setting_value(
+                config, ["file:fire.nml", "source"], source
+            )
 
         return config, self.reports
 
 
 class vn82_t155(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Maggie Hendry"""
 
     BEFORE_TAG = "vn8.2_t141"
     AFTER_TAG = "vn8.2_t155"
@@ -115,14 +129,14 @@ class vn82_t140(MacroUpgrade):
                 )
                 self.add_report(info=msg, is_warning=True)
 
-        jules_surface_types = {}
-        jules_surface_types["c3_crop_wheat"] = "0"
-        jules_surface_types["c3_crop_soybean"] = "0"
-        jules_surface_types["c4_crop_maize"] = "0"
-        jules_surface_types["c3_crop_rice"] = "0"
-        for item, value in jules_surface_types.items():
-            self.add_setting(
-                config, ["namelist:jules_surface_types", item], value
-            )
+            jules_surface_types = {}
+            jules_surface_types["c3_crop_wheat"] = "0"
+            jules_surface_types["c3_crop_soybean"] = "0"
+            jules_surface_types["c4_crop_maize"] = "0"
+            jules_surface_types["c3_crop_rice"] = "0"
+            for item, value in jules_surface_types.items():
+                self.add_setting(
+                    config, ["namelist:jules_surface_types", item], value
+                )
 
         return config, self.reports
