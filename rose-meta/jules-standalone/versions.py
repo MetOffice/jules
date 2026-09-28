@@ -55,9 +55,7 @@ class vn82_t141(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        source = self.get_setting_value(
-            config, ["file:fire.nml", "source"]
-        )
+        source = self.get_setting_value(config, ["file:fire.nml", "source"])
         if source is not None:
             source = source.replace(
                 "namelist:fire_switches", "namelist:jules_fire_weather_index"
