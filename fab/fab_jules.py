@@ -63,20 +63,22 @@ class JulesBuild(FabBase):
 
         parser = super().define_command_line_options(parser)
         parser = cast(argparse.ArgumentParser, parser)
-        parser.add_argument(
+        jules_config = parser.add_argument_group("Jules configuration options")
+
+        jules_config.add_argument(
             "--revision", "-r", type=str, default="vn7.8",
             help="Sets the Jules revision to checkout (only used if"
                  "--checkout is used). Defaults to 'vn7.8'.")
-        parser.add_argument(
+        jules_config.add_argument(
             "--checkout", default=False, action="store_true",
             help="If specified, will checkout jules from git or svn, "
                  "otherwise this script is excepted to be in a cloned "
                  "git version.")
-        parser.add_argument(
+        jules_config.add_argument(
             "--rivers", default=False, action="store_true",
             help="If specified, the stand-alone rivers binary will be "
                  "compiled.")
-        parser.add_argument(
+        jules_config.add_argument(
             "--ascii-out", default=False, action="store_true",
             help="If specified, NetCDF will be disabled and output "
                  "will be in ASCII instead.")
