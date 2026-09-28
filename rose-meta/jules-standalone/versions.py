@@ -55,12 +55,16 @@ class vn82_t141(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        lsm_id = int(
-            self.get_setting_value(
-                config, ["namelist:jules_model_environment", "lsm_id"]
-            )
+        source = self.get_setting_value(
+            config, ["file:fire.nml", "source"]
         )
-        if lsm_id != 3:
+        if source is not None:
+            source = source.replace(
+                "namelist:fire_switches", "namelist:jules_fire_weather_index"
+            )
+            self.change_setting_value(
+                config, ["file:fire.nml", "source"], source
+            )
             self.rename_setting(
                 config,
                 ["namelist:fire_switches"],
@@ -71,15 +75,14 @@ class vn82_t141(MacroUpgrade):
                 ["namelist:jules_fire_weather_index", "l_fire"],
                 ["namelist:jules_fire_weather_index", "l_fire_weather_index"],
             )
-            source = self.get_setting_value(
-                config, ["file:fire.nml", "source"]
+        else:
+            lsm_id = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_model_environment", "lsm_id"]
+                )
             )
-            source = source.replace(
-                "namelist:fire_switches", "namelist:jules_fire_weather_index"
-            )
-            self.change_setting_value(
-                config, ["file:fire.nml", "source"], source
-            )
+            if lsm_id != 3:
+                raise UpgradeError(f"fire.nml file not found")
 
         return config, self.reports
 
