@@ -1,10 +1,7 @@
 # Fab Build Scripts for Jules
 
 This directory contains the files for building Jules with Fab. It
-needs at least Fab version 2.3.0. For the new feature to do
-checkout and build separately, current `main` from the Fab repo
-is needed.
-
+needs at least Fab version 2.3.0.
 
 ## Building
 The build script is a Python script that relies on Fab.
