@@ -68,6 +68,9 @@ CASE ( 'flood_storage' )
 CASE ( 'flood_storage_prev' )
   CALL file_write_var(FILE, var_id, rivers%flood_storage_prev)
 
+CASE ( 'minor_res_storage' )
+  CALL file_write_var(FILE, var_id, rivers%minor_res_storage)
+
 CASE ( 'rfm_bflowin_rp' )
   CALL file_write_var(FILE, var_id, rivers%rfm_bflowin_rp)
 

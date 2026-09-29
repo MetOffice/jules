@@ -344,10 +344,12 @@ USE jules_vegetation_mod, ONLY: l_fapar_diag, l_fao_ref_evapotranspiration,    &
 USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_renew_gwater,  &
     l_have_surface_water, l_water_domestic, l_water_environment,               &
     l_water_industry, l_water_irrigation, l_water_livestock,                   &
-    l_water_resources, l_water_transfers, no_model, nr_gwater_model
+    l_water_resources, l_water_transfers, no_model, nr_gwater_model,           &
+    sw_river_source
 
-USE jules_rivers_mod, ONLY: l_rivers, l_riv_overbank, l_outflow_per_river,     &
-    i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip, l_inland_outflow
+USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_outflow_per_river, l_rivers, &
+    l_riv_overbank, i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip,     &
+    l_inland_outflow
 
 USE jules_deposition_mod, ONLY: l_deposition, l_deposition_flux
 
@@ -664,10 +666,11 @@ DO j = 1,nvars_in
   ELSE
 
     !-------------------------------------------------------------------------
-    ! Variables that are only allowed with river routing.
+    ! Rivers are not selected.
+    ! Check for variables that are only allowed with river routing.
     ! First we check for variables on the river output grid (which allow us to
     ! shortern the list by omitting those), then by name for any other river
-    ! variable.<
+    ! variable.
     !-------------------------------------------------------------------------
     IF ( is_river_var(var(j)) ) THEN
       remove_var = .TRUE.
@@ -682,15 +685,16 @@ DO j = 1,nvars_in
 
   END IF  !  l_rivers
 
-  !---------------------------------------------------------------------------
+  !----------------------------------------------------------------------------
   ! River 2D ancillary variables (including for overbank inundation) - these
   ! can be read in but not output (because code for 2D river grid outputs does
   ! not exist).
-  !---------------------------------------------------------------------------
+  !----------------------------------------------------------------------------
   SELECT CASE ( var(j) )
   CASE (  'area', 'channel_depth_grid', 'channel_width_grid',                  &
           'direction', 'hypso_quantiles_grid', 'latitude_2d', 'logn_mean',     &
           'logn_stdev', 'longitude_2d', 'mean_sea_level_grid',                 &
+          'minor_res_capacity_grid', 'minor_res_frac_grid',                    &
           'river_distance_grid', 'river_elevation_grid', 'river_length_grid',  &
           'river_manning_grid', 'river_nextx_grid', 'river_nexty_grid',        &
           'rivers_xgrid', 'rivers_ygrid', 'sequence' )
@@ -698,6 +702,17 @@ DO j = 1,nvars_in
     message    = 'Variables on the full river grid are not available ' //      &
                  'for output.'
   END SELECT
+
+  !----------------------------------------------------------------------------
+  ! Variables that are only allowed with minor reservoirs.
+  !----------------------------------------------------------------------------
+  IF ( .NOT. l_minor_reservoirs ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'minor_res_capacity', 'minor_res_frac', 'minor_res_storage' )
+      remove_var = .TRUE.
+      message    = 'Minor reservoirs not used.'
+    END SELECT
+  END IF
 
   !---------------------------------------------------------------------------
   ! Thermal acclimation variables.
@@ -716,7 +731,8 @@ DO j = 1,nvars_in
   ! Water resource variables that only require l_water_resources=T.
   IF ( .NOT. l_water_resources ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'conv_loss_frac', 'water_demand', 'water_demand_unmet' )
+    CASE (  'conv_loss_frac', 'conveyance_loss', 'water_demand',               &
+            'water_demand_unmet', 'water_removed' )
       remove_var = .TRUE.
       message    = 'Water resources (l_water_resources) not selected.'
     END SELECT
@@ -724,11 +740,11 @@ DO j = 1,nvars_in
 
   ! Water resource variables that also require another switch.
 
-  ! These sector-specific switches are set to F if l_water_resources=F,
-  ! so we don't need to test l_water_resources here.
+  ! Sector-specific switches (such as l_water_domestic) are FALSE if
+  ! l_water_resources=F, so we don't need to test l_water_resources here.
   IF ( .NOT. l_water_domestic ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'demand_domestic', 'demand_rate_domestic', 'domestic_unmet' )
+    CASE (  'demand_domestic', 'demand_rate_domestic', 'unmet_domestic' )
       remove_var = .TRUE.
       message    = 'l_water_domestic not selected.'
     END SELECT
@@ -736,7 +752,7 @@ DO j = 1,nvars_in
 
   IF ( .NOT. l_water_environment ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'demand_environment', 'environment_unmet' )
+    CASE (  'demand_environment', 'unmet_environment' )
       remove_var = .TRUE.
       message    = 'l_water_environment not selected.'
     END SELECT
@@ -744,7 +760,7 @@ DO j = 1,nvars_in
 
   IF ( .NOT. l_water_industry ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'demand_industry', 'demand_rate_industry', 'industry_unmet' )
+    CASE (  'demand_industry', 'demand_rate_industry', 'unmet_industry' )
       remove_var = .TRUE.
       message    = 'l_water_industry not selected.'
     END SELECT
@@ -752,7 +768,7 @@ DO j = 1,nvars_in
 
   IF ( .NOT. l_water_irrigation ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'demand_irrigation', 'grid_area', 'irrigation_unmet' )
+    CASE (  'demand_irrigation', 'grid_area', 'unmet_irrigation' )
       remove_var = .TRUE.
       message    = 'l_water_irrigation not selected.'
     END SELECT
@@ -760,7 +776,7 @@ DO j = 1,nvars_in
 
   IF ( .NOT. l_water_livestock ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'demand_livestock', 'demand_rate_livestock','livestock_unmet' )
+    CASE (  'demand_livestock', 'demand_rate_livestock','unmet_livestock' )
       remove_var = .TRUE.
       message    = 'l_water_livestock not selected.'
     END SELECT
@@ -768,7 +784,7 @@ DO j = 1,nvars_in
 
   IF ( .NOT. l_water_transfers ) THEN
     SELECT CASE ( var(j) )
-    CASE (  'demand_transfers', 'transfers_unmet' )
+    CASE (  'demand_transfers', 'unmet_transfers' )
       remove_var = .TRUE.
       message    = 'l_water_transfers not selected.'
     END SELECT
@@ -782,7 +798,8 @@ DO j = 1,nvars_in
     END SELECT
   END IF
 
-  IF ( nr_gwater_model == no_model ) THEN
+  IF ( .NOT. l_water_resources .OR.                                            &
+       ( l_water_resources .AND. nr_gwater_model == no_model ) ) THEN
     SELECT CASE ( var(j) )
     CASE (  'gw_nr_abstracted' )
       remove_var = .TRUE.
@@ -803,6 +820,23 @@ DO j = 1,nvars_in
     CASE (  'sfc_water_frac' )
       remove_var = .TRUE.
       message    = 'sfc_water_frac is not being used.'
+    END SELECT
+  END IF
+
+  IF ( .NOT. l_water_resources .OR. .NOT. l_minor_reservoirs ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'minor_res_abstracted' )
+      remove_var = .TRUE.
+      message    = 'Water resources + minor reservoirs not used.'
+    END SELECT
+  END IF
+
+  IF ( .NOT. l_water_resources .OR. sw_river_source == 0 ) THEN
+    ! Rivers aren't being used as a source of water for abstraction.
+    SELECT CASE ( var(j) )
+    CASE ( 'river_abstracted' )
+      remove_var = .TRUE.
+      message    = 'Rivers not used for abstractions.'
     END SELECT
   END IF
 

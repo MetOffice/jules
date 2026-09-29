@@ -39,10 +39,11 @@ USE jules_water_resources_mod, ONLY:                                           &
 ! imported procedures
   check_jules_water_resources,                                                 &
 ! imported variables
-  l_prioritise, l_water_domestic, l_water_environment, l_water_industry,       &
-  l_water_irrigation, l_water_livestock, l_water_resources, l_water_transfers, &
-  no_model, nr_gwater_last, nr_gwater_model, nr_gwater_use, nwater_use,        &
-  priority, partition_ancil, partition_calc_from_stores, partition_method,     &
+  l_prioritise, l_water_domestic, l_water_environment,                         &
+  l_water_industry, l_water_irrigation, l_water_livestock, l_water_resources,  &
+  l_water_transfers, no_model, nr_gwater_last, nr_gwater_model, nr_gwater_use, &
+  nwater_use, priority, partition_ancil, partition_calc_from_stores,           &
+  partition_method,                                                            &
 ! imported namelist
   jules_water_resources
 
