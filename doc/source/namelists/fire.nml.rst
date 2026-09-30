@@ -1,14 +1,14 @@
 ``fire.nml``
 ===================
 
-This file contains a single namelist called :nml:lst:`FIRE_SWITCHES` that sets time-invariant parameters for performing wildfire-related calculations.
+This file contains a single namelist called :nml:lst:`JULES_FIRE_WEATHER_INDEX` that sets time-invariant parameters for performing wildfire-related calculations.
 
-``FIRE_SWITCHES`` namelist members
+``JULES_FIRE_WEATHER_INDEX`` namelist members
 -----------------------------------
 
-.. nml:namelist:: FIRE_SWITCHES
+.. nml:namelist:: JULES_FIRE_WEATHER_INDEX
 
-.. nml:member:: l_fire
+.. nml:member:: l_fire_weather_index
 
    :type: logical
    :default: F
