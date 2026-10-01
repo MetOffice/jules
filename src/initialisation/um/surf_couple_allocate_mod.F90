@@ -51,7 +51,6 @@ USE jules_soil_biogeochem_mod,ONLY: l_layeredc
 
 USE metstats_mod, ONLY: metstats_allocate
 
-USE pftparm_io, ONLY: init_pftparm_allocated
 USE pftparm,     ONLY: print_nlist_jules_pftparm, check_jules_pftparm
 
 USE nvegparm_io, ONLY: init_nvegparm_allocated
@@ -288,12 +287,6 @@ CALL wtrac_jls_assoc(wtrac_jls, wtrac_jls_data)
 
 ! Begin initialising arrays from:
 
-! jules_pftparm
-CALL init_pftparm_allocated()
-IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
-  CALL print_nlist_jules_pftparm()
-END IF
-
 ! jules_nvegparm
 CALL init_nvegparm_allocated()
 IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
@@ -427,7 +420,6 @@ END IF
 z0_soil = z0_nvg(soil - npft)
 
 ! Now that the arrays have been allocated and filled we can check them
-CALL check_jules_pftparm(npft,nnpft)
 CALL check_jules_nvegparm(nnvg)
 CALL check_jules_red_parms()
 CALL c_z0h_z0m_check(ntype)
