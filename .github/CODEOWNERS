@@ -40,9 +40,12 @@
 *                                                           @GiorgiaLine
 
 # Core Infrastructure & Tooling
-rose-meta/**/version*.py            			    @james-bruten-mo
+CLA.md                                          @yaswant
+rose-meta/**/version*.py            		    @james-bruten-mo
 rose-stem/                        			    @james-bruten-mo
 etc/                              			    @MetOffice/ssdteam
+.github/                                        @MetOffice/ssdteam
+doc/                                            @maggiehendry @MetOffice/ssdteam
 
 # Rose Metadata Configuration
 rose-meta/jules-shared/**/HEAD/rose-meta.conf			@maggiehendry
