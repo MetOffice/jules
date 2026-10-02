@@ -76,10 +76,38 @@ LOGICAL :: l_fix_osa_chloro = .FALSE.     ! Review in Jan 2020
 LOGICAL :: l_accurate_rho = .FALSE.       ! Review in Jan 2022
 
 ! ticket # (Jules:#1279)
-LOGICAL :: l_fix_snow_frac = .FALSE.       ! Review in April 2024
+LOGICAL :: l_fix_snow_frac = .FALSE.      ! Review in April 2024
 
 ! ticket # (Jules:#1396)
-LOGICAL :: l_fix_neg_snow = .FALSE.       ! Review in April 2025
+INTEGER :: i_fix_neg_snow = imdi          ! Review in April 2025
+INTEGER, PARAMETER :: ip_fix_neg_snow_none = 0
+                                          ! Trunk version as at 8.2
+                                          ! without the fix for negative
+                                          ! snow introduced in ticket #1396,
+                                          ! The increment to snow calculated
+                                          ! in sf_melt is not correct.
+INTEGER, PARAMETER :: ip_fix_neg_snow_none_corr = 1
+                                          ! Fix the bug in sf_melt, but
+                                          ! without including the fixes
+                                          ! for negative snow introduced in
+                                          ! ticket #1396.
+INTEGER, PARAMETER :: ip_fix_neg_snow_v1 = 2
+                                          ! Original fix under ticket #1396.
+                                          ! The calculation of the increment
+                                          ! to snow in sf_melt is not correct.
+                                          ! Tiny amounts of negative snow
+                                          ! can lead to problems with some
+                                          ! compilers.
+INTEGER, PARAMETER :: ip_fix_neg_snow_v2 = 3
+                                          ! Additional corrections to correct
+                                          ! melting and the issues with tiny
+                                          ! amounts of snow found under
+                                          ! version 1. This is required for GC6.
+INTEGER, PARAMETER :: ip_fix_neg_snow_v3 = 4
+                                          ! As the previous version but also
+                                          ! fixing a long-standing sensitivity
+                                          ! of canopy evaporation to the amount
+                                          ! of snow on the canopy.
 
 ! ticket #931 (um:#6885): Atmospheric deposition fixes used in UKCA
 LOGICAL :: l_fix_drydep_so2_water = .FALSE. ,                                  &
@@ -96,7 +124,7 @@ NAMELIST  /jules_temp_fixes/                                                   &
          l_fix_albsnow_ts, l_fix_wind_snow, l_fix_moruses_roof_rad_coupling,   &
          l_fix_osa_chloro, l_accurate_rho, l_fix_lake_ice_temperatures,        &
          l_fix_snow_frac, l_fix_drydep_so2_water, l_fix_improve_drydep,        &
-         l_fix_ukca_h2dd_x, l_fix_neg_snow
+         l_fix_ukca_h2dd_x, i_fix_neg_snow
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_SCIENCE_FIXES_MOD'
 
@@ -132,7 +160,7 @@ WRITE(lineBuffer,'(A,L1)') ' l_accurate_rho = ',      l_accurate_rho
 CALL jules_print(ModuleName,lineBuffer)
 WRITE(lineBuffer,'(A,L1)') ' l_fix_snow_frac = ',     l_fix_snow_frac
 CALL jules_print(ModuleName,lineBuffer)
-WRITE(lineBuffer,'(A,L1)') ' l_fix_neg_snow = ',      l_fix_neg_snow
+WRITE(lineBuffer,'(A,I0)') ' i_fix_neg_snow = ',      i_fix_neg_snow
 CALL jules_print(ModuleName,lineBuffer)
 WRITE(lineBuffer,'(A,L1)') ' l_fix_improve_drydep = ', l_fix_improve_drydep
 CALL jules_print(ModuleName,lineBuffer)
@@ -254,12 +282,13 @@ INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 2
-INTEGER, PARAMETER :: n_int = 1
-INTEGER, PARAMETER :: n_log = 14
+INTEGER, PARAMETER :: n_int = 2
+INTEGER, PARAMETER :: n_log = 13
 
 TYPE :: my_namelist
   SEQUENCE
   INTEGER :: ctile_orog_fix
+  INTEGER :: i_fix_neg_snow
   LOGICAL :: l_dtcanfix
   LOGICAL :: l_fix_ustar_dust
   LOGICAL :: l_fix_alb_ice_thick
@@ -270,7 +299,6 @@ TYPE :: my_namelist
   LOGICAL :: l_fix_osa_chloro
   LOGICAL :: l_accurate_rho
   LOGICAL :: l_fix_snow_frac
-  LOGICAL :: l_fix_neg_snow
   LOGICAL :: l_fix_drydep_so2_water
   LOGICAL :: l_fix_improve_drydep
   LOGICAL :: l_fix_ukca_h2dd_x
@@ -291,6 +319,7 @@ IF (mype == 0) THEN
   CALL check_iostat(errorstatus, "namelist jules_temp_fixes", iomessage)
 
   my_nml % ctile_orog_fix                  = ctile_orog_fix
+  my_nml % i_fix_neg_snow                  = i_fix_neg_snow
   my_nml % l_dtcanfix                      = l_dtcanfix
   my_nml % l_fix_ustar_dust                = l_fix_ustar_dust
   my_nml % l_fix_alb_ice_thick             = l_fix_alb_ice_thick
@@ -301,7 +330,6 @@ IF (mype == 0) THEN
   my_nml % l_fix_osa_chloro                = l_fix_osa_chloro
   my_nml % l_accurate_rho                  = l_accurate_rho
   my_nml % l_fix_snow_frac                 = l_fix_snow_frac
-  my_nml % l_fix_neg_snow                  = l_fix_neg_snow
   my_nml % l_fix_drydep_so2_water          = l_fix_drydep_so2_water
   my_nml % l_fix_improve_drydep            = l_fix_improve_drydep
   my_nml % l_fix_ukca_h2dd_x               = l_fix_ukca_h2dd_x
@@ -312,6 +340,7 @@ CALL mpl_bcast(my_nml,1,mpl_nml_type,0,my_comm,icode)
 IF (mype /= 0) THEN
   ctile_orog_fix                  = my_nml % ctile_orog_fix
   l_dtcanfix                      = my_nml % l_dtcanfix
+  i_fix_neg_snow                  = my_nml % i_fix_neg_snow
   l_fix_ustar_dust                = my_nml % l_fix_ustar_dust
   l_fix_alb_ice_thick             = my_nml % l_fix_alb_ice_thick
   l_fix_lake_ice_temperatures     = my_nml % l_fix_lake_ice_temperatures
@@ -321,7 +350,6 @@ IF (mype /= 0) THEN
   l_fix_osa_chloro                = my_nml % l_fix_osa_chloro
   l_accurate_rho                  = my_nml % l_accurate_rho
   l_fix_snow_frac                 = my_nml % l_fix_snow_frac
-  l_fix_neg_snow                  = my_nml % l_fix_neg_snow
   l_fix_drydep_so2_water          = my_nml % l_fix_drydep_so2_water
   l_fix_improve_drydep            = my_nml % l_fix_improve_drydep
   l_fix_ukca_h2dd_x               = my_nml % l_fix_ukca_h2dd_x
@@ -445,12 +473,12 @@ IF ( .NOT. l_fix_snow_frac ) THEN
   CALL ereport(RoutineName, errorstatus, cmessage)
 END IF
 
-IF ( .NOT. l_fix_neg_snow ) THEN
+IF ( i_fix_neg_snow /= ip_fix_neg_snow_v3 ) THEN
   errorstatus = -100
   cmessage    =                                                     newline // &
-  'jules:#1396 fix to remove correct the melting calculation'     //newline // &
-  ' that can result in negative snow amounts is not enabled: '    //newline // &
-  'l_fix_neg_snow = .FALSE.'
+  'Model run does not include the most recent fix to correct '    //newline // &
+  'issues that can lead to the generation of negative amounts '   //newline // &
+  'of snow. See JULES issue #????.'
   CALL ereport(RoutineName, errorstatus, cmessage)
 END IF
 

@@ -138,6 +138,12 @@ USE elevate_mod,                ONLY: elevate
 USE fcdch_mod,                  ONLY: fcdch
 USE gen_anthrop_heat_mod,       ONLY: generate_anthropogenic_heat
 USE heat_con_mod,               ONLY: heat_con
+USE jules_science_fixes_mod,    ONLY: i_fix_neg_snow,                          &
+                                      ip_fix_neg_snow_none,                    &
+                                      ip_fix_neg_snow_none_corr,               &
+                                      ip_fix_neg_snow_v1,                      &
+                                      ip_fix_neg_snow_v2,                      &
+                                      ip_fix_neg_snow_v3
 USE physiol_mod,                ONLY: physiol
 USE planet_constants_mod,       ONLY: cp, vkman, r, c_virtual,epsil=>repsilon
 USE qsat_mod,                   ONLY: qsat, qsat_mix
@@ -956,9 +962,11 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ,lw_down_surftsum(land_pts)                                                    &
                              ! Gridbox sum of elevation corrections to
                              ! downward longwave radiation
-,lw_down_surftabs(land_pts)
+,lw_down_surftabs(land_pts)                                                    &
                              ! Gridbox sum of absolution changes to downward
                              ! longwave radiation from elevation corrections
+,gcan_snow(land_pts,nsurft)
+                             ! Canopy conductance for subliming snow
 
 ! Water tracer local fields
 REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
@@ -1024,6 +1032,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
              ! Work space
 ,z0                                                                            &
              ! yet more workspace
+,exposure_factor                                                               &
+             ! Exposure factor for sublimation of canopy snow
 
              ! Temporary variables for adjustment of downwelling
              ! logwave to elevation tiles and correction back to
@@ -1259,29 +1269,66 @@ CALL physiol (                                                                 &
   smc_soilt_wtrac)
 
 
-! Update gc_surft for canopy snow if using the canopy snow scheme
-IF ( .NOT. l_aggregate .AND. can_model == 4) THEN
-  DO n = 1,npft
-    IF ( cansnowtile(n) ) THEN
+SELECT CASE(i_fix_neg_snow)
+CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr,                         &
+      ip_fix_neg_snow_v1, ip_fix_neg_snow_v2)
+  ! Update gc_surft for canopy snow if using the canopy snow scheme
+  IF ( .NOT. l_aggregate .AND. can_model == 4) THEN
+    DO n = 1,npft
+      IF ( cansnowtile(n) ) THEN
 !$OMP PARALLEL DO IF(surft_pts(n) > 1) DEFAULT(NONE) PRIVATE(i, j, k, l)       &
 !$OMP          SHARED(surft_pts, surft_index, land_index, t_i_length,          &
 !$OMP                 snow_surft, gc_surft, catch_snow, tstar_surft,           &
 !$OMP                 vshr_land, n)   SCHEDULE(STATIC)
-      DO k = 1,surft_pts(n)
-        l = surft_index(k,n)
-        IF (snow_surft(l,n) >  0.0) THEN
-          j = (land_index(l) - 1) / t_i_length + 1
-          i = land_index(l) - (j-1) * t_i_length
-          gc_surft(l,n) = 0.06 * snow_surft(l,n)**0.6 * catch_snow(l,n)**0.4   &
-                       * 2.06e-5 * (tm / tstar_surft(l,n))**1.75               &
-                       * (1.79+3 * SQRT(vshr_land(i,j)))                       &
-                       / (2 * rho_ice * 5.0e-4**2)
-        END IF
-      END DO
+        DO k = 1,surft_pts(n)
+          l = surft_index(k,n)
+          IF (snow_surft(l,n) >  0.0) THEN
+            j = (land_index(l) - 1) / t_i_length + 1
+            i = land_index(l) - (j-1) * t_i_length
+            gc_surft(l,n) = 0.06 * snow_surft(l,n)**0.6                        &
+                         * catch_snow(l,n)**0.4                                &
+                         * 2.06e-5 * (tm / tstar_surft(l,n))**1.75             &
+                         * (1.79+3 * SQRT(vshr_land(i,j)))                     &
+                         / (2 * rho_ice * 5.0e-4**2)
+          END IF
+        END DO
 !$OMP END PARALLEL DO
-    END IF
-  END DO
-END IF
+      END IF
+    END DO
+  END IF
+CASE (ip_fix_neg_snow_v3)
+  ! Use an explicit conductance here and limit the exposure factor to 0.5:
+  ! certainly cannot exceed 1.0 and selecting 0.5 allows for restriction of
+  ! sublimation from the lower surface of a particle lying on the canopy.
+  IF ( .NOT. l_aggregate .AND. can_model == 4) THEN
+    DO n = 1,npft
+      IF ( cansnowtile(n) ) THEN
+!$OMP PARALLEL DO IF(surft_pts(n) > 1) DEFAULT(NONE) PRIVATE(i, j, k, l,       &
+!$OMP                  exposure_factor)                                        &
+!$OMP          SHARED(surft_pts, surft_index, land_index, t_i_length,          &
+!$OMP                 snow_surft, gcan_snow, catch_snow, tstar_surft,          &
+!$OMP                 vshr_land, n)   SCHEDULE(STATIC)
+        DO k = 1,surft_pts(n)
+          l = surft_index(k,n)
+          IF (snow_surft(l,n) >  0.0) THEN
+            j = (land_index(l) - 1) / t_i_length + 1
+            i = land_index(l) - (j-1) * t_i_length
+            exposure_factor = MIN( 0.5,                                        &
+              0.02 * ( catch_snow(l,n) /                                       &
+                       MAX(snow_surft(l,n), EPSILON(snow_surft)) )**0.4 )
+            gcan_snow(l,n) = 3.0 * snow_surft(l,n) * exposure_factor           &
+                         * 2.06e-5 * (tm / tstar_surft(l,n))**1.75             &
+                         * (1.79+3 * SQRT(vshr_land(i,j)))                     &
+                         / (2 * rho_ice * 5.0e-4**2)
+          ELSE
+            gcan_snow(l,n) = 0.0
+          END IF
+        END DO
+!$OMP END PARALLEL DO
+      END IF
+    END DO
+  END IF
+END SELECT
 
 !----------------------------------------------------------------------
 ! If TRIFFID is being used apply any correction to the land-atmosphere
@@ -2247,6 +2294,7 @@ DO n = 1,nsurft
   CALL sf_resist (                                                             &
    land_pts,surft_pts(n),land_index,surft_index(:,n),cansnowtile(n),           &
    canopy(:,n),catch(:,n),chn(:,n),dq(:,n),epdt,flake(:,n),gc_surft(:,n),      &
+   gcan_snow(:,n),                                                             &
    gc_stom_surft(:,n),snowdep_surft(:,n),snow_surft(:,n),vshr_land,            &
    tstar_surft(:,n),fracaero_t(:,n),fracaero_s(:,n),resfs(:,n),resft(:,n),     &
    sf_diag%resfs_stom(:,n_diag),sf_diag%l_et_stom,sf_diag%l_et_stom_surft)
@@ -2305,7 +2353,7 @@ DO n = 1,nsurft
     charnock_w,                                                                &
     l_vegdrag_surft(n),canht_pft(:,n_veg),lai_pft(:,n_veg),                    &
     nsnow_surft(:,n),n,l_mo_buoyancy_calc,cansnowtile(n),l_soil_point,         &
-    canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                           &
+    canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),gcan_snow(:,n),            &
     snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                        &
     dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),                &
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
@@ -2408,7 +2456,7 @@ IF ((l_dust .OR. l_dust_diag) .AND. l_aggregate) THEN
     charnock_w,                                                                &
     l_vegdrag_active_here,array_zero,array_zero,                               &
     nsnow_surft(:,n),n,.FALSE.,cansnowtile(n),l_soil_point,                    &
-    canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                           &
+    canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),gcan_snow(:,n),            &
     snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                        &
     dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),                &
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
@@ -2474,7 +2522,7 @@ IF (l_aero_classic) THEN
       charnock_w,                                                              &
       l_vegdrag_active_here,array_zero,array_zero,                             &
       nsnow_surft(:,n),n,.FALSE.,cansnowtile(n),l_soil_point,                  &
-      canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                         &
+      canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),gcan_snow(:,n),          &
       snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                      &
       dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),              &
       snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),   &
@@ -2601,6 +2649,7 @@ DO n = 1,nsurft
   CALL sf_resist (                                                             &
    land_pts,surft_pts(n),land_index,surft_index(:,n),cansnowtile(n),           &
    canopy(:,n),catch(:,n),ch_surft(:,n),dq(:,n),epdt,flake(:,n),gc_surft(:,n), &
+   gcan_snow(:,n),                                                             &
    gc_stom_surft(:,n),snowdep_surft(:,n),snow_surft(:,n),vshr_land,            &
    tstar_surft(:,n),fracaero_t(:,n),fracaero_s(:,n),resfs(:,n),resft(:,n),     &
    sf_diag%resfs_stom(:,n_diag),sf_diag%l_et_stom,sf_diag%l_et_stom_surft)

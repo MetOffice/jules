@@ -418,7 +418,7 @@ CASE ( jules )
           rhokm_u,rhokm_v,r_gamma,                                             &
           gamma1,gamma2,alpha1,alpha1_sea,alpha1_sice,                         &
           ashtf,ashtf_sea,ashtf_surft,                                         &
-          du,dv,resft,rhokh_surft,rhokh_sice,rhokh_sea,ctctq1,                 &
+          du,dv,resft, fracaero_s,rhokh_surft,rhokh_sice,rhokh_sea,ctctq1,     &
           dqw1_1,dtl1_1,du_star1,dv_star1,cq_cm_u_1,cq_cm_v_1,                 &
           l_correct,flandg_u,flandg_v,progs%snow_surft,                        &
   ! INOUT data :

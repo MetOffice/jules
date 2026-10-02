@@ -141,3 +141,31 @@ class vn82_t140(MacroUpgrade):
                 )
 
         return config, self.reports
+
+
+class vn82_t167(MacroUpgrade):
+    """Upgrade macro from JULES by J. M. Edwards"""
+
+    BEFORE_TAG = "vn8.2_t140"
+    AFTER_TAG = "vn8.2_t167"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add settings
+        l_fix_neg_snow = (
+            self.get_setting_value(
+                config, ["namelist:jules_temp_fixes", "l_fix_neg_snow"], no_ignore=False
+            )
+        ) == ".true."
+        if l_fix_neg_snow:
+            self.add_setting(
+                config, ["namelist:jules_temp_fixes", "i_fix_neg_snow"], "2"
+            )
+        else:
+            self.add_setting(
+                config, ["namelist:jules_temp_fixes", "i_fix_neg_snow"], "0"
+            )
+        self.remove_setting(config, ["namelist:jules_temp_fixes", "l_fix_neg_snow"])
+
+        return config, self.reports

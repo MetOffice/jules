@@ -262,8 +262,8 @@ DO n = 1,nsurft
 
         ! This check is currently not used due to negative snow values.
         ! Once the water tracers are coded for the new option of fixing
-        ! negative snow values (i.e. l_fix_neg_snow=T), then this check
-        ! should be reinstated
+        ! negative snow values (i.e. an appropriate value of
+        ! i_fix_neg_snow=T), then this check should be reinstated.
         ! IF (q(i,n,ilyr) > min_value) THEN
         ! If there is water present, then correct water tracers
 

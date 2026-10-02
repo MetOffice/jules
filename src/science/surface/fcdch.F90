@@ -33,7 +33,7 @@ SUBROUTINE fcdch (                                                             &
  wind_profile_factor,ddmfx,i_surfalg,charnock,                                 &
  charnock_w,l_vegdrag,canht,lai,                                               &
  nsnow,n,l_mo_buoyancy_calc,cansnowtile,l_soil_point,                          &
- canopy,catch,flake,gc,snowdep,snow,canhc,                                     &
+ canopy,catch,flake,gc,gcan_snow,snowdep,snow,canhc,                           &
  dzsurf,qstar,q_elev,radnet,snowdepth,timestep,                                &
  t_elev,tsurf,tstar,vfrac,emis,emis_soil,                                      &
  anthrop_heat,scaling_urban,alpha1,hcons,ashtf,                                &
@@ -154,7 +154,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                            ! IN Lake fraction.
 ,gc(points)                                                                    &
                            ! IN Interactive canopy conductance
-!                          !    to evaporation (m/s)
+,gcan_snow(points)                                                             &
+                           ! IN Canopy conductance for sublimation of snow (m/s)
 ,snowdep(points)                                                               &
                            ! IN Snow depth (m)
 ,snow(points)                                                                  &
@@ -587,7 +588,7 @@ IF (cor_mo_iter == Improve_Initial_Guess) THEN
     ! Calculate surface resistance to moisture terms
     CALL sf_resist (                                                           &
      points,surft_pts,pts_index,surft_index,cansnowtile,                       &
-     canopy,catch,chv_dim,dq,epdt,flake,gc,gc_stom_surft,                      &
+     canopy,catch,chv_dim,dq,epdt,flake,gc,gcan_snow,gc_stom_surft,            &
      snowdep,snow,vshr,tstar,fracaero_t,fracaero_s,                            &
      resfs,resft,resfs_stom,.FALSE.,.FALSE.)
 
@@ -1008,7 +1009,7 @@ ELSE     ! cor_mo_iter earlier option than Improve_Initial_Guess
     ! Calculate surface resistance to moisture terms
     CALL sf_resist (                                                           &
      points,surft_pts,pts_index,surft_index,cansnowtile,                       &
-     canopy,catch,chv_dim,dq,epdt,flake,gc,gc_stom_surft,                      &
+     canopy,catch,chv_dim,dq,epdt,flake,gc,gcan_snow,gc_stom_surft,            &
      snowdep,snow,vshr,tstar,fracaero_t,fracaero_s,                            &
      resfs,resft,resfs_stom,.FALSE.,.FALSE.)
 

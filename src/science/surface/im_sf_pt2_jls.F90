@@ -25,7 +25,7 @@ SUBROUTINE im_sf_pt2 (                                                         &
 ,flandg,tile_frac,snow_surft,nice_use,ice_fract,ice_fract_cat                  &
 ,r_gamma,gamma1_in,gamma2_in,alpha1,alpha1_sea,alpha1_sice                     &
 ,ashtf_prime,ashtf_prime_sea,ashtf_prime_surft                                 &
-,resft,dtstar_surft,dtstar_sea,dtstar_sice                                     &
+,resft,fracs,dtstar_surft,dtstar_sea,dtstar_sice                               &
 ,rhokm_u_1,rhokm_v_1,rhokh_1,rhokh1_sice,rhokh1_sea                            &
 ,ctctq1,dqw1_1,dtl1_1,cq_cm_u_1                                                &
 ,cq_cm_v_1,du_1,dv_1,du_star1,dv_star1,flandg_u,flandg_v                       &
@@ -44,10 +44,13 @@ USE atm_fields_bounds_mod, ONLY: tdims, pdims, udims, vdims, udims_s, vdims_s
 USE theta_field_sizes, ONLY: t_i_length
 
 USE planet_constants_mod, ONLY: cp
-USE water_constants_mod, ONLY: lc
+USE water_constants_mod, ONLY: lc, lf
 USE jules_surface_mod, ONLY: ls, l_epot_corr
 USE jules_sea_seaice_mod, ONLY: l_use_dtstar_sea, beta_evap
-USE jules_science_fixes_mod, ONLY: l_dtcanfix
+USE jules_science_fixes_mod, ONLY: l_dtcanfix, i_fix_neg_snow,                 &
+      ip_fix_neg_snow_none_corr,                                               &
+      ip_fix_neg_snow_none, ip_fix_neg_snow_v1, ip_fix_neg_snow_v2,            &
+      ip_fix_neg_snow_v3
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -127,6 +130,9 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                                  !    for sea-ice
 ,resft(land_pts,nsurft)                                                        &
                              ! IN Total resistance factor
+,fracs(land_pts,nsurft)                                                        &
+                             ! IN Fraction of the grid-box with sublimation or
+                             !    deposition.
 ,epot_surft(land_pts,nsurft)                                                   &
                              ! IN surface tile potential
 !                                  !    evaporation
@@ -467,8 +473,16 @@ IF ( .NOT. l_correct ) THEN
       j=(land_index(l) - 1) / t_i_length + 1
       i = land_index(l) - (j-1) * t_i_length
       lat_ht = lc
-      IF (snow_surft(l,n) >  0.0) lat_ht = ls
-
+      SELECT CASE (i_fix_neg_snow)
+        ! Note that the logic is not the same as that in sf_flux
+        ! because this adjustment was missing in the first version
+        ! of the fix.
+      CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr,                   &
+            ip_fix_neg_snow_v1)
+        IF (snow_surft(l,n) >  0.0) lat_ht = ls
+      CASE (ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+        IF (resft(l,n) > 0.0) lat_ht = lc + lf * fracs(l,n) / resft(l,n)
+      END SELECT
       rhokpm(l,n) = rhokh_1(l,n) / ( ashtf_prime_surft(l,n) +                  &
                rhokh_1(l,n) * (lat_ht * alpha1(l,n) * resft(l,n) + cp) )
 

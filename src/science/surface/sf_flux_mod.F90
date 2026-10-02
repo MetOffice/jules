@@ -34,7 +34,10 @@ USE jules_vegetation_mod, ONLY: l_vegcan_soilfx
 USE jules_urban_mod, ONLY: l_moruses_storage
 USE jules_surface_mod, ONLY: l_aggregate, l_epot_corr
 USE jules_science_fixes_mod, ONLY: l_fix_moruses_roof_rad_coupling,            &
-                                   l_fix_neg_snow
+                                   i_fix_neg_snow, ip_fix_neg_snow_none,       &
+                                   ip_fix_neg_snow_none_corr,                  &
+                                   ip_fix_neg_snow_v1, ip_fix_neg_snow_v2,     &
+                                   ip_fix_neg_snow_v3
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -220,12 +223,13 @@ DO k = 1,surft_pts
              tstar(l)**3 )
 
   lh = lh0
-  IF (l_fix_neg_snow) THEN
+  SELECT CASE (i_fix_neg_snow)
+  CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
+    IF (snowdepth(l) > 0.0) lh = ls
+  CASE (ip_fix_neg_snow_v1, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
     ! Effective latent. resft should not be 0 if there is any snow.
     IF (resft(l) > 0.0) lh = lc + lf * fracs(l) / resft(l)
-  ELSE
-    IF (snowdepth(l) > 0.0) lh = ls
-  END IF
+  END SELECT
 
   IF (l_vegdrag) THEN
     ftl_1(l) = rhokh_1(l) * (tstar(l) - t_elev(l) -                            &
