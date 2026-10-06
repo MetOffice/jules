@@ -40,7 +40,7 @@ IMPLICIT NONE
 ! Module constants
 
   !Switch for if we're using the fire module
-LOGICAL :: l_fire = .FALSE.
+LOGICAL :: l_fire_weather_index = .FALSE.
 
 !Canadian model user defined types for prognostics, diagnotics and control
 TYPE :: canadian_progs

@@ -10,7 +10,7 @@ SUBROUTINE fire_init()
 
 ! < Module imports >
 USE metstats_mod,       ONLY: metstats_flag
-USE fire_mod,           ONLY: fire_cntl, l_fire
+USE fire_mod,           ONLY: fire_cntl, l_fire_weather_index
 
 USE jules_soil_mod,     ONLY: zsmc !Depth of layer for soil moisture diag (m)
 
@@ -50,7 +50,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 ! ------------------------------------------
 ! Activate the required metstats
 
-IF (l_fire) THEN
+IF (l_fire_weather_index) THEN
 
   IF (fire_cntl%mcarthur%flag .OR. fire_cntl%nesterov%flag) THEN
     metstats_flag%prec_tot_00h = .TRUE.
@@ -89,7 +89,7 @@ IF (l_fire) THEN
 
   !Nothing to do for nesterov
 
-END IF !l_fire
+END IF !l_fire_weather_index
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN
