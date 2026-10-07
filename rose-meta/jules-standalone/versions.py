@@ -84,7 +84,6 @@ class vn82_t141(MacroUpgrade):
 
         return config, self.reports
 
-
 class vn82_t155(MacroUpgrade):
 
     """Upgrade macro from JULES by Maggie Hendry"""
@@ -97,8 +96,6 @@ class vn82_t155(MacroUpgrade):
 
         # Bump tag to pick up metadata changes
         return config, self.reports
-
-
 class vn82_t140(MacroUpgrade):
     """Upgrade macro from JULES by Maggie Hendry"""
 
@@ -197,5 +194,24 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_up"], "0.2")
         self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
+
+        return config, self.reports
+
+class vn82_t165(MacroUpgrade):
+
+    """Upgrade macro from JULES by Nic Gedney"""
+
+    BEFORE_TAG = "vn8.2_t140"
+    AFTER_TAG = "vn8.2_t165"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add l_soil_evap_irrig_separate to namelist jules_irrig
+        self.add_setting(
+            config,
+            ["namelist:jules_irrig", "l_soil_evap_irrig_separate"],
+            ".false.",
+        )
 
         return config, self.reports

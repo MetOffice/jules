@@ -14,7 +14,8 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='SF_FLUX_MOD'
 CONTAINS
 SUBROUTINE sf_flux (                                                           &
  points,surft_pts,pts_index,surft_index,                                       &
- nsnow,n,canhc,dzsurf,hcons,ashtf,qstar,q_elev,radnet,resft,fracs,             &
+ nsnow,n,canhc,dzsurf,hcons,ashtf,                                             &
+ qstar,q_elev,radnet,resft,fracs,                                              &
  rhokh_1,l_soil_point,snowdepth,timestep,                                      &
  t_elev,ts1_elev,tstar,vfrac,rhokh_can,                                        &
  z0h,z0m_eff,zdt,z1_tq,lh0,emis_surft,emis_soil,                               &
