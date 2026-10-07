@@ -8,6 +8,20 @@
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in Veg3 Ecosystem Demography
 ! *****************************COPYRIGHT****************************************
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
+!
+! Description:
+! This module contains parameters necessary to run the RED demographic drynamic
+! vegetation model (Argles et al., 2020)
+!
+! Citation:
+! Argles, A. P. K., Moore, J. R., Huntingford, C., Wiltshire,
+! A. J., Harper, A. B., Jones, C. D., & Cox, P. M. (2020).
+! Robust Ecosystem Demography (RED version 1.0): A parsimonious approach to
+! modelling vegetation dynamics in Earth system models. Geoscientific Model
+! Development, 13(9), 4067–4089. https://doi.org/10.5194/gmd-13-4067-2020
 
 MODULE veg3_parm_mod
 
@@ -18,8 +32,13 @@ IMPLICIT NONE
 !Set up object for veg3 control
 
 TYPE :: veg3_ctrl_type
-  INTEGER :: land_pts,nsurft,npft,nnpft,soil,triffid_period,nstep_trif,nmasst
-  REAL    :: timestep,frac_min
+  INTEGER :: land_pts,nsurft,npft,nnpft,soil,triffid_period,nstep_trif,nmasst, &
+             phenol_period,nstep_phen
+  REAL    :: timestep,frac_min,dt_red,dt_phen_360d
+             ! dt_red - Length of the RED/vegetation dynamics coupling
+             !          timestep (s).
+             ! dt_phen_360d - Length of the phenology coupling timestep
+             !                (360 days).
 END TYPE veg3_ctrl_type
 
 !Set up objects containing everything we need for litter calculation
@@ -56,6 +75,33 @@ TYPE(veg3_ctrl_type)   :: veg3_ctrl
 TYPE(litter_parm_type) :: litter_parms
 TYPE(red_parm_type)    :: red_parms
 
+!Set up object containing everything we need for soil carbon coupling
+
+TYPE :: soil_parm_type
+  LOGICAL :: l_layeredc
+              ! Layered (.TRUE.) or single-layer (.FALSE.) soil carbon.
+  INTEGER :: soil_bgc_model
+              ! Soil biogeochemistry model in use.
+  INTEGER :: dim_cslayer
+              ! Number of soil carbon layers.
+  INTEGER :: dim_cs1
+              ! Number of soil carbon pools.
+  REAL    :: tau_lit
+              ! Litter decomposition rate exponent for the vertical litter
+              ! profile (m-1).
+  REAL    :: litc_norm
+              ! Normalisation for the vertical litter profile.
+  REAL    :: resp_frac_a
+  REAL    :: resp_frac_b
+  REAL    :: resp_frac_c
+              ! Coefficients relating clay content to the fraction of soil
+              ! respiration that forms new soil C.
+  REAL, ALLOCATABLE :: dzsoil(:)
+              ! Soil layer thicknesses (m).
+END TYPE soil_parm_type
+
+TYPE(soil_parm_type)   :: soil_parms
+
 !Private by default
 PRIVATE
 
@@ -63,13 +109,13 @@ PRIVATE
 PUBLIC :: veg3_parm_init, veg3_parm_allocate, check_jules_red_parms
 
 !Expose data
-PUBLIC :: veg3_ctrl, litter_parms, red_parms, l_red
+PUBLIC :: veg3_ctrl, litter_parms, red_parms, soil_parms, l_red
 
 !Expose data structures
-PUBLIC :: veg3_ctrl_type, litter_parm_type, red_parm_type
+PUBLIC :: veg3_ctrl_type, litter_parm_type, red_parm_type, soil_parm_type
 
 !Allow external code to read but not write
-PROTECTED :: litter_parms, veg3_ctrl, red_parms
+PROTECTED :: litter_parms, veg3_ctrl, red_parms, soil_parms
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='VEG3_PARM_MOD'
 
@@ -79,6 +125,7 @@ CONTAINS
 SUBROUTINE veg3_parm_allocate(land_pts,nsurft,nnpft,npft)
 
 USE missing_data_mod, ONLY: rmdi, imdi
+USE ancil_info,       ONLY: dim_cslayer
 
 IMPLICIT NONE
 INTEGER, INTENT(IN) :: land_pts, nsurft, nnpft, npft
@@ -109,6 +156,9 @@ ALLOCATE(red_parms%frac_min           (nnpft))
 ALLOCATE(red_parms%comp_coef          (nnpft,nnpft))
 ALLOCATE(red_parms%mclass_geom_mult   (nnpft))
 
+! Allocate soil_parm_type
+ALLOCATE(soil_parms%dzsoil(dim_cslayer))
+
 litter_parms%g_wood          = rmdi
 litter_parms%g_leaf          = rmdi
 litter_parms%g_root          = rmdi
@@ -130,6 +180,8 @@ red_parms%frac_min           = rmdi
 red_parms%comp_coef          = rmdi
 red_parms%mclass_geom_mult   = rmdi
 
+soil_parms%dzsoil             = rmdi
+
 RETURN
 END SUBROUTINE veg3_parm_allocate
 
@@ -141,7 +193,8 @@ SUBROUTINE veg3_set_parms(land_pts,nsurft,nnpft,npft,nmasst)
 USE pftparm,                  ONLY: g_leaf_0
 USE trif,                     ONLY: g_root, g_wood
 ! Above only allocated if triffid on - needs to be addressed
-USE jules_vegetation_mod,     ONLY: l_triffid, triffid_period,frac_min
+USE jules_vegetation_mod,     ONLY: l_triffid, triffid_period,frac_min,        &
+                                    phenol_period
 
 USE red_io,                   ONLY: alpha_recrt, crwn_area0, dom_order,        &
                                     height0, lai_bal0, mass0, massi, mclass,   &
@@ -152,11 +205,25 @@ USE conversions_mod,          ONLY: rsec_per_day
 
 USE jules_surface_types_mod,  ONLY: soil
 
+!Soil carbon coupling parameters
+USE jules_soil_biogeochem_mod, ONLY: l_layeredC, soil_bgc_model, tau_lit
+USE ancil_info,                ONLY: dim_cslayer, dim_cs1
+#if !defined(UM_JULES)
+USE jules_soil_mod,            ONLY: dzsoil
+USE veg_param,                 ONLY: litc_norm
+#endif
+
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: land_pts, nsurft, nnpft, npft, nmasst
 
 INTEGER :: n,k
+
+! Coefficients relating clay content to the fraction of soil respiration
+! that forms new soil C (i.e. is NOT released to the atmosphere).
+REAL, PARAMETER :: resp_frac_a_local = 4.0895
+REAL, PARAMETER :: resp_frac_b_local = 2.672
+REAL, PARAMETER :: resp_frac_c_local = -0.0786
 
 !End of header
 
@@ -174,7 +241,13 @@ IF (l_red .AND. l_triffid) THEN
 
   veg3_ctrl%timestep = REAL(timestep)
   veg3_ctrl%triffid_period = triffid_period
+  veg3_ctrl%dt_red = rsec_per_day * REAL(veg3_ctrl%triffid_period)
   veg3_ctrl%nstep_trif = INT(rsec_per_day * veg3_ctrl%triffid_period           &
+    / veg3_ctrl%timestep)
+
+  veg3_ctrl%phenol_period = phenol_period
+  veg3_ctrl%dt_phen_360d = REAL(veg3_ctrl%phenol_period) / 360.0
+  veg3_ctrl%nstep_phen = INT(rsec_per_day * veg3_ctrl%phenol_period            &
     / veg3_ctrl%timestep)
 
   veg3_ctrl%land_pts = land_pts
@@ -199,18 +272,34 @@ IF (l_red .AND. l_triffid) THEN
   red_parms%mass0(:)            = mass0(1:nnpft)
   red_parms%massi(:)            = massi(1:nnpft)
   red_parms%mclass(:)           = mclass(1:nnpft)
-  red_parms%mort_base(:)        = mort_base(1:nnpft)
+  red_parms%mort_base(:)        = mort_base(1:nnpft) / rsec_per_day / 360.0
   red_parms%phi_a(:)            = phi_a(1:nnpft)
   red_parms%phi_g(:)            = phi_g(1:nnpft)
   red_parms%phi_h(:)            = phi_h(1:nnpft)
   red_parms%phi_l(:)            = phi_l(1:nnpft)
-  red_parms%mclass_geom_mult(:) = 0.0
+  red_parms%mclass_geom_mult(:) = 1.0 ! Default assumes 1 mass class
   red_parms%frac_min(:)         = frac_min
 
   red_parms%comp_coef(:,:)      = 0.0
 
   DO n = 1,nnpft
     ! Cycle through the PFTs
+    ! Update mclass_geom_mult for each PFT
+    ! mclass_geom_mult is used to calculate the geometric spacingbetween mass
+    ! classes for a given PFT: mass_(i+1) = mass_i * mclass_geom_mult,
+    ! where mclass_geom_mult > 1.0. Therefore, if we have the minimum and mass
+    ! classes for a PFT, we can estimate the geometric multiplier required to
+    ! get from the minimum to the maximum mass class:
+    !
+    ! mass_i = mass0 * mclass_geom_mult^(i-1)
+    !
+    ! mclass_geom_mult = (massi / mass0)^(1/(mclass-1))
+    IF (red_parms%mclass(n) > 1) THEN
+      red_parms%mclass_geom_mult(n) =                                          &
+        (red_parms%massi(n) / red_parms%mass0(n))**                            &
+        (1.0 / REAL(red_parms%mclass(n)-1))
+    END IF
+
     DO k=1,nnpft
       ! If the n'th PFT is less dominant than k'th PFT, then k shades n.
       IF (dom_order(n)  <=  dom_order(k)) THEN
@@ -219,6 +308,23 @@ IF (l_red .AND. l_triffid) THEN
 
     END DO
   END DO
+
+  ! Soil carbon coupling parameters
+  soil_parms%l_layeredc    = l_layeredC
+  soil_parms%soil_bgc_model = soil_bgc_model
+  soil_parms%dim_cslayer   = dim_cslayer
+  soil_parms%dim_cs1       = dim_cs1
+  soil_parms%tau_lit       = tau_lit
+  soil_parms%resp_frac_a   = resp_frac_a_local
+  soil_parms%resp_frac_b   = resp_frac_b_local
+  soil_parms%resp_frac_c   = resp_frac_c_local
+#if !defined(UM_JULES)
+  soil_parms%litc_norm     = litc_norm
+  soil_parms%dzsoil(:)     = dzsoil(1:dim_cslayer)
+#else
+  soil_parms%litc_norm     = 1.0
+  soil_parms%dzsoil(:)     = 0.0
+#endif
 
 END IF
 
@@ -246,6 +352,7 @@ SUBROUTINE check_jules_red_parms()
 
 USE ereport_mod,     ONLY: ereport
 USE jules_print_mgr, ONLY: jules_print, jules_message
+USE jules_soil_biogeochem_mod, ONLY: soil_model_4pool, soil_bgc_model
 
 IMPLICIT NONE
 
@@ -259,6 +366,15 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='CHECK_JULES_RED_PARMS'
 !-----------------------------------------------------------------------------
 error_sum = 0
 IF ( l_red ) THEN
+
+  ! soil_bgc_4pool_control only supports the 4-pool soil carbon model
+  ! (layered or single-layer).
+  IF ( soil_bgc_model /= soil_model_4pool ) THEN
+    error_sum = error_sum + 1
+    CALL jules_print(RoutineName, "l_red requires soil_bgc_model=" //          &
+      "soil_model_4pool")
+  END IF
+
   IF ( ANY( red_parms%alpha_recrt(:) < 0 ) ) THEN
     error_sum = error_sum + 1
     CALL jules_print(RoutineName, "No value for alpha_recrt")

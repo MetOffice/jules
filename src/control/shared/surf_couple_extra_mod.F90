@@ -8,6 +8,9 @@ MODULE surf_couple_extra_mod
 !
 ! [Met Office Ref SC0237]
 ! *****************************COPYRIGHT****************************************
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
 USE um_types, ONLY: real_jlslsm
 
 IMPLICIT NONE
@@ -138,6 +141,8 @@ USE inferno_io_mod,           ONLY: inferno_io
 USE irrigation_mod,           ONLY: irrigation_control
 USE veg_control_mod,          ONLY: veg_control
 USE next_gen_biogeochem_mod,  ONLY: next_gen_biogeochem
+USE soil_bgc_4pool_control_mod,                                                &
+                              ONLY: soil_bgc_4pool_control
 USE sparm_mod,                ONLY: sparm
 USE infiltration_rate_mod,    ONLY: infiltration_rate
 USE flake_interface_mod,      ONLY: flake_interface
@@ -236,9 +241,11 @@ USE sf_diags_mod,             ONLY: sf_diag
 
 USE timestep_mod,             ONLY: timestep
 
-USE veg3_parm_mod,            ONLY: veg3_ctrl,litter_parms,red_parms
+USE veg3_parm_mod,            ONLY: veg3_ctrl,litter_parms,red_parms,soil_parms
 
 USE veg3_field_mod,           ONLY: veg_state,red_state
+
+USE soil_bgc_4pool_field_mod, ONLY: soil_state
 
 USE water_constants_mod,      ONLY: rho_water
 
@@ -425,6 +432,21 @@ INTEGER ::                                                                     &
         !Various counters
   errcode
         ! error code to pass to ereport.
+
+INTEGER ::                                                                     &
+  veg_index_pts,                                                               &
+        ! Number of land points on which veg3/RED operates this timestep,
+        ! diagnosed by next_gen_biogeochem and reused below to call the
+        ! soil biogeochemistry (kept separate to remain independent of
+        ! veg3/RED - see soil_bgc_4pool_control_mod).
+  veg_index(land_pts)
+        ! Indices of the land points above.
+
+LOGICAL ::                                                                     &
+  l_veg_step
+        ! Flag from next_gen_biogeochem indicating whether this is a
+        ! vegetation dynamics timestep, used to gate the soil
+        ! biogeochemistry call below.
 
 #if !defined(UM_JULES)
 INTEGER ::  crop_call
@@ -1073,24 +1095,39 @@ CASE ( jules )
 
         CALL next_gen_biogeochem(                                              &
           !IN control vars
-            asteps_since_triffid,land_pts,nnpft,nmasst,veg3_ctrl,              &
+            asteps_since_triffid,a_step,land_pts,nnpft,nmasst,veg3_ctrl,       &
             ainfo,                                                             &
           !IN parms
             litter_parms,red_parms,                                            &
           !INOUT data structures
-            veg_state,red_state                                                &
+            veg_state,red_state,                                               &
           !OUT diagnostics
+            veg_index_pts,veg_index,l_veg_step                                 &
           )
+
+        ! Couple the litter carbon produced by vegetation dynamics into the
+        ! soil biogeochemistry (4-pool) model. This is called directly from
+        ! here (rather than from within next_gen_biogeochem_mod/veg3) so
+        ! that soil biogeochemistry stays modular and independent of the
+        ! choice of vegetation dynamics model. Litter/NPP fluxes are passed
+        ! in as plain arrays (rather than veg_state) so that the soil
+        ! routine has no dependency on veg3/RED.
+        IF (veg_index_pts > 0 .AND. l_veg_step) THEN
+          CALL soil_bgc_4pool_control(                                         &
+                      veg_index_pts,veg_index,land_pts,nnpft,veg3_ctrl,        &
+                      soil_parms,veg_state%frac(:,1:nnpft),veg_state%litCpft,  &
+                      veg_state%litC,veg_state%npp_n_gb,soil_state,            &
+                      veg_state%nbp_gb)
+        END IF
 
         ! Update the physical state of the land
         ! Outside of main call as
         ! - Uses non-veg tilepts
         ! - Accesses fields via USE statements
 
-        ! Note use lai_bal for now as we don't yet have phenology
         CALL sparm (land_pts,nsurft,surft_pts,ainfo%surft_index,               &
                     veg_state%frac,veg_state%canht,                            &
-                    veg_state%lai_bal,psparms%z0m_soil_gb,                     &
+                    veg_state%lai,psparms%z0m_soil_gb,                         &
                     psparms%catch_snow_surft,psparms%catch_surft,              &
                     psparms%z0_surft,psparms%z0h_bare_surft,urban_param%ztm_gb)
 
