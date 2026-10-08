@@ -141,3 +141,19 @@ class vn82_t140(MacroUpgrade):
                 )
 
         return config, self.reports
+
+
+class vn82_t176(MacroUpgrade):
+
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2_t140"
+    AFTER_TAG = "vn8.2_t176"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Bump tag to pick up metadata changes
+        return config, self.reports
+
+
