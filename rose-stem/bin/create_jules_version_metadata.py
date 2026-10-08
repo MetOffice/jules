@@ -197,6 +197,9 @@ if __name__ == '__main__':
     dirs.append("../rose-meta/jules-standalone")
     dirs.append("../rose-meta/jules-um")
     dirs.append("../rose-meta/jules-lfric")
+    dirs.append("../rose-meta/rivers-standalone")
+    for dir in find_dirs("../rose-meta/standalone-io"):
+        dirs.append(dir)
 
     # Check that new_version directories do not already exist
     print("\nChecking for existing vn%s directories"%(new_version))
