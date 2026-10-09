@@ -24,7 +24,7 @@ USE jules_vegetation_mod, ONLY: l_triffid, l_phenol, l_trif_crop, l_ag_expand, &
 USE trif, ONLY: crop, harvest_type, harvest_freq, ag_expand,                   &
                 g_area, g_grow, g_root, g_wood, lai_max, lai_min,              &
                 alloc_fast, alloc_med, alloc_slow, dpm_rpm_ratio,              &
-                retran_r, retran_l, harvest_ht
+                retran_r, retran_l, harvest_ht, fireveg_c_to_atmos
 
 USE trif_io, ONLY: jules_triffid,                                              &
                          crop_io, harvest_type_io, harvest_freq_io,            &
@@ -32,7 +32,7 @@ USE trif_io, ONLY: jules_triffid,                                              &
                          g_wood_io,lai_max_io,lai_min_io,                      &
                          alloc_fast_io,alloc_med_io,alloc_slow_io,             &
                          dpm_rpm_ratio_io,retran_l_io,retran_r_io,             &
-                         harvest_ht_io
+                         harvest_ht_io, fireveg_c_to_atmos_io
 
 USE errormessagelength_mod, ONLY: errormessagelength
 
@@ -106,6 +106,7 @@ crop(:)    = crop_io(1:npft)
 harvest_freq(:)    = harvest_freq_io(1:npft)
 harvest_type(:)    = harvest_type_io(1:npft)
 ag_expand(:)       = ag_expand_io(1:npft)
+fireveg_c_to_atmos(:) = fireveg_c_to_atmos_io(1:npft)
 g_area(:)  = g_area_io(1:npft)
 g_grow(:)  = g_grow_io(1:npft)
 g_root(:)  = g_root_io(1:npft)

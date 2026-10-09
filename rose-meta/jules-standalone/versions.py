@@ -54,7 +54,162 @@ class vn82_t148(MacroUpgrade):
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
-
+        
         # Add settings
         self.add_setting(config, ["namelist:jules_rivers", "l_reservoirs"], ".false.")
+    
+class vn82_t141(MacroUpgrade):
+
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2_t148"
+    AFTER_TAG = "vn8.2_t141"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+        
+        source = self.get_setting_value(config, ["file:fire.nml", "source"])
+        if source is not None:
+            source = source.replace(
+                "namelist:fire_switches", "namelist:jules_fire_weather_index"
+            )
+            self.change_setting_value(
+                config, ["file:fire.nml", "source"], source
+            )
+            self.rename_setting(
+                config,
+                ["namelist:fire_switches"],
+                ["namelist:jules_fire_weather_index"],
+            )
+            self.rename_setting(
+                config,
+                ["namelist:jules_fire_weather_index", "l_fire"],
+                ["namelist:jules_fire_weather_index", "l_fire_weather_index"],
+            )
+        else:
+            lsm_id = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_model_environment", "lsm_id"]
+                )
+            )
+            if lsm_id != 3:
+                raise UpgradeError(f"fire.nml file not found")
+
+        return config, self.reports
+
+
+class vn82_t155(MacroUpgrade):
+
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2_t141"
+    AFTER_TAG = "vn8.2_t155"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Bump tag to pick up metadata changes
+        return config, self.reports
+
+
+class vn82_t140(MacroUpgrade):
+    """Upgrade macro from JULES by Maggie Hendry"""
+
+    BEFORE_TAG = "vn8.2_t155"
+    AFTER_TAG = "vn8.2_t140"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        ncpft = self.get_setting_value(
+            config, ["namelist:jules_surface_types", "ncpft"]
+        )
+        if ncpft is not None:
+            ncpft = int(ncpft)
+            if ncpft > 0:
+                msg = (
+                    "This configuration contains crop varieties (ncpft > 0). "
+                    "Previous upgrade macros were incomplete for "
+                    "configurations with crops. Please see "
+                    "https://github.com/MetOffice/jules/issues/136 for "
+                    "guidance."
+                    "\n        * jules_surface_types: This macro adds the "
+                    "WSMR crop varieties with an index of 0, rather than "
+                    "assume the surface types present. This namelist will "
+                    "need correcting."
+                    "\n        * jules_pftparm: Please ensure parameters are "
+                    "correct as upgrade macros may have assumed the wrong "
+                    "surface types."
+                )
+                self.add_report(info=msg, is_warning=True)
+
+            jules_surface_types = {}
+            jules_surface_types["c3_crop_wheat"] = "0"
+            jules_surface_types["c3_crop_soybean"] = "0"
+            jules_surface_types["c4_crop_maize"] = "0"
+            jules_surface_types["c3_crop_rice"] = "0"
+            for item, value in jules_surface_types.items():
+                self.add_setting(
+                    config, ["namelist:jules_surface_types", item], value
+                )
+
+        return config, self.reports
+
+
+class vn82_t61(MacroUpgrade):
+
+    """Upgrade macro from JULES by Eleanor Burke"""
+
+    BEFORE_TAG = "vn8.2_t140"
+    AFTER_TAG = "vn8.2_t61"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            # Add new INFERNO namelist to namelist file fire.nml
+            source = self.get_setting_value(config, ["file:fire.nml", "source"])
+            source = source.replace("namelist:jules_fire_weather_index",
+                                    "namelist:jules_fire_weather_index namelist:jules_inferno")
+            self.change_setting_value(config, ["file:fire.nml", "source"], source)
+
+            # Add new item to jules_triffid namelist (npft)
+            npft = int(
+                self.get_setting_value(
+                    config, ["namelist:jules_surface_types", "npft"]
+                )
+            )
+            self.add_setting(
+                config,
+                ["namelist:jules_triffid", "fireveg_c_to_atmos_io"],
+                ",".join(["0.13"] * npft),
+            )
+
+        # Add items to new INFERNO namelist jules_inferno
+        self.rename_setting(
+            config,
+            ["namelist:jules_soil_biogeochem", "z_burn_max"],
+            ["namelist:jules_inferno", "z_burn_max"],
+        )
+
+        self.add_setting(config, ["namelist:jules_inferno", "ccdpm_min"], "0.8")
+        self.add_setting(config, ["namelist:jules_inferno", "ccdpm_max"], "1.0")
+        self.add_setting(config, ["namelist:jules_inferno", "ccrpm_min"], "0.0")
+        self.add_setting(config, ["namelist:jules_inferno", "ccrpm_max"], "0.2")
+
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_low"], "10.0")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rhum_up"], "90.0")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_sm_low"], "0.0")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_sm_up"], "2.4")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_low"], "0.02")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_fuel_up"], "0.2")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "14929920000.0")
+        self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
+
+>>>>>>> upstream/main
         return config, self.reports

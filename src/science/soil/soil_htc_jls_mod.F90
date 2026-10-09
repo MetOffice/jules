@@ -36,6 +36,7 @@ USE jules_snow_mod,         ONLY: snow_hcon
 USE jules_soil_mod,         ONLY: facur, gamma_t, mmax, tacur, l_bedrock,      &
                                   ns_deep
 USE jules_soil_biogeochem_mod, ONLY: heat_of_respiration, l_bgc_heat
+USE ancil_info,             ONLY: dim_cslayer
 USE jules_surface_mod,      ONLY: l_flake_model
 USE jules_surface_types_mod, ONLY: lake
 USE jules_irrig_mod,   ONLY: l_irrig_dmd
@@ -104,7 +105,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Volumetric soil moisture concentration at saturation (m3 H2O/m3 soil).
   w_flux(npnts,0:nshyd),                                                       &
     ! The fluxes of water between layers (kg/m2/s).
-  resp_s_soilt(npnts,nshyd,dim_cs1)
+  resp_s_soilt(npnts,dim_cslayer,dim_cs1)
     ! Soil respiration in pools (kg C/m2/s) in each layer
     ! The fluxes of water between layers (kg/m2/s).
 
@@ -384,7 +385,7 @@ END IF
 !$OMP        w_flux, dhadv_dtsl0, dhadv_dtsl1, dhadv_dtsl2, v_sat,             &
 !$OMP        tiny_0, smcl, small_value, work1, smclsat, bexp, tmax, sathh,     &
 !$OMP        dhsl0, timestep, dhsl, resp_s_soilt, l_bgc_heat, dim_cs1,         &
-!$OMP        heat_of_respiration)
+!$OMP        dim_cslayer, heat_of_respiration)
 
 ! Blocking is needed as the nshyd dimension has a spatial
 ! dependence (n +/-1). Blocking enables parallelising over the
@@ -490,7 +491,7 @@ END DO  !  j (points)
 IF (l_bgc_heat) THEN
 !$OMP DO SCHEDULE(STATIC)
   DO j = 1, soil_pts
-    DO n = 1, nshyd
+    DO n = 1, dim_cslayer
 !DIR$ IVDEP
       !CDIR NODEP
       i = soil_index(j)
