@@ -57,13 +57,15 @@ function set_version {
 # Set the metadata path to allow jules-shared to be picked up from the JULES
 # working copy
 export ROSE_META_PATH=rose-meta
-echo "[INFO] Checking HEAD metadata for consistency"
+echo "[INFO] Checking jules-fcm-make/HEAD metadata for consistency"
 rose metadata-check -C rose-meta/jules-fcm-make/HEAD
 check_fail $? "jules-fcm-make HEAD metadata is invalid"
+echo "[INFO] Checking jules-standalone/HEAD metadata for consistency"
 rose metadata-check -C rose-meta/jules-standalone/HEAD
 check_fail $? "jules-standalone HEAD metadata is invalid"
+echo "[INFO] Checking rivers-standalone/HEAD metadata for consistency"
 rose metadata-check -C rose-meta/rivers-standalone/HEAD
-#check_fail $? "rivers-standalone HEAD metadata is invalid"
+check_fail $? "rivers-standalone HEAD metadata is invalid"
 
 WARN_RIVERS=false
 # Upgrade the apps
