@@ -350,8 +350,8 @@
         inherit = METO_EX1A_CCE_GSWP2_RFM_RESTART, METO_EX1A_CCE_GSWP2_RIVERS_ONLY
         [[[environment]]]
             ROSE_APP_OPT_CONF_KEYS = rivers-only
-	        RIVERS_ONLY_INSTALL_DIR = ../meto_ex1a_cce_gswp2_rivers_restart/output
-	        RIVERS_ONLY_DRIVE_TASK = meto_ex1a_cce_gswp2_rivers_restart
+            RIVERS_ONLY_INSTALL_DIR = ../meto_ex1a_cce_gswp2_rivers_restart/output
+            RIVERS_ONLY_DRIVE_TASK = meto_ex1a_cce_gswp2_rivers_restart
 
     [[METO_EX1A_CCE_GSWP2_TRIP_RESTART]]
         pre-script = gen_gswp2_rivers_props_trip_file
@@ -364,8 +364,8 @@
         inherit = METO_EX1A_CCE_GSWP2_TRIP_RESTART, METO_EX1A_CCE_GSWP2_RIVERS_ONLY
         [[[environment]]]
             ROSE_APP_OPT_CONF_KEYS = rivers-only
-	        RIVERS_ONLY_INSTALL_DIR = ../meto_ex1a_cce_gswp2_trip_restart/output
-	        RIVERS_ONLY_DRIVE_TASK = meto_ex1a_cce_gswp2_trip_restart
+            RIVERS_ONLY_INSTALL_DIR = ../meto_ex1a_cce_gswp2_trip_restart/output
+            RIVERS_ONLY_DRIVE_TASK = meto_ex1a_cce_gswp2_trip_restart
 
 # For GSWP2 rivers, use MPI
     [[meto_ex1a_cce_gswp2_rivers]]
@@ -378,10 +378,9 @@
         pre-script = gen_gswp2_rivers_props_rfm_file
         inherit = METO_EX1A_CCE_GSWP2_RIVERS_ONLY, METO_EX1A_CORES_32, METO_EX1A_OMPTHREADS_1, METO_EX1A_MPITASKS_32
         [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers
-            ROSE_APP_OPT_CONF_KEYS = rivers-only
+            ROSE_TASK_APP = gswp2_rivers-standalone
             RIVERS_ONLY_INSTALL_DIR = ../meto_ex1a_cce_gswp2_rivers/output
-	        RIVERS_ONLY_DRIVE_TASK = meto_ex1a_cce_gswp2_rivers
+            RIVERS_ONLY_DRIVE_TASK = meto_ex1a_cce_gswp2_rivers
 
     [[meto_ex1a_cce_gswp2_rivers_restart_rivers-only_lrun]]
         inherit = METO_EX1A_CCE_GSWP2_RFM_RESTART_RIVERS_ONLY

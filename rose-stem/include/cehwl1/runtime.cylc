@@ -290,9 +290,8 @@
 	pre-script = gen_gswp2_rivers_props_rfm_file
         inherit = GSWP2, CEH_GSWP2_RIVERS_ONLY
         [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers
+            ROSE_TASK_APP = gswp2_rivers-standalone
 	    ROSE_APP_COMMAND_KEY = rivers-only
-            ROSE_APP_OPT_CONF_KEYS = rivers-only
 	    RIVERS_ONLY_INSTALL_DIR = ../gswp2_rivers/output
 	    RIVERS_ONLY_DRIVE_TASK = gswp2_rivers
 
@@ -981,7 +980,7 @@
     [[housekeep_gswp2_rivers_overbank_hypso]]
         inherit = HOUSEKEEPING, LINUX
         [[[environment]]]
-            DIR1 = ../gswp2_rivers_overbank_hypso]
+            DIR1 = ../gswp2_rivers_overbank_hypso
 
     [[housekeep_gswp2_trip]]
         inherit = HOUSEKEEPING, LINUX

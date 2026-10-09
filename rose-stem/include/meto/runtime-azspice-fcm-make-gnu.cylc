@@ -374,8 +374,8 @@
         inherit = METO_AZSPICE_GNU_GSWP2_RFM_RESTART, METO_AZSPICE_GNU_GSWP2_RIVERS_ONLY
         [[[environment]]]
             ROSE_APP_OPT_CONF_KEYS = rivers-only
-	    RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_rivers_restart/output
-	    RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_rivers_restart
+            RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_rivers_restart/output
+            RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_rivers_restart
 
     [[METO_AZSPICE_GNU_GSWP2_TRIP_RESTART]]
         pre-script = gen_gswp2_rivers_props_trip_file
@@ -428,8 +428,8 @@
         inherit = METO_AZSPICE_GNU_GSWP2_RIVERS_ONLY
         [[[environment]]]
             ROSE_TASK_APP = gswp2_rivers-standalone
-	    RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_rivers/output
-	    RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_rivers
+            RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_rivers/output
+            RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_rivers
 
 # GSWP2 rivers restart (rivers-only) lrun
     [[meto_azspice_gnu_gswp2_rivers_restart_rivers-only_lrun]]
@@ -480,8 +480,8 @@
         [[[environment]]]
             ROSE_TASK_APP = gswp2_trip
             ROSE_APP_OPT_CONF_KEYS = rivers-only
-	    RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_trip/output
-	    RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_trip
+            RIVERS_ONLY_INSTALL_DIR = ../meto_azspice_gnu_gswp2_trip/output
+            RIVERS_ONLY_DRIVE_TASK = meto_azspice_gnu_gswp2_trip
 
 # GSWP2 trip restart (rivers-only) lrun
     [[meto_azspice_gnu_gswp2_trip_restart_rivers-only_lrun]]

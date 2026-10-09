@@ -324,9 +324,8 @@
 	pre-script = gen_gswp2_rivers_props_rfm_file
         inherit = GSWP2, JASMIN_GSWP2_RIVERS_ONLY
         [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers
+            ROSE_TASK_APP = gswp2_rivers-standalone
 	    ROSE_APP_COMMAND_KEY = rivers-only
-            ROSE_APP_OPT_CONF_KEYS = rivers-only
 	    RIVERS_ONLY_INSTALL_DIR = ../gswp2_rivers/output
 	    RIVERS_ONLY_DRIVE_TASK = gswp2_rivers
 

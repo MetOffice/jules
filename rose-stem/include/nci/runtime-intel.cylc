@@ -341,7 +341,7 @@
 	pre-script = gen_gswp2_rivers_props_rfm_file
         inherit = NCI_INTEL_GSWP2_RIVERS_ONLY
         [[[environment]]]
-            ROSE_TASK_APP = gswp2_rivers
+            ROSE_TASK_APP = gswp2_rivers-standalone
             RIVERS_ONLY_INSTALL_DIR = ../nci_intel_gswp2_rivers/output
             RIVERS_ONLY_DRIVE_TASK = nci_intel_gswp2_rivers
 
