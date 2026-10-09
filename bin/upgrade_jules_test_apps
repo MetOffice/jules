@@ -62,6 +62,8 @@ rose metadata-check -C rose-meta/jules-fcm-make/HEAD
 check_fail $? "jules-fcm-make HEAD metadata is invalid"
 rose metadata-check -C rose-meta/jules-standalone/HEAD
 check_fail $? "jules-standalone HEAD metadata is invalid"
+rose metadata-check -C rose-meta/rivers-standalone/HEAD
+#check_fail $? "rivers-standalone HEAD metadata is invalid"
 
 # Upgrade the apps
 for app in "${APPS[@]}"; do
@@ -77,10 +79,18 @@ for app in "${APPS[@]}"; do
        [[ $app == *metadata_checker* ]]  ; then
         echo "[INFO] IGNORING app in $app"
         TRY_UPGRADE_MACRO=false
-    elif [[ $app == *fcm_make* ]]; then
-        echo "[INFO] Upgrading FCM make app in $app"
     else
-        echo "[INFO] Upgrading JULES app in $app"
+	meta=$(grep meta= $app/rose-app.conf)
+	if [[ $meta == *fcm-make* ]]; then
+            echo "[INFO] Upgrading FCM make app in $app"
+	elif [[ $meta == *jules-standalone* ]]; then
+            echo "[INFO] Upgrading JULES app in $app"
+	elif [[ $meta == *rivers-standalone* ]]; then
+            echo "[INFO] Upgrading Rivers-standalone app in $app"
+	else
+	    echo $meta
+	    check_fail 1 "Metadata tag not recognised in $app"
+	fi
     fi
 
     if "$TRY_UPGRADE_MACRO"; then

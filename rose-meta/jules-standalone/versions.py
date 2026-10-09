@@ -153,7 +153,16 @@ class vn82_t176(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
-        # Bump tag to pick up metadata changes
+        # Remove oasis_rivers namelist from JULES standalone apps
+        lsm_id = int(
+            self.get_setting_value(
+                config, ["namelist:jules_model_environment", "lsm_id"]
+            )
+        )
+        if lsm_id != 3:
+            self.remove_setting(config, ["namelist:oasis_rivers"])
+            self.remove_setting(config, ["file:oasis_rivers.nml"])
+
         return config, self.reports
 
 
