@@ -65,8 +65,10 @@ check_fail $? "jules-standalone HEAD metadata is invalid"
 rose metadata-check -C rose-meta/rivers-standalone/HEAD
 #check_fail $? "rivers-standalone HEAD metadata is invalid"
 
+WARN_RIVERS=false
 # Upgrade the apps
 for app in "${APPS[@]}"; do
+    RIVERS=false
     TRY_UPGRADE_MACRO=true
     # First off - ignore a bunch of apps that don't have metadata
     # WARNING If any apps that should be upgraded are introduced which match
@@ -87,6 +89,7 @@ for app in "${APPS[@]}"; do
             echo "[INFO] Upgrading JULES app in $app"
 	elif [[ $meta == *rivers-standalone* ]]; then
             echo "[INFO] Upgrading Rivers-standalone app in $app"
+            RIVERS=true
 	else
 	    echo $meta
 	    check_fail 1 "Metadata tag not recognised in $app"
@@ -131,7 +134,21 @@ for app in "${APPS[@]}"; do
         rose macro --fix -y -q -M rose-meta -C $app
         check_fail $? "Unable to force consistency with HEAD metadata for $app"
         set_version $app $current
+	# Check if the upgrade macro alters Rivers-standalone apps
+	if "$RIVERS"; then
+	    set -- $(git diff --numstat $app/rose-app.conf)
+	    # Check number of insertions and deletions; one of each expected
+	    if [[ $1 > 1 || $2 > 1 ]]; then
+		WARN_RIVERS=true
+	    fi
+	fi
     fi
 done
 
+# Issue a warning if Rivers standalone apps are upgraded beyond the meta tag
+if "$WARN_RIVERS"; then
+    echo "**************************************************************************************"
+    echo "[WARN] Upgrade macro will need to be applied manually to coupled_rivers in LFRic apps"
+    echo "**************************************************************************************"
+fi
 echo "[DONE] All apps upgraded"
