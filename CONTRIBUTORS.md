@@ -5,6 +5,7 @@
 | yaswant         | Yaswant Pradhan  | Met Office  | 2026-06-30 |
 | doucla          | Douglas Clark    | UKCEH       | 2026-07-03 |
 | james-bruten-mo | James Bruten     | Met Office  | 2026-07-09 |
+| HEBaron         | Helen Baron      | UKCEH       | 2026-08-26 |
 | t00sa           | Sam Clarke-Green | Met Office  | 2026-09-30 |
 | eleanorgb       | Eleanor Burke    | Met Office  | 2026-08-24 |
 | maggiehendry    | Maggie Hendry    | Met Office  | 2026-08-21 |
