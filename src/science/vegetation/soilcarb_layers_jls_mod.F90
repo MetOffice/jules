@@ -37,12 +37,12 @@ SUBROUTINE soilcarb_layers (land_pts, trif_pts, trif_index, forw, r_gamma,     &
 
 
 USE jules_surface_types_mod, ONLY: npft
-USE jules_soil_biogeochem_mod, ONLY: bio_hum_cn, tau_lit, l_label_frac_cs,     &
-                                     z_burn_max
+USE jules_soil_biogeochem_mod, ONLY: bio_hum_cn, tau_lit, l_label_frac_cs
 USE soilcarb_tracer_age_mod, ONLY: soilcarb_tracer_age
 
 USE jules_vegetation_mod, ONLY: l_nitrogen
-
+USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,                             &
+                ccrpm_min, ccrpm_max, z_burn_max
 USE jules_soil_mod, ONLY: cs_min, dzsoil, sm_levels
 USE veg_param, ONLY: litc_norm
 USE pftparm, ONLY: rootd_ft
@@ -151,16 +151,6 @@ REAL(KIND=real_jlslsm), PARAMETER :: lit_cn    = 300.0
     ! Maximum-allowed C:N for soil litter pools.
 REAL(KIND=real_jlslsm), PARAMETER :: nminl_gas = 0.01
     ! Fraction of net mineralisation of N that is lost as gas.
-
-REAL(KIND=real_jlslsm), PARAMETER ::                                           &
-  ccdpm_min = 0.8,                                                             &
-  ccdpm_max = 1.0,                                                             &
-    ! Decomposable Plant Material burns between 80 to 100 %
-  ccrpm_min = 0.0,                                                             &
-  ccrpm_max = 0.2
-    ! Resistant Plant Material burns between 0 to 20 %
-    ! These values are also set in inferno_mod to calculate emitted_carbon_DPM
-    ! and emitted_carbon_RPM, and are also set in soilcarb
 
 !-----------------------------------------------------------------------------
 ! Local variables.
