@@ -745,8 +745,7 @@ CONTAINS
 
 !##############################################################################
 
-SUBROUTINE jules_rivers_alloc(land_pts, t_i_length, t_j_length,                &
-                              sw_river_source, l_water_resources, rivers_data)
+SUBROUTINE jules_rivers_alloc(land_pts, t_i_length, t_j_length, rivers_data)
 
 !No USE statements other than Dr Hook
 USE parkind1,    ONLY: jprb, jpim
@@ -756,10 +755,6 @@ IMPLICIT NONE
 
 !Arguments
 INTEGER, INTENT(IN) :: land_pts, t_i_length, t_j_length
-INTEGER, INTENT(IN) :: sw_river_source
-  ! Index of river water in surface water source arrays.
-LOGICAL, INTENT(IN) :: l_water_resources
-    ! Switch to select water resource management modelling.
 TYPE(rivers_data_type), INTENT(IN OUT) :: rivers_data
 
 !Local variables
