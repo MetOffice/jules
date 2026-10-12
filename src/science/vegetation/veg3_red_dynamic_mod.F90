@@ -130,7 +130,7 @@ DO l = 1,land_pts
       P_s(l,n),g0(l,n),frac_shade(l,n),                                        &
       !IN mass-cohort properties
       red_state%g_mass_scale(n,1:red_parms%mclass(n)),                         &
-      red_state%mass_mass(n,1:red_parms%mclass(n)),                            &
+      red_state%mass_cohort(n,1:red_parms%mclass(n)),                          &
       red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                       &
       !INOUT state
       red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                    &
@@ -265,7 +265,7 @@ SUBROUTINE update_pft_size_structure(                                          &
                 !IN fields
                 mort_add,growth,P_s,g0,frac_shade,                             &
                 !IN mass-cohort properties
-                g_mass_scale,mass_mass,crwn_area_mass,                         &
+                g_mass_scale,mass_cohort,crwn_area_mass,                       &
                 !INOUT state
                 plantNumDensity,mort,                                          &
                 !OUT diagnostics
@@ -303,7 +303,7 @@ frac_shade,                                                                    &
               !  Competitive shading of seedlings in this PFT.
 g_mass_scale(mclass),                                                          &
               !  Allometric scaling of growth across the mass cohorts.
-mass_mass(mclass),                                                             &
+mass_cohort(mclass),                                                           &
               !  Mass of an individual member of each mass cohort. (kgC)
 crwn_area_mass(mclass)
               !  Crown area of an individual member of each mass cohort. (m2)
@@ -372,13 +372,13 @@ DO k = 1, mclass
     mort(k) = mort_base + mort_add(k)
 
     IF (k == 1) THEN
-      mort(k) = mort(k) - g_mass(k) / mass_mass(k)
+      mort(k) = mort(k) - g_mass(k) / mass_cohort(k)
     END IF
 
     IF (k < mclass) THEN
       ! Flux shrinking down into this class from the class above
       flux_in(k) = - plantNumDensity(k+1) * g_mass(k+1)                        &
-        / (mass_mass(k+1) - mass_mass(k))
+        / (mass_cohort(k+1) - mass_cohort(k))
     ELSE
       flux_in(k) = 0.0
     END IF
@@ -386,7 +386,7 @@ DO k = 1, mclass
     IF (k > 1) THEN
       ! Flux shrinking out of this class into the class below
       flux_out(k) = - plantNumDensity(k) * g_mass(k)                           &
-        / (mass_mass(k) - mass_mass(k-1))
+        / (mass_cohort(k) - mass_cohort(k-1))
     ELSE
       flux_out(k) = 0.0
     END IF
@@ -396,7 +396,7 @@ DO k = 1, mclass
 
     IF (k == 1) THEN
       ! Seedling flux
-      flux_in(k) = P_s / mass_mass(k) * (1.0 - frac_shade)
+      flux_in(k) = P_s / mass_cohort(k) * (1.0 - frac_shade)
       mort_litC = mort_litC + frac_shade * P_s
 
     ELSE
@@ -411,8 +411,8 @@ DO k = 1, mclass
       mort_litC = mort_litC + plantNumDensity(k) * g_mass(k)
 
     ELSE
-      flux_out(k) = plantNumDensity(k) * g_mass(k) / (mass_mass(k+1)           &
-        - mass_mass(k))
+      flux_out(k) = plantNumDensity(k) * g_mass(k) / (mass_cohort(k+1)         &
+        - mass_cohort(k))
 
     END IF
 
@@ -428,11 +428,11 @@ DO k = 1, mclass
     dplantNumDensity_dt(k) = -plantNumDensity(k) / dt_red
     mort_litC =  mort_litC                                                     &
       + (dplantNumDensity_dt(k) - flux_out(k))                                 &
-      * mass_mass(k)
+      * mass_cohort(k)
 
   ELSE
     mort_litC = mort_litC + mort(k)                                            &
-    * plantNumDensity(k) * mass_mass(k)
+    * plantNumDensity(k) * mass_cohort(k)
 
   END IF
 

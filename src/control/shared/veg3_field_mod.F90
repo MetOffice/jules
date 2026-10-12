@@ -92,7 +92,7 @@ END TYPE veg_state_type
 ! Structure to keep the RED state variables and fields
 TYPE :: red_state_type
   REAL, ALLOCATABLE ::                                                         &
-    mass_mass(:,:),                                                            &
+    mass_cohort(:,:),                                                          &
               !  PFT plant mass tiles/classes. (kg C)
     ht_mass(:,:),                                                              &
               !  PFT height across plant mass. (m)
@@ -197,7 +197,7 @@ veg_state%mort_litC(:,:)       = 0.0
 ! RED
 
 ! Allocate red_data_type
-ALLOCATE(red_state%mass_mass          (nnpft, nmasst ))
+ALLOCATE(red_state%mass_cohort          (nnpft, nmasst ))
 ALLOCATE(red_state%ht_mass            (nnpft, nmasst ))
 ALLOCATE(red_state%lai_bal_mass       (nnpft, nmasst ))
 ALLOCATE(red_state%crwn_area_mass     (nnpft, nmasst ))
@@ -206,7 +206,7 @@ ALLOCATE(red_state%plantNumDensity    (land_pts, nnpft, nmasst ))
 ALLOCATE(red_state%mort               (land_pts, nnpft, nmasst ))
 
 ! Initialise red_data_type
-red_state%mass_mass(:,:)          = 0.0
+red_state%mass_cohort(:,:)          = 0.0
 red_state%ht_mass(:,:)            = 0.0
 red_state%lai_bal_mass(:,:)       = 0.0
 red_state%crwn_area_mass(:,:)     = 0.0
@@ -390,7 +390,7 @@ IF (l_red .AND. l_triffid) THEN
         red_parms%mclass(n),                                                   &
         !IN mass-cohort properties
         red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                  &
-        red_state%mass_mass(n,1:red_parms%mclass(n)),                          &
+        red_state%mass_cohort(n,1:red_parms%mclass(n)),                        &
         red_state%lai_bal_mass(n,1:red_parms%mclass(n)),                       &
         red_state%ht_mass(n,1:red_parms%mclass(n)),                            &
         red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                     &
@@ -453,22 +453,22 @@ INTEGER :: n,k
 DO k = 1,nmasst
   DO n = 1,nnpft
     IF (k == 1) THEN
-      red_state%mass_mass(n,k) = red_parms%mass0(n)
+      red_state%mass_cohort(n,k) = red_parms%mass0(n)
       red_state%ht_mass(n,k) = red_parms%height0(n)
       red_state%crwn_area_mass(n,k) = red_parms%crwn_area0(n)
       red_state%g_mass_scale(n,k) = 1.0
       red_state%lai_bal_mass(n,k) = red_parms%lai_bal0(n)
     ELSE IF (k > 1 .AND. k <= red_parms%mclass(n)) THEN
-      red_state%mass_mass(n,k) = red_state%mass_mass(n,k-1)                    &
+      red_state%mass_cohort(n,k) = red_state%mass_cohort(n,k-1)                &
         * red_parms%mclass_geom_mult(n)
       red_state%ht_mass(n,k) = red_parms%height0(n)                            &
-        * (red_state%mass_mass(n,k) / red_parms%mass0(n))** red_parms%phi_h(n)
+        * (red_state%mass_cohort(n,k) / red_parms%mass0(n))** red_parms%phi_h(n)
       red_state%crwn_area_mass(n,k) = red_parms%crwn_area0(n)                  &
-        * (red_state%mass_mass(n,k) / red_parms%mass0(n))** red_parms%phi_a(n)
-      red_state%g_mass_scale(n,k) = (red_state%mass_mass(n,k)                  &
+        * (red_state%mass_cohort(n,k) / red_parms%mass0(n))** red_parms%phi_a(n)
+      red_state%g_mass_scale(n,k) = (red_state%mass_cohort(n,k)                &
         / red_parms%mass0(n))** red_parms%phi_g(n)
       red_state%lai_bal_mass(n,k) = red_parms%lai_bal0(n)                      &
-        * (red_state%mass_mass(n,k) / red_parms%mass0(n))** red_parms%phi_l(n)
+        * (red_state%mass_cohort(n,k) / red_parms%mass0(n))** red_parms%phi_l(n)
     END IF
   END DO
 END DO
@@ -546,7 +546,7 @@ DO n = 1,nnpft
       red_parms%mclass(n),                                                     &
       !IN mass-cohort properties
       red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                    &
-      red_state%mass_mass(n,1:red_parms%mclass(n)),                            &
+      red_state%mass_cohort(n,1:red_parms%mclass(n)),                          &
       red_state%lai_bal_mass(n,1:red_parms%mclass(n)),                         &
       red_state%ht_mass(n,1:red_parms%mclass(n)),                              &
       red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                       &
@@ -596,7 +596,8 @@ SUBROUTINE pft_mean_from_mass_class(                                           &
                 !IN sizing
                 mclass,                                                        &
                 !IN mass-cohort properties
-                plantNumDensity,mass_mass,lai_bal_mass,ht_mass,crwn_area_mass, &
+                plantNumDensity,mass_cohort,lai_bal_mass,ht_mass,              &
+                crwn_area_mass,                                                &
                 !OUT fields
                 frac,vegCpft,lai_bal,canht                                     &
                 )
@@ -620,7 +621,7 @@ INTEGER, INTENT(IN) :: mclass
 REAL, INTENT(IN)     ::                                                        &
 plantNumDensity(mclass),                                                       &
               !  Population density within each mass cohort. (m-2)
-mass_mass(mclass),                                                             &
+mass_cohort(mclass),                                                           &
               !  Mass of an individual member of each mass cohort. (kgC)
 lai_bal_mass(mclass),                                                          &
               !  Balanced leaf area index of an individual member of each mass
@@ -660,7 +661,7 @@ canht   = 0.0
 ! and biomass to carbon
 DO k = 1, mclass
   frac    = frac    + plantNumDensity(k) * crwn_area_mass(k)
-  vegCpft = vegCpft + plantNumDensity(k) * mass_mass(k)
+  vegCpft = vegCpft + plantNumDensity(k) * mass_cohort(k)
   lai_bal = lai_bal + plantNumDensity(k) * lai_bal_mass(k) * crwn_area_mass(k)
   canht   = canht   + plantNumDensity(k) * ht_mass(k) * crwn_area_mass(k)
 END DO
@@ -673,7 +674,7 @@ IF (frac > 0.0) THEN
 ELSE
 
   ! If frac is zero, set mean to lowest mass class value
-  vegCpft = mass_mass(1)
+  vegCpft = mass_cohort(1)
   lai_bal = lai_bal_mass(1)
   canht   = ht_mass(1)
 END IF
