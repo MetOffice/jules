@@ -75,7 +75,7 @@ TYPE :: water_resources_data_type
     ! Fluxes for coupling.
     !--------------------------------------------------------------------------
     net_abstracted_river_global(:),                                            &
-      ! Net abstraction from river, on global land points (kg m-2).
+      ! Net abstraction from river, on global land points (kg).
     abstracted_res_global(:),                                                  &
       ! Water abstracted from reservoirs, on global land points (kg).
     !--------------------------------------------------------------------------

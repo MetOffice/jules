@@ -155,7 +155,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   abstracted_res_global(global_land_pts),                                      &
     ! Water abstracted from reservoirs (kg).
   net_abstracted_river_global(global_land_pts),                                &
-    ! Net abstraction from rivers (kg m-2).
+    ! Net abstraction from rivers (kg).
   surf_roff(land_pts),                                                         &
   ! Surface runoff (kg m-2 s-1)
   sub_surf_roff(land_pts),                                                     &
@@ -197,7 +197,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   tot_abstracted_res_global(global_land_pts),                                  &
     ! Water abstracted from reservoirs over river timestep (kg).
   tot_net_abstracted_river_global(global_land_pts),                            &
-    ! Water abstracted from rivers over river timestep (kg m-2).
+    ! Water abstracted from rivers over river timestep (kg).
   acc_lake_evap_gb(row_length,rows),                                           &
   tot_surf_runoff_gb_wtrac(land_pts,n_wtrac_jls),                              &
   tot_sub_runoff_gb_wtrac(land_pts,n_wtrac_jls),                               &
@@ -252,7 +252,7 @@ REAL(KIND=real_jlslsm), ALLOCATABLE :: abstracted_res_rp(:)
   ! Water abstracted from reservoirs over river timestep, on river points
   ! (kg).
 REAL(KIND=real_jlslsm), ALLOCATABLE :: net_abstracted_river_rp(:)
-  ! Water abstracted from rivers over river timestep, on river points (kg m-2).
+  ! Water abstracted from rivers over river timestep, on river points (kg).
 
 #if defined(UM_JULES)
 REAL(KIND=real_jlslsm) ::                                                      &
@@ -423,7 +423,8 @@ ELSE
   IF ( is_master_task() ) THEN
     ! Accumulate net abstraction from rivers.
     IF ( sw_river_source > 0 ) THEN
-      CALL accumulate_abstraction( global_land_pts, net_abstracted_river_global, &
+      CALL accumulate_abstraction( global_land_pts,                            &
+                                   net_abstracted_river_global,                &
                                    tot_net_abstracted_river_global )
     END IF
 

@@ -64,7 +64,8 @@ CONTAINS
 !   For consistency with other routines (for now), the output is converted
 !   again to a flux density kg/m2/s
 
-SUBROUTINE rivers_route_rfm( sfc_runoff, sub_sfc_runoff, outflow, baseflow,    &
+SUBROUTINE rivers_route_rfm( net_abstracted_river_rp, sfc_runoff,              &
+                             sub_sfc_runoff, outflow, baseflow,                &
                              abstracted_res_rp, rivers )
 
 USE jules_rivers_mod, ONLY:                                                    &
@@ -74,8 +75,6 @@ USE jules_rivers_mod, ONLY:                                                    &
        ,cbriver, retl, retr, rfm_land, rfm_river, rfm_sea,  l_reservoirs,      &
 ! imported type
         rivers_type
-
-USE jules_water_resources_mod, ONLY: sw_river_source
 
 USE timestep_mod, ONLY: timestep
 
@@ -98,9 +97,10 @@ IMPLICIT NONE
 ! IN Arguments
 
 ! Array arguments with intent(in)
+REAL(KIND=real_jlslsm), INTENT(IN) :: net_abstracted_river_rp(np_rivers)
+       !  Water abstracted from rivers over river timestep (kg).
 REAL(KIND=real_jlslsm), INTENT(IN) :: sfc_runoff(np_rivers)
        !  average rate of surface runoff since last rivers call (kg m-2 s-1)
-       !  This includes any abstraction of water for water resources.
 REAL(KIND=real_jlslsm), INTENT(IN) :: sub_sfc_runoff(np_rivers)
        !  average rate of sub-surface runoff since last call (kg m-2 s-1)
 REAL(KIND=real_jlslsm), INTENT(IN) :: abstracted_res_rp(np_rivers)
@@ -204,18 +204,22 @@ END IF   ! end rivers_first
 ! Processing for each timestep
 !-----------------------------------------------------------------------------
 
+!------------------------------------------------------------------------------
+! Remove water abstracted from river - before any other process alters the
+! amount stored. The units of the abstraction are converted from kg to m3.
+!------------------------------------------------------------------------------
+DO ip = 1, np_rivers
+  rivers%rfm_surfstore_rp(ip) = rivers%rfm_surfstore_rp(ip)                    &
+                                - net_abstracted_river_rp(ip) / rho_water
+END DO
+
 !-----------------------------------------------------------------------------
-! Convert runoff from (kg m-2 s-1) to (m3 per gridcell per timestep)
+! Convert units and initialise values for next timestep.
 !-----------------------------------------------------------------------------
 DO ip = 1,np_rivers
-  ! Historically RFM has ignored negative runoff fluxes, but that is not
-  ! appropriate if water is abstracted from rivers for water resource purposes
-  ! (when the configuration includes sw_river_source > 0). It would be
-  ! preferable not to use water resource information in here (and for RFM to
-  ! always route what it is given).
-  IF ( (sw_river_source == 0 .AND. sfc_runoff(ip) >= 0.0 .AND.                 &
-        sub_sfc_runoff(ip) >= 0.0)                                             &
-       .OR. sw_river_source > 0 ) THEN
+
+  ! Convert runoff from (kg m-2 s-1) to (m3 per gridcell per timestep)
+  IF ( sfc_runoff(ip) >= 0.0 .AND. sub_sfc_runoff(ip) >= 0.0 ) THEN
 
     surf_roff(ip) = runoff_factor * sfc_runoff(ip) *                           &
                           dt * rivers%rivers_boxareas_rp(ip) / rho_water
@@ -227,9 +231,7 @@ DO ip = 1,np_rivers
     sub_surf_roff(ip) = 0.0
   END IF
 
-  !---------------------------------------------------------------------------
   ! Initialise accumulated inflows and stores for the next timestep
-  !---------------------------------------------------------------------------
   flowin_n(ip)    = 0.0
   bflowin_n(ip)   = 0.0
   surfstore_n(ip) = 0.0

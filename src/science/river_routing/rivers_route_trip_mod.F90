@@ -40,7 +40,8 @@ CONTAINS
 !   This code is written to JULES coding standards v1.
 !-----------------------------------------------------------------------------
 
-SUBROUTINE rivers_route_trip( sfc_runoff, sub_sfc_runoff, outflow, baseflow,   &
+SUBROUTINE rivers_route_trip( net_abstracted_river_rp, sfc_runoff,             &
+                              sub_sfc_runoff, outflow, baseflow,               &
                               rivers_outflow_rp, rivers_next_rp,               &
                               rivers_seq_rp, rivers_sto_rp,                    &
                               rivers_boxareas_rp, rivers_lat_rp, rivers_lon_rp,&
@@ -76,9 +77,10 @@ IMPLICIT NONE
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !  arrays with intent(in)
+     net_abstracted_river_rp(np_rivers),                                       &
+     !  Water abstracted from rivers over river timestep (kg).
      sfc_runoff(np_rivers)                                                     &
      !  average rate of surface runoff since last rivers call (kg m-2 s-1)
-     !  This includes any abstraction of water for water resources.
      ,sub_sfc_runoff(np_rivers)
      !  average rate of sub-surface runoff since last call (kg m-2 s-1)
 
@@ -100,9 +102,11 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
 INTEGER, INTENT(IN)     :: rivers_next_rp(:)
 INTEGER, INTENT(IN)     :: rivers_seq_rp(:)
 REAL,    INTENT(IN)     :: rivers_boxareas_rp(:)
+                             ! Gridbox area of each river grid pixel (m2).
 REAL,    INTENT(IN)     :: rivers_lat_rp(:)
 REAL,    INTENT(IN)     :: rivers_lon_rp(:)
 REAL,    INTENT(IN OUT) :: rivers_sto_rp(:)
+                            ! Water storage (kg).
 REAL,    INTENT(IN)     :: land_fraction_rp(:)
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
@@ -166,6 +170,14 @@ IF ( l_inland_outflow ) THEN
     coastal_mask_rp(:) = 0
   END WHERE
 END IF
+
+!------------------------------------------------------------------------------
+! Remove water abstracted from river - before any other process alters the
+! amount stored.
+!------------------------------------------------------------------------------
+DO ip = 1, np_rivers
+  rivers_sto_rp(ip) = rivers_sto_rp(ip) - net_abstracted_river_rp(ip)
+END DO
 
 DO ip = 1, np_rivers
   ! Initialise outflows.

@@ -63,8 +63,6 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
     ! Demands for water accumulated over the water resource timestep (kg).
   demand_unmet_global(:,:),                                                    &
     ! The part of the demand for water that is not satisfied (kg).
-  grid_area_global(:),                                                         &
-    ! Gridbox area (m2).
   gw_abstracted_global(:),                                                     &
     ! Water abstracted from renewable groundwater (kg).
   gw_avail_global(:),                                                          &
@@ -312,7 +310,7 @@ REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
     ! This is used to couple to reservoirs.
     ! Note that this has reduced size if it is not required.
   net_abstracted_river_global(global_land_pts),                                &
-    ! Net abstraction from river, on global land points (kg m-2).
+    ! Net abstraction from river, on global land points (kg).
     ! Note that this has reduced size if it is not required.
   !----------------------------------------------------------------------------
   ! Variables that are passed out for diagnostic purposes.
@@ -376,8 +374,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
     ! irrigation_demand when l_water_resources=F.
   demand_irrig_soilt(land_pts,nsoilt),                                         &
     ! Demand for water for irrigation for each soil tile (kg m-2).
-  grid_area_lp(land_pts),                                                      &
-    ! Area of gridbox (m2).
   gw_avail_start_soilt(land_pts,nsoilt),                                       &
     ! Groundwater that is available for abstraction at start of timestep from
     ! each soil tile (kg).
@@ -468,12 +464,11 @@ IF ( l_water_res_call ) THEN
   !----------------------------------------------------------------------------
 
   !----------------------------------------------------------------------------
-  ! Get the area and area of land in each land gridbox.
+  ! Get the area of land in each land gridbox.
   !----------------------------------------------------------------------------
   DO l = 1, land_pts
     j = (land_index(l) - 1) / row_length + 1
     i = land_index(l) - (j-1) * row_length
-    grid_area_lp(l) = grid_area_ij(i,j)
     land_area(l)    = grid_area_ij(i,j) * flandg(i,j)
   END DO
 
@@ -521,7 +516,7 @@ IF ( l_water_res_call ) THEN
   ! Fields on land_pts need to be gathered into global equivalents.
   !----------------------------------------------------------------------------
   CALL gather_global_water( priority_order, conv_loss_frac, demand_accum,      &
-                            grid_area_lp, gw_avail_start, sfc_water_frac )
+                            gw_avail_start, sfc_water_frac )
 
   IF ( is_master_task() ) THEN
 
@@ -579,8 +574,7 @@ IF ( l_water_res_call ) THEN
     ! Calculate the net abstraction from rivers.
     !--------------------------------------------------------------------------
     IF ( sw_river_source > 0 ) THEN
-      CALL calc_river_flux( global_land_pts, grid_area_global,                 &
-                            return_flow_river_global,                          &
+      CALL calc_river_flux( global_land_pts, return_flow_river_global,         &
                             sw_abstracted_global(:,sw_river_source),           &
                             net_abstracted_river_global )
     END IF
@@ -1022,9 +1016,6 @@ IF ( l_allocate ) THEN
   ALLOCATE(water_removed_global(land_size), STAT = ERROR)
   error_sum = error_sum + ERROR
 
-  ALLOCATE(grid_area_global(land_size_rivers), STAT = ERROR)
-  error_sum = error_sum + ERROR
-
   IF ( error_sum == 0 ) THEN
     ! Initialise arrays.
     conveyance_loss_global(:)  = 0.0
@@ -1045,7 +1036,6 @@ IF ( l_allocate ) THEN
     sw_avail_global(:,:)       = 0.0
     sw_avail_total_start_global(:) = 0.0
     water_removed_global(:)    = 0.0
-    grid_area_global(:)        = 0.0
   ELSE
     errorstatus = 10
     CALL ereport( RoutineName, errorstatus,                                    &
@@ -1058,7 +1048,6 @@ ELSE
   ! l_allocate = .FALSE.
   ! Deallocate arrays, in opposite order to the allocation.
   !----------------------------------------------------------------------------
-  IF ( ALLOCATED(grid_area_global) )  DEALLOCATE(grid_area_global)
   IF ( ALLOCATED(water_removed_global) )  DEALLOCATE(water_removed_global)
   IF ( ALLOCATED(sw_avail_total_start_global) ) THEN
     DEALLOCATE(sw_avail_total_start_global)
@@ -1094,7 +1083,7 @@ END SUBROUTINE allocate_global_water
 !##############################################################################
 
 SUBROUTINE gather_global_water( priority_order, conv_loss_frac, demand_accum,  &
-                                grid_area_lp, gw_avail_start, sfc_water_frac )
+                                gw_avail_start, sfc_water_frac )
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -1104,7 +1093,7 @@ SUBROUTINE gather_global_water( priority_order, conv_loss_frac, demand_accum,  &
 USE ancil_info, ONLY: land_pts  ! for the current task
 
 USE jules_water_resources_mod, ONLY: l_have_groundwater, l_prioritise,         &
-      nwater_use, partition_ancil, partition_method, sw_river_source
+      nwater_use, partition_ancil, partition_method
 
 USE model_grid_mod, ONLY: global_land_pts
 
@@ -1125,8 +1114,6 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Fraction of water that is lost during conveyance from source to user.
   demand_accum(land_pts,nwater_use),                                           &
     ! Demands for water accumulated over the water resource timestep (kg).
-  grid_area_lp(land_pts),                                                      &
-    ! Area of gridbox (m2).
   gw_avail_start(land_pts),                                                    &
     ! Groundwater that is available for abstraction at start of timestep (kg).
   sfc_water_frac(land_pts)
@@ -1175,11 +1162,6 @@ END IF
 ! We only need to gather sfc_water_frac if that was read from a file.
 IF ( partition_method == partition_ancil ) THEN
   CALL gather_land_field( sfc_water_frac, sfc_water_frac_global )
-END IF
-
-! We only need to gather grid_area_lp if there is abstraction from rivers.
-IF ( sw_river_source > 0 ) THEN
-  CALL gather_land_field( grid_area_lp, grid_area_global )
 END IF
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
@@ -1533,8 +1515,7 @@ END SUBROUTINE redirect_return_flows
 
 !##############################################################################
 !##############################################################################
-SUBROUTINE calc_river_flux( global_land_pts, grid_area_global,                 &
-                            return_flow_river_global,                          &
+SUBROUTINE calc_river_flux( global_land_pts, return_flow_river_global,         &
                             sw_abstracted_river_global,                        &
                             net_abstracted_river_global )
 
@@ -1556,8 +1537,6 @@ INTEGER, INTENT(IN) ::                                                         &
 ! Array arguments with INTENT(IN)
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-  grid_area_global(global_land_pts),                                           &
-    ! Area of gridbox (m2).
   return_flow_river_global(global_land_pts),                                   &
     ! Water that is returned to rivers after use (kg).
   sw_abstracted_river_global(global_land_pts)
@@ -1568,7 +1547,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   net_abstracted_river_global(global_land_pts)
-    ! Net abstraction from river (kg m-2).
+    ! Net abstraction from river (kg).
 
 !------------------------------------------------------------------------------
 ! Local parameters
@@ -1585,11 +1564,10 @@ INTEGER ::                                                                     &
 !end of header
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 
-! Calculate net abstraction and change units from kg to kg m-2.
+! Calculate net abstraction.
 DO l=1,global_land_pts
-  net_abstracted_river_global(l) = ( sw_abstracted_river_global(l)             &
-                                      - return_flow_river_global(l) )          &
-                                   / grid_area_global(l)
+  net_abstracted_river_global(l) = sw_abstracted_river_global(l)               &
+                                   - return_flow_river_global(l)
 END DO
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
