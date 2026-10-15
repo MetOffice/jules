@@ -40,8 +40,8 @@ CONTAINS
 !   This code is written to JULES coding standards v1.
 !-----------------------------------------------------------------------------
 
-SUBROUTINE rivers_route_trip( net_abstracted_river_rp, sfc_runoff,             &
-                              sub_sfc_runoff, outflow, baseflow,               &
+SUBROUTINE rivers_route_trip( sw_river_source, net_abstracted_river_rp,        &
+                              sfc_runoff, sub_sfc_runoff, outflow, baseflow,   &
                               rivers_outflow_rp, rivers_next_rp,               &
                               rivers_seq_rp, rivers_sto_rp,                    &
                               rivers_boxareas_rp, rivers_lat_rp, rivers_lon_rp,&
@@ -74,6 +74,10 @@ USE um_types, ONLY: real_jlslsm
 IMPLICIT NONE
 
 !-----------------------------------------------------------------------------
+INTEGER, INTENT(IN) ::                                                         &
+  sw_river_source
+     ! A value > 0 indicates that rivers are used as a source of water for
+     ! abstraction.
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !  arrays with intent(in)
@@ -171,13 +175,15 @@ IF ( l_inland_outflow ) THEN
   END WHERE
 END IF
 
-!------------------------------------------------------------------------------
-! Remove water abstracted from river - before any other process alters the
-! amount stored.
-!------------------------------------------------------------------------------
-DO ip = 1, np_rivers
-  rivers_sto_rp(ip) = rivers_sto_rp(ip) - net_abstracted_river_rp(ip)
-END DO
+IF ( sw_river_source > 0 ) THEN
+    !------------------------------------------------------------------------------
+    ! Remove water abstracted from river - before any other process alters the
+    ! amount stored.
+    !------------------------------------------------------------------------------
+    DO ip = 1, np_rivers
+      rivers_sto_rp(ip) = rivers_sto_rp(ip) - net_abstracted_river_rp(ip)
+    END DO
+END IF
 
 DO ip = 1, np_rivers
   ! Initialise outflows.

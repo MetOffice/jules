@@ -28,7 +28,7 @@ CONTAINS
 
 !##############################################################################
 
-SUBROUTINE rivers_route_rp( abstracted_res_rp,                                 &
+SUBROUTINE rivers_route_rp( sw_river_source, abstracted_res_rp,                &
                             net_abstracted_river_rp, rivers )
 
 !------------------------------------------------------------------------------
@@ -69,6 +69,11 @@ IMPLICIT NONE
 !------------------------------------------------------------------------------
 ! Arguments with INTENT(IN)
 !------------------------------------------------------------------------------
+INTEGER, INTENT(IN) ::                                                         &
+  sw_river_source
+    ! A value > 0 indicates that rivers are used as a source of water for
+    ! abstraction.
+
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   net_abstracted_river_rp(np_rivers),                                          &
     ! Water abstracted from rivers over river timestep, on river points (kg).
@@ -134,15 +139,15 @@ CASE ( rivers_camaflood )
                                rivers%rivers_outflow_rp )
 
 CASE ( rivers_rfm )
-  CALL rivers_route_rfm( net_abstracted_river_rp, rivers%rrun_surf_rp,         &
-                         rivers%rrun_sub_surf_rp,                              &
+  CALL rivers_route_rfm( sw_river_source, net_abstracted_river_rp,             &
+                         rivers%rrun_surf_rp, rivers%rrun_sub_surf_rp,         &
                          rivers%rflow_rp, baseflow,                            &
                          abstracted_res_rp,                                    &
                         !  imported river arrays
                          rivers)
 CASE ( rivers_trip )
-  CALL rivers_route_trip( net_abstracted_river_rp, rivers%rrun_surf_rp,        &
-                          rivers%rrun_sub_surf_rp,                             &
+  CALL rivers_route_trip( sw_river_source, net_abstracted_river_rp,            &
+                          rivers%rrun_surf_rp, rivers%rrun_sub_surf_rp,        &
                           rivers%rflow_rp, baseflow, rivers%rivers_outflow_rp, &
                           rivers%rivers_next_rp, rivers%rivers_seq_rp,         &
                           rivers%rivers_sto_rp, rivers%rivers_boxareas_rp,     &

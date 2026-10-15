@@ -640,7 +640,7 @@ IF ( rivers_call ) THEN
 
         ! No regridding is required between the land and river grids as this
         ! is done by the OASIS coupler. Only the science routine needs calling.
-        CALL rivers_route_rp( abstracted_res_rp,                               &
+        CALL rivers_route_rp( sw_river_source, abstracted_res_rp,              &
                               net_abstracted_river_rp, rivers )
 
       ELSE
@@ -698,7 +698,7 @@ IF ( rivers_call ) THEN
         END IF
 
         ! Call the routing science routine.
-        CALL rivers_route_rp( abstracted_res_rp,                               &
+        CALL rivers_route_rp( sw_river_source, abstracted_res_rp,              &
                               net_abstracted_river_rp, rivers )
 
         ! Regrid selected outputs from rivers to land grid.
