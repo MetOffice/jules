@@ -676,14 +676,14 @@ DO i = 1,nvars
          'seed_rain', 'ch4_ppbv' )
     ! Nothing to do
 
-  CASE ( 'rivers_lat_rp', 'rivers_lon_rp', 'rivers_sto_rp',                    &
+  CASE ( 'rivers_lat_rp', 'rivers_lon_rp',                                     &
          'rivers_x_coord_rp', 'rivers_y_coord_rp',                             &
-         'rfm_surfstore_rp', 'rfm_substore_rp',                                &
+         'rivers_sto_rp', 'rfm_surfstore_rp', 'rfm_substore_rp',               &
          'rfm_flowin_rp', 'rfm_bflowin_rp', 'rivers_outflow_rp',               &
          'inland_outflow_rp',                                                  &
          'flood_flow', 'flood_flow_prev', 'flood_storage',                     &
          'flood_storage_prev', 'river_channel_flow', 'river_channel_storage',  &
-         'river_depth_prev', 'river_flow_prev' )
+         'river_depth_prev', 'river_flow_prev', 'res_storage' )
     ! Rivers are run on a single task, hence nothing to do here.
 
     !-------------------------------------------------------------------------

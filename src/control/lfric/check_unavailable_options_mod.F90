@@ -25,6 +25,8 @@ USE jules_surface_mod, ONLY: l_anthrop_heat_src, anthrop_heat_option, dukes,   &
                              l_flake_model, l_aggregate, l_elev_land_ice,      &
                              l_elev_lw_down, l_point_data
 
+USE jules_water_resources_mod, ONLY: l_water_resources
+
 IMPLICIT NONE
 
 !Local variables
@@ -79,6 +81,15 @@ IF ( l_point_data ) THEN
   WRITE(log_scratch_space,'(I0,A,L1)') error_sum,                              &
      ": It is not possible to use point rainfall data with LFRic. " //         &
      "l_point_data = ", l_point_data
+  CALL log_event(RoutineName//": "//TRIM(log_scratch_space), log_level_warning)
+END IF
+
+! jules_water_resources
+IF ( l_water_resources ) THEN
+  error_sum = error_sum + 1
+  WRITE(log_scratch_space,'(I0,A,L1)') error_sum,                              &
+     ": Water resources not available to LFRic. l_water_resources = ",         &
+     l_water_resources
   CALL log_event(RoutineName//": "//TRIM(log_scratch_space), log_level_warning)
 END IF
 
