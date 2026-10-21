@@ -56,6 +56,7 @@ USE logging_mod,                  ONLY: log_info, init_prnt_control
 USE init_output_mod,              ONLY: init_output
 USE init_plant_n_uptake_mod,      ONLY: init_plant_n_uptake
 USE init_vegetation_mod,          ONLY: init_vegetation
+USE init_inferno_mod,             ONLY: init_inferno
 USE init_hydrology_mod,           ONLY: init_hydrology
 USE init_model_environment_mod,   ONLY: init_model_environment
 USE init_radiation_mod,           ONLY: init_radiation
@@ -150,9 +151,8 @@ USE jules_rivers_mod,             ONLY: rivers_data_type,                      &
 ! USE veg3_parm_mod,              ONLY: in_dev
                                         !
                                         !
-! USE veg3_field_mod,             ONLY: in_dev
-                                        !
-                                        !
+USE veg3_field_mod,               ONLY: veg3_field_assoc
+
 USE jules_chemvars_mod,           ONLY: chemvars_data_type,                    &
                                         chemvars_type,                         &
                                         chemvars_assoc
@@ -283,6 +283,9 @@ CALL init_soil(nml_dir)
 ! Must be called after init_soil to check soil tiling flags
 CALL init_vegetation(nml_dir)
 
+! Initialise inferno options
+CALL init_inferno(nml_dir)
+
 ! Initialise irrigation options
 CALL init_irrigation(nml_dir)
 
@@ -352,7 +355,7 @@ CALL imgn_drive_assoc(imgn_drive,imgn_drive_data)
 CALL imgn_vars_assoc(imgn_vars,imgn_vars_data)
 CALL rivers_assoc(rivers,rivers_data)
 !CALL veg3_parm_assoc(in_dev)
-!CALL veg3_field_assoc(in_dev)
+CALL veg3_field_assoc(progs,ainfo,trifctl_data,trif_vars_data)
 CALL chemvars_assoc(chemvars,chemvars_data)
 CALL water_resources_assoc(water_resources,water_resources_data)
 CALL wtrac_jls_assoc(wtrac_jls,wtrac_jls_data)

@@ -45,7 +45,9 @@ USE jules_vegetation_mod, ONLY: l_nitrogen
 
 USE jules_soil_mod, ONLY: cs_min, sm_levels
 USE ancil_info, ONLY: dim_cslayer, nsoilt, dim_cs1
-USE jules_vegetation_mod, ONLY: l_trif_fire !usage inside ifdef
+USE jules_vegetation_mod, ONLY: l_trif_fire
+USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,                             &
+                ccrpm_min, ccrpm_max
 
 USE dpm_rpm_mod, ONLY: dpm_rpm
 USE decay_mod, ONLY: decay
@@ -137,15 +139,6 @@ REAL(KIND=real_jlslsm), INTENT(IN) :: sthu_soilt(land_pts,nsoilt,sm_levels)
 !-----------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), PARAMETER :: lit_cn    = 300.0
 REAL(KIND=real_jlslsm), PARAMETER :: nminl_gas = 0.01
-REAL(KIND=real_jlslsm), PARAMETER ::                                           &
-  ccdpm_min = 0.8,                                                             &
-  ccdpm_max = 1.0,                                                             &
-    ! Decomposable Plant Material burns between 80 to 100 %
-  ccrpm_min = 0.0,                                                             &
-  ccrpm_max = 0.2
-    ! Resistant Plant Material burns between 0 to 20 %
-    ! These values are also set in inferno_mod to calculate emitted_carbon_DPM
-    ! and emitted_carbon_RPM, and are also set in soilcarb_layers
 
 !-----------------------------------------------------------------------------
 ! Local variables.
