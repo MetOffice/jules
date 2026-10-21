@@ -827,9 +827,9 @@ DO n = 1,dim_cs1
   END DO
 END DO
 
-!$OMP DO SCHEDULE(STATIC)
 DO k = 1,sm_levels
   DO m = 1,nsoilt
+!$OMP DO SCHEDULE(STATIC)
     DO l = 1,land_pts
       sthu_nir_soilt(l,m,k) = sthu_soilt(l,m,k)
       IF ( l_irrig_dmd ) THEN
@@ -843,9 +843,9 @@ DO k = 1,sm_levels
         END IF
       END IF
     END DO
+!$OMP END DO NOWAIT
   END DO
 END DO
-!$OMP END DO
 
 DO n = 1,ntype
 !$OMP DO SCHEDULE(STATIC)
@@ -1170,6 +1170,7 @@ DO n = 1,npft
                     wt_ext_nir_type(:,:,n),fsmc_nir(:,n),                      &
                     psi_root_zone_nir_pft(:,n))
 
+!$OMP DO SCHEDULE(STATIC)
       DO l = 1,land_pts
         fsmc_pft(l,n) = fsmc_nir(l,n)*(1.0-frac_irr_surft(l,n))                &
              + fsmc_irr(l,n)*frac_irr_surft(l,n)
@@ -1179,6 +1180,7 @@ DO n = 1,npft
                + wt_ext_irr_type(l,k,n)*frac_irr_surft(l,n)
         END DO
       END DO
+!$OMP END DO NOWAIT
     END IF
   END IF
 
@@ -2268,11 +2270,6 @@ IF (l_irrig_dmd) THEN
                (1.0-frac_irr_soilt(l,m)) *                                     &
                rho_water * dzsoil(1) *                                         &
               MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
-          !          fsoil_nir_tot_tmp = fsoil_nir_tot(l)/(1.0-frac_irr_soilt(l,m))
-          !          smc_nir_soilt(l,m) = (1.0 - fsoil_nir_tot_tmp) *                     &
-          !               smc_nir_soilt(l,m) + fsoil_nir_tot_tmp *                        &
-          !               rho_water * dzsoil(1) *                                         &
-          !              MAX(0.0,sthu_nir_soilt(l,m,1)) * smvcst_soilt(l,m,1)
         ELSE
           smc_nir_soilt(l,m) = 0.0
         END IF
