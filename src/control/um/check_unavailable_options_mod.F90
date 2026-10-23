@@ -23,7 +23,7 @@ USE jules_vegetation_mod, ONLY: l_gleaf_fix, l_o3_damage, l_use_pft_psi,       &
 USE jules_irrig_mod, ONLY: l_irrig_limit
 USE jules_urban_mod, ONLY: l_urban_empirical
 USE jules_rivers_mod, ONLY: l_riv_overbank, l_rivers, i_river_vn,              &
-    rivers_um_trip, rivers_rfm
+    rivers_um_trip, rivers_rfm, l_reservoirs
 USE jules_soil_biogeochem_mod, ONLY: l_ch4_microbe, l_label_frac_cs
 USE jules_soil_mod, ONLY: l_tile_soil, l_bedrock
 USE jules_surface_types_mod, ONLY: ncpft
@@ -187,6 +187,14 @@ IF ( l_croprotate ) THEN
   WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
      ": Double cropping is only available to standalone. " //                  &
      "l_croprotate = ", l_croprotate
+  CALL jules_print(RoutineName, jules_message, level = PrNorm)
+END IF
+
+IF ( l_reservoirs ) THEN
+  error_sum = error_sum + 1
+  WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
+     ": Reservoirs are only available to standalone. " //                      &
+     "l_reservoirs = ", l_reservoirs )
   CALL jules_print(RoutineName, jules_message, level = PrNorm)
 END IF
 

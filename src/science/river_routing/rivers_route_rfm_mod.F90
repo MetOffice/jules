@@ -64,18 +64,17 @@ CONTAINS
 !   For consistency with other routines (for now), the output is converted
 !   again to a flux density kg/m2/s
 
-SUBROUTINE rivers_route_rfm( sfc_runoff, sub_sfc_runoff, outflow, baseflow,    &
-                             rivers )
+SUBROUTINE rivers_route_rfm( sw_river_source, net_abstracted_river_rp,         &
+                             sfc_runoff, sub_sfc_runoff, outflow, baseflow,    &
+                             abstracted_res_rp, rivers )
 
 USE jules_rivers_mod, ONLY:                                                    &
 !  imported scalars
        nstep_rivers, np_rivers, river_mouth                                    &
        ,rivers_first, rivers_length, runoff_factor, cland, criver, cbland      &
-       ,cbriver, retl, retr, rfm_land, rfm_river, rfm_sea,                     &
+       ,cbriver, retl, retr, rfm_land, rfm_river, rfm_sea,  l_reservoirs,      &
 ! imported type
         rivers_type
-
-USE jules_water_resources_mod, ONLY: sw_river_source
 
 USE timestep_mod, ONLY: timestep
 
@@ -87,18 +86,30 @@ USE jules_print_mgr, ONLY:                                                     &
 
 !-----------------------------------------------------------------------------
 
+USE route_reservoirs_mod, ONLY:                                                &
+! imported procedures
+     route_reservoirs
+
 USE um_types, ONLY: real_jlslsm
 
 IMPLICIT NONE
 
 ! IN Arguments
 
+! Scalar arguments with intent(in)
+INTEGER, INTENT(IN) :: sw_river_source
+       ! A value > 0 indicates that rivers are used as a source of water for
+       ! abstraction.
+       
 ! Array arguments with intent(in)
+REAL(KIND=real_jlslsm), INTENT(IN) :: net_abstracted_river_rp(np_rivers)
+       !  Water abstracted from rivers over river timestep (kg).
 REAL(KIND=real_jlslsm), INTENT(IN) :: sfc_runoff(np_rivers)
        !  average rate of surface runoff since last rivers call (kg m-2 s-1)
-       !  This includes any abstraction of water for water resources.
 REAL(KIND=real_jlslsm), INTENT(IN) :: sub_sfc_runoff(np_rivers)
        !  average rate of sub-surface runoff since last call (kg m-2 s-1)
+REAL(KIND=real_jlslsm), INTENT(IN) :: abstracted_res_rp(np_rivers)
+       !  Water abstracted from reservoirs over river timestep (kg).
 
 REAL(KIND=real_jlslsm), INTENT(OUT) :: outflow(np_rivers)
        !  rate of channel surface flow leaving gridbox (kg m-2 s-1)
@@ -125,8 +136,10 @@ REAL(KIND=real_jlslsm) ::                                                      &
        !  initial river flow [m3/s]
    ,dt                                                                         &
        !  river routing model timestep (s)
-   ,dx
+   ,dx                                                                         &
        !  distance between midpoints of neighbouring cells (m)
+   ,reservoir_flow
+       !  flow in and out of reservoir (kg s-1)
 
 REAL(KIND=real_jlslsm) ::                                                      &
    substore_n(np_rivers)                                                       &
@@ -196,18 +209,24 @@ END IF   ! end rivers_first
 ! Processing for each timestep
 !-----------------------------------------------------------------------------
 
+IF ( sw_river_source > 0 ) THEN
+    !------------------------------------------------------------------------------
+    ! Remove water abstracted from river - before any other process alters the
+    ! amount stored. The units of the abstraction are converted from kg to m3.
+    !------------------------------------------------------------------------------
+    DO ip = 1, np_rivers
+      rivers%rfm_surfstore_rp(ip) = rivers%rfm_surfstore_rp(ip)                    &
+                                    - net_abstracted_river_rp(ip) / rho_water
+    END DO
+END IF
+
 !-----------------------------------------------------------------------------
-! Convert runoff from (kg m-2 s-1) to (m3 per gridcell per timestep)
+! Convert units and initialise values for next timestep.
 !-----------------------------------------------------------------------------
 DO ip = 1,np_rivers
-  ! Historically RFM has ignored negative runoff fluxes, but that is not
-  ! appropriate if water is abstracted from rivers for water resource purposes
-  ! (when the configuration includes sw_river_source > 0). It would be
-  ! preferable not to use water resource information in here (and for RFM to
-  ! always route what it is given).
-  IF ( (sw_river_source == 0 .AND. sfc_runoff(ip) >= 0.0 .AND.                 &
-        sub_sfc_runoff(ip) >= 0.0)                                             &
-       .OR. sw_river_source > 0 ) THEN
+
+  ! Convert runoff from (kg m-2 s-1) to (m3 per gridcell per timestep)
+  IF ( sfc_runoff(ip) >= 0.0 .AND. sub_sfc_runoff(ip) >= 0.0 ) THEN
 
     surf_roff(ip) = runoff_factor * sfc_runoff(ip) *                           &
                           dt * rivers%rivers_boxareas_rp(ip) / rho_water
@@ -219,9 +238,7 @@ DO ip = 1,np_rivers
     sub_surf_roff(ip) = 0.0
   END IF
 
-  !---------------------------------------------------------------------------
   ! Initialise accumulated inflows and stores for the next timestep
-  !---------------------------------------------------------------------------
   flowin_n(ip)    = 0.0
   bflowin_n(ip)   = 0.0
   surfstore_n(ip) = 0.0
@@ -236,6 +253,25 @@ DO ip = 1,np_rivers
 
   rn = rivers%rivers_next_rp(ip)
   landtype = rivers%rfm_land_rp(ip)
+
+  !-------------------------------------------------------------------------------
+  !   If reservoirs are considered and capacity > 0, route through reservoirs.
+  !-------------------------------------------------------------------------------
+  IF (l_reservoirs) THEN
+    IF (rivers%res_cap_current(ip) > 0.0) THEN
+      reservoir_flow = rivers%rfm_flowin_rp(ip) * 1000.0 / dt
+      CALL route_reservoirs(dt, abstracted_res_rp(ip),                         &
+                                  rivers%res_cap_current(ip),                  &
+                                  rivers%res_catch(ip),                        &
+                                  rivers%res_critical(ip),                     &
+                                  rivers%res_flood(ip),                        &
+                                  rivers%res_emergency(ip),                    &
+                                  rivers%res_normal_release(ip),               &
+                                  rivers%res_flood_release(ip),                &
+                                  rivers%res_storage(ip), reservoir_flow)
+      rivers%rfm_flowin_rp(ip) = reservoir_flow * dt / 1000.0
+    END IF
+  END IF
 
   IF (landtype == rfm_land) THEN  !Gridcell is land
 

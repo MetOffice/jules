@@ -45,16 +45,29 @@ from .version80_81 import *
 from .version81_82 import *
 
 
+class vn82_t148(MacroUpgrade):
+
+    """Upgrade macro from JULES by Helen Baron"""
+
+    BEFORE_TAG = "vn8.2"
+    AFTER_TAG = "vn8.2_t148"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+        
+        # Add settings
+        self.add_setting(config, ["namelist:jules_rivers", "l_reservoirs"], ".false.")
+    
 class vn82_t141(MacroUpgrade):
 
     """Upgrade macro from JULES by Maggie Hendry"""
 
-    BEFORE_TAG = "vn8.2"
+    BEFORE_TAG = "vn8.2_t148"
     AFTER_TAG = "vn8.2_t141"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
-
+        
         source = self.get_setting_value(config, ["file:fire.nml", "source"])
         if source is not None:
             source = source.replace(
@@ -198,4 +211,5 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_rain_const"], "14929920000.0")
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
 
+>>>>>>> upstream/main
         return config, self.reports
