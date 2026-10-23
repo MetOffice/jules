@@ -8,7 +8,15 @@
 {% endif %}
 {% do LOG.info("Site: " + SITE) %}
 
-{% set SOURCE_DIRECTORY = ROSE_ORIG_HOST~":"~CYLC_WORKFLOW_SRC_DIR~"/.." %}
+{# Do not include rose orig host at some sites as you may trip up with ssh keys #}
+{# Far easier to just rsync without a hostname and copy the files directly #}
+{% if SITE == 'jasmin' %}
+    {% set SOURCE_DIRECTORY = CYLC_WORKFLOW_SRC_DIR~"/.." %}
+{% else %}
+    {% set SOURCE_DIRECTORY = ROSE_ORIG_HOST~":"~CYLC_WORKFLOW_SRC_DIR~"/.." %}
+{% endif %}
+
+
 {# Include log message for suite_report #}
 {% do LOG.info("JULES SOURCE CLONE="~SOURCE_DIRECTORY) %}
 
