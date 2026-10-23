@@ -463,7 +463,7 @@
     [[METO_EX1A_GFORTRAN_IMOGEN]]
         inherit = IMOGEN, COMPUTE, METO_EX1A_GFORTRAN_ENV
         [[[environment]]]
-            BUILD_NAME = fcm_make_meto_ex1a_gfortran_omp
+            BUILD_NAME = fcm_make_meto_ex1a_gfortran_noomp
             IMOGEN_INSTALL_DIR = {{jules_install_dir}}/rose-stem-inputs/imogen
 
    [[meto_ex1a_gfortran_imogen_layeredc_spinup]]
