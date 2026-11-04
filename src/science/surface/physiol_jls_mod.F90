@@ -1170,7 +1170,11 @@ DO n = 1,npft
                     wt_ext_nir_type(:,:,n),fsmc_nir(:,n),                      &
                     psi_root_zone_nir_pft(:,n))
 
-!$OMP DO SCHEDULE(STATIC)
+!$OMP PARALLEL DO SCHEDULE (STATIC) IF(l_do_omp)                               &
+!$OMP DEFAULT(NONE) PRIVATE(l,k)                                               &
+!$OMP SHARED(fsmc_pft,fsmc_nir,frac_irr_surft,fsmc_irr,wt_ext_type,            &
+!$OMP wt_ext_nir_type,wt_ext_irr_type)
+!$OMP SCHEDULE(STATIC)
       DO l = 1,land_pts
         fsmc_pft(l,n) = fsmc_nir(l,n)*(1.0-frac_irr_surft(l,n))                &
              + fsmc_irr(l,n)*frac_irr_surft(l,n)
@@ -1180,7 +1184,7 @@ DO n = 1,npft
                + wt_ext_irr_type(l,k,n)*frac_irr_surft(l,n)
         END DO
       END DO
-!$OMP END DO NOWAIT
+!$OMP END PARALLEL DO
     END IF
   END IF
 
