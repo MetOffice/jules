@@ -1172,8 +1172,8 @@ DO n = 1,npft
 
 
 !$OMP PARALLEL DO IF(l_do_omp) DEFAULT(NONE) PRIVATE(l,k)                      &
-!$OMP SHARED(land_pts,l_do_omp,fsmc_pft,fsmc_nir,frac_irr_surft,fsmc_irr,      &
-!$OMP wt_ext_type,wt_ext_nir_type,wt_ext_irr_type) SCHEDULE(STATIC)
+!$OMP SHARED(land_pts,n,sm_levels,l_do_omp,fsmc_pft,fsmc_nir,frac_irr_surft,   &
+!$OMP fsmc_irr,wt_ext_type,wt_ext_nir_type,wt_ext_irr_type) SCHEDULE(STATIC)
       DO l = 1,land_pts
         fsmc_pft(l,n) = fsmc_nir(l,n)*(1.0-frac_irr_surft(l,n))                &
              + fsmc_irr(l,n)*frac_irr_surft(l,n)
