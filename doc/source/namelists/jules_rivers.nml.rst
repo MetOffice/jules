@@ -44,6 +44,21 @@ River routing introduces two more grids to a JULES run: the river routing input 
    ``3``
        Use a standalone JULES implementation of the TRIP model (see Oki et al. 1999).
 
+
+.. nml:member:: l_minor_reservoirs
+
+   :type: logical
+   :default: F
+
+   Switch for enabling routing through minor reservoirs. Only used if :nml:mem:`JULES_RIVERS::l_rivers` is TRUE.
+
+   TRUE
+       Surface runoff is routed through minor reservoirs before reaching the river network.
+
+   FALSE
+       No minor reservoirs are modelled.
+
+
 .. nml:member:: l_riv_overbank
 
    :type: logical
@@ -96,7 +111,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
       :type: real
       :permitted: > 0
       :default: None
-      :suggested: 0.20 m/s (global), 0.40 m/s (1 km resolution, Bell et al. 2007)
+      :suggested: 0.20 m s\ :sup:`-1` (global), 0.40 m s\ :sup:`-1` (1 km resolution, Bell et al. 2007)
 
       The land wave speed (kinematic wave speed for surface flow in a land grid box on the river routing grid, m s\ :sup:`-1`). This is the speed at which water moves through surface soil in a non-river grid cell (even without major rivers, there are always minor water courses so these cells do still contribute flow to neighbouring cells).
 
@@ -106,7 +121,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
       :type: real
       :permitted: > 0
       :default: None
-      :suggested: 0.62 m/s (global), 0.50 m/s (1 km resolution, Bell et al. 2007)
+      :suggested: 0.62 m s\ :sup:`-1` (global), 0.50 m s\ :sup:`-1` (1 km resolution, Bell et al. 2007)
 
       The river wave speed (kinematic wave speed for surface flow in a river grid box on the river routing grid, m s\ :sup:`-1`). This value should be close to the :nml:mem:`rivers_speed` used by TRIP, but not identical because RFM makes different assumptions about e.g. meandering.
 
@@ -116,7 +131,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
       :type: real
       :permitted: > 0
       :default: None
-      :suggested: <= :nml:mem:`cland`. 0.10 m/s (global), 0.05 m/s (1 km resolution, Bell et al. 2007)
+      :suggested: <= :nml:mem:`cland`. 0.10 m s\ :sup:`-1` (global), 0.05 m s\ :sup:`-1` (1 km resolution, Bell et al. 2007)
 
       The subsurface land wave speed (kinematic wave speed for subsurface flow in a land grid box on the river routing grid, m s\ :sup:`-1`).
 
@@ -126,7 +141,7 @@ River routing introduces two more grids to a JULES run: the river routing input 
       :type: real
       :permitted: > 0
       :default: None
-      :suggested: <= :nml:mem:`criver`. 0.15 m/s (global), 0.05 m/s (1 km resolution, Bell et al. 2007)
+      :suggested: <= :nml:mem:`criver`. 0.15 m s\ :sup:`-1` (global), 0.05 m s\ :sup:`-1` (1 km resolution, Bell et al. 2007)
 
       The subsurface river wave speed (kinematic wave speed for subsurface flow in a river grid box on the river routing grid, m s\ :sup:`-1`).
 

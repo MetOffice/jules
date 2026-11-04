@@ -199,3 +199,18 @@ class vn82_t61(MacroUpgrade):
         self.add_setting(config, ["namelist:jules_inferno", "flam_sm_func"], "1")
 
         return config, self.reports
+
+
+class vn82_t32(MacroUpgrade):
+
+    """Upgrade macro from JULES by Douglas Clark"""
+
+    BEFORE_TAG = "vn8.2_t61"
+    AFTER_TAG = "vn8.2_t32"
+
+    def upgrade(self,config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add settings
+        self.add_setting(config, ["namelist:jules_rivers", "l_minor_reservoirs"], ".false.")
+        return config, self.reports

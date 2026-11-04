@@ -70,6 +70,8 @@ USE init_time_mod,                ONLY: init_time
 USE init_drive_mod,               ONLY: init_drive
 USE init_rivers_mod,              ONLY: init_rivers
 USE init_water_resources_mod,     ONLY: init_water_resources
+USE water_resources_control_mod,  ONLY: initialise_water_resources
+USE jules_water_resources_mod,    ONLY: l_water_resources
 USE metstats_init_mod,            ONLY: metstats_init
 USE metstats_mod,                 ONLY: metstats_allocate
 USE init_parms_mod,               ONLY: init_parms
@@ -430,6 +432,11 @@ CALL init_parms(psparms,ainfo,urban_param,progs,coast,jules_vars,fluxes)
 
 ! Setup and initialise veg3
 CALL veg3_field_init(land_pts,nsurft,nnpft,npft,nmasst,ainfo,progs)
+
+! Further initialisation of water resources
+IF ( l_water_resources ) THEN
+  CALL initialise_water_resources( water_resources%priority_order )
+END IF
 
 ! Seek the input files to the start of the run
 CALL seek_all_to_current_datetime()

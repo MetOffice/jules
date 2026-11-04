@@ -28,7 +28,8 @@ CONTAINS
 
 !##############################################################################
 
-SUBROUTINE rivers_route_rp(rivers)
+SUBROUTINE rivers_route_rp( sw_river_source, abstracted_minor_res_rp,          &
+                            net_abstracted_river_rp, rivers )
 
 !------------------------------------------------------------------------------
 !
@@ -42,8 +43,8 @@ SUBROUTINE rivers_route_rp(rivers)
 
 USE jules_rivers_mod, ONLY:                                                    &
 !  imported scalars with intent(in)
-     i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip, np_rivers,         &
-     rivers_type
+     i_river_vn, l_minor_reservoirs, np_rivers, nstep_rivers,                  &
+     rivers_camaflood, rivers_rfm, rivers_trip, rivers_type
 
 USE rivers_route_camaflood_mod, ONLY:                                          &
 !  imported procedures
@@ -57,11 +58,29 @@ USE rivers_route_trip_mod, ONLY:                                               &
 !  imported procedures
      rivers_route_trip
 
+USE route_minor_reservoirs_mod, ONLY:                                          &
+     route_minor_reservoirs
+
 USE jules_print_mgr, ONLY:                                                     &
   jules_message,                                                               &
   jules_print
 
 IMPLICIT NONE
+
+!------------------------------------------------------------------------------
+! Arguments with INTENT(IN)
+!------------------------------------------------------------------------------
+INTEGER, INTENT(IN) ::                                                         &
+  sw_river_source
+    ! A value > 0 indicates that rivers are used as a source of water for
+    ! abstraction.
+
+REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  abstracted_minor_res_rp(:),                                                  &
+    ! Water abstracted from minor reservoirs over river timestep, on river
+    ! points (kg).
+  net_abstracted_river_rp(:)
+    ! Water abstracted from rivers over river timestep, on river points (kg).
 
 !------------------------------------------------------------------------------
 ! Arguments with INTENT(IN OUT)
@@ -81,6 +100,18 @@ REAL(KIND=real_jlslsm) :: baseflow(np_rivers)
                              !  gridbox (kg m-2 s-1)
 
 !end of header
+
+!------------------------------------------------------------------------------
+! Route surface runoff through minor reservoirs.
+!------------------------------------------------------------------------------
+IF ( l_minor_reservoirs ) THEN
+  CALL route_minor_reservoirs( abstracted_minor_res_rp,                        &
+                               rivers%minor_res_capacity,                      &
+                               rivers%minor_res_frac,                          &
+                               rivers%rivers_boxareas_rp,                      &
+                               rivers%minor_res_storage,                       &
+                               rivers%rrun_surf_rp )
+END IF
 
 !------------------------------------------------------------------------------
 ! Calculate total runoff diagnostic.
@@ -104,12 +135,14 @@ CASE ( rivers_camaflood )
                                rivers%rivers_outflow_rp )
 
 CASE ( rivers_rfm )
-  CALL rivers_route_rfm( rivers%rrun_surf_rp, rivers%rrun_sub_surf_rp,         &
+  CALL rivers_route_rfm( sw_river_source, net_abstracted_river_rp,             &
+                         rivers%rrun_surf_rp, rivers%rrun_sub_surf_rp,         &
                          rivers%rflow_rp, baseflow,                            &
                         !  imported river arrays
                          rivers)
 CASE ( rivers_trip )
-  CALL rivers_route_trip( rivers%rrun_surf_rp, rivers%rrun_sub_surf_rp,        &
+  CALL rivers_route_trip( sw_river_source, net_abstracted_river_rp,            &
+                          rivers%rrun_surf_rp, rivers%rrun_sub_surf_rp,        &
                           rivers%rflow_rp, baseflow, rivers%rivers_outflow_rp, &
                           rivers%rivers_next_rp, rivers%rivers_seq_rp,         &
                           rivers%rivers_sto_rp,rivers%rivers_boxareas_rp,      &
