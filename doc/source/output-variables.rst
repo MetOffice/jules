@@ -506,7 +506,7 @@ Rivers
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
-| ``res_flood_release``         | Flood release rate of reservoirs (kg s\ :sup:`-1`).                                            | np_rivers  |
+| ``res_flood_release``         | Flood release rate of reservoirs (kg s\ :sup:`-1`).                                           | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
