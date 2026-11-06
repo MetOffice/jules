@@ -1522,7 +1522,7 @@ The following table summarises river routing properties required to run RFM or T
 |                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
 |                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``res_flood_release_grid`` | Flood release rate of reservoirs (kg s-1).                                                                |
+| ``res_flood_release_grid`` | Flood release rate of reservoirs (kg s\ :sup:`-1`).                                                       |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
 |                            |                                                                                                           |
