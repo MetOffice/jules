@@ -127,6 +127,11 @@
             ROSE_TASK_APP = loobos_gl8
             ROSE_APP_OPT_CONF_KEYS=irrigon_5050irrigtiles
 
+    [[meto_azspice_gnu_loobos_gl8_canevap3]]
+        inherit = METO_AZSPICE_GNU_LOOBOS
+        [[[environment]]]
+            ROSE_TASK_APP = loobos_gl8_canevap3
+
      [[meto_azspice_gnu_loobos_vegdrag]]
         inherit = METO_AZSPICE_GNU_LOOBOS
         [[[environment]]]
