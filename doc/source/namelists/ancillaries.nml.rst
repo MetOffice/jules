@@ -1492,7 +1492,7 @@ The following table summarises river routing properties required to run RFM or T
 |                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
 |                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``res_catch_grid``         | Catchment area of reservoirs (m2).                                                                        |
+| ``res_catch_grid``         | Catchment area of reservoirs (m\ :sup:`2`).                                                               |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
 |                            |                                                                                                           |
