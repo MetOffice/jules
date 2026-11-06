@@ -115,7 +115,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   conveyance_loss(global_land_pts),                                            &
-    ! Water that is lost during conveyance (kg).
+    ! Water that is lost during conveyance from source to user (kg).
   return_flow_gw(global_land_pts),                                             &
     ! Water that is returned to renewable groundwater after use (kg).
   return_flow_river(global_land_pts),                                          &
@@ -142,7 +142,8 @@ REAL(KIND=real_jlslsm) ::                                                      &
   abstracted_per_use(global_land_pts,nwater_use),                              &
     ! Water abstracted for each use (kg).
   conveyance_loss_use(global_land_pts,nwater_use),                             &
-    ! Water that is lost during conveyance, for each water use (kg).
+    ! Water that is lost during conveyance from source to user, for each
+    ! water use (kg).
   demand_sw(global_land_pts,nwater_use),                                       &
     ! Demand for water from surface water, for each water use (kg).
   demand_gw(global_land_pts,nwater_use)
@@ -513,9 +514,10 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(OUT) ::                                         &
   conveyance_loss(global_land_pts),                                            &
-    ! Water that is lost during conveyance (kg).
+    ! Water that is lost during conveyance from source to user (kg).
   conveyance_loss_use(global_land_pts,nwater_use)
-    ! Water that is lost during conveyance, for each water use (kg).
+    ! Water that is lost during conveyance from source to user, for each
+    ! water use (kg).
 
 !------------------------------------------------------------------------------
 ! Local parameters.
@@ -534,7 +536,7 @@ INTEGER ::                                                                     &
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm) ::                                                      &
   loss_frac(global_land_pts)
-    ! Fraction of water that is lost during conveyance.
+    ! Fraction of water that is lost during conveyance from source to user.
 
 ! Dr Hook variables
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
@@ -611,7 +613,8 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
   abstracted_per_use(global_land_pts,nwater_use),                              &
     ! Water abstracted to meet each use (kg).
   conveyance_loss_use(global_land_pts,nwater_use)
-    ! Water that is lost during conveyance, for each water use (kg).
+    ! Water that is lost during conveyance from source to user, for each
+    ! water use (kg).
 
 !------------------------------------------------------------------------------
 ! Array arguments with INTENT(OUT)
@@ -666,9 +669,11 @@ water_removed(:)     = 0.0
 DO i = 1, nwater_use
 
   !---------------------------------------------------------------------------
-  ! Set the fraction of flow that is returned for this water use. Each use
-  ! returns water to either groundwater or rivers. The complementary fraction
-  ! is removed from the system (e.g. by being incorporated into a product).
+  ! Set the fraction of flow that is returned for this water use. Return
+  ! flows for each use are redirected in redirect_return_flows to either
+  ! groundwater or rivers depending on the model configuration. The
+  ! complementary fraction is removed from the system (e.g. by being
+  ! incorporated into a product).
   !---------------------------------------------------------------------------
   IF ( i == use_domestic ) THEN
     ! Domestic water is returned to rivers.

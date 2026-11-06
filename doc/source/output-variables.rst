@@ -475,6 +475,18 @@ Rivers
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::i_river_vn` = 3.                                                      |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``minor_res_capacity``        | Storage capacity of minor reservoirs (kg).                                                    | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``minor_res_frac``            | Catchment area of minor reservoirs as fraction of area of gridbox.                            | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``minor_res_storage``         | Water stored in minor reservoirs (kg).                                                        | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``frac_fplain_rp``            | Overbank inundation area as a fraction of river routing gridcell area.                        | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_riv_overbank` = TRUE.                             |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
@@ -1423,6 +1435,9 @@ These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_r
 | ``res_abstracted``        | Water abstracted from reservoirs (kg s\ :sup:`-1`).                            |            |
 |                           | Only available if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
+| ``minor_res_abstracted``  | Water abstracted from minor reservoirs (kg s\ :sup:`-1`).                      |            |
+|                           | Only available if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.          |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
 | ``river_abstracted``      | Water abstracted from rivers (kg s\ :sup:`-1`).                                |            |
 |                           | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE.                    |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
@@ -1437,7 +1452,7 @@ These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_r
 | ``conv_loss_frac``        | Fraction of abstracted water that is lost during conveyance from source to     |            |
 |                           | user (an input to the model).                                                  |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
-| ``conveyance_loss``       | Water that is lost during conveyance (kg s\ :sup:`-1`).                        |            |
+| ``conveyance_loss``       | Water that is lost during conveyance from source to user (kg s\ :sup:`-1`).    |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``sfc_water_frac``        | Target for the fraction of demand to be met from surface water.                |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+

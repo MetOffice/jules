@@ -125,10 +125,8 @@ REAL ::                                                                        &
     ! Net abstraction from rivers (kg m-2)
   abstracted_res_global(land_pts),                                             &
     ! Water abstracted from reservoirs (kg).
-  tot_net_abstracted_river_global(land_pts),                                   &
-    ! Water abstracted from rivers over river timestep (kg m-2).
-  tot_abstracted_res_global(land_pts)
-    ! Water abstracted from reservoirs over river timestep (kg).
+  abstracted_minor_res_global(land_pts)
+    ! Water abstracted from minor reservoirs (kg).
 
 REAL(KIND=real_jlslsm) ::                                                      &
   !Passed between river routing and UM diagnostics_riv only
@@ -145,9 +143,8 @@ CHARACTER(LEN=*), PARAMETER  :: RoutineName = 'CONTROL'
 
 ! Abstractions of water are zero in rivers-only configuration.
 abstracted_res_global(:)           = 0.0
+abstracted_minor_res_global(:)     = 0.0
 net_abstracted_river_global(:)     = 0.0
-tot_abstracted_res_global(:)       = 0.0
-tot_net_abstracted_river_global(:) = 0.0
 
 SELECT CASE ( lsm_id )
 CASE ( rivers )
@@ -155,15 +152,15 @@ CASE ( rivers )
      !INTEGER, INTENT(IN)
      land_pts, n_wtrac_jls,                                                    &
      !REAL, INTENT(IN)
-     abstracted_res_global, net_abstracted_river_global,                       &
+     abstracted_res_global, abstracted_minor_res_global,                       &
+     net_abstracted_river_global,                                              &
      fluxes%sub_surf_roff_gb, fluxes%surf_roff_gb,                             &
      wtrac_jls%sub_surf_roff_gb,  wtrac_jls%surf_roff_gb,                      &
      !INTEGER, INTENT(INOUT)
      a_steps_since_riv,                                                        &
      !REAL, INTENT (INOUT)
      river%tot_surf_runoff_gb, river%tot_sub_runoff_gb,                        &
-     tot_abstracted_res_global,                                                &
-     tot_net_abstracted_river_global, river%acc_lake_evap_gb,                  &
+     river%acc_lake_evap_gb,                                                   &
      wtrac_jls%tot_surf_runoff_gb, wtrac_jls%tot_sub_runoff_gb,                &
      wtrac_jls%acc_lake_evap_gb,                                               &
      !REAL, INTENT (OUT)

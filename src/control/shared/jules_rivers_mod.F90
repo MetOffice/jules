@@ -122,6 +122,10 @@ INTEGER,PARAMETER :: flow_dir_delta(8,2) = RESHAPE( [                          &
 LOGICAL ::                                                                     &
    l_rivers = .FALSE.                                                          &
                             ! Switch for runoff routing
+   ,l_minor_reservoirs = .FALSE.                                               &
+                            ! Switch for minor_reservoirs.
+                            ! .TRUE.  = consider minor reservoirs
+                            ! .FALSE. = do not consider  minor reservoirs
    ,l_riv_overbank = .FALSE.                                                   &
                             ! Logical to control overbank inundation
    ,l_outflow_per_river = .FALSE.                                              &
@@ -242,7 +246,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 ! Single namelist definition for UM and standalone
 !------------------------------------------------------------------------------
 NAMELIST  /jules_rivers/                                                       &
-  l_rivers, l_reservoirs, l_riv_overbank,                                      &
+  l_rivers, l_reservoirs, l_minor_reservoirs, l_riv_overbank,                  &
   l_adapt_timestep, l_sea_level,                                               &
   l_vary_sea_level, i_river_vn, nstep_rivers,                                  &
   trip_globe_shape,                                                            &
@@ -434,6 +438,15 @@ REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
   res_flood_release_grid(:,:)
     ! Flood release rate of reservoir (kg s-1).
 
+!------------------------------------------------------------------------------
+! Ancillary arrays for minor reservoirs, defined on 2D rivers grid.
+!------------------------------------------------------------------------------
+REAL(KIND=real_jlslsm), ALLOCATABLE ::                                         &
+  minor_res_capacity_grid(:,:),                                                &
+     ! Storage capacity of minor reservoirs (kg).
+  minor_res_frac_grid(:,:)
+    ! Catchment area of minor reservoirs as fraction of area.
+
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='JULES_RIVERS_MOD'
 
 !------------------------------------------------------------------------------
@@ -571,6 +584,30 @@ TYPE :: rivers_data_type
   REAL(KIND=real_jlslsm), ALLOCATABLE :: river_depth(:)
     ! Depth of water in river channel (m).
 
+  !----------------------------------------------------------------------------
+  ! Minor reservoir ancillary variables, defined on river points.
+  !----------------------------------------------------------------------------
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: minor_res_capacity(:)
+    ! Storage capacity of minor reservoirs (kg).
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: minor_res_frac(:)
+    ! Catchment area of minor reservoirs as fraction of area.
+
+  !----------------------------------------------------------------------------
+  ! Minor reservoir prognostic variables, defined on river points.
+  !----------------------------------------------------------------------------
+  REAL(KIND=real_jlslsm), ALLOCATABLE :: minor_res_storage(:)
+    ! Water stored in minor reservoirs (kg).
+
+  !----------------------------------------------------------------------------
+  ! Variables for coupling with water resources.
+  !----------------------------------------------------------------------------
+  REAL, ALLOCATABLE :: tot_abstracted_minor_res_global(:)
+                           !  Water abstracted from minor reservoirs over river
+                           !  timestep, on global land points (kg).
+  REAL, ALLOCATABLE :: tot_net_abstracted_river_global(:)
+                           ! Water abstracted from rivers over river timestep,
+                           ! on global land points(kg m-2).
+
   ! Ancillary arrays defined on full 2D rivers grid.
   REAL(KIND=real_jlslsm), ALLOCATABLE :: rivers_seq(:,:)
                             ! River routing pathway sequence
@@ -656,9 +693,6 @@ TYPE :: rivers_data_type
   REAL, ALLOCATABLE :: tot_abstracted_res_global(:)
                            !  Water abstracted from reservoirs over river
                            !  timestep, on global land points (kg).
-  REAL, ALLOCATABLE :: tot_net_abstracted_river_global(:)
-                           ! Water abstracted from rivers over river timestep,
-                           ! on global land points(kg m-2).
 END TYPE rivers_data_type
 
 TYPE :: rivers_type
@@ -708,6 +742,11 @@ TYPE :: rivers_type
   REAL(KIND=real_jlslsm), POINTER :: river_channel_storage(:)
   REAL(KIND=real_jlslsm), POINTER :: river_flow_prev(:)
   REAL(KIND=real_jlslsm), POINTER :: river_depth(:)
+  REAL(KIND=real_jlslsm), POINTER :: minor_res_capacity(:)
+  REAL(KIND=real_jlslsm), POINTER :: minor_res_frac(:)
+  REAL(KIND=real_jlslsm), POINTER :: minor_res_storage(:)
+  REAL(KIND=real_jlslsm), POINTER :: tot_abstracted_minor_res_global(:)
+  REAL(KIND=real_jlslsm), POINTER :: tot_net_abstracted_river_global(:)
   REAL(KIND=real_jlslsm), POINTER :: rivers_seq(:,:)
   REAL(KIND=real_jlslsm), POINTER :: rivers_dir(:,:)
   REAL(KIND=real_jlslsm), POINTER :: rivers_dra(:,:)
@@ -738,7 +777,6 @@ TYPE :: rivers_type
   REAL(KIND=real_jlslsm), POINTER :: res_normal_release(:)
   REAL(KIND=real_jlslsm), POINTER :: res_flood_release(:)
   REAL(KIND=real_jlslsm), POINTER :: tot_abstracted_res_global(:)
-  REAL(KIND=real_jlslsm), POINTER :: tot_net_abstracted_river_global(:)
 END TYPE rivers_type
 
 CONTAINS
@@ -1250,6 +1288,7 @@ CALL jules_print('jules_rivers_inputs_mod',                                    &
 WRITE(lineBuffer,*)' l_rivers = ',l_rivers
 CALL jules_print('jules_rivers',lineBuffer)
 WRITE(lineBuffer,*)' l_reservoirs = ',l_reservoirs
+WRITE(lineBuffer,*)' l_minor_reservoirs = ',l_minor_reservoirs
 CALL jules_print('jules_rivers',lineBuffer)
 WRITE(lineBuffer,*)' l_riv_overbank = ',l_riv_overbank
 CALL jules_print('jules_rivers',lineBuffer)
@@ -1415,6 +1454,7 @@ TYPE :: my_namelist
   REAL(KIND=real_jlslsm) :: runoff_factor
   LOGICAL :: l_adapt_timestep
   LOGICAL :: l_reservoirs
+  LOGICAL :: l_minor_reservoirs
   LOGICAL :: l_riv_overbank
   LOGICAL :: l_rivers
   LOGICAL :: l_sea_level
@@ -1454,6 +1494,7 @@ IF (mype == 0) THEN
   my_nml % runoff_factor = runoff_factor
   my_nml % l_adapt_timestep = l_adapt_timestep
   my_nml % l_reservoirs = l_reservoirs
+  my_nml % l_minor_reservoirs = l_minor_reservoirs
   my_nml % l_riv_overbank = l_riv_overbank
   my_nml % l_rivers = l_rivers
   my_nml % l_sea_level = l_sea_level
@@ -1482,6 +1523,7 @@ IF (mype /= 0) THEN
   runoff_factor = my_nml % runoff_factor
   l_adapt_timestep = my_nml % l_adapt_timestep
   l_reservoirs  = my_nml % l_reservoirs
+  l_minor_reservoirs  = my_nml % l_minor_reservoirs
   l_riv_overbank = my_nml % l_riv_overbank
   l_rivers = my_nml % l_rivers
   l_sea_level = my_nml % l_sea_level

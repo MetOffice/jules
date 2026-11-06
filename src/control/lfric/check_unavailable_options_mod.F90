@@ -88,8 +88,8 @@ END IF
 IF ( l_water_resources ) THEN
   error_sum = error_sum + 1
   WRITE(log_scratch_space,'(I0,A,L1)') error_sum,                              &
-     ": Water resources not available to LFRic. l_water_resources = ",         &
-     l_water_resources
+     ": Water resources not available to LFRic, see LFRic apps PR # 859. " //  &
+     "l_water_resources = ", l_water_resources
   CALL log_event(RoutineName//": "//TRIM(log_scratch_space), log_level_warning)
 END IF
 

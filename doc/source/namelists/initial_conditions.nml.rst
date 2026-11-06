@@ -435,6 +435,11 @@ The required variables for a particular configuration, along with their 'type' a
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | ``res_storage``                  | Water stored in reservoirs, on river routing points (kg).                               | none    |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
+| Required if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE and                         |
+| :nml:mem:`JULES_INITIAL::dump_file` = TRUE                                                                                           |
++----------------------------------+-----------------------------------------------------------------------------------------+---------+
+| ``minor_res_storage``            | Water stored in minor reservoirs, on river routing points (kg).                         | none    |
++----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | Required if :nml:mem:`JULES_VEGETATION::photo_acclim_model` = 2 or 3                                                                 |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | ``t_growth_gb``                  | Running mean air temperature (K).                                                       | none    |
@@ -451,6 +456,10 @@ The required variables for a particular configuration, along with their 'type' a
 .. warning::
   if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE and :nml:mem:`JULES_INITIAL::dump_file` = FALSE,
     ``res_storage`` is initialised to zero.
+
+.. warning::
+  if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE and :nml:mem:`JULES_INITIAL::dump_file` = FALSE,
+    ``minor_res_storage`` is initialised to zero.
 
 .. |mu| unicode:: &#x03BC; .. u
 

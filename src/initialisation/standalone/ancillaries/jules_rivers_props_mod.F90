@@ -166,10 +166,11 @@ SUBROUTINE check_jules_rivers_props()
 
 USE jules_rivers_mod, ONLY: nx_rivers_in=>nx_rivers, ny_rivers_in=>ny_rivers,  &
                             i_river_vn, land_dx, land_dy, l_init_storage,      &
+                            l_minor_reservoirs, l_reservoirs,                  &
                             l_riv_overbank, nx_land_grid, ny_land_grid,        &
                             x1_land_grid, y1_land_grid, rivers_length,         &
                             l_outflow_per_river, rivers_camaflood,             &
-                            rivers_regrid, rivers_rfm, l_reservoirs
+                            rivers_regrid, rivers_rfm
 
 USE model_grid_mod, ONLY: l_coord_latlon
 
@@ -190,7 +191,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName = 'CHECK_JULES_RIVERS_PROPS'
 INTEGER :: i ! Loop counter
 
 INTEGER, PARAMETER ::                                                          &
-   nvar_values = 17         ! Number of recognised identifiers
+   nvar_values = 19         ! Number of recognised identifiers
 CHARACTER(LEN=identifier_len) ::                                               &
    var_values(nvar_values) ! Names of recognised identifiers
 
@@ -222,7 +223,9 @@ var_values(:) = ['area                   ',                                    &
                  'res_flood_grid         ',                                    &
                  'res_emergency_grid     ',                                    &
                  'res_normal_release_grid',                                    &
-                 'res_flood_release_grid ']
+                 'res_flood_release_grid ',                                    &
+                 'minor_res_capacity_grid',                                    &
+                 'minor_res_frac_grid    ']
 
 DO i = 1, nvars
   IF ( .NOT. ANY( var_values(:) == var(i) ) ) THEN
@@ -397,7 +400,9 @@ SUBROUTINE allocate_river_vars_grid( global_land_pts, nx_rivers, ny_rivers,    &
 !------------------------------------------------------------------------------
 
 USE jules_rivers_mod, ONLY: channel_depth_grid, channel_width_grid, i_river_vn,&
-                            l_sea_level, mean_sea_level_grid, rivers_camaflood,&
+                            l_minor_reservoirs, l_sea_level,                   &
+                            mean_sea_level_grid, minor_res_capacity_grid,      &
+                            minor_res_frac_grid, rivers_camaflood,             &
                             river_distance_grid, river_elevation_grid,         &
                             river_length_grid, river_manning_grid,             &
                             river_nextx_grid, river_nexty_grid, rivers_rfm,    &
@@ -595,6 +600,17 @@ error_sum = error_sum + ERROR
 ALLOCATE( res_normal_release_grid(nx_size,ny_size), STAT = ERROR )
 error_sum = error_sum + ERROR
 ALLOCATE( res_flood_release_grid(nx_size,ny_size), STAT = ERROR )
+! Minor reservoir 2D ancillary variables.
+IF ( l_minor_reservoirs ) THEN
+  nx_size = nx_rivers
+  ny_size = ny_rivers
+ELSE
+  nx_size = 1
+  ny_size = 1
+END IF
+ALLOCATE( minor_res_capacity_grid(nx_size,ny_size), STAT = ERROR )
+error_sum = error_sum + ERROR
+ALLOCATE( minor_res_frac_grid(nx_size,ny_size), STAT = ERROR )
 error_sum = error_sum + ERROR
 
 IF ( error_sum /= 0 ) THEN
@@ -632,6 +648,8 @@ res_flood_grid(:,:)           = rmdi
 res_emergency_grid(:,:)       = rmdi
 res_normal_release_grid(:,:)  = rmdi
 res_flood_release_grid(:,:)   = rmdi
+minor_res_capacity_grid(:,:)  = rmdi
+minor_res_frac_grid(:,:)  = rmdi
 
 ! Associate pointers
 rivers%rivers_dir        => rivers_data%rivers_dir
@@ -670,7 +688,7 @@ USE jules_model_environment_mod, ONLY: l_oasis_rivers
 USE jules_rivers_mod, ONLY: i_river_vn, l_sea_level, l_vary_sea_level,         &
                             rivers_camaflood, rivers_data_type, rivers_rfm,    &
                             rivers_trip, rivers_type, l_outflow_per_river,     &
-                            l_reservoirs
+                            l_reservoirs, l_minor_reservoirs
 
 USE jules_water_resources_mod, ONLY: l_water_resources
 
@@ -701,12 +719,12 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName = 'ALLOCATE_RIVERS_VARS_RP'
 INTEGER ::                                                                     &
   ERROR, error_sum,                                                            &
     ! Error flags.
+  np_global_land_tmp,                                                          &
+    ! Number of global land points (across all tasks) to allocate for.
   np_land_tmp,                                                                 &
     ! Number of land points to allocate for.
-  np_rivers_tmp,                                                               &
+  np_rivers_tmp
     ! Number of river points to allocate for.
-  np_global_land_tmp
-    ! Number of global land points (across all tasks) to allocate for.
 
 !end of header
 !------------------------------------------------------------------------------
@@ -949,7 +967,6 @@ ELSE
   np_rivers_tmp      = 1
   np_global_land_tmp = 1
 END IF
-
 ! Reservoir ancillaries.
 ALLOCATE( rivers_data%res_capacity(np_rivers_tmp),      STAT = ERROR )
 error_sum = error_sum + ERROR
@@ -974,6 +991,32 @@ ALLOCATE( rivers_data%res_cap_current(np_rivers_tmp),   STAT = ERROR )
 error_sum = error_sum + ERROR
 ! Reservoir coupling to rivers.
 ALLOCATE( rivers_data%tot_abstracted_res_global(np_global_land_tmp),           &
+                                                              STAT = ERROR )
+error_sum = error_sum + ERROR
+
+!------------------------------------------------------------------------------
+! Allocate minor reservoir variables.
+!------------------------------------------------------------------------------
+IF ( l_minor_reservoirs .AND. is_master_task() ) THEN
+  ! Full size.
+  np_rivers_tmp      = np_rivers
+  np_global_land_tmp = global_land_pts
+ELSE
+  ! Minimum size.
+  np_rivers_tmp      = 1
+  np_global_land_tmp = 1
+END IF
+
+! Minor reservoir ancillaries.
+ALLOCATE( rivers_data%minor_res_capacity(np_rivers_tmp),      STAT = ERROR )
+error_sum = error_sum + ERROR
+ALLOCATE( rivers_data%minor_res_frac(np_rivers_tmp),          STAT = ERROR )
+error_sum = error_sum + ERROR
+! Minor reservoir prognostics.
+ALLOCATE( rivers_data%minor_res_storage(np_rivers_tmp),       STAT = ERROR )
+error_sum = error_sum + ERROR
+! Minor reservoir coupling to rivers.
+ALLOCATE( rivers_data%tot_abstracted_minor_res_global(np_global_land_tmp),     &
                                                               STAT = ERROR )
 error_sum = error_sum + ERROR
 
@@ -1082,8 +1125,16 @@ rivers_data%res_flood_release(:) = rmdi
 rivers_data%res_storage(:)       = 0.0
 rivers_data%res_cap_current(:)   = 0.0
 
+! Initialise minor reservoir variables. Storage (the state variable) should be
+! initialised to zero until better initialisation is possible.
+rivers_data%minor_res_capacity(:) = rmdi
+rivers_data%minor_res_frac(:)     = rmdi
+rivers_data%minor_res_storage(:)  = 0.0
+
+
 ! Initialise further variables to couple to water resources.
 rivers_data%tot_abstracted_res_global(:)       = rmdi
+rivers_data%tot_abstracted_minor_res_global(:) = rmdi
 rivers_data%tot_net_abstracted_river_global(:) = rmdi
 
 !------------------------------------------------------------------------------
@@ -1154,11 +1205,8 @@ rivers%rivers_outflow_number_rp => rivers_data%rivers_outflow_number_rp
 rivers%sub_surf_roff_rp => rivers_data%sub_surf_roff_rp
 rivers%surf_roff_rp => rivers_data%surf_roff_rp
 
-! Further variables to couple to water resources.
-rivers%tot_net_abstracted_river_global                                         &
-                               => rivers_data%tot_net_abstracted_river_global
 
-! Associate pointers for reservoir variables.
+! Reservoir variables.
 rivers%res_capacity      => rivers_data%res_capacity
 rivers%res_catch         => rivers_data%res_catch
 rivers%res_year          => rivers_data%res_year
@@ -1171,6 +1219,17 @@ rivers%res_storage       => rivers_data%res_storage
 rivers%res_cap_current   => rivers_data%res_cap_current
 rivers%tot_abstracted_res_global                                               &
                                => rivers_data%tot_abstracted_res_global
+
+! Minor reservoir variables.
+rivers%minor_res_capacity      => rivers_data%minor_res_capacity
+rivers%minor_res_frac          => rivers_data%minor_res_frac
+rivers%minor_res_storage       => rivers_data%minor_res_storage
+rivers%tot_abstracted_minor_res_global                                         &
+                               => rivers_data%tot_abstracted_minor_res_global
+
+! Further variables to couple to water resources.
+rivers%tot_net_abstracted_river_global                                         &
+                               => rivers_data%tot_net_abstracted_river_global
 
 RETURN
 END SUBROUTINE allocate_rivers_vars_rp
@@ -1185,12 +1244,13 @@ SUBROUTINE deallocate_river_props( )
 !------------------------------------------------------------------------------
 
 USE jules_rivers_mod, ONLY:                                                    &
-  channel_depth_grid, channel_width_grid,                                      &
-  river_distance_grid, river_elevation_grid,                                   &
+  channel_depth_grid, channel_width_grid, minor_res_capacity_grid,             &
+  minor_res_frac_grid, river_distance_grid, river_elevation_grid,              &
   river_length_grid, river_manning_grid, river_nextx_grid, river_nexty_grid,   &
   res_capacity_grid, res_catch_grid, res_year_grid,                            &
   res_critical_grid, res_flood_grid, res_emergency_grid,                       &
   res_normal_release_grid, res_flood_release_grid
+
 
 IMPLICIT NONE
 
@@ -1275,6 +1335,15 @@ IF ( ALLOCATED( res_normal_release_grid ) ) THEN
 END IF
 IF ( ALLOCATED( res_flood_release_grid ) ) THEN
   DEALLOCATE( res_flood_release_grid )
+END IF
+
+! Minor reservoir variables.
+IF ( ALLOCATED( minor_res_capacity_grid ) ) THEN
+  DEALLOCATE( minor_res_capacity_grid )
+END IF
+
+IF ( ALLOCATED( minor_res_frac_grid ) ) THEN
+  DEALLOCATE( minor_res_frac_grid )
 END IF
 
 RETURN

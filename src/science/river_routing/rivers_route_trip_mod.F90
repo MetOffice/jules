@@ -81,7 +81,7 @@ INTEGER, INTENT(IN) ::                                                         &
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !  arrays with intent(in)
-     net_abstracted_river_rp(np_rivers),                                       &
+     net_abstracted_river_rp(:),                                               &
      !  Water abstracted from rivers over river timestep (kg).
      sfc_runoff(np_rivers)                                                     &
      !  average rate of surface runoff since last rivers call (kg m-2 s-1)
@@ -175,14 +175,14 @@ IF ( l_inland_outflow ) THEN
   END WHERE
 END IF
 
+!------------------------------------------------------------------------------
+! Remove water abstracted from river - before any other process alters the
+! amount stored.
+!------------------------------------------------------------------------------
 IF ( sw_river_source > 0 ) THEN
-    !------------------------------------------------------------------------------
-    ! Remove water abstracted from river - before any other process alters the
-    ! amount stored.
-    !------------------------------------------------------------------------------
-    DO ip = 1, np_rivers
-      rivers_sto_rp(ip) = rivers_sto_rp(ip) - net_abstracted_river_rp(ip)
-    END DO
+  DO ip = 1, np_rivers
+    rivers_sto_rp(ip) = rivers_sto_rp(ip) - net_abstracted_river_rp(ip)
+  END DO
 END IF
 
 DO ip = 1, np_rivers

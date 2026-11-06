@@ -347,10 +347,9 @@ USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_renew_gwater,  &
     l_water_resources, l_water_transfers, no_model, nr_gwater_model,           &
     sw_river_source
 
-USE jules_rivers_mod, ONLY:                                                    &
-    l_outflow_per_river, l_rivers, l_riv_overbank, i_river_vn,                 &
-    rivers_camaflood, rivers_rfm, rivers_trip, l_inland_outflow,               &
-    l_reservoirs
+USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_outflow_per_river, l_rivers, &
+    l_riv_overbank, i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip,     &
+    l_inland_outflow, l_reservoirs
 
 USE jules_deposition_mod, ONLY: l_deposition, l_deposition_flux
 
@@ -699,6 +698,7 @@ DO j = 1,nvars_in
           'res_year_grid', 'res_critical_grid',                                &
           'res_flood_grid', 'res_emergency_grid',                              &
           'res_normal_release_grid', 'res_flood_release_grid',                 &
+          'minor_res_capacity_grid', 'minor_res_frac_grid',                    &
           'river_distance_grid', 'river_elevation_grid', 'river_length_grid',  &
           'river_manning_grid', 'river_nextx_grid', 'river_nexty_grid',        &
           'rivers_xgrid', 'rivers_ygrid', 'sequence' )
@@ -706,6 +706,17 @@ DO j = 1,nvars_in
     message    = 'Variables on the full river grid are not available ' //      &
                  'for output.'
   END SELECT
+
+  !----------------------------------------------------------------------------
+  ! Variables that are only allowed with minor reservoirs.
+  !----------------------------------------------------------------------------
+  IF ( .NOT. l_minor_reservoirs ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'minor_res_capacity', 'minor_res_frac', 'minor_res_storage' )
+      remove_var = .TRUE.
+      message    = 'Minor reservoirs not used.'
+    END SELECT
+  END IF
 
   !---------------------------------------------------------------------------
   ! Thermal acclimation variables.
@@ -821,6 +832,14 @@ DO j = 1,nvars_in
     CASE ( 'res_abstracted' )
       remove_var = .TRUE.
       message    = 'Water resources + reservoirs not used.'
+    END SELECT
+  END IF
+
+  IF ( .NOT. l_water_resources .OR. .NOT. l_minor_reservoirs ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'minor_res_abstracted' )
+      remove_var = .TRUE.
+      message    = 'Water resources + minor reservoirs not used.'
     END SELECT
   END IF
 

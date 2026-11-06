@@ -17,7 +17,7 @@ SUBROUTINE required_vars_for_rivers( nvars, identifiers,                       &
 
 USE jules_rivers_mod, ONLY: l_outflow_per_river, i_river_vn, rivers_camaflood, &
                             rivers_rfm, rivers_trip, l_init_storage,           &
-                            l_inland_outflow, l_reservoirs
+                            l_inland_outflow, l_reservoirs, l_minor_reservoirs
 
 USE logging_mod, ONLY: log_warn
 
@@ -145,6 +145,15 @@ IF ( l_reservoirs ) THEN
   ELSE
     CALL log_warn( RoutineName,                                                &
                   "Storage in reservoirs will be initialised to zero.")
+  END IF
+END IF
+
+IF ( l_minor_reservoirs ) THEN
+  IF ( read_or_write_dump_local ) THEN
+    CALL add_to_list( 'minor_res_storage', nvars, identifiers )
+  ELSE
+    CALL log_warn( RoutineName,                                                &
+                  "Storage in minor reservoirs will be initialised to zero.")
   END IF
 END IF
 

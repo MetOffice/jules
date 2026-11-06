@@ -1093,7 +1093,7 @@ This namelist specifies the options available for initialising irrigated fractio
 
 .. nml:namelist:: JULES_RIVERS_PROPS
 
-This namelist specifies how spatially varying river routing properties (including overbank inundation and reservoirs) should be set.
+This namelist specifies how spatially varying river routing properties (including overbank inundation, reservoirs and minor reservoirs) should be set.
 
 .. note:: ``read_from_dump`` is not currently implemented for this namelist, meaning that river ancillary variables cannot be read from a dump file. Initial values of river prognostic variables can however be read from a dump file (see :nml:lst:`JULES_INITIAL`).
 
@@ -1486,6 +1486,16 @@ The following table summarises river routing properties required to run RFM or T
 |                            | This is only required if Rivers storage is to be initialised from an ancillary, including a 12-month      |
 |                            | climatology, rather than the dump. If Rivers storage is requested from an ancillary then                  |
 |                            | ``rivers_sto_rp`` should not be requested via :nml:lst:`JULES_INITIAL`.                                   |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``minor_res_capacity_grid``| Storage capacity of minor reservoirs (kg).                                                                |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``minor_res_frac_grid``    | Catchment area of minor reservoirs as fraction of area of gridbox.                                        |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
+|                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
 | ``res_capacity_grid``      | Storage capacity of reservoirs (kg).                                                                      |
 |                            |                                                                                                           |

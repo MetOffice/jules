@@ -46,6 +46,7 @@ USE jules_urban_mod,          ONLY: l_moruses
 USE jules_surface_mod,        ONLY: l_flake_model
 USE jules_soil_mod,           ONLY: l_bedrock, ns_deep
 USE jules_radiation_mod,      ONLY: l_albedo_obs
+USE jules_rivers_mod,         ONLY: l_minor_reservoirs
 USE jules_soil_biogeochem_mod,ONLY: soil_model_ecosse, soil_bgc_model,         &
                                     l_label_frac_cs, l_layeredc, dim_ch4layer
 USE jules_water_resources_mod,ONLY: l_have_groundwater, l_have_surface_water,  &
@@ -148,7 +149,11 @@ USE UM_ParParams,    ONLY: halo_type_no_halo
 USE Field_Types,     ONLY: fld_type_r
 #endif
 
-USE parallel_mod, ONLY: is_master_task
+#if defined(UM_JULES)
+USE um_parallel_mod, ONLY: is_master_task
+#else
+USE parallel_mod,    ONLY: is_master_task
+#endif
 
 USE parkind1,                 ONLY: jprb, jpim
 USE yomhook,                  ONLY: lhook, dr_hook
@@ -301,7 +306,8 @@ CALL deposition_species_alloc(ntype, ndry_dep_species, l_deposition)
 CALL water_resources_alloc( global_land_pts, land_pts, n_sw_source,            &
                             nwater_use, sw_river_source, l_have_groundwater,   &
                             l_have_surface_water, is_master_task(),            &
-                            l_reservoirs, l_water_domestic, l_water_industry,  &
+                            l_reservoirs, l_minor_reservoirs,                  &
+                            l_water_domestic, l_water_industry,                &
                             l_water_irrigation,                                &
                             l_water_livestock, l_water_resources,              &
                             l_water_transfers, water_resources_data )

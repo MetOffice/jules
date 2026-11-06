@@ -188,6 +188,8 @@ INTEGER ::                                                                     &
   !----------------------------------------------------------------------------
   sw_river_source = 0,                                                         &
     ! Index of river water in surface water source arrays.
+  sw_minor_res_source = 0,                                                     &
+    ! Index of minor reservoirs in surface water source arrays.
   use_domestic = 0,                                                            &
     ! Index of domestic use in multi-use arrays.
   use_environment = 0,                                                         &
@@ -566,7 +568,7 @@ SUBROUTINE set_jules_water_resources( l_top )
 !------------------------------------------------------------------------------
 
 ! This dependency on jules_rivers_mod is not ideal.
-USE jules_rivers_mod, ONLY: l_reservoirs, l_rivers
+USE jules_rivers_mod, ONLY: l_reservoirs, l_minor_reservoirs, l_rivers
 
 IMPLICIT NONE
 
@@ -640,6 +642,10 @@ IF ( l_water_resources ) THEN
   IF ( l_reservoirs ) THEN
     n_sw_source         = n_sw_source + 1
     sw_res_source = n_sw_source
+  END IF
+  IF ( l_minor_reservoirs ) THEN
+    n_sw_source         = n_sw_source + 1
+    sw_minor_res_source = n_sw_source
   END IF
 
   ! Set surface water flag if we have any surface water sources.

@@ -100,17 +100,18 @@ IMPLICIT NONE
 INTEGER, INTENT(IN) :: sw_river_source
        ! A value > 0 indicates that rivers are used as a source of water for
        ! abstraction.
-       
+
 ! Array arguments with intent(in)
-REAL(KIND=real_jlslsm), INTENT(IN) :: net_abstracted_river_rp(np_rivers)
+REAL(KIND=real_jlslsm), INTENT(IN) :: net_abstracted_river_rp(:)
        !  Water abstracted from rivers over river timestep (kg).
 REAL(KIND=real_jlslsm), INTENT(IN) :: sfc_runoff(np_rivers)
        !  average rate of surface runoff since last rivers call (kg m-2 s-1)
 REAL(KIND=real_jlslsm), INTENT(IN) :: sub_sfc_runoff(np_rivers)
        !  average rate of sub-surface runoff since last call (kg m-2 s-1)
-REAL(KIND=real_jlslsm), INTENT(IN) :: abstracted_res_rp(np_rivers)
+REAL(KIND=real_jlslsm), INTENT(IN) :: abstracted_res_rp(:)
        !  Water abstracted from reservoirs over river timestep (kg).
 
+! Array arguments with intent(out)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: outflow(np_rivers)
        !  rate of channel surface flow leaving gridbox (kg m-2 s-1)
 REAL(KIND=real_jlslsm), INTENT(OUT) :: baseflow(np_rivers)
@@ -210,14 +211,14 @@ END IF   ! end rivers_first
 !-----------------------------------------------------------------------------
 
 IF ( sw_river_source > 0 ) THEN
-    !------------------------------------------------------------------------------
-    ! Remove water abstracted from river - before any other process alters the
-    ! amount stored. The units of the abstraction are converted from kg to m3.
-    !------------------------------------------------------------------------------
-    DO ip = 1, np_rivers
-      rivers%rfm_surfstore_rp(ip) = rivers%rfm_surfstore_rp(ip)                    &
-                                    - net_abstracted_river_rp(ip) / rho_water
-    END DO
+  !----------------------------------------------------------------------------
+  ! Remove water abstracted from river - before any other process alters the
+  ! amount stored. The units of the abstraction are converted from kg to m3.
+  !----------------------------------------------------------------------------
+  DO ip = 1, np_rivers
+    rivers%rfm_surfstore_rp(ip) = rivers%rfm_surfstore_rp(ip)                  &
+                                  - net_abstracted_river_rp(ip) / rho_water
+  END DO
 END IF
 
 !-----------------------------------------------------------------------------

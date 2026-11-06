@@ -33,7 +33,7 @@ USE prognostics, ONLY:                                                         &
 USE jules_rivers_mod, ONLY:                                                    &
 ! 2D ancillary fields used during initialisation.
   channel_depth_grid, channel_width_grid, mean_sea_level_grid,                 &
-  river_distance_grid,                                                         &
+  minor_res_capacity_grid, minor_res_frac_grid, river_distance_grid,           &
   river_elevation_grid, river_length_grid, river_manning_grid,                 &
   river_nextx_grid, river_nexty_grid,                                          &
   res_capacity_grid, res_catch_grid, res_year_grid,                            &
@@ -2435,6 +2435,14 @@ CASE ( 'rivers_sto_rp' )
     rivers%rivers_sto_rp(:) = const_val
   END IF
 
+CASE ( 'minor_res_storage' )
+  IF ( PRESENT(cube) ) THEN
+    cube_land = cube_create([ SIZE(cube%values) ])
+    CALL cube_get_data(cube_land, rivers%minor_res_storage)
+  ELSE
+    rivers%minor_res_storage(:) = const_val
+  END IF
+
 CASE ( 'rivers_outflow_rp' )
   IF ( PRESENT(cube) ) THEN
     cube_land = cube_create([ SIZE(cube%values) ])
@@ -2578,6 +2586,20 @@ CASE ( 'res_flood_release_grid' )
     CALL cube_get_data(cube, res_flood_release_grid)
   ELSE
     res_flood_release_grid(:,:) = const_val
+  END IF
+
+CASE ( 'minor_res_capacity_grid' )
+  IF ( PRESENT(cube) ) THEN
+    CALL cube_get_data(cube, minor_res_capacity_grid)
+  ELSE
+    minor_res_capacity_grid(:,:) = const_val
+  END IF
+
+CASE ( 'minor_res_frac_grid' )
+  IF ( PRESENT(cube) ) THEN
+    CALL cube_get_data(cube, minor_res_frac_grid)
+  ELSE
+    minor_res_frac_grid(:,:) = const_val
   END IF
 
   !-----------------------------------------------------------------------------
