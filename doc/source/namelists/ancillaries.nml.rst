@@ -1517,7 +1517,7 @@ The following table summarises river routing properties required to run RFM or T
 |                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
 |                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``res_normal_release_grid``| Normal release rate of reservoirs (kg s-1).                                                               |
+| ``res_normal_release_grid``| Normal release rate of reservoirs (kg s\ :sup:`-1`).                                                      |
 |                            |                                                                                                           |
 |                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
 |                            |                                                                                                           |
