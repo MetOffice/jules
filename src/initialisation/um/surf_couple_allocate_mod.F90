@@ -231,6 +231,7 @@ land_pts        = land_field
 nsurft          = ntiles
 sm_levels_jules = sm_levels
 
+! UM-RFM assumes that all land points are also river points.
 np_rivers = 1
 IF (l_rivers) THEN
   IF (i_river_vn == rivers_rfm .AND. is_master_task()) THEN
