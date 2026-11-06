@@ -1093,7 +1093,7 @@ This namelist specifies the options available for initialising irrigated fractio
 
 .. nml:namelist:: JULES_RIVERS_PROPS
 
-This namelist specifies how spatially varying river routing properties (including overbank inundation and minor reservoirs) should be set.
+This namelist specifies how spatially varying river routing properties (including overbank inundation, reservoirs and minor reservoirs) should be set.
 
 .. note:: ``read_from_dump`` is not currently implemented for this namelist, meaning that river ancillary variables cannot be read from a dump file. Initial values of river prognostic variables can however be read from a dump file (see :nml:lst:`JULES_INITIAL`).
 
@@ -1467,16 +1467,6 @@ The following table summarises river routing properties required to run RFM or T
 |                            | This is only used if :nml:mem:`JULES_OVERBANK::overbank_model` = 3.                                       |
 |                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``minor_res_capacity_grid``| Storage capacity of minor reservoirs (kg).                                                                |
-|                            |                                                                                                           |
-|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
-|                            |                                                                                                           |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
-| ``minor_res_frac_grid``    | Catchment area of minor reservoirs as fraction of area of gridbox.                                        |
-|                            |                                                                                                           |
-|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
-|                            |                                                                                                           |
-+----------------------------+-----------------------------------------------------------------------------------------------------------+
 | ``rivers_outflow_number``  | Number assigned to each river mouth and inland basin on the Rivers grid, to identify the river which      |
 |                            | discharges into it.                                                                                       |
 |                            |                                                                                                           |
@@ -1496,6 +1486,56 @@ The following table summarises river routing properties required to run RFM or T
 |                            | This is only required if Rivers storage is to be initialised from an ancillary, including a 12-month      |
 |                            | climatology, rather than the dump. If Rivers storage is requested from an ancillary then                  |
 |                            | ``rivers_sto_rp`` should not be requested via :nml:lst:`JULES_INITIAL`.                                   |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``minor_res_capacity_grid``| Storage capacity of minor reservoirs (kg).                                                                |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``minor_res_frac_grid``    | Catchment area of minor reservoirs as fraction of area of gridbox.                                        |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                  |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_capacity_grid``      | Storage capacity of reservoirs (kg).                                                                      |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_catch_grid``         | Catchment area of reservoirs (m\ :sup:`2`).                                                               |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_year_grid``          | Initialisation year of reservoirs.                                                                        |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_critical_grid``      | Critical storage of reservoirs (kg).                                                                      |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_flood_grid``         | Flood storage of reservoirs (kg).                                                                         |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_emergency_grid``     | Emergency storage of reservoirs (kg).                                                                     |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_normal_release_grid``| Normal release rate of reservoirs (kg s\ :sup:`-1`).                                                      |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
++----------------------------+-----------------------------------------------------------------------------------------------------------+
+| ``res_flood_release_grid`` | Flood release rate of reservoirs (kg s\ :sup:`-1`).                                                       |
+|                            |                                                                                                           |
+|                            | This is only used if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                        |
+|                            |                                                                                                           |
 +----------------------------+-----------------------------------------------------------------------------------------------------------+
 
 

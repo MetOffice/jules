@@ -490,6 +490,42 @@ Rivers
 | ``frac_fplain_rp``            | Overbank inundation area as a fraction of river routing gridcell area.                        | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_riv_overbank` = TRUE.                             |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_capacity``              | Storage capacity of reservoirs (kg).                                                          | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_catch``                 | Catchment area of reservoirs (m\ :sup:`2`).                                                   | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_year``                  | Initialisation year of reservoirs.                                                            | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_critical``              | Critical storage of reservoirs (kg).                                                          | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_flood``                 | Flood storage of reservoirs (kg).                                                             | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_emergency``             | Emergency storage of reservoirs (kg).                                                         | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_normal_release``        | Normal release rate of reservoirs (kg s\ :sup:`-1`).                                          | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_flood_release``         | Flood release rate of reservoirs (kg s\ :sup:`-1`).                                           | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``res_storage``               | Water stored in reservoirs (kg).                                                              | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
+|                               | :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                                                 |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | Output regridded to the JULES model grid                                                                                                   |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``rflow``                     | Gridbox river flow rate (kg m\ :sup:`-2` s\ :sup:`-1`).                                       |            |
@@ -1395,6 +1431,9 @@ These variables are only available if :nml:mem:`JULES_WATER_RESOURCES::l_water_r
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``gw_nr_abstracted``      | Water abstracted from non-renewable groundwater sources (kg s\ :sup:`-1`).     |            |
 |                           | Only available if a suitable groundwater model is used.                        |            |
++---------------------------+--------------------------------------------------------------------------------+------------+
+| ``res_abstracted``        | Water abstracted from reservoirs (kg s\ :sup:`-1`).                            |            |
+|                           | Only available if :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE.                |            |
 +---------------------------+--------------------------------------------------------------------------------+------------+
 | ``minor_res_abstracted``  | Water abstracted from minor reservoirs (kg s\ :sup:`-1`).                      |            |
 |                           | Only available if :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.          |            |

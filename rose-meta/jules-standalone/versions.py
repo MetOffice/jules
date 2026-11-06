@@ -214,3 +214,18 @@ class vn82_t32(MacroUpgrade):
         # Add settings
         self.add_setting(config, ["namelist:jules_rivers", "l_minor_reservoirs"], ".false.")
         return config, self.reports
+
+
+class vn82_t148(MacroUpgrade):
+
+    """Upgrade macro from JULES by Helen Baron"""
+
+    BEFORE_TAG = "vn8.2_t32"
+    AFTER_TAG = "vn8.2_t148"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add settings
+        self.add_setting(config, ["namelist:jules_rivers", "l_reservoirs"], ".false.")
+        return config, self.reports
