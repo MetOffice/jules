@@ -10,8 +10,6 @@
     [[METO_EX1A]]
         platform = {{ METO_HOST_EX }}
  	    execution time limit = PT10M
-        [[[directives]]]
-            -S = /bin/bash
 
     [[remote_init_ex1a]]
         inherit = METO_EX1A

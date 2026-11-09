@@ -165,6 +165,8 @@ END SUBROUTINE  calc_ignitions
 SUBROUTINE calc_flam(                                                          &
   !Point Intent(IN)
   temp_l, rhum_l, fuel_l, sm_l, rain_l,                                        &
+  flam_rhum_low, flam_rhum_up, flam_sm_low, flam_sm_up,                        &
+  flam_rain_const, flam_sm_func,                                               &
   !Point Intent(INOUT)
   flam_l)
 
@@ -195,9 +197,28 @@ REAL(KIND=real_jlslsm) ,   INTENT(IN)       ::                                 &
   sm_l,                                                                        &
     ! The INFERNO soil moisture fraction (sthu's 1st level)
   rain_l,                                                                      &
-    ! The precipitation rate (kg.m-2.s-1)
-  fuel_l
+    ! The rain rate (kg.m-2.s-1)
+  fuel_l,                                                                      &
     ! The Fuel Density (0-1)
+  flam_rhum_up,                                                                &
+    ! Upper boundary to the relative humidity
+  flam_rhum_low,                                                               &
+    ! Lower boundary to the relative humidity
+  flam_sm_low,                                                                 &
+    ! Below this soil moisture, flammability is 1.0
+    ! Expressed as a fraction of saturation (between 0 and 1) (flam_sm_func=2)
+  flam_sm_up,                                                                  &
+    ! Exponential decay parameter for relationship between soil moisture
+    !    and flammability (> 0.0) (flam_sm_func=2)
+  flam_rain_const
+    ! decay function for exponential relationship between rain & flammability.
+
+INTEGER, INTENT(IN)   ::                                                       &
+   flam_sm_func
+    ! The function used to parameterise the
+    !      relationship between soil moisture and flammability
+    ! 1 = linear,
+    ! 2 = exponential
 
 REAL(KIND=real_jlslsm),    INTENT(IN OUT)    ::                                &
   flam_l
@@ -212,16 +233,12 @@ REAL(KIND=real_jlslsm),    PARAMETER        ::                                 &
   b = 5.02808,                                                                 &
   f = 8.1328e-03,                                                              &
   h=-3.49149,                                                                  &
-  Ts = 373.16,                                                                 &
+  Ts = 373.16
     ! Water saturation temperature
-  cr=-2.0 * s_in_day,                                                          &
-    ! Precipitation factor (-2(day/mm)*(kg/m2/s))
-  rhum_up = 90.0,                                                              &
-    ! Upper boundary to the relative humidity
-  rhum_low = 10.0
-    ! Lower boundary to the relative humidity
 
 REAL(KIND=real_jlslsm)                      ::                                 &
+  cr,                                                                          &
+    ! Precipitation factor (mm/day)
   Z_l,                                                                         &
     ! Component of the Goff-Gratch saturation vapor pressure
   TsbyT_l,                                                                     &
@@ -243,20 +260,26 @@ Z_l       =  a * (TsbyT_l-1.0) + b * LOG10(TsbyT_l)                            &
            + c * (10.0**( d * (1.0 - TsbyT_l)) - 1.0)                          &
            + f * (10.0**( h * (TsbyT_l-1.0)) - 1.0)
 
-f_rhum_l  = (rhum_up - rhum_l) / (rhum_up - rhum_low)
+f_rhum_l  = (flam_rhum_up - rhum_l) / (flam_rhum_up - flam_rhum_low)
 
 ! Create boundary limits
 ! First for relative humidity
-IF (rhum_l < rhum_low) f_rhum_l = 1.0
-  ! Always fires for RH < 10%
-IF (rhum_l > rhum_up)  f_rhum_l = 0.0
-  ! No fires for RH > 90%
+IF (rhum_l < flam_rhum_low) f_rhum_l = 1.0
+  ! Always fires for RH < flam_rhum_low
+IF (rhum_l > flam_rhum_up)  f_rhum_l = 0.0
+  ! No fires for RH > flam_rhum_up
 
-f_sm_l    = (1 - sm_l)
-  ! The flammability goes down linearly with soil moisture
+IF ( flam_sm_func == 1 ) THEN   ! linear
+  f_sm_l    = (1 - sm_l)
+ELSE IF ( flam_sm_func == 2 ) THEN   ! exponential
+  f_sm_l = EXP(-flam_sm_up * (sm_l - flam_sm_low) )
+  f_sm_l = MAX(MIN(f_sm_l, 1.0), 0.0)
+END IF
+
 
 rain_rate = rain_l * s_in_day
   ! convert rain rate from kg/m2/s to mm/day
+cr = -flam_rain_const / s_in_day
 
 flam_l    = MAX(MIN(10.0**Z_l * f_rhum_l * fuel_l * f_sm_l                     &
                      * EXP( cr * rain_rate) ,1.0) ,0.0)
@@ -395,6 +418,9 @@ SUBROUTINE calc_emitted_carbon_soil(                                           &
 !   Language: Fortran 90
 !
 
+USE jules_inferno_mod, ONLY: ccdpm_min, ccdpm_max,                             &
+                ccrpm_min, ccrpm_max
+
 USE yomhook,      ONLY: lhook, dr_hook
 USE parkind1,     ONLY: jprb
 
@@ -417,16 +443,6 @@ REAL(KIND=real_jlslsm) ,   INTENT(OUT)      ::                                 &
     ! The DPM emitted carbon (kg.m-2.s-1)
   emitted_carbon_RPM(land_pts)
     ! The RPM emitted carbon (kg.m-2.s-1)
-
-REAL(KIND=real_jlslsm) ,   PARAMETER        ::                                 &
-  ccdpm_min = 0.8,                                                             &
-  ccdpm_max = 1.0,                                                             &
-    ! Decomposable Plant Material burns between 80 to 100 %
-  ccrpm_min = 0.0,                                                             &
-  ccrpm_max = 0.2
-    ! Resistant Plant Material burns between 0 to 20 %
-    ! These values are also set soilcarb and soilcarb_layers to calculate
-    ! burnt_carbon_RPM using the soil pools
 
 INTEGER                   :: l      ! landpoint loop counter
 
@@ -597,7 +613,8 @@ SUBROUTINE calc_soil_carbon_pools(land_pts, soil_pts, soil_index, dim_cs1,     &
 ! these are used as a proxy for litter
 
 USE jules_soil_biogeochem_mod, ONLY: soil_bgc_model, soil_model_4pool,         &
-                                     soil_model_1pool, z_burn_max, l_layeredc
+                                     soil_model_1pool, l_layeredc
+USE jules_inferno_mod, ONLY: z_burn_max
 USE jules_soil_mod, ONLY: dzsoil
 
 USE ancil_info, ONLY: nsoilt, dim_cslayer

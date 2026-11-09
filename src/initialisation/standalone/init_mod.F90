@@ -59,6 +59,7 @@ USE logging_mod,                  ONLY: log_info, init_prnt_control
 USE init_output_mod,              ONLY: init_output
 USE init_plant_n_uptake_mod,      ONLY: init_plant_n_uptake
 USE init_vegetation_mod,          ONLY: init_vegetation
+USE init_inferno_mod,             ONLY: init_inferno
 USE init_hydrology_mod,           ONLY: init_hydrology
 USE init_model_environment_mod,   ONLY: init_model_environment
 USE init_radiation_mod,           ONLY: init_radiation
@@ -72,6 +73,8 @@ USE init_time_mod,                ONLY: init_time
 USE init_drive_mod,               ONLY: init_drive
 USE init_rivers_mod,              ONLY: init_rivers
 USE init_water_resources_mod,     ONLY: init_water_resources
+USE water_resources_control_mod,  ONLY: initialise_water_resources
+USE jules_water_resources_mod,    ONLY: l_water_resources
 USE metstats_init_mod,            ONLY: metstats_init
 USE metstats_mod,                 ONLY: metstats_allocate
 USE init_parms_mod,               ONLY: init_parms
@@ -292,6 +295,9 @@ CALL init_soil(nml_dir)
 ! Must be called after init_soil to check soil tiling flags
 CALL init_vegetation(nml_dir)
 
+! Initialise inferno options
+CALL init_inferno(nml_dir)
+
 ! Initialise irrigation options
 CALL init_irrigation(nml_dir)
 
@@ -451,6 +457,11 @@ CALL init_parms(psparms,ainfo,urban_param,progs,coast,jules_vars,fluxes)
 
 ! Setup and initialise veg3
 CALL veg3_field_init(land_pts,nsurft,nnpft,npft,nmasst,ainfo,progs)
+
+! Further initialisation of water resources
+IF ( l_water_resources ) THEN
+  CALL initialise_water_resources( water_resources%priority_order )
+END IF
 
 ! Seek the input files to the start of the run
 CALL seek_all_to_current_datetime()
