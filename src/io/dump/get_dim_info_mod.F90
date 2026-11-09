@@ -558,13 +558,14 @@ END IF
 SELECT CASE ( identifier )
 
   ! River routing variables.
+
 CASE ( 'rivers_lat_rp', 'rivers_lon_rp', 'rivers_x_coord_rp',                  &
        'rivers_y_coord_rp', 'rivers_sto_rp', 'rfm_surfstore_rp',               &
        'rfm_substore_rp', 'rfm_flowin_rp', 'rfm_bflowin_rp',                   &
        'rivers_outflow_rp', 'outflow_per_river', 'inland_outflow_rp',          &
        'flood_flow', 'flood_flow_prev', 'flood_storage', 'flood_storage_prev', &
        'river_channel_flow', 'river_channel_storage', 'river_depth_prev',      &
-       'river_flow_prev'                                                       &
+       'river_flow_prev', 'minor_res_storage'                                  &
       )
   ndims = 1
   dim_names(1) = p_rivers_dim_name

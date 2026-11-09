@@ -23,12 +23,14 @@ USE jules_surface_mod, ONLY: formdrag, no_drag, i_modiscopt, iscrntdiag,       &
                              srf_ex_cnv_gust, l_vary_z0m_soil
 USE jules_surface_types_mod, ONLY: tile_map_ids, ntype
 USE jules_rivers_mod,  ONLY: i_river_vn, rivers_um_trip,                       &
-                             trip_globe_shape
+                             trip_globe_shape, l_minor_reservoirs
 USE jules_radiation_mod, ONLY: l_sea_alb_var_chl, l_dolr_land_black
 USE jules_vegetation_mod, ONLY: l_nrun_mid_trif, l_trif_init_accum
 USE jules_deposition_mod, ONLY: l_ukca_dry_dep_so2wet, l_ukca_ddepo3_ocean,    &
                                 l_deposition_from_ukca
 USE jules_water_tracers_mod, ONLY: l_wtrac_jls
+USE jules_water_resources_mod, ONLY: l_water_resources
+USE jules_model_environment_mod, ONLY: l_oasis_rivers
 
 IMPLICIT NONE
 
@@ -117,6 +119,25 @@ IF ( trip_globe_shape /= imdi ) THEN
      ": The shape of the TRIP globe can not be altered in standalone mode." // &
      " trip_globe_shape must not be input. trip_globe_shape = ",               &
      trip_globe_shape
+  CALL jules_print(RoutineName, jules_message, level = PrNorm)
+END IF
+
+IF ( l_oasis_rivers .AND. l_minor_reservoirs ) THEN
+  error_sum = error_sum + 1
+  WRITE(jules_message,'(I0,A,2(L1,1X))') error_sum,                            &
+     ": Minor reservoirs cannot be used with OASIS rivers as the relevant" //  &
+     " arrays would need allocating at full size." //                          &
+     " l_oasis_rivers, l_minor_reservoirs = ",                                 &
+     l_oasis_rivers, l_minor_reservoirs
+  CALL jules_print(RoutineName, jules_message, level = PrNorm)
+END IF
+
+IF ( l_oasis_rivers .AND. l_water_resources ) THEN
+  error_sum = error_sum + 1
+  WRITE(jules_message,'(I0,A,2(L1,1X))') error_sum,                            &
+     ": Water resources cannot be used with OASIS rivers as the relevant" //   &
+     " arrays would need allocating at full size." //                          &
+     " l_oasis_rivers, l_water_resources = ", l_oasis_rivers, l_water_resources
   CALL jules_print(RoutineName, jules_message, level = PrNorm)
 END IF
 
