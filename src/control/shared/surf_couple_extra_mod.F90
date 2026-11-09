@@ -1119,15 +1119,14 @@ CASE ( jules )
         ! soil biogeochemistry (4-pool) model. This is called directly from
         ! here (rather than from within next_gen_biogeochem_mod/veg3) so
         ! that soil biogeochemistry stays modular and independent of the
-        ! choice of vegetation dynamics model. Litter/NPP fluxes are passed
+        ! choice of vegetation dynamics model. Litter fluxes are passed
         ! in as plain arrays (rather than veg_state) so that the soil
         ! routine has no dependency on veg3/RED.
         IF (veg_index_pts > 0 .AND. l_veg_step) THEN
           CALL soil_bgc_4pool_control(                                         &
                       veg_index_pts,veg_index,land_pts,nnpft,veg3_ctrl,        &
                       soil_parms,veg_state%frac(:,1:nnpft),veg_state%litCpft,  &
-                      veg_state%litC,veg_state%npp_n_gb,soil_state,            &
-                      veg_state%nbp_gb)
+                      veg_state%litC,soil_state)
         END IF
 
         ! Update the physical state of the land

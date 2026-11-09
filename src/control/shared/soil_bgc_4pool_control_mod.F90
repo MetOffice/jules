@@ -41,11 +41,9 @@ SUBROUTINE soil_bgc_4pool_control(                                             &
                 !IN vegetation-derived fluxes (plain arrays rather than the
                 ! veg_state derived type, so this routine has no dependency
                 ! on the choice of vegetation dynamics model)
-                frac,litCpft,litC,npp_n_gb,                                    &
+                frac,litCpft,litC,                                             &
                 !INOUT state
-                soil_state,                                                    &
-                !OUT diagnostics
-                nbp_gb                                                         &
+                soil_state                                                     &
                 )
 
 ! Couples litter carbon to the soil carbon model, mirroring the soil carbon
@@ -91,25 +89,13 @@ frac(land_pts,nnpft),                                                          &
 litCpft(land_pts,nnpft),                                                       &
     ! Litter carbon flux normalised per unit PFT canopy area.
     ! (kg C m-2 (360d)-1)
-litC(land_pts),                                                                &
+litC(land_pts)
     ! Gridbox mean total litter carbon flux. (kg C m-2 (360d)-1)
-npp_n_gb(land_pts)
-    ! Gridbox mean NPP after nitrogen limitation. (kg C m-2 (360d)-1)
 
 !-----------------------------------------------------------------------------
 ! Objects with INTENT INOUT
 !-----------------------------------------------------------------------------
 TYPE(soil_state_type),INTENT(IN OUT)  :: soil_state
-
-!-----------------------------------------------------------------------------
-! Reals with INTENT OUT
-!-----------------------------------------------------------------------------
-REAL, INTENT(OUT) ::                                                           &
-nbp_gb(land_pts)
-    ! Gridbox mean net biosphere productivity (NPP minus all carbon fluxes
-    ! out of land). Only soil respiration is currently coupled to
-    ! vegetation dynamics, so this is npp_n_gb minus the soil-to-atmosphere
-    ! respiration flux. (kg C m-2 (360d)-1)
 
 !-----------------------------------------------------------------------------
 !Local Vars
@@ -321,13 +307,6 @@ DO k = 1,veg_index_pts
     soil_state%resp_s_acc_soilt(l,1,n,4) = lit_resp *                          &
       soil_state%cs_pool_soilt(l,1,n,4) * denom_resp
   END DO
-END DO
-
-! Diagnose the net biosphere productivity (NPP minus soil respiration to
-! atmosphere) for each land point.
-DO k = 1,veg_index_pts
-  l = veg_index(k)
-  nbp_gb(l) = npp_n_gb(l) - SUM(soil_state%resp_s_to_atmos_gb(l,:))
 END DO
 
 END SUBROUTINE soil_bgc_4pool_control

@@ -103,17 +103,9 @@ TYPE :: veg_state_type
               ! Total litter carbon flux per gridbox. (kg C m-2 (360d)-1)
 
   REAL, ALLOCATABLE ::                                                         &
-      mort_litC(:,:),                                                          &
+        mort_litC(:,:)
               ! Mortality/demographic litter carbon flux from vegetation
               ! dynamics, normalised per unit PFT canopy area (kg C m-2 s-1).
-      nbp_gb(:)
-              ! Gridbox mean net biosphere productivity (NPP minus all
-              ! carbon fluxes out of land). Only soil respiration is
-              ! currently coupled to veg3/RED, so this is npp_n_gb minus the
-              ! soil-to-atmosphere respiration flux (see
-              ! soil_bgc_4pool_control in
-              ! soil_bgc_4pool_control_mod.F90).
-              ! (kg C m-2 (360d)-1)
 
 END TYPE veg_state_type
 
@@ -196,7 +188,6 @@ ALLOCATE(veg_state%wood_litC    ( land_pts, nnpft) )
 ALLOCATE(veg_state%litCpft     ( land_pts, nnpft) )
 ALLOCATE(veg_state%litC         ( land_pts) )
 ALLOCATE(veg_state%mort_litC    ( land_pts, nnpft) )
-ALLOCATE(veg_state%nbp_gb       ( land_pts) )
 
 !Initialise
 veg_state%leafC(:,:)           = 0.0
@@ -226,7 +217,6 @@ veg_state%wood_litC(:,:)       = 0.0
 veg_state%litCpft(:,:)         = 0.0
 veg_state%litC(:)              = 0.0
 veg_state%mort_litC(:,:)       = 0.0
-veg_state%nbp_gb(:)            = 0.0
 
 ! RED
 
@@ -263,7 +253,7 @@ SUBROUTINE veg3_field_deallocate()
 ! this can be a significant leak for red_state%plantNumDensity in particular.
 !
 ! Note: veg_state%phen, veg_state%npp_acc, veg_state%mort_litC,
-! veg_state%nbp_gb and the red_state ALLOCATABLE components (mass_cohort,
+! and the red_state ALLOCATABLE components (mass_cohort,
 ! ht_mass, lai_bal_mass, crwn_area_mass, g_mass_scale, mort) are
 ! deliberately NOT included here. None of these are re-associated in
 ! veg3_field_assoc (the red_state ones are ALLOCATABLE rather than
