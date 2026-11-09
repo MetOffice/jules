@@ -2247,7 +2247,8 @@ DO n = 1,nsurft
   CALL sf_resist (                                                             &
    land_pts,surft_pts(n),land_index,surft_index(:,n),cansnowtile(n),           &
    canopy(:,n),catch(:,n),chn(:,n),dq(:,n),epdt,flake(:,n),gc_surft(:,n),      &
-   gc_stom_surft(:,n),snowdep_surft(:,n),snow_surft(:,n),vshr_land,            &
+   gc_stom_surft(:,n),gc_irr_surft(:,n),frac_irr_surft(:,n),                   &
+   snowdep_surft(:,n),snow_surft(:,n),vshr_land,                               &
    tstar_surft(:,n),fracaero_t(:,n),fracaero_s(:,n),resfs(:,n),resft(:,n),     &
    sf_diag%resfs_stom(:,n_diag),sf_diag%l_et_stom,sf_diag%l_et_stom_surft)
 
@@ -2306,6 +2307,7 @@ DO n = 1,nsurft
     l_vegdrag_surft(n),canht_pft(:,n_veg),lai_pft(:,n_veg),                    &
     nsnow_surft(:,n),n,l_mo_buoyancy_calc,cansnowtile(n),l_soil_point,         &
     canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                           &
+    gc_irr_surft(:,n),frac_irr_surft(:,n),                                     &
     snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                        &
     dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),                &
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
@@ -2409,6 +2411,7 @@ IF ((l_dust .OR. l_dust_diag) .AND. l_aggregate) THEN
     l_vegdrag_active_here,array_zero,array_zero,                               &
     nsnow_surft(:,n),n,.FALSE.,cansnowtile(n),l_soil_point,                    &
     canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                           &
+    gc_irr_surft(:,n),frac_irr_surft(:,n),                                     &
     snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                        &
     dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),                &
     snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),     &
@@ -2475,6 +2478,7 @@ IF (l_aero_classic) THEN
       l_vegdrag_active_here,array_zero,array_zero,                             &
       nsnow_surft(:,n),n,.FALSE.,cansnowtile(n),l_soil_point,                  &
       canopy(:,n),catch(:,n),flake(:,n),gc_surft(:,n),                         &
+      gc_irr_surft(:,n),frac_irr_surft(:,n),                                   &
       snowdep_surft(:,n),snow_surft(:,n),canhc_surf(:,n),                      &
       dzsurf(:,n),qstar_surft(:,n),q_elev(:,n),radnet_surft(:,n),              &
       snowdepth_surft(:,n),timestep,t_elev(:,n),tsurf(:,n),tstar_surft(:,n),   &
@@ -2601,7 +2605,8 @@ DO n = 1,nsurft
   CALL sf_resist (                                                             &
    land_pts,surft_pts(n),land_index,surft_index(:,n),cansnowtile(n),           &
    canopy(:,n),catch(:,n),ch_surft(:,n),dq(:,n),epdt,flake(:,n),gc_surft(:,n), &
-   gc_stom_surft(:,n),snowdep_surft(:,n),snow_surft(:,n),vshr_land,            &
+   gc_stom_surft(:,n),gc_irr_surft(:,n),frac_irr_surft(:,n),                   &
+   snowdep_surft(:,n),snow_surft(:,n),vshr_land,                               &
    tstar_surft(:,n),fracaero_t(:,n),fracaero_s(:,n),resfs(:,n),resft(:,n),     &
    sf_diag%resfs_stom(:,n_diag),sf_diag%l_et_stom,sf_diag%l_et_stom_surft)
 
