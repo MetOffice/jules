@@ -146,7 +146,7 @@ USE lake_mod, ONLY: lake_assoc
 USE jules_chemvars_mod, ONLY: chemvars_assoc
 USE water_resources_vars_mod, ONLY: water_resources_assoc
 USE jules_rivers_mod, ONLY: rivers_assoc, np_rivers, l_rivers,                 &
-                            i_river_vn, rivers_rfm
+                            i_river_vn, rivers_rfm, jules_rivers_alloc_rp
 USE jules_wtrac_type_mod, ONLY: wtrac_jls_assoc
 
 !USE in instances of the JULES types
@@ -247,6 +247,8 @@ CALL allocate_jules_arrays(crop_vars_data,psparms_data,top_pdm_data,           &
                            jules_vars_data, fluxes_data, lake_data,            &
                            forcing_data, rivers_data, chemvars_data,           &
                            water_resources_data, wtrac_jls_data)
+
+CALL jules_rivers_alloc_rp( np_rivers, is_master_task(), rivers, rivers_data )
 
 ! Allocate global_land_index here until jules:#1558 consolidates the allocation
 ! of arrays between the UM & JULES. In standalone, this is allocated in
