@@ -423,7 +423,7 @@ IF (l_red .AND. l_triffid) THEN
         red_parms%mclass(n),                                                   &
         !IN mass-cohort properties
         red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                  &
-        red_state%mass_cohort(n,1:red_parms%mclass(n)),                          &
+        red_state%mass_cohort(n,1:red_parms%mclass(n)),                        &
         red_state%lai_bal_mass(n,1:red_parms%mclass(n)),                       &
         red_state%ht_mass(n,1:red_parms%mclass(n)),                            &
         red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                     &
@@ -592,7 +592,7 @@ DO n = 1,nnpft
       red_parms%mclass(n),                                                     &
       !IN mass-cohort properties
       red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                    &
-      red_state%mass_cohort(n,1:red_parms%mclass(n)),                            &
+      red_state%mass_cohort(n,1:red_parms%mclass(n)),                          &
       red_state%lai_bal_mass(n,1:red_parms%mclass(n)),                         &
       red_state%ht_mass(n,1:red_parms%mclass(n)),                              &
       red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                       &
@@ -709,7 +709,7 @@ INTEGER, INTENT(IN) :: mclass
 REAL, INTENT(IN)     ::                                                        &
 plantNumDensity(mclass),                                                       &
               !  Population density within each mass cohort. (m-2)
-mass_cohort(mclass),                                                             &
+mass_cohort(mclass),                                                           &
               !  Mass of an individual member of each mass cohort. (kgC)
 lai_bal_mass(mclass),                                                          &
               !  Balanced leaf area index of an individual member of each mass

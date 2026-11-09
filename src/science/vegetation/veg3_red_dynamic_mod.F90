@@ -130,7 +130,7 @@ DO l = 1,land_pts
       P_s(l,n),g0(l,n),frac_shade(l,n),                                        &
       !IN mass-cohort properties
       red_state%g_mass_scale(n,1:red_parms%mclass(n)),                         &
-      red_state%mass_cohort(n,1:red_parms%mclass(n)),                            &
+      red_state%mass_cohort(n,1:red_parms%mclass(n)),                          &
       red_state%crwn_area_mass(n,1:red_parms%mclass(n)),                       &
       !INOUT state
       red_state%plantNumDensity(l,n,1:red_parms%mclass(n)),                    &
@@ -265,7 +265,7 @@ SUBROUTINE update_pft_size_structure(                                          &
                 !IN fields
                 mort_add,growth,P_s,g0,frac_shade,                             &
                 !IN mass-cohort properties
-                g_mass_scale,mass_cohort,crwn_area_mass,                         &
+                g_mass_scale,mass_cohort,crwn_area_mass,                       &
                 !INOUT state
                 plantNumDensity,mort,                                          &
                 !OUT diagnostics
@@ -303,7 +303,7 @@ frac_shade,                                                                    &
               !  Competitive shading of seedlings in this PFT.
 g_mass_scale(mclass),                                                          &
               !  Allometric scaling of growth across the mass cohorts.
-mass_cohort(mclass),                                                             &
+mass_cohort(mclass),                                                           &
               !  Mass of an individual member of each mass cohort. (kgC)
 crwn_area_mass(mclass)
               !  Crown area of an individual member of each mass cohort. (m2)
@@ -410,7 +410,7 @@ DO k = 1, mclass
       mort_litC = mort_litC + plantNumDensity(k) * g_mass(k)
 
     ELSE
-      flux_out(k) = plantNumDensity(k) * g_mass(k) / (mass_cohort(k+1)           &
+      flux_out(k) = plantNumDensity(k) * g_mass(k) / (mass_cohort(k+1)         &
         - mass_cohort(k))
 
     END IF
