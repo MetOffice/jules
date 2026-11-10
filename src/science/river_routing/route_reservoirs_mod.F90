@@ -8,6 +8,10 @@
 !
 ! [Met Office Ref SC0237]
 !******************************COPYRIGHT**************************************
+! Description:
+!     Science routines for calculating reservoir routing
+!     using the model developed by Hanazaki et al. (2022) with
+!     k coefficient as used in Casado-Rodríguez et al. (2026) 
 
 MODULE  route_reservoirs_mod
 
@@ -36,6 +40,8 @@ SUBROUTINE route_reservoirs( dt, abstracted_res_rp,                            &
 USE jules_rivers_mod, ONLY: dt_rivers, nstep_rivers
 
 USE timestep_mod, ONLY: timestep
+
+USE water_constants_mod, ONLY: rho_water
 
 IMPLICIT NONE
 !------------------------------------------------------------------------------
@@ -84,7 +90,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 res_storage = res_storage + reservoir_flow * dt                                &
                      - abstracted_res_rp
 
-k = MAX( 0.0, 1.0 - (res_cap_current - res_storage) / 1000.0                   &
+k = MAX( 0.0, 1.0 - (res_cap_current - res_storage) / rho_water                &
                                     / ( res_catch * 0.2 ) )
 
 ! Calculate reservoir release based on storage and inflow

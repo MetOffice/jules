@@ -394,9 +394,7 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   acc_lake_evap_gb(row_length,rows),                                           &
   tot_surf_runoff_gb(land_pts),                                                &
   tot_sub_runoff_gb(land_pts),                                                 &
-    ! Water abstracted from minor reservoirs over river timestep (kg).
-tot_sub_runoff_gb(land_pts),                                                 &
-twatstor(river_row_length, river_rows),                                      &
+  twatstor(river_row_length, river_rows),                                      &
   inlandout_atm_gb(land_pts)
 
 !TYPES containing field data (IN OUT)
@@ -861,7 +859,7 @@ CASE ( jules )
            flandg, crop_vars%frac_irr_soilt, ainfo%frac_soilt,                 &
            ainfo%frac_surft, grid_area_ij,                                     &
            forcing%ls_rain_ij, forcing%ls_snow_ij, forcing%lw_down_ij,         &
-           rivers%res_storage, rivers%minor_res_storage,                       &
+           rivers%minor_res_storage, rivers%res_storage,                       &
            rivers%rfm_surfstore_rp, rivers%rivers_sto_rp,                      &
            psparms%smvccl_soilt,                                               &
            psparms%smvcst_soilt, psparms%smvcwt_soilt, psparms%sthf_soilt,     &
@@ -880,8 +878,8 @@ CASE ( jules )
            water_resources%abstracted_minor_res_global,                        &
            water_resources%net_abstracted_river_global,                        &
            water_resources%gw_abstracted, crop_vars%irrig_water_gb,            &
-           water_resources%abstracted_res,                                     &
            water_resources%abstracted_minor_res,                               &
+           water_resources%abstracted_res,                                     &
            water_resources%abstracted_river, water_resources%conveyance_loss,  &
            water_resources%demand_unmet, water_resources%gw_avail,             &
            water_resources%gw_nr_abstracted, water_resources%sw_abstracted,    &

@@ -475,6 +475,9 @@ Rivers
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::i_river_vn` = 3.                                                      |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
+| ``frac_fplain_rp``            | Overbank inundation area as a fraction of river routing gridcell area.                        | np_rivers  |
+|                               | Only available if :nml:mem:`JULES_RIVERS::l_riv_overbank` = TRUE.                             |            |
++-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``minor_res_capacity``        | Storage capacity of minor reservoirs (kg).                                                    | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
@@ -486,9 +489,6 @@ Rivers
 | ``minor_res_storage``         | Water stored in minor reservoirs (kg).                                                        | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
 |                               | :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE.                                           |            |
-+-------------------------------+-----------------------------------------------------------------------------------------------+------------+
-| ``frac_fplain_rp``            | Overbank inundation area as a fraction of river routing gridcell area.                        | np_rivers  |
-|                               | Only available if :nml:mem:`JULES_RIVERS::l_riv_overbank` = TRUE.                             |            |
 +-------------------------------+-----------------------------------------------------------------------------------------------+------------+
 | ``res_capacity``              | Storage capacity of reservoirs (kg).                                                          | np_rivers  |
 |                               | Only available if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE and                                |            |
