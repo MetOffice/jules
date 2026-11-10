@@ -1056,11 +1056,6 @@ codecov -prj JULES -dpi $CYLC_SUITE_SHARE_DIR/coverage/pgopti.dpi -spi $CYLC_SUI
         [[[environment]]]
             DIR1 = ../meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles
 
-    [[housekeep_meto_azspice_gnu_loobos_gl8_canevap3]]
-        inherit = METO_AZSPICE_GNU_HOUSEKEEPING
-        [[[environment]]]
-            DIR1 = ../meto_azspice_gnu_loobos_gl8_canevap3
-
     [[housekeep_meto_azspice_gnu_loobos_vegdrag]]
         inherit = METO_AZSPICE_GNU_HOUSEKEEPING
         [[[environment]]]

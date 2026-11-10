@@ -1527,11 +1527,7 @@ IF ( .NOT. l_icerough_prognostic) THEN
       l_vegdrag_ssi,array_zero,array_zero,                                     &
       array_zero_int,0,.FALSE.,.FALSE.,array_false,                            &
       array_zero,array_zero,array_zero,array_zero,                             &
-<<<<<<< HEAD
-      array_zero,array_zero,array_zero,array_zero,                             &
-=======
       array_zero,array_zero,array_zero,array_zero,array_zero,array_zero,       &
->>>>>>> main
       dzdummy,qstar_ice_cat(:,:,1),qw_1,radnet_sice(:,:,1),                    &
       array_zero,timestep,tl_1,ti_cat(:,:,1),tstar_sice_cat(:,:,1),            &
       array_zero,array_emis,array_one,array_zero,                              &
