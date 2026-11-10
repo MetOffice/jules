@@ -750,8 +750,6 @@ ALLOCATE(rivers_data%rivers_adj_on_landpts(land_pts))
 ! This will be changed in #1258 so the setup has been left in.
 #if defined(UM_JULES)
 ALLOCATE(rivers_data%map_river_to_land_points(np_rivers))
-ALLOCATE(rivers_data%rivers_index_rp(np_rivers))
-ALLOCATE(rivers_data%rivers_next_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_seq_rp(np_rivers))
 ALLOCATE(rivers_data%rivers_sto_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_lat_rp(np_rivers))
@@ -768,7 +766,6 @@ ALLOCATE(rivers_data%rivers_sto_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_lon2d(nx_rivers, ny_rivers))
 !!!ALLOCATE(rivers_data%rivers_xgrid(nx_rivers))
 !!!ALLOCATE(rivers_data%rivers_ygrid(ny_rivers))
-ALLOCATE(rivers_data%rivers_boxareas_rp(np_rivers))
 #endif
 #else
 ALLOCATE(rivers_data%tot_surf_runoff_gb(1))
@@ -808,8 +805,6 @@ rivers_data%rivers_sto_per_m2_on_landpts(:) = 0.0
 rivers_data%rivers_adj_on_landpts(:) = 0.0
 #if defined(UM_JULES)
 rivers_data%map_river_to_land_points(:) = imdi
-rivers_data%rivers_index_rp(:) = imdi
-rivers_data%rivers_next_rp(:) = imdi
 !!!rivers_data%rivers_seq_rp(:) = 0
 rivers_data%rivers_sto_rp(:) = 0.0
 !!!rivers_data%rivers_lat_rp(:) = 0.0
@@ -825,7 +820,6 @@ rivers_data%rivers_sto_rp(:) = 0.0
 !!!rivers_data%rivers_lon2d(:,:) = 0.0
 !!!rivers_data%rivers_xgrid(:) = 0.0
 !!!rivers_data%rivers_ygrid(:) = 0.0
-rivers_data%rivers_boxareas_rp(:) = rmdi
 #endif
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
@@ -1540,8 +1534,6 @@ rivers%rivers_adj_on_landpts => rivers_data%rivers_adj_on_landpts
 #if defined(UM_JULES)
 rivers%map_river_to_land_points => rivers_data%map_river_to_land_points
 rivers%global_land_index => rivers_data%global_land_index
-rivers%rivers_index_rp => rivers_data%rivers_index_rp
-rivers%rivers_next_rp => rivers_data%rivers_next_rp
 !!!rivers%rivers_seq_rp => rivers_data%rivers_seq_rp
 rivers%rivers_sto_rp => rivers_data%rivers_sto_rp
 !!!rivers%rivers_lat_rp => rivers_data%rivers_lat_rp
@@ -1557,7 +1549,6 @@ rivers%rivers_sto_rp => rivers_data%rivers_sto_rp
 !!!rivers%rivers_lon2d => rivers_data%rivers_lon2d
 !!!rivers%rivers_xgrid => rivers_data%rivers_xgrid
 !!!rivers%rivers_ygrid => rivers_data%rivers_ygrid
-rivers%rivers_boxareas_rp => rivers_data%rivers_boxareas_rp
 #endif
 
 
@@ -1709,7 +1700,7 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 ! As river routing is performed on the master task, we only allocate arrays at
 ! full size on that task, and only if the run configuration requires it.
 !------------------------------------------------------------------------------
-
+error_sum = 0
 !------------------------------------------------------------------------------
 ! Allocate variables that are required by all configurations.
 !------------------------------------------------------------------------------
@@ -1722,16 +1713,16 @@ ELSE
 END IF
 
 !!! Ancillaries and related fields.
-!!ALLOCATE(rivers_data%rivers_boxareas_rp(np_rivers_tmp),  STAT = ERROR)
-!!error_sum = ERROR
-!!ALLOCATE(rivers_data%rivers_index_rp(np_rivers_tmp),     STAT = ERROR)
-!!error_sum = error_sum + ERROR
+ALLOCATE(rivers_data%rivers_boxareas_rp(np_rivers_tmp),  STAT = ERROR)
+error_sum = error_sum + ERROR
+ALLOCATE(rivers_data%rivers_index_rp(np_rivers_tmp),     STAT = ERROR)
+error_sum = error_sum + ERROR
 !!ALLOCATE(rivers_data%rivers_lat_rp(np_rivers_tmp),       STAT = ERROR)
 !!error_sum = error_sum + ERROR
 !!ALLOCATE(rivers_data%rivers_lon_rp(np_rivers_tmp),       STAT = ERROR)
 !!error_sum = error_sum + ERROR
-!!ALLOCATE(rivers_data%rivers_next_rp(np_rivers_tmp),      STAT = ERROR)
-!!error_sum = error_sum + ERROR
+ALLOCATE(rivers_data%rivers_next_rp(np_rivers_tmp),      STAT = ERROR)
+error_sum = error_sum + ERROR
 !!ALLOCATE(rivers_data%rivers_x_coord_rp(np_rivers_tmp),   STAT = ERROR)
 !!error_sum = error_sum + ERROR
 !!ALLOCATE(rivers_data%rivers_y_coord_rp(np_rivers_tmp),   STAT = ERROR)
@@ -1983,11 +1974,11 @@ error_sum = error_sum + ERROR
 !!! preserve existing results.
 !!!------------------------------------------------------------------------------
 !!! Ancillaries etc.
-!!rivers_data%rivers_boxareas_rp(:) = rmdi
-!!rivers_data%rivers_index_rp(:)   = imdi
+rivers_data%rivers_boxareas_rp(:) = rmdi
+rivers_data%rivers_index_rp(:)    = imdi
 !!rivers_data%rivers_lat_rp(:)     = rmdi
 !!rivers_data%rivers_lon_rp(:)     = rmdi
-!!rivers_data%rivers_next_rp(:)    = imdi
+rivers_data%rivers_next_rp(:)     = imdi
 !!rivers_data%rivers_x_coord_rp(:) = rmdi
 !!rivers_data%rivers_y_coord_rp(:) = rmdi
 !!rivers_data%land_fraction_rp(:)  = 1.0
@@ -2064,13 +2055,13 @@ rivers_data%rfm_surfstore_rp(:) = 0.0
 !!! Associate pointers
 !!!------------------------------------------------------------------------------
 !!! Ancillaries etc.
-!!rivers%rivers_boxareas_rp => rivers_data%rivers_boxareas_rp
-!!rivers%rivers_index_rp => rivers_data%rivers_index_rp
+rivers%rivers_boxareas_rp => rivers_data%rivers_boxareas_rp
+rivers%rivers_index_rp => rivers_data%rivers_index_rp
 !!rivers%rivers_lat_rp => rivers_data%rivers_lat_rp
 !!rivers%rivers_lon_rp => rivers_data%rivers_lon_rp
 !!rivers%rivers_ilat_rp => rivers_data%rivers_ilat_rp
 !!rivers%rivers_ilon_rp => rivers_data%rivers_ilon_rp
-!!rivers%rivers_next_rp => rivers_data%rivers_next_rp
+rivers%rivers_next_rp => rivers_data%rivers_next_rp
 !!rivers%rivers_x_coord_rp => rivers_data%rivers_x_coord_rp
 !!rivers%rivers_y_coord_rp => rivers_data%rivers_y_coord_rp
 !!rivers%land_fraction_rp => rivers_data%land_fraction_rp
