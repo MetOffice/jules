@@ -430,6 +430,7 @@
         "azspice_gnu_loobos" : ["meto_azspice_gnu_loobos_gl7", "meto_azspice_gnu_loobos_gl4",
                                 "meto_azspice_gnu_loobos_gl4_cable",
                                 "meto_azspice_gnu_loobos_gl8",
+                                "meto_azspice_gnu_loobos_gl8_canevap3",
                                 "meto_azspice_gnu_loobos_gl8_medlyn",
                                 "meto_azspice_gnu_loobos_gl8_irrigon_5050irrigtiles",
                                 "meto_azspice_gnu_loobos_vegdrag",
