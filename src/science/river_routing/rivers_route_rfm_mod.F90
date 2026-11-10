@@ -260,7 +260,7 @@ DO ip = 1,np_rivers
   !-------------------------------------------------------------------------------
   IF (l_reservoirs) THEN
     IF (rivers%res_cap_current(ip) > 0.0) THEN
-      reservoir_flow = rivers%rfm_flowin_rp(ip) * 1000.0 / dt
+      reservoir_flow = rivers%rfm_flowin_rp(ip) * rho_water / dt
       CALL route_reservoirs(dt, abstracted_res_rp(ip),                         &
                                   rivers%res_cap_current(ip),                  &
                                   rivers%res_catch(ip),                        &
