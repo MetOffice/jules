@@ -395,7 +395,8 @@ REAL(KIND=real_jlslsm), INTENT(IN OUT) ::                                      &
   tot_surf_runoff_gb(land_pts),                                                &
   tot_sub_runoff_gb(land_pts),                                                 &
     ! Water abstracted from minor reservoirs over river timestep (kg).
-  twatstor(river_row_length, river_rows),                                      &
+tot_sub_runoff_gb(land_pts),                                                 &
+twatstor(river_row_length, river_rows),                                      &
   inlandout_atm_gb(land_pts)
 
 !TYPES containing field data (IN OUT)
