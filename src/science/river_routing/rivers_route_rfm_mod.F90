@@ -270,7 +270,7 @@ DO ip = 1,np_rivers
                                   rivers%res_normal_release(ip),               &
                                   rivers%res_flood_release(ip),                &
                                   rivers%res_storage(ip), reservoir_flow)
-      rivers%rfm_flowin_rp(ip) = reservoir_flow * dt / 1000.0
+      rivers%rfm_flowin_rp(ip) = reservoir_flow * dt / rho_water
     END IF
   END IF
 
