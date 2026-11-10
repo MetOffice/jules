@@ -64,8 +64,7 @@ USE jules_rivers_mod,         ONLY: i_river_vn, nstep_rivers,                  &
                                     l_vary_sea_level,                          &
                                     ! UM only
                                     l_inland_outflow, rivers_um_trip,          &
-                                    rivers_first,                              &
-                                    l_reservoirs
+                                    rivers_first
 USE jules_model_environment_mod, ONLY:  l_oasis_rivers
 USE timestep_mod,             ONLY: timestep
 
