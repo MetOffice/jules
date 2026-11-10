@@ -760,10 +760,6 @@ ALLOCATE(rivers_data%rivers_sto_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_ilon_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_x_coord_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_y_coord_rp(np_rivers))
-ALLOCATE(rivers_data%rflow_rp(np_rivers))
-ALLOCATE(rivers_data%rrun_rp(np_rivers))
-ALLOCATE(rivers_data%rrun_surf_rp(np_rivers))
-ALLOCATE(rivers_data%rrun_sub_surf_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_storage(nx_rivers, ny_rivers))
 !!!ALLOCATE(rivers_data%rivers_seq(nx_rivers, ny_rivers))
 !!!ALLOCATE(rivers_data%rivers_dir(nx_rivers, ny_rivers))
@@ -773,7 +769,6 @@ ALLOCATE(rivers_data%rrun_sub_surf_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_xgrid(nx_rivers))
 !!!ALLOCATE(rivers_data%rivers_ygrid(ny_rivers))
 ALLOCATE(rivers_data%rivers_boxareas_rp(np_rivers))
-ALLOCATE(rivers_data%rivers_outflow_rp(np_rivers))
 #endif
 #else
 ALLOCATE(rivers_data%tot_surf_runoff_gb(1))
@@ -823,10 +818,6 @@ rivers_data%rivers_sto_rp(:) = 0.0
 !!!rivers_data%rivers_ilon_rp(:) = 0.0
 !!!rivers_data%rivers_x_coord_rp(:) = 0.0
 !!!rivers_data%rivers_y_coord_rp(:) = 0.0
-rivers_data%rflow_rp(:) = 0.0
-rivers_data%rrun_rp(:) = 0.0
-rivers_data%rrun_surf_rp(:) = 0.0
-rivers_data%rrun_sub_surf_rp(:) = 0.0
 !!!rivers_data%rivers_seq(:,:) = 0.0
 !!!rivers_data%rivers_dir(:,:) = 0.0
 !!!rivers_data%rivers_dra(:,:) = 0.0
@@ -835,7 +826,6 @@ rivers_data%rrun_sub_surf_rp(:) = 0.0
 !!!rivers_data%rivers_xgrid(:) = 0.0
 !!!rivers_data%rivers_ygrid(:) = 0.0
 rivers_data%rivers_boxareas_rp(:) = rmdi
-rivers_data%rivers_outflow_rp(:) = rmdi
 #endif
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
@@ -1560,10 +1550,6 @@ rivers%rivers_sto_rp => rivers_data%rivers_sto_rp
 !!!rivers%rivers_ilon_rp => rivers_data%rivers_ilon_rp
 !!!rivers%rivers_x_coord_rp => rivers_data%rivers_x_coord_rp
 !!!rivers%rivers_y_coord_rp => rivers_data%rivers_y_coord_rp
-rivers%rflow_rp => rivers_data%rflow_rp
-rivers%rrun_rp => rivers_data%rrun_rp
-rivers%rrun_surf_rp => rivers_data%rrun_surf_rp
-rivers%rrun_sub_surf_rp => rivers_data%rrun_sub_surf_rp
 !!!rivers%rivers_seq => rivers_data%rivers_seq
 !!!rivers%rivers_dir => rivers_data%rivers_dir
 !!!rivers%rivers_dra => rivers_data%rivers_dra
@@ -1572,7 +1558,6 @@ rivers%rrun_sub_surf_rp => rivers_data%rrun_sub_surf_rp
 !!!rivers%rivers_xgrid => rivers_data%rivers_xgrid
 !!!rivers%rivers_ygrid => rivers_data%rivers_ygrid
 rivers%rivers_boxareas_rp => rivers_data%rivers_boxareas_rp
-rivers%rivers_outflow_rp => rivers_data%rivers_outflow_rp
 #endif
 
 
@@ -1728,14 +1713,14 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !------------------------------------------------------------------------------
 ! Allocate variables that are required by all configurations.
 !------------------------------------------------------------------------------
-!!IF ( l_is_master_task ) THEN
-!!  ! Full size.
-!!  np_rivers_tmp = np_rivers
-!!ELSE
-!!  ! Minimum size.
-!!  np_rivers_tmp = 1
-!!END IF
-!!
+IF ( l_is_master_task ) THEN
+  ! Full size.
+  np_rivers_tmp = np_rivers
+ELSE
+  ! Minimum size.
+  np_rivers_tmp = 1
+END IF
+
 !!! Ancillaries and related fields.
 !!ALLOCATE(rivers_data%rivers_boxareas_rp(np_rivers_tmp),  STAT = ERROR)
 !!error_sum = ERROR
@@ -1755,19 +1740,19 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !!error_sum = error_sum + ERROR
 !!
 !!! Fluxes.
-!!ALLOCATE(rivers_data%rflow_rp(np_rivers_tmp),            STAT = ERROR)
-!!error_sum = error_sum + ERROR
-!!ALLOCATE(rivers_data%rivers_outflow_rp(np_rivers),       STAT = ERROR)
-!!error_sum = error_sum + ERROR
+ALLOCATE(rivers_data%rflow_rp(np_rivers_tmp),            STAT = ERROR)
+error_sum = error_sum + ERROR
+ALLOCATE(rivers_data%rivers_outflow_rp(np_rivers),       STAT = ERROR)
+error_sum = error_sum + ERROR
 !!ALLOCATE(rivers_data%inland_outflow_rp(np_rivers),       STAT = ERROR)
 !!error_sum = error_sum + ERROR
-!!ALLOCATE(rivers_data%rrun_rp(np_rivers_tmp),             STAT = ERROR)
-!!error_sum = error_sum + ERROR
-!!ALLOCATE(rivers_data%rrun_sub_surf_rp(np_rivers_tmp),    STAT = ERROR)
-!!error_sum = error_sum + ERROR
-!!ALLOCATE(rivers_data%rrun_surf_rp(np_rivers_tmp),        STAT = ERROR)
-!!error_sum = error_sum + ERROR
-!!
+ALLOCATE(rivers_data%rrun_rp(np_rivers_tmp),             STAT = ERROR)
+error_sum = error_sum + ERROR
+ALLOCATE(rivers_data%rrun_sub_surf_rp(np_rivers_tmp),    STAT = ERROR)
+error_sum = error_sum + ERROR
+ALLOCATE(rivers_data%rrun_surf_rp(np_rivers_tmp),        STAT = ERROR)
+error_sum = error_sum + ERROR
+
 !!!------------------------------------------------------------------------------
 !!! Allocate variable specific to remapping.
 !!!------------------------------------------------------------------------------
@@ -2006,12 +1991,12 @@ error_sum = error_sum + ERROR
 !!rivers_data%rivers_x_coord_rp(:) = rmdi
 !!rivers_data%rivers_y_coord_rp(:) = rmdi
 !!rivers_data%land_fraction_rp(:)  = 1.0
-!!! Fluxes.
-!!rivers_data%rflow_rp(:)          = 0.0
-!!rivers_data%rivers_outflow_rp(:) = rmdi
-!!rivers_data%rrun_rp(:)           = 0.0
-!!rivers_data%rrun_sub_surf_rp(:)  = 0.0
-!!rivers_data%rrun_surf_rp(:)      = 0.0
+! Fluxes.
+rivers_data%rflow_rp(:)          = 0.0
+rivers_data%rivers_outflow_rp(:) = rmdi
+rivers_data%rrun_rp(:)           = 0.0
+rivers_data%rrun_sub_surf_rp(:)  = 0.0
+rivers_data%rrun_surf_rp(:)      = 0.0
 !!rivers_data%inland_outflow_rp(:) = rmdi
 !!
 !!! Initialise regridding variable.
@@ -2090,11 +2075,11 @@ rivers_data%rfm_surfstore_rp(:) = 0.0
 !!rivers%rivers_y_coord_rp => rivers_data%rivers_y_coord_rp
 !!rivers%land_fraction_rp => rivers_data%land_fraction_rp
 !!! Fluxes.
-!!rivers%rflow_rp => rivers_data%rflow_rp
-!!rivers%rivers_outflow_rp => rivers_data%rivers_outflow_rp
-!!rivers%rrun_rp => rivers_data%rrun_rp
-!!rivers%rrun_sub_surf_rp => rivers_data%rrun_sub_surf_rp
-!!rivers%rrun_surf_rp => rivers_data%rrun_surf_rp
+rivers%rflow_rp => rivers_data%rflow_rp
+rivers%rivers_outflow_rp => rivers_data%rivers_outflow_rp
+rivers%rrun_rp => rivers_data%rrun_rp
+rivers%rrun_sub_surf_rp => rivers_data%rrun_sub_surf_rp
+rivers%rrun_surf_rp => rivers_data%rrun_surf_rp
 !!rivers%inland_outflow_rp => rivers_data%inland_outflow_rp
 !!
 !!! Regridding variable.
