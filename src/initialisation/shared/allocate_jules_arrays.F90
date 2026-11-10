@@ -56,7 +56,6 @@ USE jules_water_resources_mod,ONLY: l_have_groundwater, l_have_surface_water,  &
                                     n_sw_source, nwater_use, sw_river_source
 USE jules_deposition_mod,     ONLY: l_deposition, ndry_dep_species
 USE jules_water_tracers_mod,  ONLY: l_wtrac_jls
-USE jules_rivers_mod,         ONLY: l_reservoirs
 
 !Variables- dimensions
 USE jules_surface_types_mod,  ONLY: ncpft,nnpft
