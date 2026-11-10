@@ -1288,6 +1288,7 @@ CALL jules_print('jules_rivers_inputs_mod',                                    &
 WRITE(lineBuffer,*)' l_rivers = ',l_rivers
 CALL jules_print('jules_rivers',lineBuffer)
 WRITE(lineBuffer,*)' l_reservoirs = ',l_reservoirs
+CALL jules_print('jules_rivers',lineBuffer)
 WRITE(lineBuffer,*)' l_minor_reservoirs = ',l_minor_reservoirs
 CALL jules_print('jules_rivers',lineBuffer)
 WRITE(lineBuffer,*)' l_riv_overbank = ',l_riv_overbank
