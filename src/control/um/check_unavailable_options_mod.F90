@@ -194,7 +194,7 @@ IF ( l_reservoirs ) THEN
   error_sum = error_sum + 1
   WRITE(jules_message,'(I0,A,L1)') error_sum,                                  &
      ": Reservoirs are only available to standalone. " //                      &
-     "l_reservoirs = ", l_reservoirs )
+     "l_reservoirs = ", l_reservoirs
   CALL jules_print(RoutineName, jules_message, level = PrNorm)
 END IF
 
