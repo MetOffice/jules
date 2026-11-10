@@ -46,7 +46,7 @@ USE jules_urban_mod,          ONLY: l_moruses
 USE jules_surface_mod,        ONLY: l_flake_model
 USE jules_soil_mod,           ONLY: l_bedrock, ns_deep
 USE jules_radiation_mod,      ONLY: l_albedo_obs
-USE jules_rivers_mod,         ONLY: l_minor_reservoirs
+USE jules_rivers_mod,         ONLY: l_minor_reservoirs, l_reservoirs
 USE jules_soil_biogeochem_mod,ONLY: soil_model_ecosse, soil_bgc_model,         &
                                     l_label_frac_cs, l_layeredc, dim_ch4layer
 USE jules_water_resources_mod,ONLY: l_have_groundwater, l_have_surface_water,  &
