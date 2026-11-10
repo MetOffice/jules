@@ -99,7 +99,7 @@ TYPE(rivers_type), INTENT(IN OUT) :: rivers
 INTEGER :: ip                        !  loop counter
 
 INTEGER :: year                      !  current model year
-INTEGER, SAVE :: year_change = -1
+INTEGER, SAVE :: year_change = imdi
 !  year of last reservoir capacity update
 
 !------------------------------------------------------------------------------
