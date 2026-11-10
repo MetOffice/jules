@@ -15,15 +15,15 @@ Please note the following considerations:
  * Rose meta-data (in rose-meta) will be owned by the appropriate module leader
 
 ************************ Science Module Leaders *******************************
-Surface                          John Edwards and Rich Ellis
+Surface                          John Edwards
 Hydrology                        Nic Gedney and Sonja Folwell
-Vegetation                       Lina Mercado, Karina Williams and Rebecca Oliver
+Vegetation                       Lina Mercado and Rebecca Oliver
 Veg3 RED Demography              Andy Wiltshire and Arthur Argles
 Biogeochemistry                  Eleanor Burke and Noah Smith
 Biogenic fluxes                  Garry Hayman and James Weber
 Fire                             Doug Kelley and Chantelle Burton
 Lakes                            Helen Johnson
-Evaluation                       Nina Raoult and Siyuan Tian
+Evaluation                       Heather Rumbold and Siyuan Tian
 CABLE Science                    Ian Harman and Claire Carouge
 IMOGEN                           Chris Huntingford and Eleanor Burke
 

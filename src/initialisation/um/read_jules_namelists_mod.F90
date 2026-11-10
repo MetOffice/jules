@@ -194,6 +194,37 @@ END SUBROUTINE read_jules_deposition_species
 
 ! *********************************************************************
 
+SUBROUTINE read_jules_inferno (unitnumber)
+
+! Description:
+!  Read the JULES_INFERNO namelist
+
+USE jules_inferno_mod,  ONLY:                                                  &
+  print_nlist_jules_inferno,                                                   &
+  check_jules_inferno, read_nml_jules_inferno
+
+IMPLICIT NONE
+
+! Subroutine arguments
+INTEGER, INTENT(IN) :: unitnumber
+
+REAL(KIND=jprb) :: zhook_handle
+CHARACTER(LEN=*), PARAMETER :: RoutineName='READ_JULES_INFERNO'
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
+
+CALL read_nml_jules_inferno(unitnumber)
+IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
+  CALL print_nlist_jules_inferno()
+END IF
+CALL check_jules_inferno()
+
+IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
+RETURN
+END SUBROUTINE read_jules_inferno
+
+! *********************************************************************
+
 SUBROUTINE read_jules_nvegparm (unitnumber)
 
 ! Description:

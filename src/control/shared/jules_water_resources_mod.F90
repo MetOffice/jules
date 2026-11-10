@@ -188,6 +188,8 @@ INTEGER ::                                                                     &
   !----------------------------------------------------------------------------
   sw_river_source = 0,                                                         &
     ! Index of river water in surface water source arrays.
+  sw_minor_res_source = 0,                                                     &
+    ! Index of minor reservoirs in surface water source arrays.
   use_domestic = 0,                                                            &
     ! Index of domestic use in multi-use arrays.
   use_environment = 0,                                                         &
@@ -205,12 +207,12 @@ INTEGER ::                                                                     &
 
 LOGICAL ::                                                                     &
   l_have_groundwater = .FALSE.,                                                &
-    ! Flag indicating if we have a model of groundwater (renewable or
-    ! non-renewable).
+    ! Flag indicating if groundwater sources (renewable or non-renewable) are
+    ! represented.
   l_have_renew_gwater = .FALSE.,                                               &
     ! Flag indicating if we have a model of renewable groundwater.
   l_have_surface_water = .FALSE.
-    ! Flag indicating if we have surface water represented (e.g. rivers).
+    ! Flag indicating if surface water sources (e.g. rivers) are represented.
     ! TRUE means n_sw_source > 0.
 
 CONTAINS
@@ -224,6 +226,7 @@ USE ereport_mod, ONLY: ereport
 
 USE jules_print_mgr, ONLY: jules_message
 
+! This dependency on jules_rivers_mod is not ideal.
 USE jules_rivers_mod, ONLY: l_rivers
 
 !------------------------------------------------------------------------------
@@ -548,16 +551,6 @@ IF ( l_water_resources ) THEN
 
   END IF  !  l_have_surface_water .AND. l_have_groundwater
 
-  ! Check that any surface water sources include rivers - so that we know we
-  ! can add return flow to rivers. At present this is guaranteed because rivers
-  ! are the only possible surface water source that has been coded.
-  ! The dependency on jules_rivers_mod here is not ideal.
-  IF ( l_have_surface_water .AND. .NOT. l_rivers ) THEN
-    error_status = 101  !  a fatal error
-    CALL ereport ( RoutineName, error_status,                                  &
-                   "Rivers must be included in any surface water sources." )
-  END IF
-
 END IF  !  l_water_resources
 
 END SUBROUTINE check_jules_water_resources
@@ -572,7 +565,8 @@ SUBROUTINE set_jules_water_resources( l_top )
 !   Sets values related to water resource code.
 !------------------------------------------------------------------------------
 
-USE jules_rivers_mod, ONLY: l_rivers
+! This dependency on jules_rivers_mod is not ideal.
+USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_rivers
 
 IMPLICIT NONE
 
@@ -635,15 +629,17 @@ IF ( l_water_resources ) THEN
 
   !----------------------------------------------------------------------------
   ! Set index for each available surface water source to show position in
-  ! surface water arrays.
-  ! At present there is only one possible source, but others will follow.
+  ! surface water arrays. If a source exists, it is used.
   !----------------------------------------------------------------------------
   ! Initialise as no surface water sources.
   n_sw_source = 0
   IF ( l_rivers ) THEN
-    ! If rivers are modelled, they are always included as a source of water.
     n_sw_source     = n_sw_source + 1
     sw_river_source = n_sw_source
+  END IF
+  IF ( l_minor_reservoirs ) THEN
+    n_sw_source         = n_sw_source + 1
+    sw_minor_res_source = n_sw_source
   END IF
 
   ! Set surface water flag if we have any surface water sources.
@@ -857,8 +853,8 @@ IF (mype /= 0) THEN
   nr_gwater_model     = my_nml % nr_gwater_model
   nstep_water_res     = my_nml % nstep_water_res
   partition_method    = my_nml % partition_method
-  l_water_domestic    = my_nml % l_water_domestic
   l_prioritise        = my_nml % l_prioritise
+  l_water_domestic    = my_nml % l_water_domestic
   l_water_environment = my_nml % l_water_environment
   l_water_industry    = my_nml % l_water_industry
   l_water_irrigation  = my_nml % l_water_irrigation

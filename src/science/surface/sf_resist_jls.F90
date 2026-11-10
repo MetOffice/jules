@@ -19,8 +19,8 @@ CONTAINS
 !    Arguments --------------------------------------------------------
 SUBROUTINE sf_resist (                                                         &
  land_pts,surft_pts,land_index,surft_index,cansnowtile,                        &
- canopy,catch,ch,dq,epdt,flake,gc,gcan_snow,gc_stom_surft,                     &
- snowdep_surft,snow_surft,                                                     &
+ canopy,catch,ch,dq,epdt,flake,gc,gcan_snow,gc_stom_surft,gc_irr_surft,        &
+ frac_irr_surft,snowdep_surft,snow_surft,                                                     &
  vshr,tstar,fracaero_t, fracaero_s,resfs,resft,                                &
  resfs_stom,l_et_stom,l_et_stom_surft)
 
@@ -36,6 +36,7 @@ USE jules_science_fixes_mod, ONLY: l_fix_snow_frac, i_fix_neg_snow,            &
 USE water_constants_mod, ONLY: tm, rho_ice
 USE jules_surface_mod, ONLY: l_aggregate
 USE jules_vegetation_mod, ONLY: can_model
+USE jules_irrig_mod, ONLY: l_soil_evap_irrig_separate
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
 IMPLICIT NONE
@@ -81,6 +82,10 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
 !                          !    to evaporation (m/s)
 ,gcan_snow(land_pts)                                                           &
                      ! IN Canopy conductance for sublimation of snow (m/s)
+,frac_irr_surft(land_pts)                                                      &
+                     ! IN Irrigation fraction in tile
+,gc_irr_surft(land_pts)                                                        &
+                     ! IN canopy conductance over irrigated frac
 ,gc_stom_surft(land_pts)                                                       &
                      ! IN canopy conductance (excluding soil) (m/s)
 ,snowdep_surft(land_pts)                                                       &
@@ -130,6 +135,7 @@ REAL(KIND=real_jlslsm) ::                                                      &
 INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0
 INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1
 REAL(KIND=jprb)               :: zhook_handle
+REAL(KIND=real_jlslsm)        :: gc_nir_surft(land_pts)
 
 CHARACTER(LEN=*), PARAMETER :: RoutineName='SF_RESIST'
 
@@ -148,8 +154,9 @@ IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_in,zhook_handle)
 !$OMP        dq,snowdep_surft,tstar,snow_surft,cansnowtile,can_model,          &
 !$OMP        l_aggregate,                                                      &
 !$OMP        catch,frac_snow_subl_melt,maskd,resfs,gc,ch,vshr,l_et_stom,       &
-!$OMP        l_et_stom_surft,resfs_stom,gcan_snow,gc_stom_surft,flake,         &
-!$OMP        canopy,epdt,resft,l_fix_snow_frac, i_fix_neg_snow)
+!$OMP        l_et_stom_surft,resfs_stom,gcan_snow,gc_stom_surft,frac_irr_surft,&
+!$OMP        gc_irr_surft,gc_nir_surft,l_soil_evap_irrig_separate,flake,       &
+!$OMP        canopy,epdt,resft,l_fix_snow_frac, l_fix_neg_snow)
 DO k = 1,surft_pts
   l = surft_index(k)
   j=(land_index(l) - 1) / t_i_length + 1
@@ -235,6 +242,20 @@ DO k = 1,surft_pts
   ! and bare soil evaporation from soil tiles.
   !-----------------------------------------------------------------------
   resfs(l) = gc(l) / ( gc(l) + ch(l) * vshr(i,j) )
+  IF ( l_soil_evap_irrig_separate ) THEN
+    gc_nir_surft(l) = gc(l)
+    IF ( frac_irr_surft(l) < 1.0 ) THEN
+      gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                             &
+           * gc_irr_surft(l))                                                  &
+           / (1.0 - frac_irr_surft(l))
+    ELSE
+      gc_nir_surft(l) = gc_irr_surft(l)
+    END IF
+    resfs(l) = frac_irr_surft(l)*gc_irr_surft(l)                               &
+         / ( gc_irr_surft(l) + ch(l) * vshr(i,j) )                             &
+         +(1.0-frac_irr_surft(l))*gc_nir_surft(l)                              &
+         / ( gc_nir_surft(l) + ch(l) * vshr(i,j) )
+  END IF
   IF (l_et_stom .OR. l_et_stom_surft) THEN
     resfs_stom(l) = gc_stom_surft(l) / ( gc_stom_surft(l) + ch(l) * vshr(i,j) )
   END IF
@@ -265,18 +286,34 @@ CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr,                         &
 !$OMP PARALLEL DO IF(surft_pts > 1) DEFAULT(NONE) PRIVATE(i, j, k, l)          &
 !$OMP          SHARED(surft_pts, surft_index, land_index, t_i_length,          &
 !$OMP                 snow_surft, gc, vshr, fracaero_t,                        &
-!$OMP                 resfs, ch, resft) SCHEDULE(STATIC)
-      DO k = 1,surft_pts
-        l = surft_index(k)
-        IF (snow_surft(l) >  0.0) THEN
-          j = (land_index(l) - 1) / t_i_length + 1
-          i = land_index(l) - (j-1) * t_i_length
-          fracaero_t(l) = 0.0
-          resfs(l) = gc(l) /                                                   &
-                  (gc(l) + ch(l) * vshr(i,j))
-          resft(l) = resfs(l)
+!$OMP                 resfs, ch, resft, gc_nir_surft, frac_irr_surft,          &
+!$OMP                 gc_irr_surft, l_soil_evap_irrig_separate)                &
+!$OMP SCHEDULE(STATIC)
+    DO k = 1,surft_pts
+      l = surft_index(k)
+      IF (snow_surft(l) >  0.0) THEN
+        j = (land_index(l) - 1) / t_i_length + 1
+        i = land_index(l) - (j-1) * t_i_length
+        fracaero_t(l) = 0.0
+        resfs(l) = gc(l) /                                                     &
+                (gc(l) + ch(l) * vshr(i,j))
+        IF ( l_soil_evap_irrig_separate ) THEN
+          gc_nir_surft(l) = gc(l)
+          IF ( frac_irr_surft(l) < 1.0 ) THEN
+            gc_nir_surft(l) = (gc(l) - frac_irr_surft(l)                       &
+                 * gc_irr_surft(l))                                            &
+                 / (1.0 - frac_irr_surft(l))
+          ELSE
+            gc_nir_surft(l) = gc_irr_surft(l)
+          END IF
+          resfs(l) = frac_irr_surft(l)*gc_irr_surft(l)                         &
+               / ( gc_irr_surft(l) + ch(l) * vshr(i,j) )                       &
+               +(1.0-frac_irr_surft(l))*gc_nir_surft(l)                        &
+               / ( gc_nir_surft(l) + ch(l) * vshr(i,j) )
         END IF
-      END DO
+        resft(l) = resfs(l)
+      END IF
+    END DO
 !$OMP END PARALLEL DO
     END IF
   END IF

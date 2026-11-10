@@ -33,6 +33,7 @@ INTEGER ::                                                                     &
   ag_expand_io(npft_max) = imdi
 
 REAL(KIND=real_jlslsm) ::                                                      &
+  fireveg_c_to_atmos_io(npft_max) = rmdi,                                      &
   g_area_io(npft_max) = rmdi,                                                  &
   g_grow_io(npft_max) = rmdi,                                                  &
   g_root_io(npft_max) = rmdi,                                                  &
@@ -55,7 +56,7 @@ NAMELIST  / jules_triffid/ crop_io, harvest_freq_io, harvest_type_io,          &
                          g_wood_io,lai_max_io,lai_min_io,                      &
                          alloc_fast_io,alloc_med_io,alloc_slow_io,             &
                          dpm_rpm_ratio_io,retran_l_io,retran_r_io,             &
-                         harvest_ht_io
+                         harvest_ht_io, fireveg_c_to_atmos_io
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='TRIF_IO'
 
@@ -69,6 +70,8 @@ CALL jules_print('trif_io',                                                    &
     'Contents of namelist jules_triffid')
 
 WRITE(lineBuffer,*)' crop_io = ',crop_io
+CALL jules_print('trif_io',lineBuffer)
+WRITE(lineBuffer,*)' fireveg_c_to_atmos_io = ',fireveg_c_to_atmos_io
 CALL jules_print('trif_io',lineBuffer)
 WRITE(lineBuffer,*)' g_area_io = ',g_area_io
 CALL jules_print('trif_io',lineBuffer)
@@ -140,7 +143,7 @@ CHARACTER(LEN=errormessagelength) :: iomessage
 ! set number of each type of variable in my_namelist type
 INTEGER, PARAMETER :: no_of_types = 2
 INTEGER, PARAMETER :: n_int = 4 * npft_max
-INTEGER, PARAMETER :: n_real = 13 * npft_max
+INTEGER, PARAMETER :: n_real = 14 * npft_max
 
 TYPE :: my_namelist
   SEQUENCE
@@ -149,6 +152,7 @@ TYPE :: my_namelist
   INTEGER :: harvest_type_io(npft_max)
   INTEGER :: ag_expand_io(npft_max)
   REAL(KIND=real_jlslsm) :: harvest_ht_io(npft_max)
+  REAL(KIND=real_jlslsm) :: fireveg_c_to_atmos_io(npft_max)
   REAL(KIND=real_jlslsm) :: g_area_io(npft_max)
   REAL(KIND=real_jlslsm) :: g_grow_io(npft_max)
   REAL(KIND=real_jlslsm) :: g_root_io(npft_max)
@@ -183,6 +187,7 @@ IF (mype == 0) THEN
   my_nml % harvest_type_io = harvest_type_io
   my_nml % ag_expand_io = ag_expand_io
   my_nml % harvest_ht_io = harvest_ht_io
+  my_nml % fireveg_c_to_atmos_io = fireveg_c_to_atmos_io
   my_nml % g_area_io  = g_area_io
   my_nml % g_grow_io  = g_grow_io
   my_nml % g_root_io  = g_root_io
@@ -206,6 +211,7 @@ IF (mype /= 0) THEN
   harvest_type_io = my_nml % harvest_type_io
   ag_expand_io = my_nml % ag_expand_io
   harvest_ht_io = my_nml % harvest_ht_io
+  fireveg_c_to_atmos_io = my_nml % fireveg_c_to_atmos_io
   g_area_io  = my_nml % g_area_io
   g_grow_io  = my_nml % g_grow_io
   g_root_io  = my_nml % g_root_io

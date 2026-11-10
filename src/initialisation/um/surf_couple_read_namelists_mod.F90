@@ -37,7 +37,8 @@ USE read_jules_namelists_mod, ONLY:                                            &
     read_jules_soil_biogeochem,    read_jules_surface,                         &
     read_jules_model_environment,  read_jules_water_resources,                 &
     read_jules_irrigation,         read_jules_red,                             &
-    read_jules_deposition,         read_jules_deposition_species
+    read_jules_deposition,         read_jules_deposition_species,              &
+    read_jules_inferno
 
 USE jules_deposition_mod, ONLY: l_deposition
 
@@ -75,6 +76,7 @@ CALL read_jules_water_resources(shared_unit)
 CALL read_jules_sea_seaice(shared_unit)
 CALL read_jules_soil(shared_unit)
 CALL read_jules_vegetation(shared_unit)
+CALL read_jules_inferno(shared_unit)
 CALL read_jules_irrigation(shared_unit)
 CALL read_jules_soil_biogeochem(shared_unit)
 CALL read_jules_snow(shared_unit)

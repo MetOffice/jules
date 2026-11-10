@@ -28,6 +28,7 @@ USE jules_rivers_mod,            ONLY: i_river_vn, l_rivers, l_riv_overbank,   &
                                        rivers_rfm, rivers_trip,                &
                                        l_inland_outflow
 USE jules_model_environment_mod, ONLY: lsm_id, rivers
+USE jules_water_resources_mod,   ONLY: l_water_resources
 USE overbank_inundation_mod,     ONLY: overbank_hypsometric, overbank_model,   &
                                        overbank_quantiles, overbank_simple,    &
                                        overbank_simple_rosgen
@@ -72,14 +73,21 @@ CASE ( overbank_quantiles )
 END SELECT
 
 ! While CaMa-Flood routing is in development it can only be used with overbank
-! inundation using quantiles.
-IF ( l_rivers .AND. i_river_vn == rivers_camaflood .AND.                       &
-     ( .NOT. l_riv_overbank .OR. .NOT. overbank_model == overbank_quantiles )  &
-   ) THEN
-  ERROR = 1
-  CALL jules_print(routinename,                                                &
-                   "CaMa-Flood routing can only be used with overbank "     // &
-                   "inundation using quantiles.")
+! inundation using quantiles and cannot be used with water resources.
+IF ( l_rivers .AND. i_river_vn == rivers_camaflood ) THEN
+  IF ( .NOT. l_riv_overbank                                                    &
+       .OR. .NOT. overbank_model == overbank_quantiles ) THEN
+    ERROR = 1
+    CALL jules_print(routinename,                                              &
+                     "CaMa-Flood routing can only be used with overbank "   // &
+                     "inundation using quantiles.")
+  END IF
+  IF ( l_water_resources ) THEN
+    ERROR = 1
+    CALL jules_print(routinename,                                              &
+                     "CaMa-Flood routing cannot be used with water "        // &
+                     "modelling.")
+  END IF
 END IF
 
 ! Check land fractions are only used in rivers-standalone when inland outflow
