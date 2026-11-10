@@ -36,7 +36,10 @@ USE planet_constants_mod, ONLY: cp
 USE jules_snow_mod, ONLY: maskd, rho_snow_const,                               &
                           frac_snow_subl_melt, l_snowdep_surf
 
-USE jules_science_fixes_mod, ONLY: l_fix_snow_frac, l_fix_neg_snow
+USE jules_science_fixes_mod, ONLY: l_fix_snow_frac, i_fix_neg_snow,            &
+                          ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr,     &
+                          ip_fix_neg_snow_v1,                                  &
+                          ip_fix_neg_snow_v2, ip_fix_neg_snow_v3
 
 USE water_constants_mod, ONLY:                                                 &
  lc, lf, rho_water, tm
@@ -120,8 +123,15 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                           ! transfer coefficient.
 ,snow_new                                                                      &
                       ! Snow available for melting.
-,snow_density
+,snow_density                                                                  &
                       ! Density of snow on input
+,ei_cnv                                                                        &
+                      ! Rate of sublimation consistent with mass balance in
+                      ! expressed in terms of increments to the snow and
+                      ! the rate of melting.
+,dfqw_cnv
+                      ! The numerical increment to the sublimation to balance
+                      ! the mass budget.
 INTEGER ::                                                                     &
  i,j                                                                           &
                       ! Loop counter - full horizontal field.
@@ -148,7 +158,7 @@ melt_surft(:) = 0.0
 !$OMP SCHEDULE(STATIC)                                                         &
 !$OMP DEFAULT(SHARED)                                                          &
 !$OMP PRIVATE(k,j,i,l,snow_density,snow_new,rhokh1_prime,lcmelt,lsmelt,dtstar, &
-!$OMP         dftl,dfqw)
+!$OMP         dftl,dfqw,ei_cnv,dfqw_cnv)
 DO k = 1,surft_pts
   l = surft_index(k)
   j=(pts_index(l) - 1) / t_i_length + 1
@@ -172,51 +182,157 @@ DO k = 1,surft_pts
     snow_density = MIN(1000.0,snow_density)
   END IF
   !
-  snowinc_surft(l) = - MIN(snow_surft(l), ei_surft(l) * timestep )
-  snow_new = MAX( 0.0, snow_surft(l) + snowinc_surft(l))
+  SELECT CASE (i_fix_neg_snow)
+  CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_v1)
+    snowinc_surft(l) = - MIN(snow_surft(l), ei_surft(l) * timestep )
+    snow_new = MAX(0.0, snow_surft(l) + snowinc_surft(l))
+  CASE (ip_fix_neg_snow_none_corr)
+    snowinc_surft(l) = - ei_surft(l) * timestep
+    snow_new = snow_surft(l) - ei_surft(l) * timestep
+  CASE (ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+    snowinc_surft(l) = - MIN(snow_surft(l), ei_surft(l) * timestep )
+    snow_new = snow_surft(l) + snowinc_surft(l)
+  END SELECT
+  rhokh1_prime = 1.0 / ( 1.0 / rhokh_1(l)                                      &
+                     + r_gamma * dtrdz_1(i,j) )
   IF ( snow_new >  0.0 .AND. tstar_surft(l) >  tm ) THEN
-    rhokh1_prime = 1.0 / ( 1.0 / rhokh_1(l)                                    &
-                       + r_gamma * dtrdz_1(i,j) )
-    IF (l_fix_neg_snow) THEN
+    SELECT CASE (i_fix_neg_snow)
+    CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
+      lcmelt = (cp + lc * alpha1(l) * resft(l)) * rhokh1_prime                 &
+               + ashtf_prime(l)
+      lsmelt = lcmelt + lf * alpha1(l) * rhokh1_prime
+    CASE (ip_fix_neg_snow_v1, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
       ! This fix renders lcmelt superfluous, but to avoid more complicated
       ! logic it is clearest to retain it for now and remove it once the old
       ! functionality is no longer needed.
       lsmelt = (cp + (lf * fracs(l) + lc * resft(l)) * alpha1(l)) *            &
                rhokh1_prime + ashtf_prime(l)
       lcmelt = lsmelt
-    ELSE
-      lcmelt = (cp + lc * alpha1(l) * resft(l)) * rhokh1_prime                 &
-               + ashtf_prime(l)
-      lsmelt = lcmelt + lf * alpha1(l) * rhokh1_prime
-    END IF
+    END SELECT
     !   Note the use of lcmelt in the following IF-block. In line with the
     !   preceeding comment, this should be lsmelt, but lcmelt is used to
     !   maintain existing behaviour, aside from the loss of bit-comparison
     !   by moving to increments.
+    !   Note also that the calculation of the increment to snow from
+    !   sublimation must anticipate the adjustment of ei_surft. This was
+    !   missed in version 1 of the fix for negative snow
     IF (frac_snow_subl_melt == 1) THEN
       IF (l_fix_snow_frac .AND.                                                &
           snow_new / snow_density  <=  SQRT(2.0*EPSILON(snow_new))/maskd) THEN
         ! Use linear expansion of exponential if non-linear term
         ! is of order EPSILON (i.e., x^2.0/2.0 ~ EPSILON)
-        snowinc_surft(l) = - MIN(snow_surft(l),                                &
-          (lcmelt * (tstar_surft(l) - tm) *                                    &
-          maskd * snow_new / snow_density / lf +                               &
-          ei_surft(l)) * timestep)
+        SELECT CASE (i_fix_neg_snow)
+        CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_v1)
+          snowinc_surft(l) = - MIN(snow_surft(l),                              &
+            (lcmelt * (tstar_surft(l) - tm) *                                  &
+            maskd * snow_new / snow_density / lf +                             &
+            ei_surft(l)) * timestep)
+        CASE (ip_fix_neg_snow_none_corr,                                       &
+              ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+          snowinc_surft(l) = - MIN(snow_surft(l),                              &
+            ( (lcmelt / lf + alpha1(l) * resft(l) * rhokh1_prime) *            &
+              (tstar_surft(l) - tm) *                                          &
+            maskd * snow_new / snow_density +                                  &
+            ei_surft(l)) * timestep)
+        END SELECT
       ELSE
-        snowinc_surft(l) = - MIN(snow_surft(l),                                &
-          (lcmelt * (tstar_surft(l) - tm) *                                    &
-          (1.0 - EXP(-maskd * snow_new / snow_density)) / lf +                 &
-          ei_surft(l)) * timestep)
+        SELECT CASE (i_fix_neg_snow)
+        CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_v1)
+          snowinc_surft(l) = - MIN(snow_surft(l),                              &
+            (lcmelt * (tstar_surft(l) - tm) *                                  &
+            (1.0 - EXP(-maskd * snow_new / snow_density)) / lf +               &
+            ei_surft(l)) * timestep)
+        CASE (ip_fix_neg_snow_none_corr, ip_fix_neg_snow_v2,                   &
+              ip_fix_neg_snow_v3)
+          snowinc_surft(l) = - MIN(snow_surft(l),                              &
+            ( (lcmelt / lf + alpha1(l) * resft(l) * rhokh1_prime) *            &
+              (tstar_surft(l) - tm) *                                          &
+            (1.0 - EXP(-maskd * snow_new / snow_density)) +                    &
+            ei_surft(l)) * timestep)
+        END SELECT
       END IF
     ELSE
-      snowinc_surft(l) = - MIN(snow_surft(l),                                  &
-        (lcmelt * (tstar_surft(l) - tm) / lf + ei_surft(l)) * timestep)
+      SELECT CASE (i_fix_neg_snow)
+      CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_v1)
+        snowinc_surft(l) = - MIN(snow_surft(l),                                &
+          (lcmelt * (tstar_surft(l) - tm) / lf + ei_surft(l)) * timestep)
+      CASE (ip_fix_neg_snow_none_corr, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+        snowinc_surft(l) = - MIN(snow_surft(l),                                &
+          ( (lcmelt / lf + alpha1(l) * resft(l) * rhokh1_prime) *              &
+            (tstar_surft(l) - tm) + ei_surft(l)) * timestep)
+      END SELECT
     END IF
-    melt_surft(l) = - snowinc_surft(l) / timestep - ei_surft(l)
+    SELECT CASE (i_fix_neg_snow)
+    CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_v1)
+      melt_surft(l) = - snowinc_surft(l) / timestep - ei_surft(l)
+    CASE (ip_fix_neg_snow_none_corr, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+      melt_surft(l) = - (snowinc_surft(l) / timestep + ei_surft(l)) /          &
+          (1.0 - alpha1(l) * resft(l) * rhokh1_prime * lf / lsmelt)
+    END SELECT
     dtstar = - lf * melt_surft(l) / lsmelt
-    tstar_surft(l) = tstar_surft(l) + dtstar
+    SELECT CASE (i_fix_neg_snow)
+    CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr,                     &
+          ip_fix_neg_snow_v1)
+      tstar_surft(l) = tstar_surft(l) + dtstar
+    END SELECT
     dftl = cp * rhokh1_prime * dtstar
     dfqw = alpha1(l) * resft(l) * rhokh1_prime * dtstar
+    SELECT CASE (i_fix_neg_snow)
+    CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr,                     &
+          ip_fix_neg_snow_v1)
+      ftl_surft(l) = ftl_surft(l) + dftl
+      fqw_surft(l) = fqw_surft(l) + dfqw
+      ei_surft(l) = ei_surft(l) + dfqw
+      !-----------------------------------------------------------------------
+      !  Update gridbox-mean quantities
+      !-----------------------------------------------------------------------
+      dftl = tile_frac(l) * dftl
+      dfqw = tile_frac(l) * dfqw
+      ftl_1(i,j) = ftl_1(i,j) + fld_sea(i,j) * dftl
+      fqw_1(i,j) = fqw_1(i,j) + fld_sea(i,j) * dfqw
+    CASE (ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+      ! No action.
+    END SELECT
+  ELSE
+    SELECT CASE (i_fix_neg_snow)
+    CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr, ip_fix_neg_snow_v1)
+      ! No action.
+    CASE (ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+      dtstar = 0.0
+      dfqw   = 0.0
+      dftl   = 0.0
+    END SELECT
+  END IF
+
+  SELECT CASE (i_fix_neg_snow)
+  CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr, ip_fix_neg_snow_v1)
+    ! The following refinement was not made in the
+    ! original version of the fix.
+  CASE (ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+    !-----------------------------------------------------------------------
+    !  At this stage we have the final increment to the snow, the rate of
+    !  melting, and will have the rate of sublimation after applying dfqw
+    !  to ei_surft. Algebraically, the increment to the snow will then be
+    !  consistent with the rates of melting and sublimation.
+    !  However, when the increments are applied in the snow code, a loss
+    !  of numerical significance will compromise the long-term mass budget.
+    !  To remove this, we make a further adjustment to the sublimation to
+    !  make the rates of melting and sublimation consistent with the mass
+    !  budget. To ensure conservation of energy, we adjust the sensible
+    !  heat flux to compensate for the change in the latent heat flux
+    !  implied by the adjustment to the moisture flux. These numerical
+    !  adjustments are at the level of the truncation error and are not
+    !  derived from the equation for the canopy temperature.
+    !-----------------------------------------------------------------------
+    ei_cnv = ( snow_surft(l) - (snow_surft(l) + snowinc_surft(l)) ) /          &
+               timestep - melt_surft(l)
+    dfqw_cnv = ei_cnv - (ei_surft(l) + dfqw)
+    dftl   = dftl - (lc + lf) * dfqw_cnv
+    dfqw   = dfqw + dfqw_cnv
+    !-----------------------------------------------------------------------
+    !  Apply the updates to the tiled fluxes
+    !-----------------------------------------------------------------------
+    tstar_surft(l) = tstar_surft(l) + dtstar
     ftl_surft(l) = ftl_surft(l) + dftl
     fqw_surft(l) = fqw_surft(l) + dfqw
     ei_surft(l) = ei_surft(l) + dfqw
@@ -227,7 +343,8 @@ DO k = 1,surft_pts
     dfqw = tile_frac(l) * dfqw
     ftl_1(i,j) = ftl_1(i,j) + fld_sea(i,j) * dftl
     fqw_1(i,j) = fqw_1(i,j) + fld_sea(i,j) * dfqw
-  END IF
+  END SELECT
+
 END DO
 !$OMP END PARALLEL DO
 

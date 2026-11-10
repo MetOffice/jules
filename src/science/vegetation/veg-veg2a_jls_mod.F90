@@ -16,7 +16,7 @@ SUBROUTINE veg2(                                                               &
                land_pts, nsurft, a_step,                                       &
                phenol_period, triffid_period,                                  &
                trif_pts, trif_index, atimestep,                                &
-               fracaero, fracp, fracb, frac_vs,                                &
+               frac_agr, fracp, fracb, frac_vs,                                &
                satcon_soilt_sfc, clay, z0m_soil,                               &
                l_phenol, l_triffid, l_trif_eq,                                 &
                asteps_since_triffid,                                           &
@@ -133,7 +133,7 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
     ! Atmospheric timestep (s).
 
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
-  fracaero(land_pts),                                                          &
+  frac_agr(land_pts),                                                          &
     ! Fraction of agriculture.
   fracp(land_pts),                                                             &
     ! Fraction of pasture.
@@ -599,7 +599,7 @@ IF (l_triffid .AND.                                                            &
   !---------------------------------------------------------------------------
   IF (agric) THEN
     DO l = 1,land_pts
-      frac_agric(l) = MIN(fracaero(l),frac_vs(l) - (REAL(nnpft+1) * frac_min))
+      frac_agric(l) = MIN(frac_agr(l),frac_vs(l) - (REAL(nnpft+1) * frac_min))
       frac_agric(l) = MAX(frac_agric(l),0.0)
     END DO
   END IF
