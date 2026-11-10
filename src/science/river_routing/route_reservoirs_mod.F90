@@ -129,7 +129,7 @@ ELSE
 END IF
 
 ! Ensure that release never exceeds storage
-reservoir_flow = MIN( reservoir_flow, res_storage/dt )
+reservoir_flow = MIN( reservoir_flow, res_storage / dt )
 
 ! Update reservoir storage with release
 res_storage = res_storage - reservoir_flow * dt
