@@ -14,6 +14,19 @@
 
 MODULE veg3_field_mod
 
+! Description:
+!   Holds the veg3/RED vegetation state variables/fields (veg_state,
+!   red_state) and provides routines to allocate, deallocate, associate and
+!   initialise them.
+!
+!   Note: the soil biogeochemistry state (soil_state) previously held here
+!   now lives in soil_bgc_4pool_field_mod.F90, and the veg3/RED-soil
+!   carbon coupling routine (veg3_soil_couple) now lives in
+!   soil_bgc_4pool_control_mod.F90. This keeps soil biogeochemistry
+!   modular and independent of the choice of vegetation dynamics model.
+!   Its allocation/association is therefore called separately from
+!   init_mod.F90, not from within this module.
+
 USE veg3_parm_mod, ONLY: red_parms
 USE um_types, ONLY: real_jlslsm
 USE jules_vegetation_mod, ONLY: l_red
@@ -39,6 +52,13 @@ TYPE :: veg_state_type
               ! Total PFT carbon density per PFT area fraction. (kg C m-2)
       vegC(:),                                                                 &
               ! Gridbox mean vegetation carbon. (kg C m-2)
+      npp_gb(:),                                                               &
+              ! Gridbox mean NPP driving RED. (kg C m-2 s-1)
+      npp_n_gb(:),                                                             &
+              ! Gridbox mean NPP after nitrogen limitation. Nitrogen is not
+              ! yet coupled to veg3/RED, so this is npp_gb converted to
+              ! (360d)-1 units, matching trif_vars_data%npp_n_gb.
+              ! (kg C m-2 (360d)-1)
       npp_acc(:,:),                                                            &
               ! Accumulated NPP. (kg C m-2 s-1)
       npp_dr_out(:,:),                                                         &
@@ -83,7 +103,7 @@ TYPE :: veg_state_type
               ! Total litter carbon flux per gridbox. (kg C m-2 (360d)-1)
 
   REAL, ALLOCATABLE ::                                                         &
-      mort_litC(:,:)
+        mort_litC(:,:)
               ! Mortality/demographic litter carbon flux from vegetation
               ! dynamics, normalised per unit PFT canopy area (kg C m-2 s-1).
 
@@ -160,6 +180,8 @@ ALLOCATE(veg_state%g_leaf_acc   ( land_pts, nnpft) )
 ALLOCATE(veg_state%g_leaf_phen_acc ( land_pts, nnpft) )
 ALLOCATE(veg_state%frac         ( land_pts, nsurft) )
 ALLOCATE(veg_state%vegC         ( land_pts) )
+ALLOCATE(veg_state%npp_gb       ( land_pts) )
+ALLOCATE(veg_state%npp_n_gb     ( land_pts) )
 ALLOCATE(veg_state%leaf_litC    ( land_pts, nnpft) )
 ALLOCATE(veg_state%root_litC    ( land_pts, nnpft) )
 ALLOCATE(veg_state%wood_litC    ( land_pts, nnpft) )
@@ -187,6 +209,8 @@ veg_state%g_leaf_acc(:,:)      = 0.0
 veg_state%g_leaf_phen_acc(:,:) = 0.0
 veg_state%frac(:,:)            = 0.0
 veg_state%vegC(:)              = 0.0
+veg_state%npp_gb(:)            = 0.0
+veg_state%npp_n_gb(:)          = 0.0
 veg_state%leaf_litC(:,:)       = 0.0
 veg_state%root_litC(:,:)       = 0.0
 veg_state%wood_litC(:,:)       = 0.0
@@ -228,11 +252,16 @@ SUBROUTINE veg3_field_deallocate()
 ! done, otherwise the original local allocations become orphaned (leaked) -
 ! this can be a significant leak for red_state%plantNumDensity in particular.
 !
-! Note: veg_state%phen, veg_state%npp_acc and veg_state%mort_litC are
-! deliberately NOT included here. They are never re-associated in
-! veg3_field_assoc (mort_litC is declared ALLOCATABLE rather than POINTER
-! for this reason) and so simply remain the arrays allocated in
-! veg3_field_allocate for the lifetime of the run.
+! Note: veg_state%phen, veg_state%npp_acc, veg_state%mort_litC,
+! and the red_state ALLOCATABLE components (mass_cohort,
+! ht_mass, lai_bal_mass, crwn_area_mass, g_mass_scale, mort) are
+! deliberately NOT included here. None of these are re-associated in
+! veg3_field_assoc (the red_state ones are ALLOCATABLE rather than
+! POINTER, so cannot be re-associated at all) and they remain the arrays
+! allocated in veg3_field_allocate for the lifetime of the run. They are
+! read/written every timestep (e.g. in red_veg3_couple and
+! veg3_red_dynamic_mod), so deallocating them here - before that ongoing
+! use - would break the run.
 
 IMPLICIT NONE
 
@@ -260,6 +289,8 @@ DEALLOCATE(veg_state%wood_litC)
 DEALLOCATE(veg_state%litCpft)
 DEALLOCATE(veg_state%litC)
 DEALLOCATE(veg_state%vegC)
+DEALLOCATE(veg_state%npp_gb)
+DEALLOCATE(veg_state%npp_n_gb)
 
 DEALLOCATE(red_state%plantNumDensity)
 
@@ -336,6 +367,8 @@ IF (l_red .AND. l_triffid) THEN
   veg_state%litCpft => trifctl_data%lit_c_pft
   veg_state%vegC => trifctl_data%cv_gb
   veg_state%litC => trifctl_data%lit_c_mn_gb
+  veg_state%npp_gb => trifctl_data%npp_gb
+  veg_state%npp_n_gb => trif_vars_data%npp_n_gb
 
 END IF
 
@@ -514,6 +547,7 @@ USE pftparm,                      ONLY: lma
 USE gridbox_mean_mod,             ONLY: pfttiles_to_gbm,                       &
                                         masstiles_to_pfttiles
 USE conversions_mod, ONLY: rsec_per_day
+USE veg3_parm_mod, ONLY: veg3_ctrl
 
 IMPLICIT NONE
 
@@ -525,9 +559,21 @@ TYPE(ainfo_type),INTENT(IN OUT) :: ainfo
 !Local
 INTEGER :: l,n  ! Index variables.
 
+REAL :: frac_old(land_pts,nnpft)
+        ! PFT fraction before this call updates veg_state%frac.
+REAL :: vegCpft_old(land_pts,nnpft)
+        ! PFT carbon density before this call updates veg_state%vegCpft.
+        ! Used to derive the implicit litter flux below.
+REAL :: frac_flux(land_pts,nnpft)
+        ! Representative PFT fraction used to convert per-PFT-area fluxes
+        ! to/from the gridbox mean over this coupling step, taken as the
+        ! midpoint of the old and new PFT fraction.
+
 !-----------------------------------------------------------------------------
 !end of header
 
+frac_old(:,:) = veg_state%frac(:,1:nnpft)
+vegCpft_old(:,:) = veg_state%vegCpft(:,:)
 
 veg_state%vegCpft(:,:)  = 0.0
 veg_state%lai_bal(:,:)  = 0.0
@@ -565,19 +611,53 @@ DO n = 1,nnpft
     veg_state%woodC(l,n) = veg_state%vegCpft(l,n) - veg_state%leafC(l,n)       &
                             - veg_state%rootC(l,n)
 
+
     ! NPP and its derived litter fluxes are normalised per unit PFT canopy
-    ! Aggregate the leaf/root/wood turnover litter and the mortality litter
-    ! demographic litter for the total litter flux per PFT fraction.
-    veg_state%litCpft(l,n) = (veg_state%leaf_litC(l,n) +                       &
-                              veg_state%root_litC(l,n) +                       &
-                              veg_state%wood_litC(l,n) +                       &
-                              veg_state%mort_litC(l,n) * rsec_per_day *        &
-                              360.0)
+    ! area. frac_flux is the representative PFT fraction used to convert
+    ! between per-PFT-area and gridbox-mean quantities over this coupling
+    ! step, taken as the midpoint of the old and new PFT fraction (mirroring
+    ! TRIFFID's own frac_flux normalisation of lit_c).
+    frac_flux(l,n) = 0.5 * (frac_old(l,n) + veg_state%frac(l,n))
+
+    ! Derive litCpft implicitly from carbon conservation (NPP minus the
+    ! change in standing PFT carbon), which guarantees the litter flux is
+    ! consistent with the actual change in vegetation carbon.
+    CALL litCpft_implicit(veg_state%npp_dr_out(l,n), frac_old(l,n),            &
+                           veg_state%frac(l,n), frac_flux(l,n),                &
+                           vegCpft_old(l,n), veg_state%vegCpft(l,n),           &
+                           veg3_ctrl%dt_red, veg_state%litCpft(l,n))
+
+    ! Rescale NPP and litterfall fluxes by frac_old/frac_flux so the total
+    ! gridbox flux is retained under the new PFT area. Left unchanged if
+    ! frac_flux is zero.
+    IF (frac_flux(l,n) > 0.0) THEN
+      veg_state%npp_dr_out(l,n) = veg_state%npp_dr_out(l,n) * frac_old(l,n)    &
+                                   / frac_flux(l,n)
+      veg_state%leaf_litC(l,n)  = veg_state%leaf_litC(l,n)  * frac_old(l,n)    &
+                                   / frac_flux(l,n)
+      veg_state%root_litC(l,n)  = veg_state%root_litC(l,n)  * frac_old(l,n)    &
+                                   / frac_flux(l,n)
+      veg_state%wood_litC(l,n)  = veg_state%wood_litC(l,n)  * frac_old(l,n)    &
+                                   / frac_flux(l,n)
+      veg_state%mort_litC(l,n)  = veg_state%mort_litC(l,n)  * frac_old(l,n)    &
+                                   / frac_flux(l,n)
+    END IF
+
     ! Update bare soil
     veg_state%frac(l,soil) = MAX(0.0, 1.0 - SUM(veg_state%frac(l,1:nnpft)))
 
   END DO
 
+END DO
+
+! Litter must be positive for the 4-pool soil carbon model (soilcarb_layers
+! calculates the DPM:RPM ratio as a fraction of the total litter, which
+! would otherwise divide by zero when a point has no litter). If there is
+! no litter, make it a very small positive value.
+DO l = 1,land_pts
+  IF (SUM(veg_state%litCpft(l,:)) == 0.0) THEN
+    veg_state%litCpft(l,1) = TINY(0.0)
+  END IF
 END DO
 
 !Final aggregation to gridbox for vegetation carbon for diagnostic purposes
@@ -588,6 +668,15 @@ veg_state%vegC = pfttiles_to_gbm(veg_state%vegCpft,ainfo,                      &
 veg_state%litC(:) = pfttiles_to_gbm(veg_state%litCpft,ainfo,                   &
                   frac_surft_in = veg_state%frac)
 
+! Aggregate the per-PFT NPP driving RED to gridbox mean diagnostics.
+! npp_dr_out is in kg C m-2 (360d)-1, matching npp_n_gb's units directly.
+! npp_gb instead uses kg C m-2 s-1, so is converted back from (360d)-1.
+! Nitrogen is not yet coupled to veg3/RED, so npp_n_gb is currently just
+! the (360d)-1 equivalent of npp_gb.
+veg_state%npp_n_gb(:) = pfttiles_to_gbm(veg_state%npp_dr_out,ainfo,            &
+                       frac_surft_in = veg_state%frac)
+veg_state%npp_gb(:) = veg_state%npp_n_gb(:) / (rsec_per_day * 360.0)
+
 RETURN
 END SUBROUTINE red_veg3_couple
 
@@ -596,8 +685,7 @@ SUBROUTINE pft_mean_from_mass_class(                                           &
                 !IN sizing
                 mclass,                                                        &
                 !IN mass-cohort properties
-                plantNumDensity,mass_cohort,lai_bal_mass,ht_mass,              &
-                crwn_area_mass,                                                &
+                plantNumDensity,mass_cohort,lai_bal_mass,ht_mass,crwn_area_mass, &
                 !OUT fields
                 frac,vegCpft,lai_bal,canht                                     &
                 )
@@ -680,6 +768,50 @@ ELSE
 END IF
 
 END SUBROUTINE pft_mean_from_mass_class
+!-----------------------------------------------------------------------------
+
+SUBROUTINE litCpft_implicit(npp_dr, frac_old, frac_new, frac_flux,             &
+                             vegCpft_old, vegCpft_new, dt, litCpft)
+!-----------------------------------------------------------------------------
+! Derives the PFT litter flux implicitly from carbon conservation (NPP minus
+! the change in standing PFT carbon), rather than summing the explicit
+! leaf/root/wood/mortality litter fluxes:
+!   litCpft = npp_dr - d(vegCpft*frac) / (frac_flux*dt) * rsec_per_day*360
+! frac_flux (the midpoint of frac_old and frac_new) normalises the fluxes,
+! mirroring TRIFFID's own frac_flux normalisation of lit_c.
+!-----------------------------------------------------------------------------
+USE conversions_mod, ONLY: rsec_per_day
+
+IMPLICIT NONE
+
+REAL, INTENT(IN)  :: npp_dr
+              !  PFT NPP driving RED, normalised per unit PFT area.
+              !  (kg C m-2 (360d)-1)
+REAL, INTENT(IN)  :: frac_old, frac_new
+              !  PFT fraction before/after this call. (-)
+REAL, INTENT(IN)  :: frac_flux
+              !  Representative PFT fraction used to normalise the litter
+              !  flux, taken as the midpoint of frac_old and frac_new. (-)
+REAL, INTENT(IN)  :: vegCpft_old, vegCpft_new
+              !  PFT carbon density per PFT area before/after this call.
+              !  (kg C m-2)
+REAL, INTENT(IN)  :: dt
+              !  Vegetation dynamics timestep over which growth was applied
+              !  and vegCpft changed. (s)
+REAL, INTENT(OUT) :: litCpft
+              !  Implicit litter flux consistent with carbon conservation.
+              !  (kg C m-2 (360d)-1)
+
+!End of header
+
+IF (frac_flux > 0.0) THEN
+  litCpft = npp_dr - (vegCpft_new * frac_new - vegCpft_old * frac_old)         &
+            / (frac_flux * dt) * rsec_per_day * 360.0
+ELSE
+  litCpft = 0.0
+END IF
+
+END SUBROUTINE litCpft_implicit
 !-----------------------------------------------------------------------------
 
 END MODULE veg3_field_mod

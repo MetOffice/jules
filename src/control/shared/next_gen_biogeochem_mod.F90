@@ -8,8 +8,19 @@
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in Veg3 Ecosystem Demography
 ! *****************************COPYRIGHT****************************************
+!
+! Some of the content of this file has been produced with the assistance of
+! Met Office Github Copilot Enterprise.
 
 MODULE next_gen_biogeochem_mod
+
+! Description:
+!   Control routine for the veg3/RED vegetation dynamics (phenology, growth,
+!   mortality/demography). Soil biogeochemistry is deliberately NOT called
+!   from here - it is called directly from surf_couple_extra_mod.F90 via
+!   soil_bgc_4pool_control_mod.F90, using the veg_index_pts/veg_index/
+!   l_veg_step diagnosed below, so that soil biogeochemistry remains modular
+!   and independent of the choice of vegetation dynamics model.
 
 IMPLICIT NONE
 
@@ -28,8 +39,9 @@ SUBROUTINE next_gen_biogeochem(                                                &
         !IN parms
           litter_parms,red_parms,                                              &
         !INOUT data structures
-          veg_state,red_state                                                  &
+          veg_state,red_state,                                                 &
         !OUT diagnostics
+          veg_index_pts,veg_index,l_veg_step                                   &
         )
 
 !Only get the data structures - the data comes through the calling tree
@@ -75,6 +87,23 @@ asteps_since_triffid
                       ! IN Number of atmospheric timesteps since last call
                       !    to TRIFFID.
 
+!----------------------------------------------------------------------------
+! Variables with INTENT out
+!----------------------------------------------------------------------------
+
+INTEGER, INTENT(OUT) ::                                                        &
+  veg_index(land_pts),                                                         &
+  veg_index_pts
+        ! Indices (and count) of land points on which veg3 operates this
+        ! timestep. Also used by soil_bgc_4pool_control (called
+        ! separately from surf_couple_extra_mod.F90) to identify which
+        ! points require the soil carbon update below.
+
+LOGICAL, INTENT(OUT) ::                                                        &
+  l_veg_step
+  ! Flag to indicate whether this is a vegetation dynamics timestep. Also
+  ! used by the caller to gate the call to soil_bgc_4pool_control.
+
 !-----------------------------------------------------------------------------
 ! Local Objects
 !-----------------------------------------------------------------------------
@@ -84,10 +113,7 @@ asteps_since_triffid
 ! Local Variables
 !-----------------------------------------------------------------------------
 
-INTEGER ::                                                                     &
-  veg_index(land_pts),                                                         &
-  veg_index_pts,                                                               &
-  l,n
+INTEGER :: l,n
         ! Counters
 
 REAL ::                                                                        &
@@ -113,6 +139,9 @@ DO l = 1,land_pts
   END IF
 END DO
 
+
+l_veg_step = (asteps_since_triffid == veg3_ctrl%nstep_trif)
+
 ! Call the Vegetation Biogeochemistry model
 IF (veg_index_pts > 0) CALL veg3_run_ctrl(                                     &
               !IN Control vars
@@ -125,8 +154,9 @@ IF (veg_index_pts > 0) CALL veg3_run_ctrl(                                     &
               !OUT Diagnostics
               )
 
-! Call the soil Biogeochemistry model
-! This is where the soil biogechemistry ctrl call will be made
+! Soil biogeochemistry is called by the caller (surf_couple_extra_mod.F90)
+! using veg_index_pts, veg_index and l_veg_step diagnosed above, keeping it
+! independent of veg3/RED (see soil_bgc_4pool_control_mod.F90).
 
 END SUBROUTINE next_gen_biogeochem
 

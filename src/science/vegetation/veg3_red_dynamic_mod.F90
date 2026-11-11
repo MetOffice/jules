@@ -206,11 +206,11 @@ g0
 INTEGER              :: k
 
 REAL                 ::                                                        &
-p,                                                                             &
+P_a,                                                                           &
               !  The total PFT carbon assimilate across the gridbox.
               !  (kgC m-2 s-1)
-g,                                                                             &
-              !  Total gridbox carbon assimilate devoted to vegetation
+G_struct,                                                                      &
+              ! Total gridbox carbon assimilate devoted to vegetation
               ! structural growth. (kgC m-2 s-1)
 plantNumDensity_g_sum
               !  Summation of the relative cohort contribution towards the
@@ -230,12 +230,12 @@ DO k = 1, mclass
 END DO
 
 ! Partition the growth into recruitment and structural growth
-p= frac * growth
-P_s = alpha_recrt * p
-g = (1.0 - alpha_recrt) * p
+P_a = frac * growth
+P_s = alpha_recrt * P_a
+G_struct = (1.0 - alpha_recrt) * P_a
 
 IF (plantNumDensity_g_sum > 0) THEN
-  g0 = g / plantNumDensity_g_sum
+  g0 = G_struct / plantNumDensity_g_sum
 END IF
 
 IF (growth < 0.0) THEN
@@ -246,7 +246,7 @@ IF (growth < 0.0) THEN
 
   ! Adjust g0 to account for the loss of recruitment
   IF (plantNumDensity_g_sum > 0) THEN
-    g0 = p / plantNumDensity_g_sum
+    g0 = G_struct / plantNumDensity_g_sum
   END IF
 
 END IF
@@ -366,14 +366,8 @@ DO k = 1, mclass
 
   IF (growth < 0.0) THEN
     ! Negative growth is represented as a downward shrinkage flux of
-    ! individuals through the mass classes, the lowest mass class has
-    ! nowhere lower to shrink into, so its share of the loss is instead matched
-    ! by an equivalent mortality rate.
+    ! individuals through the mass classes.
     mort(k) = mort_base + mort_add(k)
-
-    IF (k == 1) THEN
-      mort(k) = mort(k) - g_mass(k) / mass_cohort(k)
-    END IF
 
     IF (k < mclass) THEN
       ! Flux shrinking down into this class from the class above
@@ -383,12 +377,17 @@ DO k = 1, mclass
       flux_in(k) = 0.0
     END IF
 
-    IF (k > 1) THEN
+    IF (k == 1) THEN
+      ! Truncate shrinkage at the lowest mass class - individuals cannot
+      ! shrink below the lowest mass class, so we reduce the litterfall flux
+      ! to account for the negative growth.
+      flux_out(k) = 0.0
+      mort_litC = mort_litC + plantNumDensity(k) * g_mass(k)
+
+    ELSE
       ! Flux shrinking out of this class into the class below
       flux_out(k) = - plantNumDensity(k) * g_mass(k)                           &
         / (mass_cohort(k) - mass_cohort(k-1))
-    ELSE
-      flux_out(k) = 0.0
     END IF
 
   ELSE
@@ -446,8 +445,12 @@ END DO
 ! If the resultant vegetation fraction is less than the minimum
 ! fraction, add trees to the lowest mass class to make up the difference
 IF (frac_check < frac_min) THEN
+  ! Take this additional carbon from the litterfall flux
+  mort_litC = mort_litC - (frac_min - frac_check)/crwn_area_mass(1) *          &
+              mass_cohort(1) / dt_red
   plantNumDensity(1) = plantNumDensity(1)                                      &
     +(frac_min - frac_check) / crwn_area_mass(1)
+
 END IF
 
 END SUBROUTINE update_pft_size_structure
