@@ -47,13 +47,15 @@ USE water_constants_mod, ONLY: lc, lf, tm
 
 USE ancil_info, ONLY: nsoilt
 
-USE jules_irrig_mod, ONLY: l_irrig_dmd
+USE jules_irrig_mod, ONLY: l_irrig_dmd, l_soil_evap_irrig_separate
 
 USE jules_surface_mod, ONLY: l_aggregate, l_flake_model
 USE jules_surface_types_mod, ONLY: lake
 
-USE jules_science_fixes_mod, ONLY: l_fix_neg_snow
-
+USE jules_science_fixes_mod, ONLY: i_fix_neg_snow, ip_fix_neg_snow_none,       &
+                                   ip_fix_neg_snow_none_corr,                  &
+                                   ip_fix_neg_snow_v1, ip_fix_neg_snow_v2,     &
+                                   ip_fix_neg_snow_v3
 USE sf_diags_mod, ONLY: strnewsfdiag
 
 USE parkind1, ONLY: jprb, jpim
@@ -160,7 +162,6 @@ REAL(KIND=real_jlslsm) ::                                                      &
                              !     soil layer (kg/m2/s).
                              !     of land tiles.
 
-
 !New arguments replacing USE statements
 ! crop_vars_mod (IN)
 REAL(KIND=real_jlslsm), INTENT(IN) :: frac_irr_soilt(land_pts,nsoilt)
@@ -188,6 +189,14 @@ REAL(KIND=real_jlslsm) ::                                                      &
 !                            ! WORK Evapotranspiration from soil
 !                            !     moisture through non-irrigated
 !                            !     fraction of land tiles (kg/m2/s).
+,ext_nir_soilt(land_pts,nsoilt,sm_levels)                                      &
+!                            ! WORK Extraction of water from each
+!                            !     soil layer from non-irrigated
+!                            !     fraction of land tiles (kg/m2/s).
+,wt_ext_nir_surft(land_pts,sm_levels,nsurft)                                   &
+!                           ! WORK Fraction of transpiration
+!                           !    extracted from each soil layer
+!                           !    by non-irrigated part of each tile.
 ,smc_nir_soilt(land_pts,nsoilt)
 !                            ! WORK Available soil moisture (kg/m2).
 !                            !     fraction (kg/m2/s).
@@ -252,6 +261,11 @@ DO n = 1,nsurft
     IF (l_irrig_dmd) THEN
       esoil_nir_surft(l,n) = 0.0
       esoil_irr_surft(l,n) = 0.0
+      IF ( l_soil_evap_irrig_separate ) THEN
+        DO m = 1,sm_levels
+          wt_ext_nir_surft(l,m,n) = 0.0
+        END DO
+      END IF
     END IF
     elake_surft(l,n) = 0.0
     ei_surft(l,n) = 0.0
@@ -264,7 +278,14 @@ DO n = 1,nsurft
   DO k = 1,surft_pts(n)
     l = surft_index(k,n)
     e_surft_old(l,n) = fqw_surft(l,n)
-    IF (l_fix_neg_snow) THEN
+    SELECT CASE (i_fix_neg_snow)
+    CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
+      IF (snow_surft(l,n)  >   0.0) THEN
+        le_surft_old(l,n) = (lc + lf) * fqw_surft(l,n)
+      ELSE
+        le_surft_old(l,n) = lc * fqw_surft(l,n)
+      END IF
+    CASE (ip_fix_neg_snow_v1)
       ! Calculate the sublimation or deposition on the snow fraction
       ! consistently with the assumed resistance network. The canopy
       ! evaporation must be set here to allow it to be modified to
@@ -278,15 +299,34 @@ DO n = 1,nsurft
         ei_surft(l,n) = (1.0 - flake(l,n)) * fracaero_s(l,n) *                 &
                         fqw_surft(l,n) / resft(l,n)
         le_surft_old(l,n) = le_surft_old(l,n) + lf * ei_surft(l,n)
-
       END IF
-    ELSE
-      IF (snow_surft(l,n)  >   0.0) THEN
-        le_surft_old(l,n) = (lc + lf) * fqw_surft(l,n)
-      ELSE
-        le_surft_old(l,n) = lc * fqw_surft(l,n)
+    CASE (ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+      le_surft_old(l,n) = lc * fqw_surft(l,n)
+      ! Calculate the sublimation or deposition on the snow fraction
+      ! consistently with the assumed resistance network. The canopy
+      ! evaporation must be set here to allow it to be modified to
+      ! account for exhaustion of the snow store.
+      IF (resft(l,n) > 0.0) THEN
+        ecan_surft(l,n) = (1.0 - flake(l,n)) *                                 &
+                          (fracaero_t(l,n) - fracaero_s(l,n)) *                &
+                          fqw_surft(l,n) / resft(l,n)
+        IF (snow_surft(l,n)  >   0.0) THEN
+          SELECT CASE (i_fix_neg_snow)
+          CASE (ip_fix_neg_snow_v2)
+            ei_surft(l,n) = (1.0 - flake(l,n)) * fracaero_s(l,n) *             &
+                            fqw_surft(l,n) / resft(l,n)
+          CASE (ip_fix_neg_snow_v3)
+            ! We do not pass a separate resistance factor for canopy snow
+            ! to this routine, but we can effectively back it out.
+            ei_surft(l,n) = (1.0 - (flake(l,n) + (1.0 - flake(l,n)) *          &
+                            (fracaero_t(l,n) - fracaero_s(l,n)) +              &
+                            (1.0 - fracaero_t(l,n)) * resfs(l,n) ) /           &
+                            resft(l,n) ) * fqw_surft(l,n)
+          END SELECT
+          le_surft_old(l,n) = le_surft_old(l,n) + lf * ei_surft(l,n)
+        END IF
       END IF
-    END IF
+    END SELECT
   END DO
 !$OMP END DO
 END DO
@@ -299,7 +339,14 @@ DO n = 1,nsurft
   DO k = 1,surft_pts(n)
     l = surft_index(k,n)
     IF (snow_surft(l,n)  >   0.0) THEN
-      IF (l_fix_neg_snow) THEN
+      SELECT CASE (i_fix_neg_snow)
+      CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
+        ei_surft(l,n) =  fqw_surft(l,n)
+        edt = ei_surft(l,n) * timestep
+        IF ( edt  >   snow_surft(l,n) )                                        &
+          ei_surft(l,n) = snow_surft(l,n) / timestep
+        fqw_surft(l,n) = fqw_surft(l,n) -  ei_surft(l,n)
+      CASE (ip_fix_neg_snow_v1, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
         IF (fqw_surft(l,n) < 0.0) THEN
           IF (tstar_surft(l,n) < tm) THEN
             ! Deposit all moisture on the snow.
@@ -322,13 +369,7 @@ DO n = 1,nsurft
             ei_surft(l,n) = snow_surft(l,n) / timestep
           END IF
         END IF
-      ELSE
-        ei_surft(l,n) =  fqw_surft(l,n)
-        edt = ei_surft(l,n) * timestep
-        IF ( edt  >   snow_surft(l,n) )                                        &
-          ei_surft(l,n) = snow_surft(l,n) / timestep
-        fqw_surft(l,n) = fqw_surft(l,n) -  ei_surft(l,n)
-      END IF
+      END SELECT
     END IF
   END DO
 !$OMP END DO
@@ -406,24 +447,18 @@ DO n = 1,nsurft
                                      *fqw_surft(l,n) / resft(l,n)
       END IF
       elake_surft(l,n) = flake(l,n) * fqw_surft(l,n) / resft(l,n)
-      ! With the fix, this has already been calculated and adjusted for
-      ! exhaustion of the snow store.
-      IF ( .NOT. l_fix_neg_snow)                                               &
+      SELECT CASE (i_fix_neg_snow)
+      CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
         ecan_surft(l,n) = (1.0 - flake(l,n)) *                                 &
                           fracaero_t(l,n) * fqw_surft(l,n) / resft(l,n)
+      CASE (ip_fix_neg_snow_v1, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+        ! With the fix, this has already been calculated and adjusted for
+        ! exhaustion of the snow store.
+      END SELECT
       edt = ecan_surft(l,n) * timestep
       IF ( edt  >   canopy(l,n) ) THEN
-        IF (l_fix_neg_snow) THEN
-          esoil_surft(l,n) = esoil_surft(l,n) + resfs(l,n) *                   &
-                             (ecan_surft(l,n) - canopy(l,n) / timestep)
-          IF (sf_diag%l_et_stom .OR. sf_diag%l_et_stom_surft) THEN
-            !           Check that we can use ecan_surft here.
-            sf_diag%et_stom_surft(l,n) = sf_diag%et_stom_surft(l,n) +          &
-                                         sf_diag%resfs_stom(l,n) *             &
-                                         (ecan_surft(l,n) -                    &
-                                          canopy(l,n) / edt)
-          END IF
-        ELSE
+        SELECT CASE (i_fix_neg_snow)
+        CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
           esoil_surft(l,n) = (1.0 - flake(l,n)) *                              &
                              (1.0 - fracaero_t(l,n) * canopy(l,n) / edt) *     &
                                  resfs(l,n) * fqw_surft(l,n) / resft(l,n)
@@ -434,7 +469,17 @@ DO n = 1,nsurft
                                           sf_diag%resfs_stom(l,n) *            &
                                           fqw_surft(l,n) / resft(l,n)
           END IF
-        END IF
+        CASE (ip_fix_neg_snow_v1, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
+          esoil_surft(l,n) = esoil_surft(l,n) + resfs(l,n) *                   &
+                             (ecan_surft(l,n) - canopy(l,n) / timestep)
+          IF (sf_diag%l_et_stom .OR. sf_diag%l_et_stom_surft) THEN
+            !           Check that we can use ecan_surft here.
+            sf_diag%et_stom_surft(l,n) = sf_diag%et_stom_surft(l,n) +          &
+                                         sf_diag%resfs_stom(l,n) *             &
+                                         (ecan_surft(l,n) -                    &
+                                          canopy(l,n) / edt)
+          END IF
+        END SELECT
         ecan_surft(l,n) = canopy(l,n) / timestep
       END IF
     ELSE IF (snow_surft(l,n) <= 0.0) THEN
@@ -445,8 +490,12 @@ DO n = 1,nsurft
         ei_surft(l,n) =  fqw_surft(l,n)
         ! With the fix, ecan_surft will have been initialized and must be
         ! zeroed.
-        IF (l_fix_neg_snow)                                                    &
+        SELECT CASE (i_fix_neg_snow)
+        CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
+          ! No action in this case.
+        CASE (ip_fix_neg_snow_v1, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
           ecan_surft(l,n) = 0.0
+        END SELECT
       END IF
     END IF
     ecan(i,j) = ecan(i,j) + tile_frac(l,n) * ecan_surft(l,n)
@@ -688,6 +737,9 @@ DO m = 1,sm_levels
   DO l = 1,land_pts
     ext_soilt(l,:,m) = 0.0
     ext_irr_soilt(l,:,m) = 0.0
+    IF ( l_soil_evap_irrig_separate ) THEN
+      ext_nir_soilt(l,:,m) = 0.0
+    END IF
   END DO
 !$OMP END DO
 END DO
@@ -709,6 +761,15 @@ DO m = 1,sm_levels
           ext_soilt(l,mm,m) = ext_soilt(l,mm,m)                                &
                             + tile_frac(l,n) * wt_ext_surft(l,m,n)             &
                             * esoil_surft(l,n)
+
+          IF ( l_soil_evap_irrig_separate ) THEN
+            wt_ext_nir_surft(l,m,n) =  wt_ext_surft(l,m,n)
+            IF (1.0- frac_irr_surft(l,n) > EPSILON(1.0) ) THEN
+              wt_ext_nir_surft(l,m,n) =  (wt_ext_surft(l,m,n) -                &
+                   wt_ext_irr_surft(l,m,n) * frac_irr_surft(l,n)) /            &
+                   (1.0- frac_irr_surft(l,n))
+            END IF
+          END IF
         END DO
 !$OMP END DO
       END IF
@@ -761,6 +822,23 @@ IF (l_irrig_dmd) THEN
 !$OMP DO SCHEDULE(STATIC)
         DO k = 1,surft_pts(n)
           l = surft_index(k,n)
+          IF ( l_soil_evap_irrig_separate ) THEN
+            wt_ext_nir_surft(l,m,n) =  wt_ext_surft(l,m,n)
+            IF ((1.0- frac_irr_surft(l,n)) > EPSILON(1.0) ) THEN
+              wt_ext_nir_surft(l,m,n) =  (wt_ext_surft(l,m,n) -                &
+                   wt_ext_irr_surft(l,m,n) * frac_irr_surft(l,n)) /            &
+                   (1.0- frac_irr_surft(l,n))
+            END IF
+            IF (1.0 - frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
+              ext_nir_soilt(l,mm,m) = ext_nir_soilt(l,mm,m)                    &
+                   + tile_frac(l,n)                                            &
+                   * wt_ext_nir_surft(l,m,n)                                   &
+                   * esoil_nir_surft(l,n)                                      &
+                   * (1.0 - frac_irr_surft(l,n))                               &
+                   / (1.0 - frac_irr_soilt(l,mm))
+            END IF
+          END IF
+
           IF ( frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
             ext_irr_soilt(l,mm,m) = ext_irr_soilt(l,mm,m)                      &
                                     + tile_frac(l,n)                           &
@@ -780,6 +858,23 @@ IF (l_irrig_dmd) THEN
 !$OMP DO SCHEDULE(STATIC)
         DO k = 1,surft_pts(n)
           l = surft_index(k,n)
+
+          IF ( l_soil_evap_irrig_separate ) THEN
+            wt_ext_nir_surft(l,m,n) =  wt_ext_surft(l,m,n)
+            IF (1.0- frac_irr_surft(l,n) > EPSILON(1.0) ) THEN
+              wt_ext_nir_surft(l,m,n) =  (wt_ext_surft(l,m,n) -                &
+                   wt_ext_irr_surft(l,m,n) * frac_irr_surft(l,n)) /            &
+                   (1.0- frac_irr_surft(l,n))
+            END IF
+            IF (1.0- frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
+              ext_nir_soilt(l,mm,m) = ext_nir_soilt(l,mm,m)                    &
+                   + wt_ext_nir_surft(l,m,n)                                   &
+                   * esoil_nir_surft(l,n)                                      &
+                   * (1.0 - frac_irr_surft(l,n))                               &
+                   / (1.0 - frac_irr_soilt(l,mm))
+            END IF
+          END IF
+
           IF ( frac_irr_soilt(l,mm) > EPSILON(1.0) ) THEN
             ext_irr_soilt(l,mm,m) = ext_irr_soilt(l,mm,m)                      &
                                     + wt_ext_irr_surft(l,m,n)                  &
@@ -795,6 +890,39 @@ IF (l_irrig_dmd) THEN
     END DO !nsurft
   END DO !sm_levels
 END IF !l_irrig_dmd
+
+IF ( l_soil_evap_irrig_separate ) THEN
+  DO m = 1,sm_levels
+    DO n = 1,nsurft
+
+      !Set the current soil tile (see notice above)
+      IF (nsoilt == 1) THEN
+        !There is only 1 soil tile
+        mm = 1
+        IF ( .NOT. ((l_flake_model) .AND. (n == lake)) ) THEN
+!$OMP DO SCHEDULE(STATIC)
+          DO k = 1,surft_pts(n)
+            l = surft_index(k,n)
+            ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) + &
+                 (1.0 - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+          END DO !surft_pts
+!$OMP END DO
+        END IF
+
+      ELSE ! nsoilt == nsurft
+        !Soil tiles map directly on to surface tiles
+        mm = n
+!$OMP DO SCHEDULE(STATIC)
+        DO k = 1,surft_pts(n)
+          l = surft_index(k,n)
+          ext_soilt(l,mm,m) = frac_irr_soilt(l,mm) * ext_irr_soilt(l,mm,m) +   &
+               (1.0 - frac_irr_soilt(l,mm)) * ext_nir_soilt(l,mm,m)
+        END DO !surft_pts
+!$OMP END DO
+      END IF !nsoilt
+    END DO !nsurft
+  END DO !sm_levels
+END IF !l_soil_evap_irrig_separate
 
 !-----------------------------------------------------------------------
 ! Calculate increments to surface heat fluxes, moisture fluxes and

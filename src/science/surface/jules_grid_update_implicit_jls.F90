@@ -36,7 +36,7 @@ SUBROUTINE jules_grid_update_implicit (                                        &
  rhokm_u_1,rhokm_v_1,r_gamma,                                                  &
  gamma1,gamma2,alpha1,alpha1_sea,alpha1_sice,                                  &
  ashtf_prime,ashtf_prime_sea,ashtf_prime_surft,                                &
- du_1,dv_1,resft,rhokh_surft,rhokh_sice,rhokh_sea,ctctq1,                      &
+ du_1,dv_1,resft,fracaero_s,rhokh_surft,rhokh_sice,rhokh_sea,ctctq1,           &
  dqw1_1,dtl1_1,du_star1,dv_star1,cq_cm_u_1,cq_cm_v_1,                          &
  l_correct,flandg_u,flandg_v,snow_surft,                                       &
 ! INOUT data :
@@ -157,6 +157,9 @@ REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
                              ! IN Total resistance factor.
                              !    fracaero+(1-fracaero)*resfs for
                              !    snow-free land, 1 for snow.
+,fracaero_s(land_pts,nsurft)                                                   &
+                             ! IN Fraction of the tile with sublimation or
+                             !    deposition
 ,rhokh_surft(land_pts,nsurft)                                                  &
                              ! IN Surface exchange coefficients
                              !    for land tiles
@@ -343,7 +346,7 @@ CALL im_sf_pt2 (                                                               &
 ,flandg,tile_frac,snow_surft,nice_use,ice_fract,ice_fract_cat_use              &
 ,r_gamma,gamma1,gamma2,alpha1,alpha1_sea,alpha1_sice                           &
 ,ashtf_prime,ashtf_prime_sea,ashtf_prime_surft                                 &
-,resft,dtstar_surft,dtstar_sea,dtstar_sice                                     &
+,resft,fracaero_s,dtstar_surft,dtstar_sea,dtstar_sice                          &
 ,rhokm_u_1,rhokm_v_1,rhokh_surft,rhokh_sice,rhokh_sea                          &
 ,ctctq1,dqw1_1,dtl1_1                                                          &
 ,cq_cm_u_1,cq_cm_v_1,du_1,dv_1,du_star1,dv_star1                               &

@@ -30,7 +30,7 @@ General/Technical changes
 Bugs fixed
 ----------
 
- *  The switch :nml:mem:`JULES_TEMP_FIXES::l_fix_neg_snow` corrects the formulation of snow melting and introduces an extra limit in the calculation of canopy unloading, both of which changes are required to prevent the occurrence of negative snow. Additionally and generically, the snow melt will now be passed through the control code as an increment, not as a rate. This prevents the occurrence of lingering tiny amounts of snow and is required with the fix. (#1396)
+ *  The switch "JULES_TEMP_FIXES::l_fix_neg_snow" corrects the formulation of snow melting and introduces an extra limit in the calculation of canopy unloading, both of which changes are required to prevent the occurrence of negative snow. Additionally and generically, the snow melt will now be passed through the control code as an increment, not as a rate. This prevents the occurrence of lingering tiny amounts of snow and is required with the fix. (#1396)
  *  Improved code for water table calculations, accounting for for vertically-varying soil properties. (#1488)
  *  Bug fix for when `f_wetl is zero` in the layered methane flux code. (#1496)
 

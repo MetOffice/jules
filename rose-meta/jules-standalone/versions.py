@@ -216,11 +216,59 @@ class vn82_t32(MacroUpgrade):
         return config, self.reports
 
 
+class vn82_t165(MacroUpgrade):
+
+    """Upgrade macro from JULES by Nic Gedney"""
+
+    BEFORE_TAG = "vn8.2_t32"
+    AFTER_TAG = "vn8.2_t165"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add l_soil_evap_irrig_separate to namelist jules_irrig
+        self.add_setting(
+            config,
+            ["namelist:jules_irrig", "l_soil_evap_irrig_separate"],
+            ".false.",
+        )
+
+        return config, self.reports
+
+
+class vn82_t167(MacroUpgrade):
+    """Upgrade macro from JULES by J. M. Edwards"""
+
+    BEFORE_TAG = "vn8.2_t165"
+    AFTER_TAG = "vn8.2_t167"
+
+    def upgrade(self, config, meta_config=None):
+        """Upgrade a JULES runtime app configuration."""
+
+        # Add settings
+        l_fix_neg_snow = (
+            self.get_setting_value(
+                config, ["namelist:jules_temp_fixes", "l_fix_neg_snow"], no_ignore=False
+            )
+        ) == ".true."
+        if l_fix_neg_snow:
+            self.add_setting(
+                config, ["namelist:jules_temp_fixes", "i_fix_neg_snow"], "2"
+            )
+        else:
+            self.add_setting(
+                config, ["namelist:jules_temp_fixes", "i_fix_neg_snow"], "0"
+            )
+        self.remove_setting(config, ["namelist:jules_temp_fixes", "l_fix_neg_snow"])
+
+        return config, self.reports
+
+
 class vn82_t148(MacroUpgrade):
 
     """Upgrade macro from JULES by Helen Baron"""
 
-    BEFORE_TAG = "vn8.2_t32"
+    BEFORE_TAG = "vn8.2_t167"
     AFTER_TAG = "vn8.2_t148"
 
     def upgrade(self, config, meta_config=None):

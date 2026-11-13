@@ -14,7 +14,8 @@ CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='SF_FLUX_MOD'
 CONTAINS
 SUBROUTINE sf_flux (                                                           &
  points,surft_pts,pts_index,surft_index,                                       &
- nsnow,n,canhc,dzsurf,hcons,ashtf,qstar,q_elev,radnet,resft,fracs,             &
+ nsnow,n,canhc,dzsurf,hcons,ashtf,                                             &
+ qstar,q_elev,radnet,resft,fracs,                                              &
  rhokh_1,l_soil_point,snowdepth,timestep,                                      &
  t_elev,ts1_elev,tstar,vfrac,rhokh_can,                                        &
  z0h,z0m_eff,zdt,z1_tq,lh0,emis_surft,emis_soil,                               &
@@ -34,7 +35,10 @@ USE jules_vegetation_mod, ONLY: l_vegcan_soilfx
 USE jules_urban_mod, ONLY: l_moruses_storage
 USE jules_surface_mod, ONLY: l_aggregate, l_epot_corr
 USE jules_science_fixes_mod, ONLY: l_fix_moruses_roof_rad_coupling,            &
-                                   l_fix_neg_snow
+                                   i_fix_neg_snow, ip_fix_neg_snow_none,       &
+                                   ip_fix_neg_snow_none_corr,                  &
+                                   ip_fix_neg_snow_v1, ip_fix_neg_snow_v2,     &
+                                   ip_fix_neg_snow_v3
 
 USE parkind1, ONLY: jprb, jpim
 USE yomhook, ONLY: lhook, dr_hook
@@ -220,12 +224,13 @@ DO k = 1,surft_pts
              tstar(l)**3 )
 
   lh = lh0
-  IF (l_fix_neg_snow) THEN
+  SELECT CASE (i_fix_neg_snow)
+  CASE (ip_fix_neg_snow_none, ip_fix_neg_snow_none_corr)
+    IF (snowdepth(l) > 0.0) lh = ls
+  CASE (ip_fix_neg_snow_v1, ip_fix_neg_snow_v2, ip_fix_neg_snow_v3)
     ! Effective latent. resft should not be 0 if there is any snow.
     IF (resft(l) > 0.0) lh = lc + lf * fracs(l) / resft(l)
-  ELSE
-    IF (snowdepth(l) > 0.0) lh = ls
-  END IF
+  END SELECT
 
   IF (l_vegdrag) THEN
     ftl_1(l) = rhokh_1(l) * (tstar(l) - t_elev(l) -                            &
