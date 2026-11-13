@@ -11,7 +11,7 @@
 ! Description:
 !     Science routines for calculating reservoir routing
 !     using the model developed by Hanazaki et al. (2022) with
-!     k coefficient as used in Casado-Rodríguez et al. (2026) 
+!     k coefficient as used in Casado-Rodríguez et al. (2026)
 
 MODULE  route_reservoirs_mod
 
