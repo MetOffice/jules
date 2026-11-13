@@ -1019,10 +1019,8 @@ IF ( l_allocate ) THEN
   ALLOCATE(minor_res_storage_global(land_size_minor_res), STAT = ERROR)
   error_sum = error_sum + ERROR
 
-  ! priority_order_global is allocated at full size on all tasks (if needed),
-  ! as it is filled from the result of gather_land_field on every task.
   IF ( l_prioritise ) THEN
-    ALLOCATE(priority_order_global(global_land_pts,nwater_use), STAT = ERROR)
+    ALLOCATE(priority_order_global(land_size,nwater_use), STAT = ERROR)
   ELSE
     ALLOCATE(priority_order_global(1,1), STAT = ERROR)
   END IF
@@ -1141,7 +1139,7 @@ USE jules_water_resources_mod, ONLY: l_have_groundwater, l_prioritise,         &
 
 USE model_grid_mod, ONLY: global_land_pts
 
-USE parallel_mod, ONLY: gather_land_field
+USE parallel_mod, ONLY: gather_land_field, is_master_task
 
 IMPLICIT NONE
 
@@ -1204,7 +1202,10 @@ IF ( l_prioritise ) THEN
     ! gather_land_field requires REAL arguments, so provide those.
     rland(:) = REAL( priority_order(:,i) )
     CALL gather_land_field( rland, rland_global )
-    priority_order_global(:,i) = INT( rland_global(:) )
+    ! priority_order_global is only allocated at full size on the master task.
+    IF ( is_master_task() ) THEN
+      priority_order_global(:,i) = INT( rland_global(:) )
+    END IF
   END DO
 END IF
 
