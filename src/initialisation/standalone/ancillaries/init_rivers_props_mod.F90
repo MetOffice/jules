@@ -51,6 +51,7 @@ USE jules_rivers_mod, ONLY:                                                    &
   rivers_camaflood, rivers_rfm,                                                &
   rivers_trip, y1_land_grid, l_riv_overbank, l_outflow_per_river,              &
   l_init_storage,                                                              &
+  l_reservoirs,                                                                &
   ! types
   rivers_type, rivers_data_type
 
@@ -319,6 +320,28 @@ IF ( is_master_task() ) THEN
   IF ( l_outflow_per_river ) THEN
     nvars_required = nvars_required + 1
     required_vars(nvars_required) = 'rivers_outflow_number'
+  END IF
+
+  !----------------------------------------------------------------------------
+  ! Add variables for reservoirs.
+  !----------------------------------------------------------------------------
+  IF ( l_reservoirs ) THEN
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_capacity_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_catch_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_year_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_critical_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_flood_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_emergency_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_normal_release_grid'
+    nvars_required = nvars_required + 1
+    required_vars(nvars_required) = 'res_flood_release_grid'
   END IF
 
   nvars_optional = nvars_optional + 1

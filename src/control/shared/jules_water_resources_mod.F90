@@ -202,6 +202,8 @@ INTEGER ::                                                                     &
     ! Index of livestock use in multi-use arrays.
   use_transfers = 0,                                                           &
     ! Index of transfers in multi-use arrays.
+  sw_res_source = 0,                                                           &
+    ! Index of reservoirs in surface water source arrays.
   water_res_count = 0
     ! Counter of timesteps done in current water resource timestep.
 
@@ -566,7 +568,7 @@ SUBROUTINE set_jules_water_resources( l_top )
 !------------------------------------------------------------------------------
 
 ! This dependency on jules_rivers_mod is not ideal.
-USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_rivers
+USE jules_rivers_mod, ONLY: l_reservoirs, l_minor_reservoirs, l_rivers
 
 IMPLICIT NONE
 
@@ -636,6 +638,10 @@ IF ( l_water_resources ) THEN
   IF ( l_rivers ) THEN
     n_sw_source     = n_sw_source + 1
     sw_river_source = n_sw_source
+  END IF
+  IF ( l_reservoirs ) THEN
+    n_sw_source         = n_sw_source + 1
+    sw_res_source = n_sw_source
   END IF
   IF ( l_minor_reservoirs ) THEN
     n_sw_source         = n_sw_source + 1
