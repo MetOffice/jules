@@ -749,9 +749,7 @@ ALLOCATE(rivers_data%rivers_adj_on_landpts(land_pts))
 ! for JULES standaline
 ! This will be changed in #1258 so the setup has been left in.
 #if defined(UM_JULES)
-ALLOCATE(rivers_data%map_river_to_land_points(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_seq_rp(np_rivers))
-ALLOCATE(rivers_data%rivers_sto_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_lat_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_lon_rp(np_rivers))
 !!!ALLOCATE(rivers_data%rivers_ilat_rp(np_rivers))
@@ -804,9 +802,7 @@ rivers_data%acc_lake_evap_gb(:,:)   = 0.0
 rivers_data%rivers_sto_per_m2_on_landpts(:) = 0.0
 rivers_data%rivers_adj_on_landpts(:) = 0.0
 #if defined(UM_JULES)
-rivers_data%map_river_to_land_points(:) = imdi
 !!!rivers_data%rivers_seq_rp(:) = 0
-rivers_data%rivers_sto_rp(:) = 0.0
 !!!rivers_data%rivers_lat_rp(:) = 0.0
 !!!rivers_data%rivers_lon_rp(:) = 0.0
 !!!rivers_data%rivers_ilat_rp(:) = 0.0
@@ -1466,7 +1462,6 @@ DEALLOCATE(rivers_data%rfm_land_rp)
 DEALLOCATE(rivers_data%rivers_index_rp)
 DEALLOCATE(rivers_data%rivers_next_rp)
 !!!DEALLOCATE(rivers_data%rivers_seq_rp)
-DEALLOCATE(rivers_data%rivers_sto_rp)
 !!!DEALLOCATE(rivers_data%rivers_lat_rp)
 !!!DEALLOCATE(rivers_data%rivers_lon_rp)
 !!!DEALLOCATE(rivers_data%rivers_ilat_rp)
@@ -1532,10 +1527,8 @@ rivers%acc_lake_evap_gb => rivers_data%acc_lake_evap_gb
 rivers%rivers_sto_per_m2_on_landpts => rivers_data%rivers_sto_per_m2_on_landpts
 rivers%rivers_adj_on_landpts => rivers_data%rivers_adj_on_landpts
 #if defined(UM_JULES)
-rivers%map_river_to_land_points => rivers_data%map_river_to_land_points
 rivers%global_land_index => rivers_data%global_land_index
 !!!rivers%rivers_seq_rp => rivers_data%rivers_seq_rp
-rivers%rivers_sto_rp => rivers_data%rivers_sto_rp
 !!!rivers%rivers_lat_rp => rivers_data%rivers_lat_rp
 !!!rivers%rivers_lon_rp => rivers_data%rivers_lon_rp
 !!!rivers%rivers_ilat_rp => rivers_data%rivers_ilat_rp
@@ -1744,12 +1737,12 @@ error_sum = error_sum + ERROR
 ALLOCATE(rivers_data%rrun_surf_rp(np_rivers_tmp),        STAT = ERROR)
 error_sum = error_sum + ERROR
 
-!!!------------------------------------------------------------------------------
-!!! Allocate variable specific to remapping.
-!!!------------------------------------------------------------------------------
-!!ALLOCATE(rivers_data%map_river_to_land_points(np_rivers_tmp), STAT = ERROR)
-!!error_sum = error_sum + ERROR
-!!
+!------------------------------------------------------------------------------
+! Allocate variable specific to remapping.
+!------------------------------------------------------------------------------
+ALLOCATE(rivers_data%map_river_to_land_points(np_rivers_tmp), STAT = ERROR)
+error_sum = error_sum + ERROR
+
 !!!------------------------------------------------------------------------------
 !!! Allocate CaMa-Flood variables
 !!!------------------------------------------------------------------------------
@@ -1874,24 +1867,24 @@ error_sum = error_sum + ERROR
 ALLOCATE(rivers_data%rfm_surfstore_rp(np_rivers_tmp), STAT = ERROR )
 error_sum = error_sum + ERROR
 
-!!!------------------------------------------------------------------------------
-!!! Allocate TRIP variables
-!!!------------------------------------------------------------------------------
-!!IF ( i_river_vn == rivers_trip .AND. l_is_master_task ) THEN
-!!  ! Full size.
-!!  np_rivers_tmp = np_rivers
-!!ELSE
-!!  ! Minimum size.
-!!  np_rivers_tmp = 1
-!!END IF
-!!
-!!! TRIP ancillaries and related fields.
+!------------------------------------------------------------------------------
+! Allocate TRIP variables
+!------------------------------------------------------------------------------
+IF ( i_river_vn == rivers_trip .AND. l_is_master_task ) THEN
+  ! Full size.
+  np_rivers_tmp = np_rivers
+ELSE
+  ! Minimum size.
+  np_rivers_tmp = 1
+END IF
+
+! TRIP ancillaries and related fields.
 !!ALLOCATE(rivers_data%rivers_seq_rp(np_rivers_tmp), STAT = ERROR)
 !!error_sum = error_sum + ERROR
-!!! TRIP stores.
-!!ALLOCATE(rivers_data%rivers_sto_rp(np_rivers_tmp), STAT = ERROR)
-!!error_sum = error_sum + ERROR
-!!
+! TRIP stores.
+ALLOCATE(rivers_data%rivers_sto_rp(np_rivers_tmp), STAT = ERROR)
+error_sum = error_sum + ERROR
+
 !!!------------------------------------------------------------------------------
 !!! Allocate River coupling variables.
 !!!------------------------------------------------------------------------------
@@ -1989,10 +1982,10 @@ rivers_data%rrun_rp(:)           = 0.0
 rivers_data%rrun_sub_surf_rp(:)  = 0.0
 rivers_data%rrun_surf_rp(:)      = 0.0
 !!rivers_data%inland_outflow_rp(:) = rmdi
-!!
-!!! Initialise regridding variable.
-!!rivers_data%map_river_to_land_points(:) = imdi
-!!
+
+! Initialise regridding variable.
+rivers_data%map_river_to_land_points(:) = imdi
+
 !!! Initialise CaMa-Flood array values
 !!! CaMa-Flood ancillary variables.
 !!rivers_data%channel_depth(:)    = rmdi
@@ -2032,9 +2025,9 @@ rivers_data%rfm_surfstore_rp(:) = 0.0
 
 !!! Initialise TRIP array values
 !!rivers_data%rivers_seq_rp(:) = imdi
-!!! rivers_sto_rp should be initialised to zero to preserve existing results and
-!!! until better initialisation is possible.
-!!rivers_data%rivers_sto_rp(:) = 0.0
+! rivers_sto_rp should be initialised to zero to preserve existing results and
+! until better initialisation is possible.
+rivers_data%rivers_sto_rp(:) = 0.0
 !!
 !!! Initialise coupling variables.
 !!rivers_data%rivers_outflow_number_rp(:) = imdi
@@ -2072,10 +2065,10 @@ rivers%rrun_rp => rivers_data%rrun_rp
 rivers%rrun_sub_surf_rp => rivers_data%rrun_sub_surf_rp
 rivers%rrun_surf_rp => rivers_data%rrun_surf_rp
 !!rivers%inland_outflow_rp => rivers_data%inland_outflow_rp
-!!
-!!! Regridding variable.
-!!rivers%map_river_to_land_points => rivers_data%map_river_to_land_points
-!!
+
+! Regridding variable.
+rivers%map_river_to_land_points => rivers_data%map_river_to_land_points
+
 !!! CaMa-Flood variables.
 !!! CaMa-Flood ancillary variables.
 !!rivers%channel_depth      => rivers_data%channel_depth
@@ -2110,10 +2103,10 @@ rivers%rfm_rivflow_rp => rivers_data%rfm_rivflow_rp
 rivers%rfm_substore_rp => rivers_data%rfm_substore_rp
 rivers%rfm_surfstore_rp => rivers_data%rfm_surfstore_rp
 
-!!! TRIP variables.
+! TRIP variables.
 !!rivers%rivers_seq_rp => rivers_data%rivers_seq_rp
-!!rivers%rivers_sto_rp => rivers_data%rivers_sto_rp
-!!
+rivers%rivers_sto_rp => rivers_data%rivers_sto_rp
+
 !!! Coupling variables.
 !!rivers%rivers_outflow_number_rp => rivers_data%rivers_outflow_number_rp
 !!rivers%sub_surf_roff_rp => rivers_data%sub_surf_roff_rp
