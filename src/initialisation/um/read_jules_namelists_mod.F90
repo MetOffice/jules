@@ -762,6 +762,7 @@ USE jules_water_resources_mod,  ONLY:                                          &
     read_nml_jules_water_resources
 
 USE jules_hydrology_mod, ONLY: l_top
+USE jules_rivers_mod,    ONLY: l_rivers, l_minor_reservoirs
 
 IMPLICIT NONE
 
@@ -777,7 +778,7 @@ CALL read_nml_jules_water_resources(unitnumber)
 IF (PrintStatus >= PrStatus_Oper .AND. mype == 0) THEN
   CALL print_nlist_jules_water_resources()
 END IF
-CALL check_jules_water_resources( l_top )
+CALL check_jules_water_resources( l_top, l_rivers, l_minor_reservoirs )
 
 IF (lhook) CALL dr_hook(ModuleName//':'//RoutineName,zhook_out,zhook_handle)
 RETURN

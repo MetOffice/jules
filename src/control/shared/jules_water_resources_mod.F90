@@ -220,14 +220,11 @@ CONTAINS
 !##############################################################################
 !##############################################################################
 
-SUBROUTINE check_jules_water_resources( l_top )
+SUBROUTINE check_jules_water_resources( l_top, l_rivers, l_minor_reservoirs )
 
 USE ereport_mod, ONLY: ereport
 
 USE jules_print_mgr, ONLY: jules_message
-
-! This dependency on jules_rivers_mod is not ideal.
-USE jules_rivers_mod, ONLY: l_rivers
 
 !------------------------------------------------------------------------------
 ! Description:
@@ -238,8 +235,12 @@ USE jules_rivers_mod, ONLY: l_rivers
 IMPLICIT NONE
 
 LOGICAL, INTENT(IN) ::                                                         &
-  l_top
+  l_top,                                                                       &
     ! Switch for TOPMODEL-based hydrology.
+  l_rivers,                                                                    &
+    ! Switch for runoff routing
+  l_minor_reservoirs
+    ! Switch for minor_reservoirs.
 
 !------------------------------------------------------------------------------
 ! Local scalar parameters.
@@ -490,7 +491,7 @@ END IF  !  l_water_resources
 ! jules_hydrology, jules_rivers and jules_water_resources namelists have been
 ! read. The current location is not ideal in this respect.
 !------------------------------------------------------------------------------
-CALL set_jules_water_resources( l_top )
+CALL set_jules_water_resources( l_top, l_rivers, l_minor_reservoirs )
 
 !------------------------------------------------------------------------------
 ! Further checks that use flags set in set_jules_water_resources.
@@ -558,21 +559,22 @@ END SUBROUTINE check_jules_water_resources
 !##############################################################################
 !##############################################################################
 
-SUBROUTINE set_jules_water_resources( l_top )
+SUBROUTINE set_jules_water_resources( l_top, l_rivers, l_minor_reservoirs )
 
 !------------------------------------------------------------------------------
 ! Description:
 !   Sets values related to water resource code.
 !------------------------------------------------------------------------------
 
-! This dependency on jules_rivers_mod is not ideal.
-USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_rivers
-
 IMPLICIT NONE
 
 LOGICAL, INTENT(IN) ::                                                         &
-  l_top
+  l_top,                                                                       &
     ! Switch for TOPMODEL-based hydrology.
+  l_rivers,                                                                    &
+    ! Switch for runoff routing
+  l_minor_reservoirs
+    ! Switch for minor_reservoirs.
 
 !------------------------------------------------------------------------------
 ! Local scalar parameters.

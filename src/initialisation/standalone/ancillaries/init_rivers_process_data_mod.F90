@@ -114,8 +114,7 @@ USE init_ancillaries_coupling_mod, ONLY: check_ancil_rivers
 
 USE jules_overbank_props_mod, ONLY: allocate_overbank_vars_rp
 
-USE jules_rivers_props_mod, ONLY: allocate_rivers_vars_rp,                     &
-                                  direction_grid, grid_riv_pt_number,          &
+USE jules_rivers_props_mod, ONLY: direction_grid, grid_riv_pt_number,          &
                                   nextx_grid, nexty_grid, river_mask,          &
                                   l_calc_rivers_length
 
@@ -127,7 +126,9 @@ USE jules_rivers_mod, ONLY:                                                    &
   rivers_reglatlon, rivers_regrid, rivers_x1, rivers_y1, l_outflow_per_river,  &
   l_init_storage,                                                              &
   ! types
-  rivers_data_type, rivers_type
+  rivers_data_type, rivers_type,                                               &
+  ! subroutines
+  jules_rivers_alloc_rp
 
 USE model_grid_mod, ONLY: global_land_pts, projection_x_coord_land,            &
                           projection_y_coord_land
@@ -374,7 +375,7 @@ END IF  ! is_master
 !------------------------------------------------------------------------------
 ! Allocate routing point arrays.
 !------------------------------------------------------------------------------
-CALL allocate_rivers_vars_rp( np_rivers, rivers, rivers_data )
+CALL jules_rivers_alloc_rp( np_rivers, is_master_task(), rivers, rivers_data )
 
 !------------------------------------------------------------------------------
 ! Allocate overbank inundation variables.
