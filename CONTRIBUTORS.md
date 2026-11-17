@@ -14,3 +14,4 @@
 | JMEdwardsXtr    | John Edwards     | Met Office  | 2026-09-25 |
 | nicgedney       | Nic Gedney       | Met Office  | 2026-09-01 |
 | mo-arthurargles | Arthur Argles    | Met Office  | 2026-09-04 |
+| HEBaron         | Helen Baron      | UKCEH       | 2026-08-26 |

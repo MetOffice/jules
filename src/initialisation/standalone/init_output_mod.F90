@@ -349,7 +349,7 @@ USE jules_water_resources_mod, ONLY: l_have_groundwater, l_have_renew_gwater,  &
 
 USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_outflow_per_river, l_rivers, &
     l_riv_overbank, i_river_vn, rivers_camaflood, rivers_rfm, rivers_trip,     &
-    l_inland_outflow
+    l_inland_outflow, l_reservoirs
 
 USE jules_deposition_mod, ONLY: l_deposition, l_deposition_flux
 
@@ -694,6 +694,10 @@ DO j = 1,nvars_in
   CASE (  'area', 'channel_depth_grid', 'channel_width_grid',                  &
           'direction', 'hypso_quantiles_grid', 'latitude_2d', 'logn_mean',     &
           'logn_stdev', 'longitude_2d', 'mean_sea_level_grid',                 &
+          'res_capacity_grid', 'res_catch_grid',                               &
+          'res_year_grid', 'res_critical_grid',                                &
+          'res_flood_grid', 'res_emergency_grid',                              &
+          'res_normal_release_grid', 'res_flood_release_grid',                 &
           'minor_res_capacity_grid', 'minor_res_frac_grid',                    &
           'river_distance_grid', 'river_elevation_grid', 'river_length_grid',  &
           'river_manning_grid', 'river_nextx_grid', 'river_nexty_grid',        &
@@ -823,6 +827,14 @@ DO j = 1,nvars_in
     END SELECT
   END IF
 
+  IF ( .NOT. l_water_resources .OR. .NOT. l_reservoirs ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'res_abstracted' )
+      remove_var = .TRUE.
+      message    = 'Water resources + reservoirs not used.'
+    END SELECT
+  END IF
+
   IF ( .NOT. l_water_resources .OR. .NOT. l_minor_reservoirs ) THEN
     SELECT CASE ( var(j) )
     CASE ( 'minor_res_abstracted' )
@@ -839,6 +851,19 @@ DO j = 1,nvars_in
       message    = 'Rivers not used for abstractions.'
     END SELECT
   END IF
+
+  !----------------------------------------------------------------------------
+  ! Variables that are only allowed with reservoirs.
+  !----------------------------------------------------------------------------
+  IF ( .NOT. l_reservoirs ) THEN
+    SELECT CASE ( var(j) )
+    CASE ( 'res_capacity', 'res_catch', 'res_storage', 'res_year',             &
+           'res_critical', 'res_flood', 'res_emergency',                       &
+           'res_normal_release', 'res_flood_release' )
+      remove_var = .TRUE.
+      message    = 'Reservoirs not used.'
+    END SELECT
+  END IF  !  l_reservoirs
 
   !---------------------------------------------------------------------------
   ! Variables that are only allowed with atmospheric deposition

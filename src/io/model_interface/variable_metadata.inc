@@ -9469,4 +9469,230 @@ DATA metadata(731) / var_metadata(                                             &
 ! Units
     "kg s-1"                                                                   &
   ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_capacity_grid
+!-----------------------------------------------------------------------------
+DATA metadata(732) / var_metadata(                                             &
+! String identifier
+    'res_capacity_grid',                                                       &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_catch_grid
+!-----------------------------------------------------------------------------
+DATA metadata(733) / var_metadata(                                             &
+! String identifier
+    'res_catch_grid',                                                          &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_year_grid
+!-----------------------------------------------------------------------------
+DATA metadata(734) / var_metadata(                                             &
+! String identifier
+    'res_year_grid',                                                           &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_critical_grid
+!-----------------------------------------------------------------------------
+DATA metadata(735) / var_metadata(                                             &
+! String identifier
+    'res_critical_grid',                                                       &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_flood_grid
+!-----------------------------------------------------------------------------
+DATA metadata(736) / var_metadata(                                             &
+! String identifier
+    'res_flood_grid',                                                          &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_emergency_grid
+!-----------------------------------------------------------------------------
+DATA metadata(737) / var_metadata(                                             &
+! String identifier
+    'res_emergency_grid',                                                      &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_normal_release_grid
+!-----------------------------------------------------------------------------
+DATA metadata(738) / var_metadata(                                             &
+! String identifier
+    'res_normal_release_grid',                                                 &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_flood_release_grid
+!-----------------------------------------------------------------------------
+DATA metadata(739) / var_metadata(                                             &
+! String identifier
+    'res_flood_release_grid',                                                  &
+! Variable type
+    var_type_surface,                                                          &
+! Variable is not available for output, so give dummy values for long name and
+! units
+    "", ""                                                                     &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_capacity
+!-----------------------------------------------------------------------------
+DATA metadata(740) / var_metadata(                                             &
+! String identifier
+    'res_capacity',                                                            &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Storage capacity of reservoirs",                                          &
+! Units
+    "kg"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_catch
+!-----------------------------------------------------------------------------
+DATA metadata(741) / var_metadata(                                             &
+! String identifier
+    'res_catch',                                                               &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Catchment area of reservoirs",                                            &
+! Units
+    "m2"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_year
+!-----------------------------------------------------------------------------
+DATA metadata(742) / var_metadata(                                             &
+! String identifier
+    'res_year',                                                                &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Initialisation year of reservoirs",                                       &
+! Units
+    "1"                                                                        &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_critical
+!-----------------------------------------------------------------------------
+DATA metadata(743) / var_metadata(                                             &
+! String identifier
+    'res_critical',                                                            &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Critical storage of reservoirs",                                          &
+! Units
+    "kg"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_flood
+!-----------------------------------------------------------------------------
+DATA metadata(744) / var_metadata(                                             &
+! String identifier
+    'res_flood',                                                               &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Flood storage of reservoirs",                                             &
+! Units
+    "kg"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_emergency
+!-----------------------------------------------------------------------------
+DATA metadata(745) / var_metadata(                                             &
+! String identifier
+    'res_emergency',                                                           &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Emergency storage of reservoirs",                                         &
+! Units
+    "kg"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_normal_release
+!-----------------------------------------------------------------------------
+DATA metadata(746) / var_metadata(                                             &
+! String identifier
+    'res_normal_release',                                                      &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Normal release rate of reservoirs",                                       &
+! Units
+    "kg s-1"                                                                   &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_flood_release
+!-----------------------------------------------------------------------------
+DATA metadata(747) / var_metadata(                                             &
+! String identifier
+    'res_flood_release',                                                       &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Flood release rate of reservoirs",                                        &
+! Units
+    "kg s-1"                                                                   &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_storage
+!-----------------------------------------------------------------------------
+DATA metadata(748) / var_metadata(                                             &
+! String identifier
+    'res_storage',                                                             &
+! Variable type
+    var_type_rp,                                                               &
+! Long name
+    "Water stored in reservoirs",                                              &
+! Units
+    "kg"                                                                       &
+  ) /
+!-----------------------------------------------------------------------------
+! Metadata for res_abstracted
+!-----------------------------------------------------------------------------
+DATA metadata(749) / var_metadata(                                             &
+! String identifier
+    'res_abstracted',                                                          &
+! Variable type
+    var_type_surface,                                                          &
+! Long name
+    "Water abstracted from reservoirs",                                        &
+! Units
+    "kg s-1"                                                                   &
+  ) /
 #endif

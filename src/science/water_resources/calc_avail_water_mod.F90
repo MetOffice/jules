@@ -162,7 +162,8 @@ END SUBROUTINE calc_avail_groundwater
 !##############################################################################
 !##############################################################################
 
-SUBROUTINE calc_avail_surface_water( minor_res_storage_global,                 &
+SUBROUTINE calc_avail_surface_water( res_storage_global,                       &
+                                     minor_res_storage_global,                 &
                                      river_storage_global,                     &
                                      sw_avail_global )
 
@@ -174,10 +175,10 @@ SUBROUTINE calc_avail_surface_water( minor_res_storage_global,                 &
 
 USE model_grid_mod, ONLY: global_land_pts
 
-USE jules_rivers_mod, ONLY: l_minor_reservoirs, l_rivers
+USE jules_rivers_mod, ONLY: l_reservoirs, l_minor_reservoirs, l_rivers
 
 USE jules_water_resources_mod, ONLY:  n_sw_source, sw_minor_res_source,        &
-                                      sw_river_source
+                                      sw_res_source, sw_river_source
 
 IMPLICIT NONE
 
@@ -185,6 +186,8 @@ IMPLICIT NONE
 ! Array arguments with INTENT(IN).
 !------------------------------------------------------------------------------
 REAL(KIND=real_jlslsm), INTENT(IN) ::                                          &
+  res_storage_global(global_land_pts),                                         &
+    ! Water stored in reservoirs, on land points (kg).
   minor_res_storage_global(global_land_pts),                                   &
     ! Water stored in minor reservoirs, on land points (kg).
   river_storage_global(global_land_pts)
@@ -220,6 +223,11 @@ IF ( l_rivers ) THEN
 
   ! Include water available from rivers.
   sw_avail_global(:,sw_river_source) = river_storage_global(:)
+
+  IF ( l_reservoirs ) THEN
+    ! Include water stored in reservoirs.
+    sw_avail_global(:,sw_res_source) = res_storage_global(:)
+  END IF
 
   IF ( l_minor_reservoirs ) THEN
     ! Include water stored in minor reservoirs.

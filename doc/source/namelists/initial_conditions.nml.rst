@@ -430,6 +430,11 @@ The required variables for a particular configuration, along with their 'type' a
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | ``inland_outflow_rp``            | Inland basin flow on river routing points (kg m\ :sup:`-2` s\ :sup:`-1`).               | none    |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
+| Required if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE and                               |
+| :nml:mem:`JULES_INITIAL::dump_file` = TRUE                                                                                           |
++----------------------------------+-----------------------------------------------------------------------------------------+---------+
+| ``res_storage``                  | Water stored in reservoirs, on river routing points (kg).                               | none    |
++----------------------------------+-----------------------------------------------------------------------------------------+---------+
 | Required if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE and                         |
 | :nml:mem:`JULES_INITIAL::dump_file` = TRUE                                                                                           |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
@@ -440,7 +445,6 @@ The required variables for a particular configuration, along with their 'type' a
 | ``t_growth_gb``                  | Running mean air temperature (K).                                                       | none    |
 +----------------------------------+-----------------------------------------------------------------------------------------+---------+
 
-
 .. warning::
   if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::i_river_vn` = '2' and :nml:mem:`JULES_INITIAL::dump_file` = FALSE,
     ``rfm_surfstore_rp``, ``rfm_substore_rp``, ``rfm_flowin_rp`` and ``rfm_bflowin`` are initialised to zero.
@@ -448,6 +452,10 @@ The required variables for a particular configuration, along with their 'type' a
 .. warning::
   if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::i_river_vn` = '1,3' and :nml:mem:`JULES_INITIAL::dump_file` = FALSE,
   ``rivers_sto_rp`` is initialised to zero **unless** it is initialised from an ancillary via :nml:lst:`JULES_RIVERS_PROPS`.
+
+.. warning::
+  if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::l_reservoirs` = TRUE and :nml:mem:`JULES_INITIAL::dump_file` = FALSE,
+    ``res_storage`` is initialised to zero.
 
 .. warning::
   if :nml:mem:`JULES_RIVERS::l_rivers` = TRUE, :nml:mem:`JULES_RIVERS::l_minor_reservoirs` = TRUE and :nml:mem:`JULES_INITIAL::dump_file` = FALSE,
