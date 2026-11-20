@@ -45,15 +45,19 @@ from .version80_81 import *
 from .version81_82 import *
 
 
-class vnYY_txxxx(MacroUpgrade):
+class vn83_t169(MacroUpgrade):
 
-    """Upgrade macro from JULES by Author"""
+    """Upgrade macro from JULES by Katie Blackford"""
 
-    BEFORE_TAG = "vnY.Y"
-    AFTER_TAG = "vnY.Y_txxxx"
+    BEFORE_TAG = "vn8.3"
+    AFTER_TAG = "vn8.3_t169"
 
     def upgrade(self, config, meta_config=None):
         """Upgrade a JULES runtime app configuration."""
 
         # Add settings
+        self.add_setting(config, ["namelist:jules_water_resources", "l_nonlocal_abstraction"], ".false.")
+        self.add_setting(config, ["namelist:jules_water_resources", "nonlocal_abs_max"], "1")
+        self.add_setting(config, ["namelist:jules_water_resources", "dlat"], "0")
+        self.add_setting(config, ["namelist:jules_water_resources", "dlon"], "0")
         return config, self.reports
