@@ -23,7 +23,7 @@ Bug fixes
  * Further modifications to deal with negative snow amounts. The previous switch `l_fix_neg_snow` has been replaced by :nml:mem:`JULES_TEMP_FIXES::i_fix_neg_snow`. The default value of 2 recreates the behaviour previously given by `l_fix_neg_snow` = .TRUE.. (#167)
  * Fixed the JULES upgrade macro for rivers-standalone compatability. (#173)
  * The land fraction used with the rivers code can be flipped in latitude to retain consistency with other fields. (#144)
- 
+
 
 General/Technical changes
 -------------------------
@@ -34,7 +34,6 @@ General/Technical changes
  * Migrated remaining JULES metadata from the UM repository to jules-um and jules-shared. (#154)
  * Science module leaders included in CODEOWNERS file. (#146)
  * Updated GitHub Actions workflows. (#133)
-
 
 
 Changes to testing
